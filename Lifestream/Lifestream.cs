@@ -1,5 +1,6 @@
 ﻿using ECommons.Automation;
 using ECommons.Configuration;
+using ECommons.Events;
 using ECommons.SimpleGui;
 using Lumina.Excel.GeneratedSheets;
 
@@ -7,17 +8,33 @@ namespace Lifestream
 {
     public class Lifestream : IDalamudPlugin
     {
-        public string Name => throw new NotImplementedException();
+        public string Name => "Lifestream";
         internal static Lifestream P;
         internal Config Config;
         internal TaskManager TaskManager;
         internal DataStore DataStore;
 
-        internal Aetheryte NearAetheryte
+        internal TinyAetheryte? ActiveAetheryte
         {
             get
             {
-                if(UI.)
+                if(UI.DebugAetheryte != null)
+                {
+                    return UI.DebugAetheryte;
+                }
+                return null;
+            }
+        }
+
+        internal uint Territory
+        {
+            get
+            {
+                if(UI.DebugTerritory != 0)
+                {
+                    return UI.DebugTerritory;
+                }
+                return Svc.ClientState.TerritoryType;
             }
         }
 
@@ -35,6 +52,10 @@ namespace Lifestream
                 {
                 };
                 DataStore = new();
+                ProperOnLogin.Register(delegate
+                {
+                    DataStore.BuildWorlds();
+                }, true);
             });
         }
 

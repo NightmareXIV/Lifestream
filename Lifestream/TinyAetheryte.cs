@@ -15,15 +15,16 @@ namespace Lifestream
         internal uint ID;
         internal uint Group;
         internal string Name;
+        internal Aetheryte Ref { get; init; }
 
         public TinyAetheryte(Vector2 position, uint territoryType, uint iD, uint group)
         {
-            var a = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(iD);
+            Ref = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(iD);
             Position = position;
             TerritoryType = territoryType;
             ID = iD;
             Group = group;
-            Name = a.AethernetName.Value.Name.ToString();
+            Name = Ref.AethernetName.Value.Name.ToString();
         }
 
         public override bool Equals(object obj)

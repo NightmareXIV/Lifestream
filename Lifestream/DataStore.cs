@@ -12,6 +12,7 @@ namespace Lifestream
     {
         internal uint[] Territories;
         internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = new();
+        internal string[] Worlds = Array.Empty<string>();
 
         internal TinyAetheryte GetMaster(Aetheryte aetheryte)
         {
@@ -42,14 +43,25 @@ namespace Lifestream
                 {
                     if (!x.IsAetheryte)
                     {
-                        Aetherytes[GetMaster(x)].Add(x.GetTinyAetheryte());
+                        var a = x.GetTinyAetheryte();
+                        Aetherytes[GetMaster(x)].Add(a);
                     }
                 }
             });
             Territories = terr.ToArray();
         }
 
-        internal bool TryGetAetherytes(uint TerritoryType, out Aetheryte Master, out List<Aetheryte> Slaves)
+        internal void BuildWorlds()
+        {
+            BuildWorlds(Svc.ClientState.LocalPlayer.HomeWorld.Id);
+        }
+
+        internal void BuildWorlds(uint dc)
+        {
+            Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).ToArray();
+        }
+
+        /*internal bool TryGetAetherytes(uint TerritoryType, out Aetheryte Master, out List<Aetheryte> Slaves)
         {
             if(MasterAetherytes.TryGetValue(TerritoryType, out Master)) 
             {
@@ -59,6 +71,6 @@ namespace Lifestream
             Master = default;
             Slaves = default;
             return false;
-        }
+        }*/
     }
 }
