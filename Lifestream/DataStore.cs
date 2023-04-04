@@ -1,6 +1,8 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using ECommons.Configuration;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace Lifestream
         internal uint[] Territories;
         internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = new();
         internal string[] Worlds = Array.Empty<string>();
+        internal CallbackData CallbackData;
 
         internal TinyAetheryte GetMaster(Aetheryte aetheryte)
         {
@@ -26,6 +29,7 @@ namespace Lifestream
         internal DataStore()
         {
             var terr = new List<uint>();
+            CallbackData = EzConfig.LoadConfiguration<CallbackData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "CallbackData.json"), false);
             Svc.Data.GetExcelSheet<Aetheryte>().Each(x =>
             {
                 if (x.AethernetGroup != 0)
@@ -34,6 +38,10 @@ namespace Lifestream
                     {
                         Aetherytes[x.GetTinyAetheryte()] = new();
                         terr.Add(x.Territory.Value.RowId);
+                        if(!CallbackData.Data.ContainsKey(x.RowId))
+                        {
+                            CallbackData.Data[x.RowId] = 0;
+                        }
                     }
                 }
             });
@@ -45,6 +53,11 @@ namespace Lifestream
                     {
                         var a = x.GetTinyAetheryte();
                         Aetherytes[GetMaster(x)].Add(a);
+                        terr.Add(x.Territory.Value.RowId);
+                        if (!CallbackData.Data.ContainsKey(x.RowId))
+                        {
+                            CallbackData.Data[x.RowId] = 0;
+                        }
                     }
                 }
             });
@@ -53,7 +66,7 @@ namespace Lifestream
 
         internal void BuildWorlds()
         {
-            BuildWorlds(Svc.ClientState.LocalPlayer.HomeWorld.Id);
+            BuildWorlds(Svc.ClientState.LocalPlayer.HomeWorld.GameData.DataCenter.Value.RowId);
         }
 
         internal void BuildWorlds(uint dc)

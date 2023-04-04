@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lifestream.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,13 +29,17 @@ namespace Lifestream
                     ImGui.TableNextColumn();
                     DrawAethernet();
                     ImGui.TableNextColumn();
+                    var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.GameData.Name.ToString();
                     foreach (var x in P.DataStore.Worlds)
                     {
                         ResizeButton(x);
+                        var d = x == cWorld || Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld];
+                        if (d) ImGui.BeginDisabled();
                         if (ImGui.Button(x, ButtonSize))
                         {
-
+                            TaskChangeWorld.Enqueue(x);
                         }
+                        if (d) ImGui.EndDisabled();
                     }
                     ImGui.EndTable();
                 }
@@ -51,7 +56,7 @@ namespace Lifestream
                 if (md) ImGui.BeginDisabled();
                 if (ImGui.Button(master.Name, ButtonSize))
                 {
-
+                    TaskAethernetTeleport.Enqueue(master);
                 }
                 if(md) ImGui.EndDisabled();
                 foreach (var x in P.DataStore.Aetherytes[master])
@@ -61,7 +66,7 @@ namespace Lifestream
                     if (d) ImGui.BeginDisabled();
                     if (ImGui.Button(x.Name, ButtonSize))
                     {
-
+                        TaskAethernetTeleport.Enqueue(x);
                     }
                     if(d) ImGui.EndDisabled();
                 }
@@ -79,7 +84,7 @@ namespace Lifestream
 
         public override bool DrawConditions()
         {
-            var ret = P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null;
+            var ret = P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied();
             if (!ret)
             {
                 bWidth = new(10, 10);

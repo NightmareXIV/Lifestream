@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
 using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.MathHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -85,7 +86,7 @@ namespace Lifestream
             return null;
         }
 
-        internal static string[] GetAvailableDestinations()
+        internal static string[] GetAvailableWorldDestinations()
         {
             if (TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
             {
@@ -102,13 +103,30 @@ namespace Lifestream
             return Array.Empty<string>();
         }
 
+        internal static string[] GetAvailableAethernetDestinations()
+        {
+            if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
+            {
+                List<string> arr = new();
+                for (int i = 1; i <= 52; i++)
+                {
+                    var item = addon->UldManager.NodeList[16]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
+                    var text = MemoryHelper.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText().Trim();
+                    if (text == "") break;
+                    arr.Add(text);
+                }
+                return arr.ToArray();
+            }
+            return Array.Empty<string>();
+        }
+
         internal static GameObject GetValidAetheryte()
         {
             foreach(var x in Svc.Objects)
             {
                 if(x.ObjectKind == ObjectKind.Aetheryte)
                 {
-                    if(Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 5f)
+                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f)
                     {
                         return x;
                     }
@@ -155,8 +173,9 @@ namespace Lifestream
             var list = new List<string>();
             for (int i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
             {
-                list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).ExtractText());
+                list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).ExtractText().Trim());
             }
+            //PluginLog.Debug($"{list.Print()}");
             return list;
         }
     }
