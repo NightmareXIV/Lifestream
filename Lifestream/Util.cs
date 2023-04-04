@@ -1,4 +1,11 @@
-﻿using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using ClickLib.Clicks;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Memory;
+using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
@@ -48,6 +55,109 @@ namespace Lifestream
         {
             float num = scale / 100f;
             return (float)((pos / 1000f * num + 1024.0) / 2048.0 * 41.0 / num + 1.0);
+        }
+
+        internal static AtkUnitBase* GetSpecificYesno(params string[] s)
+        {
+            for (int i = 1; i < 100; i++)
+            {
+                try
+                {
+                    var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i);
+                    if (addon == null) return null;
+                    if (IsAddonReady(addon))
+                    {
+                        var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
+                        var text = MemoryHelper.ReadSeString(&textNode->NodeText).ExtractText().Replace(" ", "");
+                        if (text.EqualsAny(s.Select(x => x.Replace(" ", ""))))
+                        {
+                            PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
+                            return addon;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        internal static string[] GetAvailableDestinations()
+        {
+            if (TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+            {
+                List<string> arr = new();
+                for (int i = 3; i <= 9; i++)
+                {
+                    var item = addon->UldManager.NodeList[4]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
+                    var text = MemoryHelper.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[4]->GetAsAtkTextNode()->NodeText).ExtractText();
+                    if (text == "") break;
+                    arr.Add(text);
+                }
+                return arr.ToArray();
+            }
+            return Array.Empty<string>();
+        }
+
+        internal static GameObject GetValidAetheryte()
+        {
+            foreach(var x in Svc.Objects)
+            {
+                if(x.ObjectKind == ObjectKind.Aetheryte)
+                {
+                    if(Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 5f)
+                    {
+                        return x;
+                    }
+                }
+            }
+            return null;
+        }
+
+        internal static bool TrySelectSpecificEntry(string text, Func<bool> Throttle)
+        {
+            return TrySelectSpecificEntry(new string[] {text }, Throttle);  
+        }
+
+        internal static bool TrySelectSpecificEntry(IEnumerable<string> text, Func<bool> Throttle)
+        {
+            if (TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase))
+            {
+                var entry = GetEntries(addon).FirstOrDefault(x => x.EqualsAny(text));
+                if (entry != null)
+                {
+                    var index = GetEntries(addon).IndexOf(entry);
+                    if (index >= 0 && IsSelectItemEnabled(addon, index) && Throttle())
+                    {
+                        ClickSelectString.Using((nint)addon).SelectItem((ushort)index);
+                        PluginLog.Debug($"TrySelectSpecificEntry: selecting {entry}/{index} as requested by {text.Print()}");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        internal static bool IsSelectItemEnabled(AddonSelectString* addon, int index)
+        {
+            var step1 = (AtkTextNode*)addon->AtkUnitBase
+                        .UldManager.NodeList[2]
+                        ->GetComponent()->UldManager.NodeList[index + 1]
+                        ->GetComponent()->UldManager.NodeList[3];
+            return GenericHelpers.IsSelectItemEnabled(step1);
+        }
+
+        internal static List<string> GetEntries(AddonSelectString* addon)
+        {
+            var list = new List<string>();
+            for (int i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
+            {
+                list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).ExtractText());
+            }
+            return list;
         }
     }
 }

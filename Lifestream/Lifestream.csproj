@@ -76,4 +76,8 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Tasks\" />
+    </ItemGroup>
 </Project>
