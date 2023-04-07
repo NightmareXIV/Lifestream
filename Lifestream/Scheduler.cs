@@ -47,17 +47,17 @@ namespace Lifestream
 
         internal static bool? SelectAethernet()
         {
-            return Util.TrySelectSpecificEntry("Aethernet.", () => EzThrottler.Throttle("SelectString"));
+            return Util.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
         }
 
         internal static bool? SelectVisitAnotherWorld()
         {
-            return Util.TrySelectSpecificEntry("Visit Another World Server.", () => EzThrottler.Throttle("SelectString"));
+            return Util.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
         }
 
         internal static bool? ConfirmWorldVisit(string s)
         {
-            var x = (AddonSelectYesno*)Util.GetSpecificYesno($"Travel to {s}?");
+            var x = (AddonSelectYesno*)Util.GetSpecificYesno(true, $"Travel to", "へ移動します、よろしいですか？", "Nach reisen?", "Voulez-vous vraiment visiter");
             if (x != null)
             {
                 if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
@@ -91,7 +91,7 @@ namespace Lifestream
         {
             if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
             {
-                if (P.DataStore.CallbackData.Data.TryGetValue(t.ID, out var callback))
+                if (P.DataStore.StaticData.Data.TryGetValue(t.ID, out var callback))
                 {
                     if (Util.GetAvailableAethernetDestinations().Contains(t.Name))
                     {

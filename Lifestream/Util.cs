@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
+using ECommons;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
@@ -19,6 +20,21 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static bool IsDisallowedToChangeWorld()
+        {
+            return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld]
+                || Svc.Condition[ConditionFlag.ReadyingVisitOtherWorld]
+                || Svc.Condition[ConditionFlag.BoundToDuty97]
+                || Svc.Condition[ConditionFlag.BoundByDuty95]
+                || Svc.Party.Length > 0
+                ;
+        }
+
+        internal static bool IsDisallowedToUseAethernet()
+        {
+            return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld];
+        }
+
         internal static string[] Addons = new string[]
         {
             "Inventory",
@@ -28,6 +44,7 @@ namespace Lifestream
             "Currency",
             "Bank",
             "RetainerTask",
+            "RetainerList",
             "SelectYesNo",
             "SelectString",
             "SystemMenu",
@@ -50,6 +67,7 @@ namespace Lifestream
             "ContentsInfo",
             "PartyMemberList",
             "ContentsFinderConfirm",
+            "SelectString",
         };
         internal static bool IsAddonsVisible(string[] addons)
         {
@@ -70,7 +88,7 @@ namespace Lifestream
 
         internal static bool CanUseOverlay()
         {
-            return P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied();
+            return P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied() && !IsDisallowedToUseAethernet();
         }
 
         internal static TinyAetheryte GetMaster()
@@ -85,7 +103,7 @@ namespace Lifestream
             var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => (m.DataType == (aetheryte.IsAetheryte? 3:4) && m.DataKey == (aetheryte.IsAetheryte?aetheryte.RowId:aetheryte.AethernetName.Value.RowId)));
             if(mapMarker == null)
             {
-                PluginLog.Warning($"mapMarker is null for {aetheryte.RowId} {aetheryte.AethernetName.Value.Name}");
+                InternalLog.Warning($"mapMarker is null for {aetheryte.RowId} {aetheryte.AethernetName.Value.Name}");
                 return new(Vector2.Zero, aetheryte.Territory.Value.RowId, aetheryte.RowId, aetheryte.AethernetGroup);
             }
             var AethersX = ConvertMapMarkerToRawPosition(mapMarker.X, scale);
@@ -118,7 +136,9 @@ namespace Lifestream
             return (float)((pos / 1000f * num + 1024.0) / 2048.0 * 41.0 / num + 1.0);
         }
 
-        internal static AtkUnitBase* GetSpecificYesno(params string[] s)
+        internal static AtkUnitBase* GetSpecificYesno(params string[] s) => GetSpecificYesno(false, s);
+
+        internal static AtkUnitBase* GetSpecificYesno(bool contains, params string[] s)
         {
             for (int i = 1; i < 100; i++)
             {
@@ -130,7 +150,10 @@ namespace Lifestream
                     {
                         var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
                         var text = MemoryHelper.ReadSeString(&textNode->NodeText).ExtractText().Replace(" ", "");
-                        if (text.EqualsAny(s.Select(x => x.Replace(" ", ""))))
+                        if (contains? 
+                            text.ContainsAny(s.Select(x => x.Replace(" ", "")))
+                            :text.EqualsAny(s.Select(x => x.Replace(" ", "")))
+                            )
                         {
                             PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
                             return addon;

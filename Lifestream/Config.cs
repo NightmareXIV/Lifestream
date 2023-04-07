@@ -9,5 +9,16 @@ namespace Lifestream
 {
     public class Config : IEzConfig
     {
+        public bool Enable = true;
+        public bool AllowClosingESC = false;
+        public int ButtonWidth = 10;
+        public int ButtonHeightAetheryte = 1;
+        public int ButtonHeightWorld = 5;
+        public bool FixedPosition = false;
+        public Vector2 Offset = Vector2.Zero;
+        public bool UseMapTeleport = true;
+        public bool HideAddon = true;
+        public BasePositionHorizontal PosHorizontal = BasePositionHorizontal.Middle;
+        public BasePositionVertical PosVertical = BasePositionVertical.Middle;
     }
 }

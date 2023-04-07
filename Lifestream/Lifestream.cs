@@ -4,6 +4,7 @@ using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.MathHelpers;
 using ECommons.SimpleGui;
+using Lifestream.GUI;
 using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream
@@ -16,6 +17,7 @@ namespace Lifestream
         internal TaskManager TaskManager;
         internal DataStore DataStore;
         internal Memory Memory;
+        internal Overlay Overlay;
 
         internal TinyAetheryte? ActiveAetheryte = null;
 
@@ -28,8 +30,9 @@ namespace Lifestream
             new TickScheduler(delegate
             {
                 Config = EzConfig.Init<Config>();
-                EzConfigGui.Init(UI.Draw);
-                EzConfigGui.WindowSystem.AddWindow(new Overlay());
+                EzConfigGui.Init(MainGui.Draw);
+                Overlay = new();
+                EzConfigGui.WindowSystem.AddWindow(Overlay);
                 EzCmd.Add("/lifestream", EzConfigGui.Open);
                 TaskManager = new()
                 {
@@ -74,6 +77,10 @@ namespace Lifestream
                 {
                     if (x.Key.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
                     {
+                        if (ActiveAetheryte == null)
+                        {
+                            Overlay.IsOpen = true;
+                        }
                         ActiveAetheryte = x.Key;
                         return;
                     }
@@ -81,6 +88,10 @@ namespace Lifestream
                     {
                         if (l.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
                         {
+                            if (ActiveAetheryte == null)
+                            {
+                                Overlay.IsOpen = true;
+                            }
                             ActiveAetheryte = l;
                             return;
                         }

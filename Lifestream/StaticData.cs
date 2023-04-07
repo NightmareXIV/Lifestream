@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Lifestream
 {
-    public class CallbackData : IEzConfig
+    public class StaticData : IEzConfig
     {
         public Dictionary<uint, uint> Data = new();
     }

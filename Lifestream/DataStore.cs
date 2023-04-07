@@ -12,10 +12,11 @@ namespace Lifestream
 {
     internal class DataStore
     {
+        internal const string FileName = "StaticData.json";
         internal uint[] Territories;
         internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = new();
         internal string[] Worlds = Array.Empty<string>();
-        internal CallbackData CallbackData;
+        internal StaticData StaticData;
 
         internal TinyAetheryte GetMaster(Aetheryte aetheryte)
         {
@@ -29,7 +30,7 @@ namespace Lifestream
         internal DataStore()
         {
             var terr = new List<uint>();
-            CallbackData = EzConfig.LoadConfiguration<CallbackData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "CallbackData.json"), false);
+            StaticData = EzConfig.LoadConfiguration<StaticData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, FileName), false);
             Svc.Data.GetExcelSheet<Aetheryte>().Each(x =>
             {
                 if (x.AethernetGroup != 0)
@@ -38,9 +39,9 @@ namespace Lifestream
                     {
                         Aetherytes[x.GetTinyAetheryte()] = new();
                         terr.Add(x.Territory.Value.RowId);
-                        if(!CallbackData.Data.ContainsKey(x.RowId))
+                        if(!StaticData.Data.ContainsKey(x.RowId))
                         {
-                            CallbackData.Data[x.RowId] = 0;
+                            StaticData.Data[x.RowId] = 0;
                         }
                     }
                 }
@@ -54,9 +55,9 @@ namespace Lifestream
                         var a = x.GetTinyAetheryte();
                         Aetherytes[GetMaster(x)].Add(a);
                         terr.Add(x.Territory.Value.RowId);
-                        if (!CallbackData.Data.ContainsKey(x.RowId))
+                        if (!StaticData.Data.ContainsKey(x.RowId))
                         {
-                            CallbackData.Data[x.RowId] = 0;
+                            StaticData.Data[x.RowId] = 0;
                         }
                     }
                 }
