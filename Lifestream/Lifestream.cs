@@ -15,6 +15,7 @@ namespace Lifestream
         internal Config Config;
         internal TaskManager TaskManager;
         internal DataStore DataStore;
+        internal Memory Memory;
 
         internal TinyAetheryte? ActiveAetheryte = null;
 
@@ -39,6 +40,7 @@ namespace Lifestream
                     DataStore.BuildWorlds();
                 }, true);
                 Svc.Framework.Update += Framework_Update;
+                Memory = new();
             });
         }
 
@@ -57,6 +59,7 @@ namespace Lifestream
         public void Dispose()
         {
             Svc.Framework.Update -= Framework_Update;
+            Memory.Dispose();
             ECommonsMain.Dispose();
             P = null;
         }

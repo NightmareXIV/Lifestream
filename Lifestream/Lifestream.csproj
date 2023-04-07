@@ -16,6 +16,7 @@
         <OutputPath>bin\$(Configuration)\</OutputPath>
         <NoWarn>CS1591</NoWarn>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
 
     <PropertyGroup Label="Documentation">
@@ -67,6 +68,10 @@
         </Reference>
         <Reference Include="SharpDX">
             <HintPath>$(DalamudLibPath)SharpDX.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="PInvoke.User32">
+            <HintPath>$(DalamudLibPath)PInvoke.User32.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>

@@ -47,7 +47,7 @@ namespace Lifestream
 
         internal static bool? SelectAethernet()
         {
-            return Util.TrySelectSpecificEntry("Aethernet", () => EzThrottler.Throttle("SelectString"));
+            return Util.TrySelectSpecificEntry("Aethernet.", () => EzThrottler.Throttle("SelectString"));
         }
 
         internal static bool? SelectVisitAnotherWorld()

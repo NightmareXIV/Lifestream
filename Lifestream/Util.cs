@@ -5,6 +5,7 @@ using Dalamud.Memory;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
@@ -18,6 +19,65 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static string[] Addons = new string[]
+        {
+            "Inventory",
+            "InventoryLarge",
+            "AreaMap",
+            "InventoryRetainerLarge",
+            "Currency",
+            "Bank",
+            "RetainerTask",
+            "SelectYesNo",
+            "SelectString",
+            "SystemMenu",
+            "MountNoteBook",
+            "FriendList",
+            "BlackList",
+            "Character",
+            "ItemSearch",
+            "MonsterNote",
+            "GatheringNote",
+            "RecipeNote",
+            "ContentsFinder",
+            "LookingForGroup",
+            "Journal",
+            "ContentsInfo",
+            "SocialList",
+            "Macro",
+            "ConfigKeybind",
+            "GSInfoGeneral",
+            "ContentsInfo",
+            "PartyMemberList",
+            "ContentsFinderConfirm",
+        };
+        internal static bool IsAddonsVisible(string[] addons)
+        {
+            foreach(var x in addons)
+            {
+                if (TryGetAddonByName<AtkUnitBase>(x, out var a) && a->IsVisible) return true;
+            }
+            return false;
+        }
+        internal static bool IsMapActive()
+        {
+            if(TryGetAddonByName<AtkUnitBase>("AreaMap", out var map) && IsAddonReady(map) && map->IsVisible)
+            {
+                 return true;
+            }
+            return false;
+        }
+
+        internal static bool CanUseOverlay()
+        {
+            return P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied();
+        }
+
+        internal static TinyAetheryte GetMaster()
+        {
+            return P.ActiveAetheryte.Value.Ref.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value.Ref);
+        }
+
         internal static TinyAetheryte GetTinyAetheryte(this Aetheryte aetheryte)
         {
             var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == aetheryte.Territory.Value.RowId);
@@ -126,7 +186,7 @@ namespace Lifestream
             {
                 if(x.ObjectKind == ObjectKind.Aetheryte)
                 {
-                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f)
+                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f)
                     {
                         return x;
                     }

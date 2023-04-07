@@ -17,11 +17,11 @@ namespace Lifestream
         }
 
         Vector2 bWidth = new(10, 10);
-        Vector2 ButtonSize => bWidth * 1.2f;
+        Vector2 ButtonSize => bWidth * 1.1f;
 
         public override void Draw()
         {
-            var master = P.ActiveAetheryte.Value.Ref.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value.Ref);
+            var master = Util.GetMaster();
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {
                 if(ImGui.BeginTable("LifestreamTable", 2, ImGuiTableFlags.SizingStretchSame))
@@ -84,12 +84,12 @@ namespace Lifestream
 
         public override bool DrawConditions()
         {
-            var ret = P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied();
+            var ret = Util.CanUseOverlay();
             if (!ret)
             {
                 bWidth = new(10, 10);
             }
-            return ret;
+            return ret && !Util.IsAddonsVisible(Util.Addons);
         }
     }
 }

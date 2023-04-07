@@ -12,7 +12,7 @@ namespace Lifestream.Tasks
         {
             P.TaskManager.Enqueue(Scheduler.TargetValidAetheryte);
             P.TaskManager.Enqueue(Scheduler.InteractWithTargetedAetheryte);
-            P.TaskManager.Enqueue(Scheduler.SelectAethernet);
+            if(P.DataStore.Aetherytes.ContainsKey(P.ActiveAetheryte.Value)) P.TaskManager.Enqueue(Scheduler.SelectAethernet);
             P.TaskManager.Enqueue(() => Scheduler.TeleportToAethernetDestination(a));
         }
     }
