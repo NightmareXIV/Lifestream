@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
 using ECommons;
 using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
@@ -32,7 +33,7 @@ namespace Lifestream
 
         internal static bool IsDisallowedToUseAethernet()
         {
-            return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld];
+            return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld] || Svc.Condition[ConditionFlag.Jumping];
         }
 
         internal static string[] Addons = new string[]
@@ -86,7 +87,7 @@ namespace Lifestream
             return false;
         }
 
-        internal static bool CanUseOverlay()
+        internal static bool CanUseAetheryte()
         {
             return P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied() && !IsDisallowedToUseAethernet();
         }
@@ -209,13 +210,22 @@ namespace Lifestream
             {
                 if(x.ObjectKind == ObjectKind.Aetheryte)
                 {
-                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f)
+                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f && x.IsVPosValid())
                     {
                         return x;
                     }
                 }
             }
             return null;
+        }
+
+        internal static bool IsVPosValid(this GameObject x)
+        {
+            /*if(x.Name.ToString() == Lang.AethernetShard)
+            {
+                return MathF.Abs(Player.Object.Position.Y - x.Position.Y) < 0.965;
+            }*/
+            return true;
         }
 
         internal static bool TrySelectSpecificEntry(string text, Func<bool> Throttle)

@@ -33,7 +33,7 @@ namespace Lifestream
             //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
             try
             {
-                if (P.ActiveAetheryte != null && Util.CanUseOverlay())
+                if (P.ActiveAetheryte != null && Util.CanUseAetheryte())
                 {
                     var master = Util.GetMaster();
                     if (a2 == 3)

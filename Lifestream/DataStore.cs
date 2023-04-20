@@ -67,7 +67,7 @@ namespace Lifestream
 
         internal void BuildWorlds()
         {
-            BuildWorlds(Svc.ClientState.LocalPlayer.HomeWorld.GameData.DataCenter.Value.RowId);
+            BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.GameData.DataCenter.Value.RowId);
         }
 
         internal void BuildWorlds(uint dc)

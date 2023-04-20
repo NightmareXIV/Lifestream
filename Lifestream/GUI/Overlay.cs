@@ -127,7 +127,7 @@ namespace Lifestream.GUI
         public override bool DrawConditions()
         {
             if (!P.Config.Enable) return false;
-            var ret = Util.CanUseOverlay();
+            var ret = Util.CanUseAetheryte();
             if (!ret)
             {
                 bWidth = new(10, 10);

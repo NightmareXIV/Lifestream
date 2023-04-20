@@ -19,11 +19,18 @@ namespace Lifestream
         {
             if (IsOccupied()) return false;
             var a = Util.GetValidAetheryte();
-            if(a != null && a.Address != Svc.Targets.Target?.Address)
+            if(a != null)
             {
-                if (EzThrottler.Throttle("TargetValidAetheryte", 500))
+                if (a.Address != Svc.Targets.Target?.Address)
                 {
-                    Svc.Targets.SetTarget(a);
+                    if (EzThrottler.Throttle("TargetValidAetheryte", 500))
+                    {
+                        Svc.Targets.SetTarget(a);
+                        return true;
+                    }
+                }
+                else
+                {
                     return true;
                 }
             }
@@ -97,8 +104,8 @@ namespace Lifestream
                     {
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
-                            Callback(telep, (int)11, (uint)callback);
-                            Callback(telep, (int)11, (uint)callback);
+                            P.TaskManager.EnqueueImmediate(() => Callback(telep, (int)11, (uint)callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback(telep, (int)11, (uint)callback));
                             return true;
                         }
                     }

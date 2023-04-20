@@ -2,7 +2,7 @@
     "Author": "NightmareXIV",
     "Name": "Lifestream",
     "InternalName": "Lifestream",
-    "Description": "",
+    "Description": "- One click to teleport to any world or aethernet destination\n- Click on aetheryte shards inside zone map to teleport to them",
     "ApplicableVersion": "any",
     "Punchline": "A plugin to speed up Aethernet travel and World changing.",
     "RepoUrl": "https://github.com/NightmareXIV/Lifestream",

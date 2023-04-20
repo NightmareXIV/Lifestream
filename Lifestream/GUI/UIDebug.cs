@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons.Configuration;
+using ECommons.GameHelpers;
 
 namespace Lifestream.GUI
 {
@@ -18,6 +19,10 @@ namespace Lifestream.GUI
         internal static int Destination = 0;
         internal static void Draw()
         {
+            if(Svc.Targets.Target != null && Player.Available)
+            {
+                ImGuiEx.Text($"v.dist: {Svc.Targets.Target.Position.Y - Player.Object.Position.Y}");
+            }
             if (ImGui.CollapsingHeader("Debug"))
             {
                 if (ImGui.Button("Save"))
@@ -46,13 +51,17 @@ namespace Lifestream.GUI
                     {
                         if (ImGui.Button($"    {l.Name}")) DebugAetheryte = l;
                         {
-
                             ImGui.SameLine();
                             var d = (int)P.DataStore.StaticData.Data[l.ID];
                             ImGui.SetNextItemWidth(100f);
                             if (ImGui.InputInt($"##{l.Name}{l.ID}data", ref d))
                             {
                                 P.DataStore.StaticData.Data[l.ID] = (uint)d;
+                            }
+                            if (ImGui.GetIO().KeyCtrl)
+                            {
+                                ImGui.SameLine();
+                                ImGuiEx.Text($"{l.Position}");
                             }
                         }
                     }
