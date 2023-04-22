@@ -10,5 +10,6 @@ namespace Lifestream
     public class StaticData : IEzConfig
     {
         public Dictionary<uint, uint> Data = new();
+        public Dictionary<uint, Vector3> CustomPositions = new();
     }
 }

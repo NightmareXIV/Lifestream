@@ -61,7 +61,7 @@ namespace Lifestream.GUI
 
         public override void Draw()
         {
-            RespectCloseHotkey = P.Config.AllowClosingESC;
+            RespectCloseHotkey = P.Config.AllowClosingESC2;
             var master = Util.GetMaster();
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {

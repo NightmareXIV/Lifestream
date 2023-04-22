@@ -96,21 +96,6 @@ namespace Lifestream
         {
             return P.ActiveAetheryte.Value.Ref.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value.Ref);
         }
-
-        internal static TinyAetheryte GetTinyAetheryte(this Aetheryte aetheryte)
-        {
-            var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == aetheryte.Territory.Value.RowId);
-            var scale = map.SizeFactor;
-            var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => (m.DataType == (aetheryte.IsAetheryte? 3:4) && m.DataKey == (aetheryte.IsAetheryte?aetheryte.RowId:aetheryte.AethernetName.Value.RowId)));
-            if(mapMarker == null)
-            {
-                InternalLog.Warning($"mapMarker is null for {aetheryte.RowId} {aetheryte.AethernetName.Value.Name}");
-                return new(Vector2.Zero, aetheryte.Territory.Value.RowId, aetheryte.RowId, aetheryte.AethernetGroup);
-            }
-            var AethersX = ConvertMapMarkerToRawPosition(mapMarker.X, scale);
-            var AethersY = ConvertMapMarkerToRawPosition(mapMarker.Y, scale);
-            return new(new(AethersX, AethersY), aetheryte.Territory.Value.RowId, aetheryte.RowId, aetheryte.AethernetGroup);
-        }
         
         internal static bool IsWorldChangeAetheryte(this TinyAetheryte t)
         {

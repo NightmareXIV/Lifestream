@@ -31,7 +31,7 @@ namespace Lifestream.GUI
                 ImGui.InputInt("Aetheryte button top/bottom padding", ref P.Config.ButtonHeightAetheryte);
                 ImGui.SetNextItemWidth(100f);
                 ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
-                ImGui.Checkbox($"Allow closing Lifestream with ESC", ref P.Config.AllowClosingESC);
+                //ImGui.Checkbox($"Allow closing Lifestream with ESC", ref P.Config.AllowClosingESC2);
                 ImGuiComponents.HelpMarker("To reopen, reenter the proximity of aetheryte");
                 ImGui.Checkbox($"Hide Lifestream if common UI elements are open", ref P.Config.HideAddon);
             }

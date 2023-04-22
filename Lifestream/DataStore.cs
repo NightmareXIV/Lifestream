@@ -37,7 +37,7 @@ namespace Lifestream
                 {
                     if (x.IsAetheryte)
                     {
-                        Aetherytes[x.GetTinyAetheryte()] = new();
+                        Aetherytes[GetTinyAetheryte(x)] = new();
                         terr.Add(x.Territory.Value.RowId);
                         if(!StaticData.Data.ContainsKey(x.RowId))
                         {
@@ -52,7 +52,7 @@ namespace Lifestream
                 {
                     if (!x.IsAetheryte)
                     {
-                        var a = x.GetTinyAetheryte();
+                        var a = GetTinyAetheryte(x);
                         Aetherytes[GetMaster(x)].Add(a);
                         terr.Add(x.Territory.Value.RowId);
                         if (!StaticData.Data.ContainsKey(x.RowId))
@@ -72,19 +72,30 @@ namespace Lifestream
 
         internal void BuildWorlds(uint dc)
         {
-            Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).ToArray();
+            Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).Order().ToArray();
         }
 
-        /*internal bool TryGetAetherytes(uint TerritoryType, out Aetheryte Master, out List<Aetheryte> Slaves)
+        internal TinyAetheryte GetTinyAetheryte(Aetheryte aetheryte)
         {
-            if(MasterAetherytes.TryGetValue(TerritoryType, out Master)) 
+            var AethersX = 0f;
+            var AethersY = 0f;
+            if (StaticData.CustomPositions.TryGetValue(aetheryte.RowId, out var pos))
             {
-                Slaves = SlaveAetherytes[Master.RowId];
-                return true;
+                AethersX = pos.X;
+                AethersY = pos.Z;
             }
-            Master = default;
-            Slaves = default;
-            return false;
-        }*/
+            else
+            {
+                var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == aetheryte.Territory.Value.RowId);
+                var scale = map.SizeFactor;
+                var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => (m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.Value.RowId)));
+                if (mapMarker != null)
+                {
+                    AethersX = Util.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
+                    AethersY = Util.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);
+                }
+            }
+            return new(new(AethersX, AethersY), aetheryte.Territory.Value.RowId, aetheryte.RowId, aetheryte.AethernetGroup);
+        }
     }
 }

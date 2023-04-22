@@ -10,7 +10,7 @@ namespace Lifestream
     public class Config : IEzConfig
     {
         public bool Enable = true;
-        public bool AllowClosingESC = false;
+        internal bool AllowClosingESC2 = false;
         public int ButtonWidth = 10;
         public int ButtonHeightAetheryte = 1;
         public int ButtonHeightWorld = 5;

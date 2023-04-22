@@ -22,6 +22,7 @@ namespace Lifestream.GUI
             if(Svc.Targets.Target != null && Player.Available)
             {
                 ImGuiEx.Text($"v.dist: {Svc.Targets.Target.Position.Y - Player.Object.Position.Y}");
+                ImGuiEx.Text($"DTT3D: {Vector3.Distance(Svc.Targets.Target.Position, Player.Object.Position)}");
             }
             if (ImGui.CollapsingHeader("Debug"))
             {
@@ -46,6 +47,20 @@ namespace Lifestream.GUI
                         {
                             P.DataStore.StaticData.Data[x.Key.ID] = (uint)d;
                         }
+                        if (ImGui.GetIO().KeyCtrl)
+                        {
+                            ImGui.SameLine();
+                            ImGuiEx.Text($"{x.Key.Position}");
+                        }
+                        if(Svc.Targets.Target != null)
+                        {
+                            ImGui.SameLine();
+                            if (ImGui.Button("Pos##"+x.Key.ID))
+                            {
+                                P.DataStore.StaticData.CustomPositions[x.Key.ID] = Svc.Targets.Target.Position;
+                                DuoLog.Information($"Written {Svc.Targets.Target.Position} for {x.Key.ID}");
+                            }
+                        }
                     }
                     foreach (var l in x.Value)
                     {
@@ -62,6 +77,15 @@ namespace Lifestream.GUI
                             {
                                 ImGui.SameLine();
                                 ImGuiEx.Text($"{l.Position}");
+                            }
+                            if (Svc.Targets.Target != null)
+                            {
+                                ImGui.SameLine();
+                                if (ImGui.Button("Pos##"+l.ID))
+                                {
+                                    P.DataStore.StaticData.CustomPositions[l.ID] = Svc.Targets.Target.Position;
+                                    DuoLog.Information($"Written {Svc.Targets.Target.Position} for {l.ID}");
+                                }
                             }
                         }
                     }
