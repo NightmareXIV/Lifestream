@@ -39,9 +39,9 @@ namespace Lifestream
                     {
                         Aetherytes[GetTinyAetheryte(x)] = new();
                         terr.Add(x.Territory.Value.RowId);
-                        if(!StaticData.Data.ContainsKey(x.RowId))
+                        if(!StaticData.Callback.ContainsKey(x.RowId))
                         {
-                            StaticData.Data[x.RowId] = 0;
+                            StaticData.Callback[x.RowId] = 0;
                         }
                     }
                 }
@@ -55,14 +55,27 @@ namespace Lifestream
                         var a = GetTinyAetheryte(x);
                         Aetherytes[GetMaster(x)].Add(a);
                         terr.Add(x.Territory.Value.RowId);
-                        if (!StaticData.Data.ContainsKey(x.RowId))
+                        if (!StaticData.Callback.ContainsKey(x.RowId))
                         {
-                            StaticData.Data[x.RowId] = 0;
+                            StaticData.Callback[x.RowId] = 0;
                         }
                     }
                 }
             });
+            foreach(var x in Aetherytes.Keys.ToArray())
+            {
+                Aetherytes[x] = Aetherytes[x].OrderBy(x => GetAetheryteSortOrder(x.ID)).ToList();
+            }
             Territories = terr.ToArray();
+        }
+        
+        internal uint GetAetheryteSortOrder(uint id)
+        {
+            if(StaticData.SortOrder.TryGetValue(id, out var x))
+            {
+                return x;
+            }
+            return 0;
         }
 
         internal void BuildWorlds()

@@ -98,7 +98,7 @@ namespace Lifestream
         {
             if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
             {
-                if (P.DataStore.StaticData.Data.TryGetValue(t.ID, out var callback))
+                if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
                 {
                     if (Util.GetAvailableAethernetDestinations().Contains(t.Name))
                     {

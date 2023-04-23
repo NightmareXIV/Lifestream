@@ -10,6 +10,11 @@ namespace Lifestream
 {
     internal static class Lang
     {
+        internal static class Symbols
+        {
+            internal const string HomeWorld = "";
+        }
+
         /*
         1	TEXT_AETHERYTE_TOWN_WARP<Gui(69)/> Aethernet.
         1	TEXT_AETHERYTE_TOWN_WARP<Gui(69)/> 都市転送網

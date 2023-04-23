@@ -1,4 +1,5 @@
-﻿using Lifestream.Tasks;
+﻿using ECommons.GameHelpers;
+using Lifestream.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,9 +75,10 @@ namespace Lifestream.GUI
                     foreach (var x in P.DataStore.Worlds)
                     {
                         ResizeButton(x);
+                        var isHomeWorld = x == Player.HomeWorld;
                         var d = x == cWorld || Util.IsDisallowedToChangeWorld();
                         if (d) ImGui.BeginDisabled();
-                        if (ImGui.Button(x, ButtonSizeWorld))
+                        if (ImGui.Button((isHomeWorld?(Lang.Symbols.HomeWorld+" "):"")+x, ButtonSizeWorld))
                         {
                             TaskChangeWorld.Enqueue(x);
                         }

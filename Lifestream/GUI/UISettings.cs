@@ -14,6 +14,8 @@ namespace Lifestream.GUI
             ImGui.Checkbox("Enable overlay", ref P.Config.Enable);
             if (P.Config.Enable)
             {
+                ImGui.Checkbox($"Display Aethernet menu", ref P.Config.ShowAethernet);
+                ImGui.Checkbox($"Display world visit menu", ref P.Config.ShowWorldVisit);
                 ImGui.Checkbox("Click aetheryte on map to teleport", ref P.Config.UseMapTeleport);
                 ImGui.Checkbox("Fixed Lifestream position", ref P.Config.FixedPosition);
                 if (P.Config.FixedPosition)
@@ -34,10 +36,6 @@ namespace Lifestream.GUI
                 //ImGui.Checkbox($"Allow closing Lifestream with ESC", ref P.Config.AllowClosingESC2);
                 ImGuiComponents.HelpMarker("To reopen, reenter the proximity of aetheryte");
                 ImGui.Checkbox($"Hide Lifestream if common UI elements are open", ref P.Config.HideAddon);
-            }
-            else
-            {
-                ImGuiEx.TextWrapped(GradientColor.Get(ImGuiColors.DalamudRed, ImGuiColors.DalamudYellow, 500), $"IPC mode, overlay disabled. You will not be able to use plugin's functions manually; plugin will continue working in background to process external commands.");
             }
         }
     }

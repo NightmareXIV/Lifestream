@@ -20,5 +20,7 @@ namespace Lifestream
         public bool HideAddon = true;
         public BasePositionHorizontal PosHorizontal = BasePositionHorizontal.Middle;
         public BasePositionVertical PosVertical = BasePositionVertical.Middle;
+        public bool ShowAethernet = true;
+        public bool ShowWorldVisit = true;
     }
 }
