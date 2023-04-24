@@ -94,7 +94,7 @@ namespace Lifestream
 
         internal static TinyAetheryte GetMaster()
         {
-            return P.ActiveAetheryte.Value.Ref.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value.Ref);
+            return P.ActiveAetheryte.Value.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value);
         }
         
         internal static bool IsWorldChangeAetheryte(this TinyAetheryte t)

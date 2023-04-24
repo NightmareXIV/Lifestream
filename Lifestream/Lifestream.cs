@@ -4,6 +4,7 @@ using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.MathHelpers;
 using ECommons.SimpleGui;
+using ECommons.StringHelpers;
 using Lifestream.GUI;
 using Lumina.Excel.GeneratedSheets;
 
@@ -38,12 +39,10 @@ namespace Lifestream
                 {
                 };
                 DataStore = new();
-                ProperOnLogin.Register(delegate
-                {
-                    DataStore.BuildWorlds();
-                }, true);
+                ProperOnLogin.Register(DataStore.BuildWorlds);
                 Svc.Framework.Update += Framework_Update;
                 Memory = new();
+                EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
             });
         }
 

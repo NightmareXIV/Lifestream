@@ -1,4 +1,5 @@
 ﻿using ECommons.Configuration;
+using ECommons.Events;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
@@ -18,11 +19,11 @@ namespace Lifestream
         internal string[] Worlds = Array.Empty<string>();
         internal StaticData StaticData;
 
-        internal TinyAetheryte GetMaster(Aetheryte aetheryte)
+        internal TinyAetheryte GetMaster(TinyAetheryte aetheryte)
         {
             foreach(var x in Aetherytes.Keys)
             {
-                if (x.Group == aetheryte.AethernetGroup) return x;
+                if (x.Group == aetheryte.Group) return x;
             }
             return default;
         }
@@ -53,7 +54,7 @@ namespace Lifestream
                     if (!x.IsAetheryte)
                     {
                         var a = GetTinyAetheryte(x);
-                        Aetherytes[GetMaster(x)].Add(a);
+                        Aetherytes[GetMaster(a)].Add(a);
                         terr.Add(x.Territory.Value.RowId);
                         if (!StaticData.Callback.ContainsKey(x.RowId))
                         {
@@ -67,15 +68,24 @@ namespace Lifestream
                 Aetherytes[x] = Aetherytes[x].OrderBy(x => GetAetheryteSortOrder(x.ID)).ToList();
             }
             Territories = terr.ToArray();
+            if (ProperOnLogin.PlayerPresent)
+            {
+                BuildWorlds();
+            }
         }
         
         internal uint GetAetheryteSortOrder(uint id)
         {
+            var ret = 10000u;
             if(StaticData.SortOrder.TryGetValue(id, out var x))
             {
-                return x;
+                ret += x;
             }
-            return 0;
+            if (P.Config.Favorites.Contains(id))
+            {
+                ret -= 10000u;
+            }
+            return ret;
         }
 
         internal void BuildWorlds()

@@ -15,7 +15,8 @@ namespace Lifestream
         internal uint ID;
         internal uint Group;
         internal string Name;
-        internal Aetheryte Ref { get; init; }
+        internal bool IsAetheryte;
+        private Aetheryte Ref { get; init; }
 
         public TinyAetheryte(Vector2 position, uint territoryType, uint iD, uint group)
         {
@@ -25,6 +26,7 @@ namespace Lifestream
             ID = iD;
             Group = group;
             Name = Ref.AethernetName.Value.Name.ToString();
+            IsAetheryte = Ref.IsAetheryte;
         }
 
         public override bool Equals(object obj)

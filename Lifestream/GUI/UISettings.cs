@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface.Components;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,8 +35,25 @@ namespace Lifestream.GUI
                 ImGui.SetNextItemWidth(100f);
                 ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
                 //ImGui.Checkbox($"Allow closing Lifestream with ESC", ref P.Config.AllowClosingESC2);
-                ImGuiComponents.HelpMarker("To reopen, reenter the proximity of aetheryte");
+                //ImGuiComponents.HelpMarker("To reopen, reenter the proximity of aetheryte");
                 ImGui.Checkbox($"Hide Lifestream if common UI elements are open", ref P.Config.HideAddon);
+            }
+            if (ImGui.CollapsingHeader("Hidden aetherytes"))
+            {
+                uint toRem = 0;
+                foreach (var x in P.Config.Hidden)
+                {
+                    ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRow(x)?.AethernetName.Value?.Name.ToString() ?? x.ToString()}");
+                    ImGui.SameLine();
+                    if (ImGui.SmallButton($"Delete##{x}"))
+                    {
+                        toRem = x;
+                    }
+                }
+                if (toRem > 0)
+                {
+                    P.Config.Hidden.Remove(toRem);
+                }
             }
         }
     }

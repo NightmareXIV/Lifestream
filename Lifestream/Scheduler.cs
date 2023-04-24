@@ -1,5 +1,6 @@
 ﻿using ClickLib.Clicks;
 using ECommons.GameFunctions;
+using ECommons.StringHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -100,7 +101,7 @@ namespace Lifestream
             {
                 if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
                 {
-                    if (Util.GetAvailableAethernetDestinations().Contains(t.Name))
+                    if (Util.GetAvailableAethernetDestinations().Any(x => x.ESEquals(t.Name)))
                     {
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
@@ -119,7 +120,7 @@ namespace Lifestream
                 }
                 else
                 {
-                    PluginLog.Error($"Callback data absent for {t.Name}");
+                    DuoLog.Error($"Callback data absent for {t.Name}");
                     return null;
                 }
             }

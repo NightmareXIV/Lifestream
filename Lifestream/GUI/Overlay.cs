@@ -63,58 +63,95 @@ namespace Lifestream.GUI
         public override void Draw()
         {
             RespectCloseHotkey = P.Config.AllowClosingESC2;
-            var master = Util.GetMaster();
-            if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
-            {
-                if (ImGui.BeginTable("LifestreamTable", 2, ImGuiTableFlags.SizingStretchSame))
-                {
-                    ImGui.TableNextColumn();
-                    DrawAethernet();
-                    ImGui.TableNextColumn();
-                    var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.GameData.Name.ToString();
-                    foreach (var x in P.DataStore.Worlds)
-                    {
-                        ResizeButton(x);
-                        var isHomeWorld = x == Player.HomeWorld;
-                        var d = x == cWorld || Util.IsDisallowedToChangeWorld();
-                        if (d) ImGui.BeginDisabled();
-                        if (ImGui.Button((isHomeWorld?(Lang.Symbols.HomeWorld+" "):"")+x, ButtonSizeWorld))
-                        {
-                            TaskChangeWorld.Enqueue(x);
-                        }
-                        if (d) ImGui.EndDisabled();
-                    }
-                    ImGui.EndTable();
-                }
-            }
-            else
-            {
-                DrawAethernet();
-            }
+            List<Action> actions = new();
+            if (P.Config.ShowAethernet) actions.Add(DrawAethernet);
+            if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
+            ImGuiEx.EzTableColumns("LifestreamTable", actions.ToArray());
+            WSize = ImGui.GetWindowSize();
+        }
 
-            void DrawAethernet()
+        void DrawAethernet()
+        {
+            var master = Util.GetMaster();
+            if (!P.Config.Hidden.Contains(master.ID))
             {
                 ResizeButton(master.Name);
                 var md = P.ActiveAetheryte == master;
                 if (md) ImGui.BeginDisabled();
-                if (ImGui.Button(master.Name, ButtonSizeAetheryte))
+                var name = (P.Config.Favorites.Contains(master.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
+                if (ImGui.Button(name, ButtonSizeAetheryte))
                 {
                     TaskAethernetTeleport.Enqueue(master);
                 }
                 if (md) ImGui.EndDisabled();
-                foreach (var x in P.DataStore.Aetherytes[master])
+                Popup(master);
+            }
+
+            foreach (var x in P.DataStore.Aetherytes[master])
+            {
+                if (!P.Config.Hidden.Contains(x.ID))
                 {
                     ResizeButton(x.Name);
                     var d = P.ActiveAetheryte == x;
                     if (d) ImGui.BeginDisabled();
-                    if (ImGui.Button(x.Name, ButtonSizeAetheryte))
+                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    if (ImGui.Button(name, ButtonSizeAetheryte))
                     {
                         TaskAethernetTeleport.Enqueue(x);
                     }
                     if (d) ImGui.EndDisabled();
+                    Popup(x);
                 }
             }
-            WSize = ImGui.GetWindowSize();
+        }
+
+        void Popup(TinyAetheryte x)
+        {
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+            {
+                ImGui.OpenPopup($"LifestreamPopup{x.ID}");
+            }
+            if (ImGui.BeginPopup($"LifestreamPopup{x.ID}"))
+            {
+                if(ImGuiEx.CollectionCheckbox("Favorite", x.ID, P.Config.Favorites))
+                {
+                    PluginLog.Debug($"Rebuilding data store");
+                    P.DataStore = new();
+                }
+                ImGuiEx.CollectionCheckbox("Hidden", x.ID, P.Config.Hidden);
+                var newName = P.Config.Renames.TryGetValue(x.ID, out string value) ? value : "";
+                ImGuiEx.Text($"Rename:");
+                ImGui.SetNextItemWidth(200);
+                if(ImGui.InputText($"##LifestreamRename", ref newName, 100))
+                {
+                    if (newName == "")
+                    {
+                        P.Config.Renames.Remove(x.ID);
+                    }
+                    else
+                    {
+                        P.Config.Renames[x.ID] = newName;
+                    }
+                }
+                ImGui.EndPopup();
+            }
+        }
+
+        void DrawWorldVisit()
+        {
+            var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.GameData.Name.ToString();
+            foreach (var x in P.DataStore.Worlds)
+            {
+                ResizeButton(x);
+                var isHomeWorld = x == Player.HomeWorld;
+                var d = x == cWorld || Util.IsDisallowedToChangeWorld();
+                if (d) ImGui.BeginDisabled();
+                if (ImGui.Button((isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "") + x, ButtonSizeWorld))
+                {
+                    TaskChangeWorld.Enqueue(x);
+                }
+                if (d) ImGui.EndDisabled();
+            }
         }
 
         void ResizeButton(string t)
@@ -130,6 +167,17 @@ namespace Lifestream.GUI
         {
             if (!P.Config.Enable) return false;
             var ret = Util.CanUseAetheryte();
+            if(ret)
+            {
+                if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
+                {
+                    ret = P.Config.ShowWorldVisit || P.Config.ShowAethernet;
+                }
+                else
+                {
+                    ret = P.Config.ShowAethernet;
+                }
+            }
             if (!ret)
             {
                 bWidth = new(10, 10);
