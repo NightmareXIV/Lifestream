@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
 using ECommons;
 using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
@@ -195,7 +196,7 @@ namespace Lifestream
             {
                 if(x.ObjectKind == ObjectKind.Aetheryte)
                 {
-                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f && x.IsVPosValid())
+                    if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f && x.IsVPosValid() && x.IsTargetable())
                     {
                         return x;
                     }

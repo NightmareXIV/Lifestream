@@ -96,6 +96,7 @@ namespace Lifestream
         internal void BuildWorlds(uint dc)
         {
             Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).Order().ToArray();
+            PluginLog.Debug($"Built worlds: {Worlds.Print()}");
         }
 
         internal TinyAetheryte GetTinyAetheryte(Aetheryte aetheryte)

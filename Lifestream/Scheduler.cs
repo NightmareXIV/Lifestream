@@ -1,9 +1,11 @@
 ﻿using ClickLib.Clicks;
 using ECommons.GameFunctions;
+using ECommons.GameHelpers;
 using ECommons.StringHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Havok;
 using System;
@@ -125,6 +127,21 @@ namespace Lifestream
                 }
             }
             return false;
+        }
+
+        internal static bool? ExecuteTPCommand()
+        {
+            if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP"))
+            {
+                Svc.Commands.ProcessCommand("/tp Ul'dah - Steps of Nald");
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool? WaitUntilNextToAetheryteAndNotBusy()
+        {
+            return P.ActiveAetheryte != null && P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !IsOccupied() && !Util.IsDisallowedToUseAethernet() && P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && Player.Object.IsTargetable();
         }
     }
 }

@@ -75,10 +75,10 @@ namespace Lifestream.GUI
             var master = Util.GetMaster();
             if (!P.Config.Hidden.Contains(master.ID))
             {
-                ResizeButton(master.Name);
+                var name = (P.Config.Favorites.Contains(master.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
+                ResizeButton(name);
                 var md = P.ActiveAetheryte == master;
                 if (md) ImGui.BeginDisabled();
-                var name = (P.Config.Favorites.Contains(master.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
                 if (ImGui.Button(name, ButtonSizeAetheryte))
                 {
                     TaskAethernetTeleport.Enqueue(master);
@@ -91,10 +91,10 @@ namespace Lifestream.GUI
             {
                 if (!P.Config.Hidden.Contains(x.ID))
                 {
-                    ResizeButton(x.Name);
+                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    ResizeButton(name);
                     var d = P.ActiveAetheryte == x;
                     if (d) ImGui.BeginDisabled();
-                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     if (ImGui.Button(name, ButtonSizeAetheryte))
                     {
                         TaskAethernetTeleport.Enqueue(x);
