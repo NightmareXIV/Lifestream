@@ -1,4 +1,5 @@
 ﻿using ClickLib.Clicks;
+using ECommons.Automation;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.StringHelpers;
@@ -20,6 +21,7 @@ namespace Lifestream
     {        
         internal static bool? TargetValidAetheryte()
         {
+            if (!Player.Available) return false;
             if (IsOccupied()) return false;
             var a = Util.GetValidAetheryte();
             if(a != null)
@@ -42,6 +44,7 @@ namespace Lifestream
 
         internal static bool? InteractWithTargetedAetheryte()
         {
+            if (!Player.Available) return false;
             if (IsOccupied()) return false;
             var a = Util.GetValidAetheryte();
             if(a != null && Svc.Targets.Target?.Address == a.Address)
@@ -57,16 +60,19 @@ namespace Lifestream
 
         internal static bool? SelectAethernet()
         {
+            if (!Player.Available) return false;
             return Util.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
         }
 
         internal static bool? SelectVisitAnotherWorld()
         {
+            if (!Player.Available) return false;
             return Util.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
         }
 
         internal static bool? ConfirmWorldVisit(string s)
         {
+            if (!Player.Available) return false;
             var x = (AddonSelectYesno*)Util.GetSpecificYesno(true, $"Travel to", "へ移動します、よろしいですか？", "Nach reisen?", "Voulez-vous vraiment visiter");
             if (x != null)
             {
@@ -81,6 +87,7 @@ namespace Lifestream
 
         internal static bool? SelectWorldToVisit(string world)
         {
+            if (!Player.Available) return false;
             var worlds = Util.GetAvailableWorldDestinations();
             var index = Array.IndexOf(worlds, world);
             if (index != -1)
@@ -99,6 +106,7 @@ namespace Lifestream
 
         internal static bool? TeleportToAethernetDestination(TinyAetheryte t)
         {
+            if (!Player.Available) return false;
             if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
             {
                 if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
@@ -131,17 +139,73 @@ namespace Lifestream
 
         internal static bool? ExecuteTPCommand()
         {
-            if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP"))
+            if (!Player.Available) return false;
+            if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
             {
-                Svc.Commands.ProcessCommand("/tp Ul'dah - Steps of Nald");
+                return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc((uint)P.Config.WorldChangeAetheryte, 0);
+            }
+            return false;
+        }
+
+        internal static bool? WaitUntilNotBusy()
+        {
+            if (!Player.Available) return false;
+            return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Util.IsDisallowedToUseAethernet() && Player.Object.IsTargetable();
+        }
+
+
+        internal static bool? TargetReachableAetheryte()
+        {
+            if (!Player.Available) return false;
+            var a = Util.GetReachableWorldChangeAetheryte();
+            if (a != null)
+            {
+                if (!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
+                {
+                    Svc.Targets.SetTarget(a);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal static bool? LockOn()
+        {
+            if (!Player.Available) return false;
+            if (Svc.Targets.Target != null && EzThrottler.Throttle("LockOn", 200))
+            {
+                Chat.Instance.SendMessage("/lockon");
                 return true;
             }
             return false;
         }
 
-        internal static bool? WaitUntilNextToAetheryteAndNotBusy()
+        internal static bool? EnableAutomove()
         {
-            return P.ActiveAetheryte != null && P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !IsOccupied() && !Util.IsDisallowedToUseAethernet() && P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && Player.Object.IsTargetable();
+            if (!Player.Available) return false;
+            if (EzThrottler.Throttle("EnableAutomove", 200)) 
+            {
+                Chat.Instance.SendMessage("/automove on");
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool? WaitUntilWorldChangeAetheryteExists()
+        {
+            if (!Player.Available) return false;
+            return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte();
+        }
+
+        internal static bool? DisableAutomove()
+        {
+            if (!Player.Available) return false;
+            if (EzThrottler.Throttle("DisableAutomove", 200))
+            {
+                Chat.Instance.SendMessage("/automove off");
+                return true;
+            }
+            return false;
         }
     }
 }

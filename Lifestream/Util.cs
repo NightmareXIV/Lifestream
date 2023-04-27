@@ -11,6 +11,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.GUI;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,24 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static Dictionary<WorldChangeAetheryte, uint> WCATerritories = new()
+        {
+            [WorldChangeAetheryte.Uldah] = 130,
+            [WorldChangeAetheryte.Limsa] = 129,
+            [WorldChangeAetheryte.Gridania] = 132
+        };
+
+        internal static GameObject GetReachableWorldChangeAetheryte(bool littleDistance = false)
+        {
+            if (!Player.Available) return null;
+            var a = Svc.Objects.OrderBy(x => Vector3.DistanceSquared(Player.Object.Position, x.Position)).FirstOrDefault(x => Util.TryGetTinyAetheryteFromGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true);
+            if(a != null && a.IsTargetable() && Vector3.Distance(a.Position, Player.Object.Position) < (littleDistance?13f:30f))
+            {
+                return a;
+            }
+            return null;
+        }
+
         internal static bool IsDisallowedToChangeWorld()
         {
             return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld]
@@ -101,6 +120,38 @@ namespace Lifestream
         internal static bool IsWorldChangeAetheryte(this TinyAetheryte t)
         {
             return t.ID.EqualsAny<uint>(2, 8, 9);
+        }
+
+        internal static bool TryGetTinyAetheryteFromGameObject(GameObject a, out TinyAetheryte? t, uint? TerritoryType = null)
+        {
+            TerritoryType ??= Svc.ClientState.TerritoryType;
+            if(a == null)
+            {
+                t = default;
+                return false;
+            }
+            if (a.ObjectKind == ObjectKind.Aetheryte)
+            {
+                var pos2 = a.Position.ToVector2();
+                foreach (var x in P.DataStore.Aetherytes)
+                {
+                    if (x.Key.TerritoryType == TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
+                    {
+                        t = x.Key;
+                        return true;
+                    }
+                    foreach (var l in x.Value)
+                    {
+                        if (l.TerritoryType == TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
+                        {
+                            t = l;
+                            return true;
+                        }
+                    }
+                }
+            }
+            t = default;
+            return false;
         }
 
         internal static float ConvertMapMarkerToMapCoordinate(int pos, float scale)

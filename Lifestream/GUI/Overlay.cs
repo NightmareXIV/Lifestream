@@ -103,6 +103,16 @@ namespace Lifestream.GUI
                     Popup(x);
                 }
             }
+
+            if(P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
+            {
+                var name = "Firmament";
+                ResizeButton(name);
+                if (ImGui.Button(name, ButtonSizeAetheryte))
+                {
+                    TaskFirmanentTeleport.Enqueue();
+                }
+            }
         }
 
         void Popup(TinyAetheryte x)
@@ -182,7 +192,7 @@ namespace Lifestream.GUI
             {
                 bWidth = new(10, 10);
             }
-            return ret && !Util.IsAddonsVisible(Util.Addons);
+            return ret && !(P.Config.HideAddon && Util.IsAddonsVisible(Util.Addons));
         }
     }
 }

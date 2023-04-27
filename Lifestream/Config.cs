@@ -25,5 +25,8 @@ namespace Lifestream
         public HashSet<uint> Favorites = new();
         public HashSet<uint> Hidden = new();
         public Dictionary<uint, string> Renames = new();
+        public WorldChangeAetheryte WorldChangeAetheryte = WorldChangeAetheryte.Uldah;
+        public bool Firmament = true;
+        public bool WalkToAetheryte = true;
     }
 }

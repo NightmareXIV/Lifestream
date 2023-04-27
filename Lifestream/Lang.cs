@@ -10,6 +10,13 @@ namespace Lifestream
 {
     internal static class Lang
     {
+        internal static Dictionary<WorldChangeAetheryte, string> WorldChangeAetherytes = new()
+        {
+            [WorldChangeAetheryte.Gridania] = "New Gridania",
+            [WorldChangeAetheryte.Uldah] = "Ul'Dah - Steps of Thal",
+            [WorldChangeAetheryte.Limsa] = "Limsa Lominsa Lower Decks (not recommended)"
+        };
+
         internal static class Symbols
         {
             internal const string HomeWorld = "";
@@ -33,5 +40,11 @@ namespace Lifestream
 
         //2000151	Aethernet shard	0	Aethernet shards	0	1	1	0	0
         internal static string AethernetShard => Svc.Data.GetExcelSheet<EObjName>().GetRow(2000151).Singular.ToDalamudString().ExtractText();
+
+        //0	TEXT_AETHERYTEISHGARD_HWD_WARP	<Gui(69)/> Travel to the Firmament.
+        //0	TEXT_AETHERYTEISHGARD_HWD_WARP	<Gui(69)/> 蒼天街転送
+        //0	TEXT_AETHERYTEISHGARD_HWD_WARP<Gui(69)/> Himmelsstadt
+        //0	TEXT_AETHERYTEISHGARD_HWD_WARP	<Gui(69)/> Azurée
+        internal static string[] TravelToFirmament = new string[] { "Travel to the Firmament.", "蒼天街転送", "Himmelsstadt", "Azurée" };
     }
 }

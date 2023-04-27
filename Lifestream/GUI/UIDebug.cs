@@ -125,6 +125,9 @@ namespace Lifestream.GUI
                 ImGuiEx.Text($"v.dist: {Svc.Targets.Target.Position.Y - Player.Object.Position.Y}");
                 ImGuiEx.Text($"DTT3D: {Vector3.Distance(Svc.Targets.Target.Position, Player.Object.Position)}");
             }
+            ImGui.PushFont(UiBuilder.IconFont);
+            ImGuiEx.Text($"\uf7ac");
+            ImGui.PopFont();
         }
     }
 }

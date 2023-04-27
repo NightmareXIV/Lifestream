@@ -39,8 +39,8 @@ namespace Lifestream
                 EzConfigGui.Init(MainGui.Draw);
                 Overlay = new();
                 EzConfigGui.WindowSystem.AddWindow(Overlay);
-                EzCmd.Add("/lifestream", ProcessCommand);
-                EzCmd.Add("/li", ProcessCommand);
+                EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
+                EzCmd.Add("/li", ProcessCommand, "automatically switch world to specified (matched by first letters) or return to home world if none specified");
                 TaskManager = new()
                 {
                     AbortOnTimeout = true
@@ -55,7 +55,7 @@ namespace Lifestream
 
         private void ProcessCommand(string command, string arguments)
         {
-            if (command.EqualsIgnoreCase("lifestream") && arguments == "")
+            if (command.EqualsIgnoreCase("/lifestream") && arguments == "")
             {
                 EzConfigGui.Open();
             }
@@ -94,12 +94,7 @@ namespace Lifestream
                 Notify.Error("Already in this world");
                 return;
             }
-            if(AgentMap.Instance()->IsPlayerMoving != 0)
-            {
-                Notify.Error("You are moving");
-                return;
-            }
-            if(ActionManager.Instance()->GetActionStatus(ActionType.Ability, 5) != 0)
+            if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
             {
                 Notify.Error("You are unable to teleport at this time");
                 return;
