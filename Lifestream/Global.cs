@@ -18,3 +18,4 @@ global using ECommons.ImGuiMethods;
 global using ECommons.Schedulers;
 global using static Lifestream.Lifestream;
 global using Dalamud.Game.ClientState.Conditions;
+global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;

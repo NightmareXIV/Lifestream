@@ -207,5 +207,10 @@ namespace Lifestream
             }
             return false;
         }
+
+        internal static bool? OpenContextMenuForChara(string name)
+        {
+            return false;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ClickLib.Clicks;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
@@ -29,6 +30,27 @@ namespace Lifestream
             [WorldChangeAetheryte.Limsa] = 129,
             [WorldChangeAetheryte.Gridania] = 132
         };
+
+        internal static List<string> GetCharacterNames()
+        {
+            List<string> ret = new();
+            var data = CSFramework.Instance()->UIModule->GetRaptureAtkModule()->AtkModule.GetStringArrayData(1);
+            if (data != null)
+            {
+                for (int i = 60; i < data->AtkArrayData.Size; i++)
+                {
+                    if (data->StringArray[i] == null) break;
+                    var item = data->StringArray[i];
+                    if (item != null)
+                    {
+                        var str = MemoryHelper.ReadSeStringNullTerminated((nint)item).ExtractText();
+                        if (str == "") break;
+                        ret.Add(str);
+                    }
+                }
+            }
+            return ret;
+        }
 
         internal static GameObject GetReachableWorldChangeAetheryte(bool littleDistance = false)
         {

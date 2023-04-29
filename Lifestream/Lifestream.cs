@@ -46,7 +46,7 @@ namespace Lifestream
                     AbortOnTimeout = true
                 };
                 DataStore = new();
-                ProperOnLogin.Register(DataStore.BuildWorlds);
+                ProperOnLogin.Register(() => P.DataStore.BuildWorlds());
                 Svc.Framework.Update += Framework_Update;
                 Memory = new();
                 EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
@@ -55,19 +55,27 @@ namespace Lifestream
 
         private void ProcessCommand(string command, string arguments)
         {
-            if (command.EqualsIgnoreCase("/lifestream") && arguments == "")
+            if (arguments == "stop")
             {
-                EzConfigGui.Open();
+                Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy?1:0)} tasks");
+                TaskManager.Abort();
             }
             else
             {
-                if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(arguments == ""?Player.HomeWorld:arguments, StringComparison.OrdinalIgnoreCase), out var w))
+                if (command.EqualsIgnoreCase("/lifestream") && arguments == "")
                 {
-                    TPAndChangeWorld(w);
+                    EzConfigGui.Open();
                 }
                 else
                 {
-                    Notify.Error($"Destination world not found");
+                    if (DataStore.Worlds.TryGetFirst(x => x.StartsWith(arguments == "" ? Player.HomeWorld : arguments, StringComparison.OrdinalIgnoreCase), out var w))
+                    {
+                        TPAndChangeWorld(w);
+                    }
+                    else
+                    {
+                        Notify.Error($"Destination world not found");
+                    }
                 }
             }
         }

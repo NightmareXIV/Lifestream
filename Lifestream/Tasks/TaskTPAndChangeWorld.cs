@@ -20,12 +20,12 @@ namespace Lifestream.Tasks
                 if (Util.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
                 {
                     P.TaskManager.Enqueue(Scheduler.ExecuteTPCommand);
-                    P.TaskManager.Enqueue(Scheduler.WaitUntilNotBusy, 30000);
-                    P.TaskManager.Enqueue(() => Svc.ClientState.TerritoryType == Util.WCATerritories[P.Config.WorldChangeAetheryte]);
+                    P.TaskManager.Enqueue(Scheduler.WaitUntilNotBusy, 120000);
+                    P.TaskManager.Enqueue(() => Player.Interactable && Svc.ClientState.TerritoryType == Util.WCATerritories[P.Config.WorldChangeAetheryte], 120000, "WaitUntilPlayerInteractable");
                 }
                 P.TaskManager.Enqueue(() =>
                 {
-                    if(Util.GetReachableWorldChangeAetheryte() != null)
+                    if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Util.GetReachableWorldChangeAetheryte() != null)
                     {
                         P.TaskManager.DelayNextImmediate(10, true);
                         P.TaskManager.EnqueueImmediate(Scheduler.TargetReachableAetheryte);
@@ -34,7 +34,7 @@ namespace Lifestream.Tasks
                         P.TaskManager.EnqueueImmediate(Scheduler.WaitUntilWorldChangeAetheryteExists);
                         P.TaskManager.EnqueueImmediate(Scheduler.DisableAutomove);
                     }
-                });
+                }, "ConditionalLockonTask");
                 P.TaskManager.Enqueue(Scheduler.WaitUntilWorldChangeAetheryteExists);
                 P.TaskManager.DelayNext(10, true);
                 TaskChangeWorld.Enqueue(world);
