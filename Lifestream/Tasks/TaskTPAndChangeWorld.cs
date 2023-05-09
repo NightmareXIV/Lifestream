@@ -1,4 +1,5 @@
 ﻿using ECommons.GameHelpers;
+using Lifestream.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,9 @@ namespace Lifestream.Tasks
             {
                 if (Util.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
                 {
-                    P.TaskManager.Enqueue(Scheduler.ExecuteTPCommand);
-                    P.TaskManager.Enqueue(Scheduler.WaitUntilNotBusy, 120000);
+                    P.TaskManager.Enqueue(WorldChange.ExecuteTPCommand);
+                    P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], 20000, "WaitUntilBetweenAreas");
+                    P.TaskManager.Enqueue(WorldChange.WaitUntilNotBusy, 120000);
                     P.TaskManager.Enqueue(() => Player.Interactable && Svc.ClientState.TerritoryType == Util.WCATerritories[P.Config.WorldChangeAetheryte], 120000, "WaitUntilPlayerInteractable");
                 }
                 P.TaskManager.Enqueue(() =>
@@ -28,14 +30,14 @@ namespace Lifestream.Tasks
                     if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Util.GetReachableWorldChangeAetheryte() != null)
                     {
                         P.TaskManager.DelayNextImmediate(10, true);
-                        P.TaskManager.EnqueueImmediate(Scheduler.TargetReachableAetheryte);
-                        P.TaskManager.EnqueueImmediate(Scheduler.LockOn);
-                        P.TaskManager.EnqueueImmediate(Scheduler.EnableAutomove);
-                        P.TaskManager.EnqueueImmediate(Scheduler.WaitUntilWorldChangeAetheryteExists);
-                        P.TaskManager.EnqueueImmediate(Scheduler.DisableAutomove);
+                        P.TaskManager.EnqueueImmediate(WorldChange.TargetReachableAetheryte);
+                        P.TaskManager.EnqueueImmediate(WorldChange.LockOn);
+                        P.TaskManager.EnqueueImmediate(WorldChange.EnableAutomove);
+                        P.TaskManager.EnqueueImmediate(WorldChange.WaitUntilWorldChangeAetheryteExists);
+                        P.TaskManager.EnqueueImmediate(WorldChange.DisableAutomove);
                     }
                 }, "ConditionalLockonTask");
-                P.TaskManager.Enqueue(Scheduler.WaitUntilWorldChangeAetheryteExists);
+                P.TaskManager.Enqueue(WorldChange.WaitUntilWorldChangeAetheryteExists);
                 P.TaskManager.DelayNext(10, true);
                 TaskChangeWorld.Enqueue(world);
             }

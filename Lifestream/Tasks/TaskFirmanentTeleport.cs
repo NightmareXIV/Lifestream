@@ -1,5 +1,6 @@
 ﻿using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using Lifestream.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,8 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue()
         {
-            P.TaskManager.Enqueue(Scheduler.TargetValidAetheryte);
-            P.TaskManager.Enqueue(Scheduler.InteractWithTargetedAetheryte);
+            P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
+            P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
              P.TaskManager.Enqueue(() =>
              {
                  if (!Player.Available) return false;

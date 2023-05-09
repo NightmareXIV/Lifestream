@@ -15,16 +15,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.Schedulers
 {
-    internal unsafe static class Scheduler
-    {        
+    internal unsafe static class WorldChange
+    {
         internal static bool? TargetValidAetheryte()
         {
             if (!Player.Available) return false;
             if (IsOccupied()) return false;
             var a = Util.GetValidAetheryte();
-            if(a != null)
+            if (a != null)
             {
                 if (a.Address != Svc.Targets.Target?.Address)
                 {
@@ -47,9 +47,9 @@ namespace Lifestream
             if (!Player.Available) return false;
             if (IsOccupied()) return false;
             var a = Util.GetValidAetheryte();
-            if(a != null && Svc.Targets.Target?.Address == a.Address)
+            if (a != null && Svc.Targets.Target?.Address == a.Address)
             {
-                if(EzThrottler.Throttle("InteractWithTargetedAetheryte", 500))
+                if (EzThrottler.Throttle("InteractWithTargetedAetheryte", 500))
                 {
                     TargetSystem.Instance()->InteractWithObject(a.Struct(), false);
                     return true;
@@ -115,14 +115,14 @@ namespace Lifestream
                     {
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
-                            P.TaskManager.EnqueueImmediate(() => Callback(telep, (int)11, (uint)callback));
-                            P.TaskManager.EnqueueImmediate(() => Callback(telep, (int)11, (uint)callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback(telep, 11, callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback(telep, 11, callback));
                             return true;
                         }
                     }
                     else
                     {
-                        if(EzThrottler.Throttle("TeleportToAethernetDestinationLog", 5000))
+                        if (EzThrottler.Throttle("TeleportToAethernetDestinationLog", 5000))
                         {
                             PluginLog.Warning($"GetAvailableAethernetDestinations does not contains {t.Name}, contains {Util.GetAvailableAethernetDestinations().Print()}");
                         }
@@ -183,7 +183,7 @@ namespace Lifestream
         internal static bool? EnableAutomove()
         {
             if (!Player.Available) return false;
-            if (EzThrottler.Throttle("EnableAutomove", 200)) 
+            if (EzThrottler.Throttle("EnableAutomove", 200))
             {
                 Chat.Instance.SendMessage("/automove on");
                 return true;
@@ -205,11 +205,6 @@ namespace Lifestream
                 Chat.Instance.SendMessage("/automove off");
                 return true;
             }
-            return false;
-        }
-
-        internal static bool? OpenContextMenuForChara(string name)
-        {
             return false;
         }
     }

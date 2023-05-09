@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Lifestream.Schedulers;
 
 namespace Lifestream.Tasks
 {
@@ -10,10 +11,10 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue(TinyAetheryte a)
         {
-            P.TaskManager.Enqueue(Scheduler.TargetValidAetheryte);
-            P.TaskManager.Enqueue(Scheduler.InteractWithTargetedAetheryte);
-            if(P.DataStore.Aetherytes.ContainsKey(P.ActiveAetheryte.Value)) P.TaskManager.Enqueue(Scheduler.SelectAethernet);
-            P.TaskManager.Enqueue(() => Scheduler.TeleportToAethernetDestination(a));
+            P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
+            P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
+            if(P.DataStore.Aetherytes.ContainsKey(P.ActiveAetheryte.Value)) P.TaskManager.Enqueue(WorldChange.SelectAethernet);
+            P.TaskManager.Enqueue(() => WorldChange.TeleportToAethernetDestination(a));
         }
     }
 }

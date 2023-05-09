@@ -31,6 +31,12 @@ namespace Lifestream
             [WorldChangeAetheryte.Gridania] = 132
         };
 
+        internal static bool TryGetCharacterIndex(string name, out int index)
+        {
+            index = GetCharacterNames().IndexOf(name);
+            return index >= 0;
+        }
+
         internal static List<string> GetCharacterNames()
         {
             List<string> ret = new();

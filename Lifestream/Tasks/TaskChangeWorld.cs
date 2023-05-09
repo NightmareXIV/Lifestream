@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Lifestream.Schedulers;
 
 namespace Lifestream.Tasks
 {
@@ -10,11 +11,11 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue(string world)
         {
-            P.TaskManager.Enqueue(Scheduler.TargetValidAetheryte);
-            P.TaskManager.Enqueue(Scheduler.InteractWithTargetedAetheryte);
-            P.TaskManager.Enqueue(Scheduler.SelectVisitAnotherWorld);
-            P.TaskManager.Enqueue(() => Scheduler.SelectWorldToVisit(world));
-            P.TaskManager.Enqueue(() => Scheduler.ConfirmWorldVisit(world));
+            P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
+            P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
+            P.TaskManager.Enqueue(WorldChange.SelectVisitAnotherWorld);
+            P.TaskManager.Enqueue(() => WorldChange.SelectWorldToVisit(world));
+            P.TaskManager.Enqueue(() => WorldChange.ConfirmWorldVisit(world));
         }
     }
 }
