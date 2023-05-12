@@ -96,7 +96,7 @@ namespace Lifestream.Schedulers
                 {
                     if (EzThrottler.Throttle("SelectWorldToVisit", 5000))
                     {
-                        Callback(addon, index + 2);
+                        Callback.Fire(addon, true, index + 2);
                         return true;
                     }
                 }
@@ -115,8 +115,8 @@ namespace Lifestream.Schedulers
                     {
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
-                            P.TaskManager.EnqueueImmediate(() => Callback(telep, 11, callback));
-                            P.TaskManager.EnqueueImmediate(() => Callback(telep, 11, callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep,true, 11, callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
                             return true;
                         }
                     }

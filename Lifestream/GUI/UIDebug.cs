@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ECommons.Configuration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using ECommons.Automation;
 
 namespace Lifestream.GUI
 {
@@ -36,7 +37,7 @@ namespace Lifestream.GUI
                 {
                     if (TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon))
                     {
-                        Callback(addon, (int)17, (int)1, (int)index);
+                        Callback.Fire(addon, false, (int)17, (int)1, (int)index);
                     }
                 }
                 ImGuiEx.TextWrapped($"Names: {Util.GetCharacterNames().Print()}");
