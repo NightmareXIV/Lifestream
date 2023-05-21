@@ -41,6 +41,7 @@ namespace Lifestream.GUI
                 ImGuiEx.EnumCombo($"Teleport world change gateway", ref P.Config.WorldChangeAetheryte, Lang.WorldChangeAetherytes);
                 ImGui.Checkbox($"Attempt to walk to nearby aetheryte on world change command from greater distance if possible", ref P.Config.WalkToAetheryte);
                 ImGui.Checkbox($"Add firmament location into Foundation aetheryte", ref P.Config.Firmament);
+                ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
             }
             if (ImGui.CollapsingHeader("Hidden aetherytes"))
             {

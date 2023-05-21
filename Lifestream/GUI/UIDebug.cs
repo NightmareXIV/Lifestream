@@ -10,6 +10,8 @@ using ECommons.Configuration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons.Automation;
+using Lifestream.Schedulers;
+using ECommons.GameFunctions;
 
 namespace Lifestream.GUI
 {
@@ -28,10 +30,27 @@ namespace Lifestream.GUI
         }
 
         static int index = 0;
+        static string str = "";
+        static string str2 = "";
+        static string str3 = "";
         static void Debug()
         {
             if (ImGui.CollapsingHeader("DCV"))
             {
+                if (ImGui.Button($"{nameof(DCChange.TitleScreenClickStart)}")) DCChange.TitleScreenClickStart();
+                if (ImGui.Button($"{nameof(DCChange.OpenContextMenuForChara)}")) DCChange.OpenContextMenuForChara(str);
+                ImGui.SameLine();
+                ImGui.InputText($"Chara name", ref str, 100);
+                if (ImGui.Button($"{nameof(DCChange.SelectVisitAnotherDC)}")) DCChange.SelectVisitAnotherDC();
+                if (ImGui.Button($"{nameof(DCChange.SelectTargetDataCenter)}")) DCChange.SelectTargetDataCenter(str2);
+                ImGui.SameLine();
+                ImGui.InputText($"dc name", ref str2, 100);
+                if (ImGui.Button($"{nameof(DCChange.SelectTargetWorld)}")) DCChange.SelectTargetWorld(str2);
+                ImGui.SameLine();
+                ImGui.InputText($"w name", ref str3, 100);
+                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit)}")) DCChange.ConfirmDcVisit();
+                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) DCChange.ConfirmDcVisit2();
+                if (ImGui.Button($"{nameof(DCChange.SelectOk)}")) DCChange.SelectOk();
                 ImGui.InputInt("Index", ref index);
                 if (ImGui.Button("Open context menu"))
                 {

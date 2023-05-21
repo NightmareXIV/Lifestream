@@ -207,5 +207,33 @@ namespace Lifestream.Schedulers
             }
             return false;
         }
+
+        internal static bool? LeaveParty()
+        {
+            if (!Player.Available) return false;
+            if (Svc.Party.Length < 2) return true;
+            if (EzThrottler.Throttle("LeaveParty", 200))
+            {
+                Chat.Instance.SendMessage("/leave");
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool? ConfirmLeaveParty()
+        {
+            if (!Player.Available) return false;
+            if (Svc.Party.Length < 2) return true;
+            var x = (AddonSelectYesno*)Util.GetSpecificYesno();
+            if (x != null)
+            {
+                if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmLeaveParty"))
+                {
+                    ClickSelectYesNo.Using((nint)x).Yes();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

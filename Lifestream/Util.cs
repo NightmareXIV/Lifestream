@@ -9,21 +9,37 @@ using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
+using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.GUI;
+using Lumina.Data.Parsing;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static bool CanAutoLogin()
+        {
+            return !Svc.ClientState.IsLoggedIn
+                && !Svc.Condition.Any()
+                && TryGetAddonByName<AtkUnitBase>("_TitleMenu", out var title)
+                && IsAddonReady(title)
+                && title->UldManager.NodeListCount > 3
+                && title->UldManager.NodeList[3]->Color.A == 0xFF
+                && !TryGetAddonByName<AtkUnitBase>("TitleDCWorldMap", out _)
+                && !TryGetAddonByName<AtkUnitBase>("TitleConnect", out _);
+        }
+
         internal static Dictionary<WorldChangeAetheryte, uint> WCATerritories = new()
         {
             [WorldChangeAetheryte.Uldah] = 130,

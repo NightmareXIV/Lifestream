@@ -28,5 +28,6 @@ namespace Lifestream
         public WorldChangeAetheryte WorldChangeAetheryte = WorldChangeAetheryte.Uldah;
         public bool Firmament = true;
         public bool WalkToAetheryte = true;
+        public bool LeavePartyBeforeWorldChange = false;
     }
 }

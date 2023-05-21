@@ -11,6 +11,10 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue(string world)
         {
+            if (P.Config.LeavePartyBeforeWorldChange)
+            {
+                P.TaskManager.Enqueue(WorldChange.LeaveParty);
+            }
             P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
             P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
             P.TaskManager.Enqueue(WorldChange.SelectVisitAnotherWorld);

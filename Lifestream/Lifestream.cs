@@ -107,7 +107,7 @@ namespace Lifestream
                 Notify.Error("You are unable to teleport at this time");
                 return;
             }
-            if (Svc.Party.Length > 1)
+            if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
