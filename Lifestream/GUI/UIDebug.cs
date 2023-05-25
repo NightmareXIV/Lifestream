@@ -37,20 +37,33 @@ namespace Lifestream.GUI
         {
             if (ImGui.CollapsingHeader("DCV"))
             {
-                if (ImGui.Button($"{nameof(DCChange.TitleScreenClickStart)}")) DCChange.TitleScreenClickStart();
-                if (ImGui.Button($"{nameof(DCChange.OpenContextMenuForChara)}")) DCChange.OpenContextMenuForChara(str);
+                if(ImGui.Button("Enable AtkComponentTreeList_vf31Hook hook"))
+                {
+                    P.Memory.AtkComponentTreeList_vf31Hook.Enable();
+                }
+                {
+                    if (TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && ImGui.Button("Try event"))
+                    {
+                        //P.Memory.ConstructEvent(addon);
+                        ImGuiEx.Text($"PTR: {(nint)(addon->UldManager.NodeList[7]->GetAsAtkComponentList() + 456):X16}");
+                    }
+                }
+                if (ImGui.Button($"Enable AddonDKTWorldCheck_ReceiveEventHook")) P.Memory.AddonDKTWorldList_ReceiveEventHook.Enable();
+                if (ImGui.Button($"{nameof(DCChange.TitleScreenClickStart)}")) PluginLog.Information($"{DCChange.TitleScreenClickStart()}") ;
+                if (ImGui.Button($"{nameof(DCChange.OpenContextMenuForChara)}")) PluginLog.Information($"{DCChange.OpenContextMenuForChara(str)}");
                 ImGui.SameLine();
                 ImGui.InputText($"Chara name", ref str, 100);
-                if (ImGui.Button($"{nameof(DCChange.SelectVisitAnotherDC)}")) DCChange.SelectVisitAnotherDC();
-                if (ImGui.Button($"{nameof(DCChange.SelectTargetDataCenter)}")) DCChange.SelectTargetDataCenter(str2);
+                if (ImGui.Button($"{nameof(DCChange.SelectVisitAnotherDC)}")) PluginLog.Information($"{DCChange.SelectVisitAnotherDC()}");
+                if (ImGui.Button($"{nameof(DCChange.SelectTargetDataCenter)}")) PluginLog.Information($"{DCChange.SelectTargetDataCenter(str2)}");
                 ImGui.SameLine();
                 ImGui.InputText($"dc name", ref str2, 100);
-                if (ImGui.Button($"{nameof(DCChange.SelectTargetWorld)}")) DCChange.SelectTargetWorld(str2);
+                if (ImGui.Button($"{nameof(DCChange.SelectTargetWorld)}")) PluginLog.Information($"{DCChange.SelectTargetWorld(str3)}");
                 ImGui.SameLine();
                 ImGui.InputText($"w name", ref str3, 100);
-                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit)}")) DCChange.ConfirmDcVisit();
-                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) DCChange.ConfirmDcVisit2();
-                if (ImGui.Button($"{nameof(DCChange.SelectOk)}")) DCChange.SelectOk();
+                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit()}");
+                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2()}");
+                if (ImGui.Button($"{nameof(DCChange.SelectOk)}")) PluginLog.Information($"{DCChange.SelectOk()}");
+                if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisitIntention)}")) PluginLog.Information($"{DCChange.ConfirmDcVisitIntention()}");
                 ImGui.InputInt("Index", ref index);
                 if (ImGui.Button("Open context menu"))
                 {

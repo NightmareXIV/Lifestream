@@ -94,13 +94,13 @@ namespace Lifestream.Schedulers
                 var list = addon->UldManager.NodeList[7]->GetAsAtkComponentNode();
                 for (int i = 3; i < 3+4; i++)
                 {
-                    var t = list->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                    var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                     if (t->AtkResNode.Alpha_2 == 255)
                     {
                         var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
                         if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
                         {
-                            Callback.Fire(addon, true, (int)1, (int)(i - 3), new AtkValue() { Type = 0, Int = 0 }, (bool)false);
+                            P.Memory.ConstructEvent(addon, 1, 7, i - 2);
                             return true;
                         }
                     }
@@ -120,13 +120,13 @@ namespace Lifestream.Schedulers
                 var list = addon->UldManager.NodeList[6]->GetAsAtkComponentNode();
                 for (int i = 3; i < 3+8; i++)
                 {
-                    var t = list->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                    var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                     if (t->AtkResNode.Alpha_2 == 255)
                     {
                         var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
                         if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                         {
-                            Callback.Fire(addon, true, 2, Callback.ZeroAtkValue, i-3, Callback.ZeroAtkValue);
+                            P.Memory.ConstructEvent(addon, 2, 6, i - 2);
                             return true;
                         }
                     }
@@ -162,7 +162,7 @@ namespace Lifestream.Schedulers
             {
                 if (addon->UldManager.NodeList[3]->GetAsAtkComponentButton()->IsEnabled && DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
                 {
-                    Callback.Fire(addon, true, (int)1);
+                    Callback.Fire(addon, true, (int)0);
                     return true;
                 }
             }
