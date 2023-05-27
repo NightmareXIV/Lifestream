@@ -29,5 +29,6 @@ namespace Lifestream
         public bool Firmament = true;
         public bool WalkToAetheryte = true;
         public bool LeavePartyBeforeWorldChange = false;
+        public bool AllowDcTransfer = false;
     }
 }

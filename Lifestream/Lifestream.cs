@@ -73,6 +73,10 @@ namespace Lifestream
                     {
                         TPAndChangeWorld(w);
                     }
+                    else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(arguments == "" ? Player.HomeWorld : arguments, StringComparison.OrdinalIgnoreCase), out var dcw))
+                    {
+                        TPAndChangeWorld(dcw, true);
+                    }
                     else
                     {
                         Notify.Error($"Destination world not found");
@@ -81,8 +85,13 @@ namespace Lifestream
             }
         }
 
-        private void TPAndChangeWorld(string w)
+        private void TPAndChangeWorld(string w, bool isDcTransfer = false)
         {
+            if(isDcTransfer && !P.Config.AllowDcTransfer)
+            {
+                Notify.Error($"Data center transfers are not enabled in the configuration.");
+                return;
+            }
             if (!Svc.PluginInterface.PluginInternalNames.Contains("TeleporterPlugin"))
             {
                 Notify.Error("Teleporter plugin is not installed");
@@ -103,17 +112,28 @@ namespace Lifestream
                 Notify.Error("Already in this world");
                 return;
             }
-            if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
+            /*if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
             {
                 Notify.Error("You are unable to teleport at this time");
                 return;
-            }
-            if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange)
+            }*/
+            if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
             Notify.Info($"Destination: {w}");
-            TaskTPAndChangeWorld.Enqueue(w);
+            if (isDcTransfer)
+            {
+                if(Player.Object.HomeWorld.Id != Player.Object.CurrentWorld.Id)
+                {
+                    TaskTPAndChangeWorld.Enqueue(w);
+                }
+                TaskChangeDatacenter.Enqueue(w, Player.Name.ToString());
+            }
+            else
+            {
+                TaskTPAndChangeWorld.Enqueue(w);
+            }
         }
 
         private void Framework_Update(Framework framework)

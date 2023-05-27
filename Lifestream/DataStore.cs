@@ -1,5 +1,6 @@
 ﻿using ECommons.Configuration;
 using ECommons.Events;
+using ECommons.GameHelpers;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Lifestream
         internal uint[] Territories;
         internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = new();
         internal string[] Worlds = Array.Empty<string>();
+        internal string[] DCWorlds = Array.Empty<string>();
         internal StaticData StaticData;
 
         internal TinyAetheryte GetMaster(TinyAetheryte aetheryte)
@@ -97,6 +99,8 @@ namespace Lifestream
         {
             Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).Order().ToArray();
             PluginLog.Debug($"Built worlds: {Worlds.Print()}");
+            DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic && x.DataCenter.Value.Region == Player.Object.CurrentWorld.GameData.DataCenter.Value.Region).Select(x => x.Name.ToString()).ToArray();
+            PluginLog.Debug($"Built DCworlds: {DCWorlds.Print()}");
         }
 
         internal TinyAetheryte GetTinyAetheryte(Aetheryte aetheryte)
