@@ -39,6 +39,7 @@ namespace Lifestream
                 EzConfigGui.Init(MainGui.Draw);
                 Overlay = new();
                 EzConfigGui.WindowSystem.AddWindow(Overlay);
+                EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
                 EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
                 EzCmd.Add("/li", ProcessCommand, "automatically switch world to specified (matched by first letters) or return to home world if none specified");
                 TaskManager = new()

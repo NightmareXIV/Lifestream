@@ -32,17 +32,17 @@ namespace Lifestream
 
         void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
         {
-            PluginLog.Information($"AtkComponentTreeList_vf31Detour: {a1:X16}, {a2}, {a3}");
+            PluginLog.Debug($"AtkComponentTreeList_vf31Detour: {a1:X16}, {a2}, {a3}");
             AtkComponentTreeList_vf31Hook.Original(a1, a2, a3);
         }
 
         void AddonDKTWorldList_ReceiveEventDetour(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5)
         {
-            PluginLog.Information($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
-            PluginLog.Information($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->Type}, {a4->Unk29}, {a4->Flags}");
-            PluginLog.Information($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}), {a5->unk_16}, {a5->unk_24} | {a5->RawDumpSpan.ToArray().Print()}");
+            PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
+            PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->Type}, {a4->Unk29}, {a4->Flags}");
+            PluginLog.Debug($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}), {a5->unk_16}, {a5->unk_24} | {a5->RawDumpSpan.ToArray().Print()}");
             var span = new Span<byte>((void*)*a5->unk_8, 0x40).ToArray().Select(x => $"{x:X2}");
-            PluginLog.Information($"  Data 2, {a5->unk_8s->unk_4}, {a5->unk_8s->unk_8},  :{string.Join(" ", span)}");
+            PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {a5->unk_8s->unk_8},  :{string.Join(" ", span)}");
             AddonDKTWorldList_ReceiveEventHook.Original(a1, a2, a3, a4, a5);
         }
 
