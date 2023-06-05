@@ -105,22 +105,42 @@ namespace Lifestream.Schedulers
 
         internal static bool? SelectCharacter(string name)
         {
-            // Select Character
-            var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("_CharaSelectListMenu", 1);
-            if (addon == null) return false;
-            if (Util.TryGetCharacterIndex(name, out var index))
             {
-                if (DCThrottle)
+                if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
                 {
-                    PluginLog.Debug($"[DCChange] Selecting character index {index}");
-                    Callback.Fire(addon, false, (int)17, (int)0, (int)index);
+                    return true;
                 }
-                var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
-                return nextAddon != null;
             }
-            else
             {
-                DCRethrottle();
+                if (TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
+                {
+                    return true;
+                }
+            }
+            {
+                if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) && IsAddonReady(addon))
+                {
+                    return true;
+                }
+            }
+            {
+                // Select Character
+                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("_CharaSelectListMenu", 1);
+                if (addon == null) return false;
+                if (Util.TryGetCharacterIndex(name, out var index))
+                {
+                    if (DCThrottle && EzThrottler.Check("CharaSelectListMenuError"))
+                    {
+                        PluginLog.Debug($"[DCChange] Selecting character index {index}");
+                        Callback.Fire(addon, false, (int)17, (int)0, (int)index);
+                    }
+                    var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
+                    return nextAddon != null;
+                }
+                else
+                {
+                    DCRethrottle();
+                }
             }
             return false;
         }

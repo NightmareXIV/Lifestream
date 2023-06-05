@@ -1,4 +1,5 @@
-﻿using Lifestream.Schedulers;
+﻿using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,9 @@ namespace Lifestream.Tasks
 {
     internal class TaskSelectChara
     {
-        internal static void Enqueue(string charaName)
+        internal unsafe static void Enqueue(string charaName)
         {
+            P.TaskManager.Enqueue(() => TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon), 60.Minutes(), "Wait until chara list available");
             P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName), nameof(DCChange.SelectCharacter));
             P.TaskManager.Enqueue(DCChange.SelectYesLogin, 60.Minutes());
         }

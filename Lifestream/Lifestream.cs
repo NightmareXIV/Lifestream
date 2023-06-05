@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game;
+using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Configuration;
 using ECommons.Events;
@@ -8,6 +9,7 @@ using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SimpleGui;
 using ECommons.StringHelpers;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -37,7 +39,7 @@ namespace Lifestream
         public Lifestream(DalamudPluginInterface pluginInterface)
         {
             P = this;
-            ECommonsMain.Init(pluginInterface, this);
+            ECommonsMain.Init(pluginInterface, this, Module.DalamudReflector);
             new TickScheduler(delegate
             {
                 Config = EzConfig.Init<Config>();
@@ -56,7 +58,21 @@ namespace Lifestream
                 Svc.Framework.Update += Framework_Update;
                 Memory = new();
                 EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
+                Svc.Toasts.ErrorToast += Toasts_ErrorToast;
             });
+        }
+
+        private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
+        {
+            if (!Svc.ClientState.IsLoggedIn)
+            {
+                //430	60	8	0	False	Please wait and try logging in later.
+                if (message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ToDalamudString().ExtractText().Trim())
+                {
+                    PluginLog.Warning($"CharaSelectListMenuError encountered");
+                    EzThrottler.Throttle("CharaSelectListMenuError", 2.Minutes(), true);
+                }
+            }
         }
 
         private void ProcessCommand(string command, string arguments)
@@ -202,6 +218,7 @@ namespace Lifestream
 
         private void Framework_Update(Framework framework)
         {
+            YesAlreadyManager.Tick();
             if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
             {
                 UpdateActiveAetheryte();
@@ -215,6 +232,7 @@ namespace Lifestream
         public void Dispose()
         {
             Svc.Framework.Update -= Framework_Update;
+            Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
             Memory.Dispose();
             ECommonsMain.Dispose();
             P = null;
