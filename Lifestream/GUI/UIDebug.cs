@@ -66,6 +66,7 @@ namespace Lifestream.GUI
                 if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2()}");
                 if (ImGui.Button($"{nameof(DCChange.SelectOk)}")) PluginLog.Information($"{DCChange.SelectOk()}");
                 if (ImGui.Button($"{nameof(DCChange.ConfirmDcVisitIntention)}")) PluginLog.Information($"{DCChange.ConfirmDcVisitIntention()}");
+                if (ImGui.Button($"{nameof(DCChange.SelectYesLogin)}")) PluginLog.Information($"{DCChange.SelectYesLogin()}");
                 ImGui.InputInt("Index", ref index);
                 if (ImGui.Button("Open context menu"))
                 {
@@ -79,6 +80,7 @@ namespace Lifestream.GUI
             if (ImGui.CollapsingHeader("Throttle"))
             {
                 EzThrottler.ImGuiPrintDebugInfo();
+                FrameThrottler.ImGuiPrintDebugInfo();
             }
             if (Svc.Targets.Target != null && Player.Available)
             {

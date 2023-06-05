@@ -19,8 +19,8 @@ namespace Lifestream.Schedulers
 {
     internal static unsafe class DCChange
     {
-        internal static bool DCThrottle => FrameThrottler.Throttle("DCOperation", 20);
-        internal static bool DCRethrottle() => FrameThrottler.Throttle("DCOperation", 20, true);
+        internal static bool DCThrottle => FrameThrottler.Throttle("DCOperation", 10);
+        internal static bool DCRethrottle() => FrameThrottler.Throttle("DCOperation", 10, true);
 
         internal static bool? WaitUntilNotBusy()
         {
@@ -40,8 +40,32 @@ namespace Lifestream.Schedulers
             return false;
         }
 
+        internal static bool? SelectYesLogin()
+        {
+            var addon = Util.GetSpecificYesno(true, "Logging in with");
+            if (addon == null || !IsAddonReady(addon))
+            {
+                DCRethrottle();
+                return false;
+            }
+            if (DCThrottle)
+            {
+                PluginLog.Debug($"[DCChange] Confirming login");
+                ClickSelectYesNo.Using((nint)addon).Yes();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         internal static bool? SelectYesLogout()
         {
+            if (!Svc.ClientState.IsLoggedIn)
+            {
+                return true;
+            }
             var addon = Util.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Addon>()?.GetRow(115)?.Text.ToDalamudString().ExtractText());
             if (addon == null || !IsAddonReady(addon))
             {
