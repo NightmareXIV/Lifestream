@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.UnmanagedStructs
 {
     [StructLayout(LayoutKind.Explicit, Size = 0x40)]
     internal unsafe struct InputData
@@ -16,11 +16,11 @@ namespace Lifestream
 
         internal UnknownStruct* unk_8s => (UnknownStruct*)*unk_8;
 
-        internal readonly Span<byte> RawDumpSpan 
+        internal readonly Span<byte> RawDumpSpan
         {
             get
             {
-                fixed(byte* ptr = RawDump)
+                fixed (byte* ptr = RawDump)
                 {
                     return new Span<byte>(ptr, sizeof(InputData));
                 }

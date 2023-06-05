@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.Enums
 {
-    internal enum DCVType
+    public enum WorldChangeAetheryte
     {
-        Unknown, HomeToGuest, GuestToHome, GuestToGuest
+        Uldah = 9,
+        Gridania = 2,
+        Limsa = 8,
     }
 }

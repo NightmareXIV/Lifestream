@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.UnmanagedStructs
 {
     [StructLayout(LayoutKind.Explicit, Size = 0x40)]
     internal struct UnknownStruct

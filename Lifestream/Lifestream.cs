@@ -9,6 +9,7 @@ using ECommons.SimpleGui;
 using ECommons.StringHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.Tasks;
 using Lumina.Excel.GeneratedSheets;

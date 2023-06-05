@@ -1,4 +1,5 @@
 ﻿using ECommons.GameHelpers;
+using Lifestream.Enums;
 using Lifestream.Tasks;
 using System;
 using System.Collections.Generic;

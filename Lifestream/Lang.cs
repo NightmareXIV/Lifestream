@@ -1,4 +1,5 @@
 ﻿using Dalamud.Utility;
+using Lifestream.Enums;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;

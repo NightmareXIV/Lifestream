@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.Enums
 {
-    public enum WorldChangeAetheryte
+    public enum BasePositionVertical
     {
-        Uldah = 9,
-        Gridania = 2,
-        Limsa = 8,
+        Middle, Top, Bottom
     }
 }

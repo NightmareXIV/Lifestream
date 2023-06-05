@@ -12,6 +12,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Memory;
 using Lifestream.Tasks;
 using System.Windows.Forms;
+using Lifestream.UnmanagedStructs;
 
 namespace Lifestream
 {

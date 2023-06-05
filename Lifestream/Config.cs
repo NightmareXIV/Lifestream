@@ -1,4 +1,5 @@
 ﻿using ECommons.Configuration;
+using Lifestream.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

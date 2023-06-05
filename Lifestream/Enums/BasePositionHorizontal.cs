@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.Enums
 {
-    public enum BasePositionVertical
+    public enum BasePositionHorizontal
     {
-        Middle, Top, Bottom
+        Middle, Left, Right
     }
 }

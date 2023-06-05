@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream.Enums
 {
-    public enum BasePositionHorizontal
+    internal enum DCVType
     {
-        Middle, Left, Right
+        Unknown, HomeToGuest, GuestToHome, GuestToGuest
     }
 }
