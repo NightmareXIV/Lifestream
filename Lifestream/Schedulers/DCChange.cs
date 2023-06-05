@@ -46,25 +46,35 @@ namespace Lifestream.Schedulers
             {
                 return true;
             }
-            if(TryGetAddonByName<AtkUnitBase>("SelectOk", out var sok) && IsAddonReady(sok))
             {
-                return true;
+                if (TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
+                {
+                    return true;
+                }
             }
-            var addon = Util.GetSpecificYesno(true, "Logging in with", "Log in with");
-            if (addon == null || !IsAddonReady(addon))
             {
-                DCRethrottle();
-                return false;
+                if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
+                {
+                    return true;
+                }
             }
-            if (DCThrottle)
             {
-                PluginLog.Debug($"[DCChange] Confirming login");
-                ClickSelectYesNo.Using((nint)addon).Yes();
-                return true;
-            }
-            else
-            {
-                return false;
+                var addon = Util.GetSpecificYesno(true, "Logging in with", "Log in with");
+                if (addon == null || !IsAddonReady(addon))
+                {
+                    DCRethrottle();
+                    return false;
+                }
+                if (DCThrottle)
+                {
+                    PluginLog.Debug($"[DCChange] Confirming login");
+                    ClickSelectYesNo.Using((nint)addon).Yes();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 

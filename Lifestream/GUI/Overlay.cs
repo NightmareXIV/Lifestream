@@ -82,6 +82,7 @@ namespace Lifestream.GUI
                 if (md) ImGui.BeginDisabled();
                 if (ImGui.Button(name, ButtonSizeAetheryte))
                 {
+                    TaskRemoveAfkStatus.Enqueue();
                     TaskAethernetTeleport.Enqueue(master);
                 }
                 if (md) ImGui.EndDisabled();
@@ -98,6 +99,7 @@ namespace Lifestream.GUI
                     if (d) ImGui.BeginDisabled();
                     if (ImGui.Button(name, ButtonSizeAetheryte))
                     {
+                        TaskRemoveAfkStatus.Enqueue();
                         TaskAethernetTeleport.Enqueue(x);
                     }
                     if (d) ImGui.EndDisabled();
@@ -111,6 +113,7 @@ namespace Lifestream.GUI
                 ResizeButton(name);
                 if (ImGui.Button(name, ButtonSizeAetheryte))
                 {
+                    TaskRemoveAfkStatus.Enqueue();
                     TaskFirmanentTeleport.Enqueue();
                 }
             }
@@ -159,6 +162,7 @@ namespace Lifestream.GUI
                 if (d) ImGui.BeginDisabled();
                 if (ImGui.Button((isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "") + x, ButtonSizeWorld))
                 {
+                    TaskRemoveAfkStatus.Enqueue();
                     TaskChangeWorld.Enqueue(x);
                 }
                 if (d) ImGui.EndDisabled();

@@ -2,15 +2,18 @@
 using ECommons.Automation;
 using ECommons.Configuration;
 using ECommons.Events;
+using ECommons.ExcelServices;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SimpleGui;
 using ECommons.StringHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.Schedulers;
 using Lifestream.Tasks;
 using Lumina.Excel.GeneratedSheets;
 using System.Security.Permissions;
@@ -145,6 +148,18 @@ namespace Lifestream
                         type = DCVType.GuestToGuest;
                     }
                 }
+                TaskRemoveAfkStatus.Enqueue();
+                if(type != DCVType.Unknown)
+                {
+                    if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)))
+                    {
+                        TaskTpToGateway.Enqueue();
+                    }
+                    if(Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                    {
+                        P.TaskManager.Enqueue(WorldChange.LeaveAnyParty);
+                    }
+                }
                 if(type == DCVType.HomeToGuest)
                 {
                     if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
@@ -160,7 +175,9 @@ namespace Lifestream
                     TaskSelectChara.Enqueue(Player.Name);
                     if (Player.HomeWorld != w)
                     {
-                        TaskTPAndChangeWorld.Enqueue(w);
+                        P.TaskManager.Enqueue(WorldChange.WaitUntilNotBusy, 60.Minutes());
+                        P.TaskManager.DelayNext(1000);
+                        P.TaskManager.Enqueue(() => TaskTPAndChangeWorld.Enqueue(w));
                     }
                 }
                 else if(type == DCVType.GuestToGuest)
@@ -178,6 +195,7 @@ namespace Lifestream
             }
             else
             {
+                TaskRemoveAfkStatus.Enqueue();
                 TaskTPAndChangeWorld.Enqueue(w);
             }
         }

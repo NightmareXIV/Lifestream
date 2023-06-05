@@ -220,6 +220,18 @@ namespace Lifestream.Schedulers
             return false;
         }
 
+        internal static bool? LeaveAnyParty()
+        {
+            if (!Player.Available) return false;
+            if (Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]) return true;
+            if (EzThrottler.Throttle("LeaveParty", 200))
+            {
+                Chat.Instance.SendMessage("/leave");
+                return true;
+            }
+            return false;
+        }
+
         internal static bool? ConfirmLeaveParty()
         {
             if (!Player.Available) return false;

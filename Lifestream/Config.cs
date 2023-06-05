@@ -31,5 +31,7 @@ namespace Lifestream
         public bool WalkToAetheryte = true;
         public bool LeavePartyBeforeWorldChange = false;
         public bool AllowDcTransfer = false;
+        public bool LeavePartyBeforeLogout = true;
+        public bool TeleportToGatewayBeforeLogout = true;
     }
 }
