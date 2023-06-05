@@ -1,4 +1,5 @@
-﻿using Lifestream.Schedulers;
+﻿using ECommons.GameHelpers;
+using Lifestream.Schedulers;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,6 @@ namespace Lifestream.Tasks
         {
             var dc = Svc.Data.GetExcelSheet<World>().First(x => x.Name == destination).DataCenter.Value.Name.ToString();
             PluginLog.Debug($"Beginning data center changing process. Destination: {dc}, {destination}");
-            P.TaskManager.Enqueue(DCChange.WaitUntilNotBusy, 1.Minutes());
-            P.TaskManager.Enqueue(DCChange.Logout);
-            P.TaskManager.Enqueue(DCChange.SelectYesLogout, 1.Minutes());
-            P.TaskManager.Enqueue(DCChange.WaitUntilCanAutoLogin, 2.Minutes());
-            P.TaskManager.Enqueue(DCChange.TitleScreenClickStart, 1.Minutes());
             P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
@@ -27,7 +23,7 @@ namespace Lifestream.Tasks
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectOk, int.MaxValue);
-            P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName));
+            TaskSelectChara.Enqueue(charaName);
         }
     }
 }

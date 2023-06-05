@@ -92,7 +92,7 @@ namespace Lifestream
                 Notify.Error($"Data center transfers are not enabled in the configuration.");
                 return;
             }
-            if (!Svc.PluginInterface.PluginInternalNames.Contains("TeleporterPlugin"))
+            if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
             {
                 Notify.Error("Teleporter plugin is not installed");
                 return;
@@ -124,11 +124,22 @@ namespace Lifestream
             Notify.Info($"Destination: {w}");
             if (isDcTransfer)
             {
-                if(Player.Object.HomeWorld.Id != Player.Object.CurrentWorld.Id)
+                if (Player.Object.CurrentWorld.GameData.DataCenter.Row != Svc.Data.GetExcelSheet<World>().First(x => x.Name == w).DataCenter.Row)
                 {
-                    TaskTPAndChangeWorld.Enqueue(w);
+                    TaskLogoutAndRelog.Enqueue();
+                    TaskReturnToHomeDC.Enqueue(Player.Name.ToString());
+                }
+                else
+                {
+                    if (!Player.IsInHomeWorld)
+                    {
+                        TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
+                        TaskWaitUntilInHomeWorld.Enqueue();
+                    }
+                    TaskLogoutAndRelog.Enqueue();
                 }
                 TaskChangeDatacenter.Enqueue(w, Player.Name.ToString());
+                TaskSelectChara.Enqueue(Player.Name.ToString());
             }
             else
             {

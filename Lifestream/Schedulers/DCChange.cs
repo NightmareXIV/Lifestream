@@ -42,6 +42,10 @@ namespace Lifestream.Schedulers
 
         internal static bool? SelectYesLogin()
         {
+            if (Svc.ClientState.IsLoggedIn)
+            {
+                return true;
+            }
             var addon = Util.GetSpecificYesno(true, "Logging in with");
             if (addon == null || !IsAddonReady(addon))
             {
@@ -168,10 +172,36 @@ namespace Lifestream.Schedulers
                 if (textNode->Alpha_2 == 255)
                 {
                     var text = MemoryHelper.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
-                    if(text.EqualsAny("Visit Another Data Center") && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
+                    if (text.EqualsAny("Visit Another Data Center") && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
                     {
                         PluginLog.Debug($"[DCChange] Selecting visit another data center");
                         Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)8, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                DCRethrottle();
+            }
+            return false;
+        }
+
+        internal static bool? SelectReturnToHomeWorld()
+        {
+            if (TryGetAddonByName<AddonContextMenu>("ContextMenu", out var menu) && IsAddonReady(&menu->AtkUnitBase))
+            {
+                var addon = menu->AtkUnitBase;
+                var list = addon.UldManager.NodeList[2];
+                var item = list->GetAsAtkComponentNode()->Component->UldManager.NodeList[7];
+                var textNode = item->GetAsAtkComponentNode()->Component->UldManager.NodeList[6];
+                if (textNode->Alpha_2 == 255)
+                {
+                    var text = MemoryHelper.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
+                    if (text.EqualsAny("Return to Home World") && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
+                    {
+                        PluginLog.Debug($"[DCChange] Selecting return to home world");
+                        Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)6, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
                         return true;
                     }
                 }
