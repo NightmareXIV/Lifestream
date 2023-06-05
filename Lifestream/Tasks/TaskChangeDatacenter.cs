@@ -13,17 +13,17 @@ namespace Lifestream.Tasks
         internal static void Enqueue(string destination, string charaName)
         {
             var dc = Svc.Data.GetExcelSheet<World>().First(x => x.Name == destination).Name.ToString();
-            P.TaskManager.Enqueue(DCChange.WaitUntilNotBusy);
+            P.TaskManager.Enqueue(DCChange.WaitUntilNotBusy, 1.Minutes());
             P.TaskManager.Enqueue(DCChange.Logout);
-            P.TaskManager.Enqueue(DCChange.SelectYesLogout);
-            P.TaskManager.Enqueue(DCChange.Logout, 60 * 1000);
-            P.TaskManager.Enqueue(DCChange.TitleScreenClickStart);
-            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 300 * 1000);
+            P.TaskManager.Enqueue(DCChange.SelectYesLogout, 1.Minutes());
+            P.TaskManager.Enqueue(DCChange.WaitUntilCanAutoLogin, 2.Minutes());
+            P.TaskManager.Enqueue(DCChange.TitleScreenClickStart, 1.Minutes());
+            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
-            P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), 60 * 1000);
-            P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 60 * 1000);
-            P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 60 * 1000);
+            P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), 2.Minutes());
+            P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
+            P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectOk, int.MaxValue);
             P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName));
         }

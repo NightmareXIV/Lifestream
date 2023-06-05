@@ -28,6 +28,15 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static int Minutes(this int min)
+        {
+            return min * 60 * 1000;
+        }
+        internal static int Seconds(this int sec)
+        {
+            return sec * 1000;
+        }
+
         internal static bool CanAutoLogin()
         {
             return !Svc.ClientState.IsLoggedIn
