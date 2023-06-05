@@ -46,7 +46,11 @@ namespace Lifestream.Schedulers
             {
                 return true;
             }
-            var addon = Util.GetSpecificYesno(true, "Logging in with");
+            if(TryGetAddonByName<AtkUnitBase>("SelectOk", out var sok) && IsAddonReady(sok))
+            {
+                return true;
+            }
+            var addon = Util.GetSpecificYesno(true, "Logging in with", "Log in with");
             if (addon == null || !IsAddonReady(addon))
             {
                 DCRethrottle();
@@ -100,9 +104,9 @@ namespace Lifestream.Schedulers
                 {
                     PluginLog.Debug($"[DCChange] Selecting character index {index}");
                     Callback.Fire(addon, false, (int)17, (int)0, (int)index);
-                    var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
-                    return nextAddon != null;
                 }
+                var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
+                return nextAddon != null;
             }
             else
             {
@@ -307,11 +311,18 @@ namespace Lifestream.Schedulers
         {
             if (TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
             {
-                if (DCThrottle && addon->UldManager.NodeList[5]->GetAsAtkComponentButton()->IsEnabled && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                if (addon->UldManager.NodeList[5]->GetAsAtkComponentButton()->IsEnabled)
                 {
-                    PluginLog.Debug($"[DCChange] Confirming DC visit");
-                    Callback.Fire(addon, true, (int)4);
-                    return true;
+                    if (DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                    {
+                        PluginLog.Debug($"[DCChange] Confirming DC visit");
+                        Callback.Fire(addon, true, (int)4);
+                        return true;
+                    }
+                }
+                else
+                {
+                    DCRethrottle();
                 }
             }
             else
@@ -325,11 +336,18 @@ namespace Lifestream.Schedulers
         {
             if (TryGetAddonByName<AtkUnitBase>("LobbyDKTCheckExec", out var addon) && IsAddonReady(addon))
             {
-                if (DCThrottle && addon->UldManager.NodeList[3]->GetAsAtkComponentButton()->IsEnabled && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                if (addon->UldManager.NodeList[3]->GetAsAtkComponentButton()->IsEnabled)
                 {
-                    PluginLog.Debug($"[DCChange] Confirming DC visit 2");
-                    Callback.Fire(addon, true, (int)0);
-                    return true;
+                    if (DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                    {
+                        PluginLog.Debug($"[DCChange] Confirming DC visit 2");
+                        Callback.Fire(addon, true, (int)0);
+                        return true;
+                    }
+                }
+                else
+                {
+                    DCRethrottle();
                 }
             }
             else

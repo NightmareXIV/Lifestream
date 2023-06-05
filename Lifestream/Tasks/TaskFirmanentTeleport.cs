@@ -19,7 +19,7 @@ namespace Lifestream.Tasks
              {
                  if (!Player.Available) return false;
                  return Util.TrySelectSpecificEntry(Lang.TravelToFirmament, () => EzThrottler.Throttle("SelectString"));
-             });
+             }, $"TeleportToFirmamentSelect {Lang.TravelToFirmament}");
         }
     }
 }

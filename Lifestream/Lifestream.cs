@@ -12,6 +12,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lifestream.GUI;
 using Lifestream.Tasks;
 using Lumina.Excel.GeneratedSheets;
+using System.Security.Permissions;
 
 namespace Lifestream
 {
@@ -124,22 +125,55 @@ namespace Lifestream
             Notify.Info($"Destination: {w}");
             if (isDcTransfer)
             {
-                if (Player.Object.CurrentWorld.GameData.DataCenter.Row != Svc.Data.GetExcelSheet<World>().First(x => x.Name == w).DataCenter.Row)
+                var type = DCVType.Unknown;
+                var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
+                var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
+                var targetDC = Util.GetDataCenter(w);
+                if(currentDC == homeDC)
                 {
-                    TaskLogoutAndRelog.Enqueue();
-                    TaskReturnToHomeDC.Enqueue(Player.Name.ToString());
+                    type = DCVType.HomeToGuest;
                 }
                 else
                 {
-                    if (!Player.IsInHomeWorld)
+                    if(targetDC == homeDC)
                     {
-                        TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
-                        TaskWaitUntilInHomeWorld.Enqueue();
+                        type = DCVType.GuestToHome;
                     }
-                    TaskLogoutAndRelog.Enqueue();
+                    else
+                    {
+                        type = DCVType.GuestToGuest;
+                    }
                 }
-                TaskChangeDatacenter.Enqueue(w, Player.Name.ToString());
-                TaskSelectChara.Enqueue(Player.Name.ToString());
+                if(type == DCVType.HomeToGuest)
+                {
+                    if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
+                    TaskWaitUntilInHomeWorld.Enqueue();
+                    TaskLogoutAndRelog.Enqueue();
+                    TaskChangeDatacenter.Enqueue(w, Player.Name);
+                    TaskSelectChara.Enqueue(Player.Name);
+                }
+                else if(type == DCVType.GuestToHome)
+                {
+                    TaskLogoutAndRelog.Enqueue();
+                    TaskReturnToHomeDC.Enqueue(Player.Name);
+                    TaskSelectChara.Enqueue(Player.Name);
+                    if (Player.HomeWorld != w)
+                    {
+                        TaskTPAndChangeWorld.Enqueue(w);
+                    }
+                }
+                else if(type == DCVType.GuestToGuest)
+                {
+                    TaskLogoutAndRelog.Enqueue();
+                    TaskReturnToHomeDC.Enqueue(Player.Name);
+                    TaskChangeDatacenter.Enqueue(w, Player.Name);
+                    TaskSelectChara.Enqueue(Player.Name);
+                }
+                else
+                {
+                    DuoLog.Error($"Error - unknown data center visit type");
+                }
+                Notify.Info($"Data center visit: {type}");
             }
             else
             {

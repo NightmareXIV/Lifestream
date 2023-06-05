@@ -25,6 +25,7 @@ namespace Lifestream.GUI
 
         public override void Draw()
         {
+            CImGui.igBringWindowToDisplayBack(CImGui.igGetCurrentWindow());
             if (ImGui.IsWindowHovered())
             {
                 ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);

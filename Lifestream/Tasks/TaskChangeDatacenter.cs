@@ -13,13 +13,13 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue(string destination, string charaName)
         {
-            var dc = Svc.Data.GetExcelSheet<World>().First(x => x.Name == destination).DataCenter.Value.Name.ToString();
+            var dc = Util.GetDataCenter(destination);
             PluginLog.Debug($"Beginning data center changing process. Destination: {dc}, {destination}");
-            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes());
+            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes(), nameof(DCChange.OpenContextMenuForChara));
             P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
-            P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), 2.Minutes());
-            P.TaskManager.Enqueue(() => DCChange.SelectTargetWorld(destination), 2.Minutes());
+            P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), 2.Minutes(), nameof(DCChange.SelectTargetDataCenter));
+            P.TaskManager.Enqueue(() => DCChange.SelectTargetWorld(destination), 2.Minutes(), nameof(DCChange.SelectTargetWorld));
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectOk, int.MaxValue);

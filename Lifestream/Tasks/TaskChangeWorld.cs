@@ -18,8 +18,8 @@ namespace Lifestream.Tasks
             P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
             P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
             P.TaskManager.Enqueue(WorldChange.SelectVisitAnotherWorld);
-            P.TaskManager.Enqueue(() => WorldChange.SelectWorldToVisit(world));
-            P.TaskManager.Enqueue(() => WorldChange.ConfirmWorldVisit(world));
+            P.TaskManager.Enqueue(() => WorldChange.SelectWorldToVisit(world), $"{nameof(WorldChange.SelectWorldToVisit)}, {world}");
+            P.TaskManager.Enqueue(() => WorldChange.ConfirmWorldVisit(world), $"{nameof(WorldChange.ConfirmWorldVisit)}, {world}");
         }
     }
 }

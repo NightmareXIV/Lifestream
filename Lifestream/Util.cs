@@ -28,6 +28,11 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static string GetDataCenter(string world)
+        {
+            return Svc.Data.GetExcelSheet<World>().First(x => x.Name == world).DataCenter.Value.Name.ToString();
+        }
+
         internal static int Minutes(this int min)
         {
             return min * 60 * 1000;

@@ -11,8 +11,8 @@ namespace Lifestream.Tasks
     {
         internal static void Enqueue(string charaName)
         {
-            P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName));
-            P.TaskManager.Enqueue(DCChange.SelectYesLogin, 1.Minutes());
+            P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName), nameof(DCChange.SelectCharacter));
+            P.TaskManager.Enqueue(DCChange.SelectYesLogin, 60.Minutes());
         }
     }
 }
