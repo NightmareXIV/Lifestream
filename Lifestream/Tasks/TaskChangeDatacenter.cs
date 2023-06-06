@@ -23,7 +23,6 @@ namespace Lifestream.Tasks
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.SelectOk, int.MaxValue);
-            TaskSelectChara.Enqueue(charaName);
         }
     }
 }

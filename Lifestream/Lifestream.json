@@ -6,5 +6,6 @@
     "ApplicableVersion": "any",
     "Punchline": "A plugin to speed up Aethernet travel and World changing.",
     "RepoUrl": "https://github.com/NightmareXIV/Lifestream",
-    "AcceptsFeedback": false
+    "AcceptsFeedback": false,
+    "IconUrl": "https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/icons/lifestream.png"
 }
