@@ -23,6 +23,8 @@ namespace Lifestream
             internal const string HomeWorld = "";
         }
 
+        internal static readonly string[] LogInPartialText = new string[] { "Logging in with", "Log in with", "でログインします。", "einloggen?", "eingeloggt.", "Se connecter avec", "Vous allez vous connecter avec", "Souhaitez-vous vous connecter avec" };
+
         /*
         1	TEXT_AETHERYTE_TOWN_WARP<Gui(69)/> Aethernet.
         1	TEXT_AETHERYTE_TOWN_WARP<Gui(69)/> 都市転送網

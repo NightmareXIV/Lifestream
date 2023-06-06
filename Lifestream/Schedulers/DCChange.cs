@@ -8,6 +8,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +60,7 @@ namespace Lifestream.Schedulers
                 }
             }
             {
-                var addon = Util.GetSpecificYesno(true, "Logging in with", "Log in with");
+                var addon = Util.GetSpecificYesno(true, Lang.LogInPartialText);
                 if (addon == null || !IsAddonReady(addon))
                 {
                     DCRethrottle();
@@ -206,7 +207,7 @@ namespace Lifestream.Schedulers
                 if (textNode->Alpha_2 == 255)
                 {
                     var text = MemoryHelper.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
-                    if (text.EqualsAny("Visit Another Data Center") && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
+                    if (text.EqualsAny(Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.ToDalamudString().ExtractText()) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
                     {
                         PluginLog.Debug($"[DCChange] Selecting visit another data center");
                         Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)8, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
@@ -232,7 +233,8 @@ namespace Lifestream.Schedulers
                 if (textNode->Alpha_2 == 255)
                 {
                     var text = MemoryHelper.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
-                    if (text.EqualsAny("Return to Home World") && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
+                    //"Return to Home World"
+                    if (text.EqualsAny(Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.ToDalamudString().ExtractText()) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
                     {
                         PluginLog.Debug($"[DCChange] Selecting return to home world");
                         Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)6, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
