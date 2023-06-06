@@ -29,7 +29,7 @@ namespace Lifestream
         public WorldChangeAetheryte WorldChangeAetheryte = WorldChangeAetheryte.Uldah;
         public bool Firmament = true;
         public bool WalkToAetheryte = true;
-        public bool LeavePartyBeforeWorldChange = false;
+        public bool LeavePartyBeforeWorldChange = true;
         public bool AllowDcTransfer = false;
         public bool LeavePartyBeforeLogout = true;
         public bool TeleportToGatewayBeforeLogout = true;

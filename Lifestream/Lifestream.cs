@@ -133,11 +133,11 @@ namespace Lifestream
                 Notify.Error("Already in this world");
                 return;
             }
-            /*if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
+            if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
             {
                 Notify.Error("You are unable to teleport at this time");
                 return;
-            }*/
+            }
             if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");

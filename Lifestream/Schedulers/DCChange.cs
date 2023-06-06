@@ -48,14 +48,9 @@ namespace Lifestream.Schedulers
                 return true;
             }
             {
-                if (TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
-                {
-                    return true;
-                }
-            }
-            {
                 if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
                 {
+                    PluginLog.Debug($"NowLoading encountered");
                     return true;
                 }
             }
@@ -109,18 +104,7 @@ namespace Lifestream.Schedulers
             {
                 if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
                 {
-                    return true;
-                }
-            }
-            {
-                if (TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
-                {
-                    return true;
-                }
-            }
-            {
-                if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var addon) && IsAddonReady(addon))
-                {
+                    PluginLog.Debug($"NowLoading encountered");
                     return true;
                 }
             }
