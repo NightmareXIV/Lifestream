@@ -48,13 +48,6 @@ namespace Lifestream.Schedulers
                 return true;
             }
             {
-                if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
-                {
-                    PluginLog.Debug($"NowLoading encountered");
-                    return true;
-                }
-            }
-            {
                 var addon = Util.GetSpecificYesno(true, Lang.LogInPartialText);
                 if (addon == null || !IsAddonReady(addon))
                 {
@@ -101,13 +94,6 @@ namespace Lifestream.Schedulers
 
         internal static bool? SelectCharacter(string name)
         {
-            {
-                if (TryGetAddonByName<AtkUnitBase>("NowLoading", out var addon) && IsAddonReady(addon))
-                {
-                    PluginLog.Debug($"NowLoading encountered");
-                    return true;
-                }
-            }
             {
                 // Select Character
                 var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("_CharaSelectListMenu", 1);
