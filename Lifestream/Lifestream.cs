@@ -167,7 +167,7 @@ namespace Lifestream
                 TaskRemoveAfkStatus.Enqueue();
                 if(type != DCVType.Unknown)
                 {
-                    if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)))
+                    if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                     {
                         TaskTpToGateway.Enqueue();
                     }
