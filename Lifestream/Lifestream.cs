@@ -57,7 +57,7 @@ namespace Lifestream
                 ProperOnLogin.Register(() => P.DataStore.BuildWorlds());
                 Svc.Framework.Update += Framework_Update;
                 Memory = new();
-                EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
+                //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
                 Svc.Toasts.ErrorToast += Toasts_ErrorToast;
             });
         }
@@ -183,6 +183,8 @@ namespace Lifestream
                     TaskLogoutAndRelog.Enqueue();
                     TaskChangeDatacenter.Enqueue(w, Player.Name);
                     TaskSelectChara.Enqueue(Player.Name);
+                    TaskWaitUntilInWorld.Enqueue(w);
+                    TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 }
                 else if(type == DCVType.GuestToHome)
                 {
@@ -195,6 +197,11 @@ namespace Lifestream
                         P.TaskManager.DelayNext(1000);
                         P.TaskManager.Enqueue(() => TaskTPAndChangeWorld.Enqueue(w));
                     }
+                    else
+                    {
+                        TaskWaitUntilInWorld.Enqueue(w);
+                    }
+                    TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 }
                 else if(type == DCVType.GuestToGuest)
                 {
@@ -202,6 +209,8 @@ namespace Lifestream
                     TaskReturnToHomeDC.Enqueue(Player.Name);
                     TaskChangeDatacenter.Enqueue(w, Player.Name);
                     TaskSelectChara.Enqueue(Player.Name);
+                    TaskWaitUntilInWorld.Enqueue(w);
+                    TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 }
                 else
                 {
@@ -213,6 +222,7 @@ namespace Lifestream
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskTPAndChangeWorld.Enqueue(w);
+                TaskDesktopNotification.Enqueue($"Arrived to {w}");
             }
         }
 

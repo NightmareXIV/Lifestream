@@ -8,6 +8,7 @@ using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.Reflection;
 using ECommons.Throttlers;
 using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
@@ -29,6 +30,17 @@ namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static void TryNotify(string s)
+        {
+            if (DalamudReflector.TryGetDalamudPlugin("NotificationMaster", out var instance, true, true))
+            {
+                Safe(delegate
+                {
+                    instance.GetType().Assembly.GetType("NotificationMaster.TrayIconManager", true).GetMethod("ShowToast").Invoke(null, new object[] { s, P.Name });
+                }, true);
+            }
+        }
+
         internal static string GetDataCenter(string world)
         {
             return Svc.Data.GetExcelSheet<World>().First(x => x.Name == world).DataCenter.Value.Name.ToString();

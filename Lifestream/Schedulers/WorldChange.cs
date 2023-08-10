@@ -111,7 +111,7 @@ namespace Lifestream.Schedulers
             {
                 if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
                 {
-                    if (Util.GetAvailableAethernetDestinations().Any(x => x.ESEquals(t.Name)))
+                    if (Util.GetAvailableAethernetDestinations().Any(x => x.Equals(t.Name)))
                     {
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
@@ -122,6 +122,24 @@ namespace Lifestream.Schedulers
                     }
                     else
                     {
+                        PluginLog.Debug($"Could not find destination {t.Name}, attempting partial search...");
+                        foreach(var destText in Util.GetAvailableAethernetDestinations())
+                        {
+                            if(destText.Length > 20)
+                            {
+                                var text = destText[..^3];
+                                if (t.Name.StartsWith(text))
+                                {
+                                    if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
+                                    {
+                                        PluginLog.Debug($"Destination {t.Name} starts with {text}, assuming successful search");
+                                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
                         if (EzThrottler.Throttle("TeleportToAethernetDestinationLog", 5000))
                         {
                             PluginLog.Warning($"GetAvailableAethernetDestinations does not contains {t.Name}, contains {Util.GetAvailableAethernetDestinations().Print()}");

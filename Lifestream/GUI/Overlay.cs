@@ -164,6 +164,7 @@ namespace Lifestream.GUI
                 {
                     TaskRemoveAfkStatus.Enqueue();
                     TaskChangeWorld.Enqueue(x);
+                    TaskDesktopNotification.Enqueue($"Arrived to {x}");
                 }
                 if (d) ImGui.EndDisabled();
             }
