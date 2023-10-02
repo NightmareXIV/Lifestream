@@ -12,6 +12,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons.Automation;
 using Lifestream.Schedulers;
 using ECommons.GameFunctions;
+using ECommons.UIHelpers;
 
 namespace Lifestream.GUI
 {
@@ -25,8 +26,23 @@ namespace Lifestream.GUI
         {
             ImGuiEx.EzTabBar("debug",
                 ("Data editor", Editor, null, true),
+                ("AtkReader", Reader, null, true),
                 ("Debug", Debug, null, true)
                 );
+        }
+
+        static void Reader()
+        {
+            if(TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
+            {
+                var reader = new ReaderTelepotTown(addon);
+                for (int i = 0; i < reader.DestinationData.Count; i++)
+                {
+                    var data = reader.DestinationData[i];
+                    var name = reader.DestinationName[i];
+                    ImGuiEx.Text($"{data.Type}|{data.State}|{data.CallbackData}|{data.IconID}|{name.Name}");
+                }
+            }
         }
 
         static int index = 0;

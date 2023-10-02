@@ -36,7 +36,7 @@ namespace Lifestream.GUI
                 }
             }
             var percent = 1f - (float)P.TaskManager.NumQueuedTasks / (float)P.TaskManager.MaxTasks;
-            ImGui.PushStyleColor(ImGuiCol.PlotHistogram, Colors.Violet);
+            ImGui.PushStyleColor(ImGuiCol.PlotHistogram, EColor.Violet);
             ImGui.ProgressBar(percent, new(ImGui.GetContentRegionAvail().X, 20));
             ImGui.PopStyleColor();
             this.Position = new(0, ImGuiHelpers.MainViewport.Size.Y - ImGui.GetWindowSize().Y);
