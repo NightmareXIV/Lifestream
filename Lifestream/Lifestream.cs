@@ -226,7 +226,7 @@ namespace Lifestream
             }
         }
 
-        private void Framework_Update(Framework framework)
+        private void Framework_Update(object framework)
         {
             YesAlreadyManager.Tick();
             if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
