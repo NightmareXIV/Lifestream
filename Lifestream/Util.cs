@@ -3,28 +3,17 @@ using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
-using ECommons;
-using ECommons.ExcelServices.TerritoryEnumeration;
+using Dalamud.Utility;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Reflection;
-using ECommons.Throttlers;
-using FFXIVClientStructs.Attributes;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
-using Lifestream.GUI;
-using Lumina.Data.Parsing;
 using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
+using CharaData = (string Name, ushort World);
 
 namespace Lifestream
 {
@@ -74,16 +63,16 @@ namespace Lifestream
             [WorldChangeAetheryte.Gridania] = 132
         };
 
-        internal static bool TryGetCharacterIndex(string name, out int index)
+        internal static bool TryGetCharacterIndex(string name, uint world, out int index)
         {
-            index = GetCharacterNames().IndexOf(name);
+            index = GetCharacterNames().IndexOf((name, (ushort)world));
             return index >= 0;
         }
 
-        internal static List<string> GetCharacterNames()
+        internal static List<CharaData> GetCharacterNames()
         {
-            List<string> ret = new();
-            var data = CSFramework.Instance()->UIModule->GetRaptureAtkModule()->AtkModule.GetStringArrayData(1);
+            List<CharaData> ret = [];
+            /*var data = CSFramework.Instance()->UIModule->GetRaptureAtkModule()->AtkModule.GetStringArrayData(1);
             if (data != null)
             {
                 for (int i = 60; i < data->AtkArrayData.Size; i++)
@@ -96,6 +85,16 @@ namespace Lifestream
                         if (str == "") break;
                         ret.Add(str);
                     }
+                }
+            }*/
+            var agent = AgentLobby.Instance();
+            if (agent->AgentInterface.IsAgentActive())
+            {
+                var charaSpan = agent->LobbyData.CharaSelectEntries.Span;
+                for (int i = 0; i < charaSpan.Length; i++)
+                {
+                    var s = charaSpan[i];
+                    ret.Add(($"{MemoryHelper.ReadStringNullTerminated((nint)s.Value->Name)}", s.Value->HomeWorldId));
                 }
             }
             return ret;

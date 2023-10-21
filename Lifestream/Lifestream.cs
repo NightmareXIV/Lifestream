@@ -113,11 +113,6 @@ namespace Lifestream
                 Notify.Error($"Data center transfers are not enabled in the configuration.");
                 return;
             }
-            if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
-            {
-                Notify.Error("Teleporter plugin is not installed");
-                return;
-            }
             if (TaskManager.IsBusy)
             {
                 Notify.Error("Another task is in progress");
@@ -141,6 +136,10 @@ namespace Lifestream
             if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");
+            }
+            if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
+            {
+                Notify.Warning("Teleporter plugin is not installed");
             }
             Notify.Info($"Destination: {w}");
             if (isDcTransfer)
@@ -181,16 +180,16 @@ namespace Lifestream
                     if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
                     TaskWaitUntilInHomeWorld.Enqueue();
                     TaskLogoutAndRelog.Enqueue();
-                    TaskChangeDatacenter.Enqueue(w, Player.Name);
-                    TaskSelectChara.Enqueue(Player.Name);
+                    TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 }
                 else if(type == DCVType.GuestToHome)
                 {
                     TaskLogoutAndRelog.Enqueue();
-                    TaskReturnToHomeDC.Enqueue(Player.Name);
-                    TaskSelectChara.Enqueue(Player.Name);
+                    TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     if (Player.HomeWorld != w)
                     {
                         P.TaskManager.Enqueue(WorldChange.WaitUntilNotBusy, 60.Minutes());
@@ -206,9 +205,9 @@ namespace Lifestream
                 else if(type == DCVType.GuestToGuest)
                 {
                     TaskLogoutAndRelog.Enqueue();
-                    TaskReturnToHomeDC.Enqueue(Player.Name);
-                    TaskChangeDatacenter.Enqueue(w, Player.Name);
-                    TaskSelectChara.Enqueue(Player.Name);
+                    TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 }

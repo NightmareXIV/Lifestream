@@ -9,10 +9,10 @@ namespace Lifestream.Tasks
 {
     internal class TaskReturnToHomeDC
     {
-        internal static void Enqueue(string charaName)
+        internal static void Enqueue(string charaName, uint charaWorld)
         {
             PluginLog.Debug($"Beginning returning home process.");
-            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes(), nameof(DCChange.OpenContextMenuForChara));
+            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaWorld), 5.Minutes(), nameof(DCChange.OpenContextMenuForChara));
             P.TaskManager.Enqueue(DCChange.SelectReturnToHomeWorld);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());

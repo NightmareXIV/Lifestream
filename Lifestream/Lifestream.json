@@ -7,5 +7,6 @@
     "Punchline": "A plugin to speed up Aethernet travel and World changing.",
     "RepoUrl": "https://github.com/NightmareXIV/Lifestream",
     "AcceptsFeedback": false,
-    "IconUrl": "https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/icons/lifestream.png"
+    "IconUrl": "https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/icons/lifestream.png",
+    "DalamudApiLevel": 9
 }

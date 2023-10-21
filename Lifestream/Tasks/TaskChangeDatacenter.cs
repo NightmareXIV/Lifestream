@@ -11,11 +11,11 @@ namespace Lifestream.Tasks
 {
     internal static class TaskChangeDatacenter
     {
-        internal static void Enqueue(string destination, string charaName)
+        internal static void Enqueue(string destination, string charaName, uint charaWorld)
         {
             var dc = Util.GetDataCenter(destination);
             PluginLog.Debug($"Beginning data center changing process. Destination: {dc}, {destination}");
-            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName), 5.Minutes(), nameof(DCChange.OpenContextMenuForChara));
+            P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaWorld), 5.Minutes(), nameof(DCChange.OpenContextMenuForChara));
             P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
             P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), 2.Minutes(), nameof(DCChange.SelectTargetDataCenter));

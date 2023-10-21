@@ -7,6 +7,7 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.Attributes;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
 using System;
@@ -92,18 +93,20 @@ namespace Lifestream.Schedulers
         }
 
 
-        internal static bool? SelectCharacter(string name)
+        internal static bool? SelectCharacter(string name, uint world)
         {
             {
                 // Select Character
                 var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("_CharaSelectListMenu", 1);
                 if (addon == null) return false;
-                if (Util.TryGetCharacterIndex(name, out var index))
+                if (!AgentLobby.Instance()->AgentInterface.IsAgentActive()) return false;
+                if (AgentLobby.Instance()->TemporaryLocked) return false;
+                if (Util.TryGetCharacterIndex(name, world, out var index))
                 {
                     if (DCThrottle && EzThrottler.Check("CharaSelectListMenuError"))
                     {
                         PluginLog.Debug($"[DCChange] Selecting character index {index}");
-                        Callback.Fire(addon, false, (int)17, (int)0, (int)index);
+                        Callback.Fire(addon, false, (int)18, (int)0, (int)index);
                     }
                     var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
                     return nextAddon != null;
@@ -142,7 +145,7 @@ namespace Lifestream.Schedulers
             return false;
         }
 
-        internal static bool? OpenContextMenuForChara(string name)
+        internal static bool? OpenContextMenuForChara(string name, uint world)
         {
             if(TryGetAddonByName<AddonContextMenu>("ContextMenu", out var m) && IsAddonReady(&m->AtkUnitBase))
             {
@@ -151,10 +154,10 @@ namespace Lifestream.Schedulers
             }
             if (TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon))
             {
-                if (Util.TryGetCharacterIndex(name, out var index) && DCThrottle && EzThrottler.Throttle("OpenContextMenuForChara"))
+                if (Util.TryGetCharacterIndex(name, world, out var index) && DCThrottle && EzThrottler.Throttle("OpenContextMenuForChara"))
                 {
                     PluginLog.Debug($"[DCChange] Opening context menu index {index}");
-                    Callback.Fire(addon, true, (int)17, (int)1, (int)index);
+                    Callback.Fire(addon, true, (int)18, (int)1, (int)index);
                     DCRethrottle();
                     return false;
                 }
