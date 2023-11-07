@@ -126,8 +126,8 @@ namespace Lifestream
             return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld] || Svc.Condition[ConditionFlag.Jumping];
         }
 
-        internal static string[] Addons = new string[]
-        {
+        internal static string[] Addons =
+        [
             "Inventory",
             "InventoryLarge",
             "AreaMap",
@@ -159,7 +159,7 @@ namespace Lifestream
             "PartyMemberList",
             "ContentsFinderConfirm",
             "SelectString",
-        };
+        ];
         internal static bool IsAddonsVisible(string[] addons)
         {
             foreach(var x in addons)

@@ -42,9 +42,10 @@ namespace Lifestream.GUI
                 ImGui.Checkbox($"Attempt to walk to nearby aetheryte on world change command from greater distance if possible", ref P.Config.WalkToAetheryte);
                 ImGui.Checkbox($"Add firmament location into Foundation aetheryte", ref P.Config.Firmament);
                 ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
-                ImGui.Checkbox($"[beta] Allow travelling to another data center", ref P.Config.AllowDcTransfer);
+                ImGui.Checkbox($"Allow travelling to another data center", ref P.Config.AllowDcTransfer);
                 ImGui.Checkbox($"Leave party before switching data center", ref P.Config.LeavePartyBeforeLogout);
                 ImGui.Checkbox($"Teleport to gateway before switching data center if not in sanctuary", ref P.Config.TeleportToGatewayBeforeLogout);
+                ImGui.Checkbox($"Hide progress bar", ref P.Config.NoProgressBar);
             }
             if (ImGui.CollapsingHeader("Hidden aetherytes"))
             {

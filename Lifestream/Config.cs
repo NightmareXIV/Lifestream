@@ -30,8 +30,9 @@ namespace Lifestream
         public bool Firmament = true;
         public bool WalkToAetheryte = true;
         public bool LeavePartyBeforeWorldChange = true;
-        public bool AllowDcTransfer = false;
+        public bool AllowDcTransfer = true;
         public bool LeavePartyBeforeLogout = true;
         public bool TeleportToGatewayBeforeLogout = true;
+        public bool NoProgressBar = false;
     }
 }

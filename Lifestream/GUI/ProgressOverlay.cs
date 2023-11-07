@@ -44,7 +44,7 @@ namespace Lifestream.GUI
 
         public override bool DrawConditions()
         {
-            return P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0;
+            return P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0 && !P.Config.NoProgressBar;
         }
     }
 }

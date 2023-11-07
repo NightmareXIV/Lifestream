@@ -49,6 +49,12 @@ namespace Lifestream.Schedulers
                 return true;
             }
             {
+                if (TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
+                {
+                    return true;
+                }
+            }
+            {
                 var addon = Util.GetSpecificYesno(true, Lang.LogInPartialText);
                 if (addon == null || !IsAddonReady(addon))
                 {
@@ -59,7 +65,7 @@ namespace Lifestream.Schedulers
                 {
                     PluginLog.Debug($"[DCChange] Confirming login");
                     ClickSelectYesNo.Using((nint)addon).Yes();
-                    return true;
+                    return false;
                 }
                 else
                 {

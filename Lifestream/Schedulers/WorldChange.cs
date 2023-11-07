@@ -73,7 +73,7 @@ namespace Lifestream.Schedulers
         internal static bool? ConfirmWorldVisit(string s)
         {
             if (!Player.Available) return false;
-            var x = (AddonSelectYesno*)Util.GetSpecificYesno(true, $"Travel to", "へ移動します、よろしいですか？", "Nach reisen?", "Voulez-vous vraiment visiter");
+            var x = (AddonSelectYesno*)Util.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
             if (x != null)
             {
                 if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))

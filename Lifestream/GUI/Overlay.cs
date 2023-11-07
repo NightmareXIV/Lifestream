@@ -12,7 +12,7 @@ namespace Lifestream.GUI
 {
     internal class Overlay : Window
     {
-        public Overlay() : base("Lifestream Overlay", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize, true)
+        public Overlay() : base("Lifestream Overlay", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing, true)
         {
             IsOpen = true;
         }
