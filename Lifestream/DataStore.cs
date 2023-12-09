@@ -93,6 +93,21 @@ namespace Lifestream
         internal void BuildWorlds()
         {
             BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.GameData.DataCenter.Value.RowId);
+            if(Player.Available)
+            {
+                if (P.AutoRetainerApi?.Ready == true)
+                {
+                    var data = P.AutoRetainerApi.GetOfflineCharacterData(Player.CID);
+                    if (data != null)
+                    {
+                        P.Config.ServiceAccounts[Player.NameWithWorld] = data.ServiceAccount;
+                    }
+                }
+                else if(!P.Config.ServiceAccounts.ContainsKey(Player.NameWithWorld))
+                {
+                    P.Config.ServiceAccounts[Player.NameWithWorld] = -1;
+                }
+            }
         }
 
         internal void BuildWorlds(uint dc)

@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33513.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lifestream", "Lifestream\Lifestream.csproj", "{48DDD549-22F4-47E7-914D-2D3D06B40419}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lifestream", "Lifestream\Lifestream.csproj", "{48DDD549-22F4-47E7-914D-2D3D06B40419}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECommons", "ECommons\ECommons\ECommons.csproj", "{25D4EDE1-6B0F-41C4-BA82-AE89E41904DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClickLib", "ClickLib\ClickLib\ClickLib.csproj", "{32402ABA-8601-46C1-BA8F-B50A540FC0DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoRetainerAPI", "AutoRetainerAPI\AutoRetainerAPI\AutoRetainerAPI.csproj", "{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{32402ABA-8601-46C1-BA8F-B50A540FC0DF}.Release|Any CPU.Build.0 = Release|x64
 		{32402ABA-8601-46C1-BA8F-B50A540FC0DF}.Release|x64.ActiveCfg = Release|x64
 		{32402ABA-8601-46C1-BA8F-B50A540FC0DF}.Release|x64.Build.0 = Release|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Debug|Any CPU.Build.0 = Debug|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Debug|x64.ActiveCfg = Debug|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Debug|x64.Build.0 = Debug|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Release|Any CPU.ActiveCfg = Release|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Release|Any CPU.Build.0 = Release|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Release|x64.ActiveCfg = Release|x64
+		{D0424DA4-A44F-4AEA-B6D7-1823DB14F597}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

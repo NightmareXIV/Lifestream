@@ -1,4 +1,5 @@
-﻿using Dalamud.Game;
+﻿using AutoRetainerAPI;
+using Dalamud.Game;
 using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Configuration;
@@ -33,7 +34,7 @@ namespace Lifestream
         internal Overlay Overlay;
 
         internal TinyAetheryte? ActiveAetheryte = null;
-
+        internal AutoRetainerApi AutoRetainerApi;
         internal uint Territory => Svc.ClientState.TerritoryType;
 
         public Lifestream(DalamudPluginInterface pluginInterface)
@@ -59,6 +60,7 @@ namespace Lifestream
                 Memory = new();
                 //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
                 Svc.Toasts.ErrorToast += Toasts_ErrorToast;
+                AutoRetainerApi = new();
             });
         }
 

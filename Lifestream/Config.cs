@@ -34,5 +34,6 @@ namespace Lifestream
         public bool LeavePartyBeforeLogout = true;
         public bool TeleportToGatewayBeforeLogout = true;
         public bool NoProgressBar = false;
+        public Dictionary<string, int> ServiceAccounts = [];
     }
 }

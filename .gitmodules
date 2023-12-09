@@ -4,3 +4,6 @@
 [submodule "ClickLib"]
 	path = ClickLib
 	url = https://github.com/Limiana/ClickLib
+[submodule "AutoRetainerAPI"]
+	path = AutoRetainerAPI
+	url = https://github.com/PunishXIV/AutoRetainerAPI
