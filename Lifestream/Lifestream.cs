@@ -1,6 +1,5 @@
 ﻿using AutoRetainerAPI;
 using Dalamud.Game;
-using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Configuration;
 using ECommons.Events;
@@ -49,7 +48,7 @@ namespace Lifestream
                 EzConfigGui.WindowSystem.AddWindow(Overlay);
                 EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
                 EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
-                EzCmd.Add("/li", ProcessCommand, "automatically switch world to specified (matched by first letters) or return to home world if none specified");
+                EzCmd.Add("/li", ProcessCommand, "automatically switch world to specified (matched by first letters) or return to home world if none specified, or teleport to aethernet destination if near aetheryte. Aethernet destination may be specified next to target world as well.");
                 TaskManager = new()
                 {
                     AbortOnTimeout = true
@@ -69,7 +68,7 @@ namespace Lifestream
             if (!Svc.ClientState.IsLoggedIn)
             {
                 //430	60	8	0	False	Please wait and try logging in later.
-                if (message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ToDalamudString().ExtractText().Trim())
+                if (message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ExtractText().Trim())
                 {
                     PluginLog.Warning($"CharaSelectListMenuError encountered");
                     EzThrottler.Throttle("CharaSelectListMenuError", 2.Minutes(), true);
@@ -92,24 +91,30 @@ namespace Lifestream
                 }
                 else
                 {
-                    if (DataStore.Worlds.TryGetFirst(x => x.StartsWith(arguments == "" ? Player.HomeWorld : arguments, StringComparison.OrdinalIgnoreCase), out var w))
+                    var primary = arguments.Split(' ').GetOrDefault(0);
+                    var secondary = arguments.Split(' ').GetOrDefault(1);
+                    if (DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                     {
-                        TPAndChangeWorld(w);
+                        TPAndChangeWorld(w, false, secondary);
                     }
-                    else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(arguments == "" ? Player.HomeWorld : arguments, StringComparison.OrdinalIgnoreCase), out var dcw))
+                    else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
                     {
-                        TPAndChangeWorld(dcw, true);
+                        TPAndChangeWorld(dcw, true, secondary);
                     }
                     else
                     {
-                        Notify.Error($"Destination world not found");
+                        TaskTryTpToAethernetDestination.Enqueue(primary);
                     }
                 }
             }
         }
 
-        private void TPAndChangeWorld(string w, bool isDcTransfer = false)
+        private void TPAndChangeWorld(string w, bool isDcTransfer = false, string secondaryTeleport = null)
         {
+            if(secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
+            {
+                secondaryTeleport = P.Config.WorldVisitTPTarget;
+            }
             if(isDcTransfer && !P.Config.AllowDcTransfer)
             {
                 Notify.Error($"Data center transfers are not enabled in the configuration.");
@@ -185,7 +190,10 @@ namespace Lifestream
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
+
+                    if (P.Config.DCReturnToGateway) TaskReturnToGateway.Enqueue();
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
                 }
                 else if(type == DCVType.GuestToHome)
                 {
@@ -202,7 +210,9 @@ namespace Lifestream
                     {
                         TaskWaitUntilInWorld.Enqueue(w);
                     }
+                    if (P.Config.DCReturnToGateway) TaskReturnToGateway.Enqueue();
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
                 }
                 else if(type == DCVType.GuestToGuest)
                 {
@@ -211,7 +221,9 @@ namespace Lifestream
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
+                    if (P.Config.DCReturnToGateway) TaskReturnToGateway.Enqueue();
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
                 }
                 else
                 {
@@ -224,6 +236,16 @@ namespace Lifestream
                 TaskRemoveAfkStatus.Enqueue();
                 TaskTPAndChangeWorld.Enqueue(w);
                 TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                EnqueueSecondary();
+            }
+
+            void EnqueueSecondary()
+            {
+                if (!secondaryTeleport.IsNullOrEmpty())
+                {
+                    P.TaskManager.Enqueue(() => Player.Interactable);
+                    P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.Enqueue(secondaryTeleport));
+                }
             }
         }
 

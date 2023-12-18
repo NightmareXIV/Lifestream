@@ -166,9 +166,15 @@ namespace Lifestream.GUI
                     TaskRemoveAfkStatus.Enqueue();
                     TaskChangeWorld.Enqueue(x);
                     TaskDesktopNotification.Enqueue($"Arrived to {x}");
+                    if (P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty() && !P.Config.WorldVisitTPOnlyCmd)
+                    {
+                        P.TaskManager.Enqueue(() => Player.Interactable);
+                        P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.Enqueue(P.Config.WorldVisitTPTarget));
+                    }
                 }
                 if (d) ImGui.EndDisabled();
             }
+
         }
 
         void ResizeButton(string t)

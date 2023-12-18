@@ -35,5 +35,10 @@ namespace Lifestream
         public bool TeleportToGatewayBeforeLogout = true;
         public bool NoProgressBar = false;
         public Dictionary<string, int> ServiceAccounts = [];
+        public bool DCReturnToGateway = false;
+        public bool WorldVisitTPToAethernet = false;
+        public string WorldVisitTPTarget = "";
+        public bool WorldVisitTPOnlyCmd = true;
+        public bool UseAutoRetainerAccounts = true;
     }
 }

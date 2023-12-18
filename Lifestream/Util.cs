@@ -12,13 +12,23 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
+using Lifestream.Tasks;
 using Lumina.Excel.GeneratedSheets;
+using System.CodeDom;
 using CharaData = (string Name, ushort World);
 
 namespace Lifestream
 {
     internal static unsafe class Util
     {
+        internal static uint GetTerritoryType(this WorldChangeAetheryte wca)
+        {
+            if (wca == WorldChangeAetheryte.Gridania) return 132;
+            if (wca == WorldChangeAetheryte.Uldah) return 130;
+            if (wca == WorldChangeAetheryte.Limsa) return 129;
+            throw new ArgumentOutOfRangeException(nameof(wca));
+        }
+
         internal static void TryNotify(string s)
         {
             if (DalamudReflector.TryGetDalamudPlugin("NotificationMaster", out var instance, true, true))

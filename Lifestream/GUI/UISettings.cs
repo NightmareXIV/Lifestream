@@ -45,6 +45,14 @@ namespace Lifestream.GUI
                 ImGui.Checkbox($"Allow travelling to another data center", ref P.Config.AllowDcTransfer);
                 ImGui.Checkbox($"Leave party before switching data center", ref P.Config.LeavePartyBeforeLogout);
                 ImGui.Checkbox($"Teleport to gateway before switching data center if not in sanctuary", ref P.Config.TeleportToGatewayBeforeLogout);
+                ImGui.Checkbox($"Teleport to gateway after completing data center travel", ref P.Config.DCReturnToGateway);
+                ImGui.Checkbox($"Teleport to specific aethernet destination after world/dc visit", ref P.Config.WorldVisitTPToAethernet);
+                if (P.Config.WorldVisitTPToAethernet)
+                {
+                    ImGui.SetNextItemWidth(250f);
+                    ImGui.InputText("Aethernet destination, as if you'd use in \"/li\" command", ref P.Config.WorldVisitTPTarget, 50);
+                    ImGui.Checkbox($"Only teleport from command but not from overlay", ref P.Config.WorldVisitTPOnlyCmd);
+                }
                 ImGui.Checkbox($"Hide progress bar", ref P.Config.NoProgressBar);
             }
             if (ImGui.CollapsingHeader("Hidden aetherytes"))

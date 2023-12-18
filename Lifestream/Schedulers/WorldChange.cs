@@ -155,7 +155,7 @@ namespace Lifestream.Schedulers
             return false;
         }
 
-        internal static bool? ExecuteTPCommand()
+        internal static bool? ExecuteTPToGatewayCommand()
         {
             if (!Player.Available) return false;
             if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
