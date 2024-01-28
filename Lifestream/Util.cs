@@ -31,13 +31,7 @@ namespace Lifestream
 
         internal static void TryNotify(string s)
         {
-            if (DalamudReflector.TryGetDalamudPlugin("NotificationMaster", out var instance, true, true))
-            {
-                Safe(delegate
-                {
-                    instance.GetType().Assembly.GetType("NotificationMaster.TrayIconManager", true).GetMethod("ShowToast").Invoke(null, new object[] { s, P.Name });
-                }, true);
-            }
+            P.NotificationMasterApi.DisplayTrayNotification(P.Name, s);
         }
 
         internal static string GetDataCenter(string world)

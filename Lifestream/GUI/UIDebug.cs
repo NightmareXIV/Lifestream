@@ -51,7 +51,6 @@ namespace Lifestream.GUI
         static string str3 = "";
         static void Debug()
         {
-            ImGuiEx.Text($"YA: {YesAlreadyManager.Version}");
             if (ImGui.CollapsingHeader("DCV"))
             {
                 if(ImGui.Button("Enable AtkComponentTreeList_vf31Hook hook"))

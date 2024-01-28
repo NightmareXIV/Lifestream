@@ -95,7 +95,7 @@ namespace Lifestream
             BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.GameData.DataCenter.Value.RowId);
             if(Player.Available)
             {
-                if (P.AutoRetainerApi?.Ready == true)
+                if (P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
                 {
                     var data = P.AutoRetainerApi.GetOfflineCharacterData(Player.CID);
                     if (data != null)

@@ -11,8 +11,9 @@ namespace Lifestream.GUI
         internal static void Draw()
         {
             ImGuiEx.TextWrapped($"If you own more than 1 service accounts, you must assign each character to the correct service account.\nTo make character appear in this list, please log into it.");
+            ImGui.Checkbox($"Get service account data from AutoRetainer", ref P.Config.UseAutoRetainerAccounts);
             List<string> ManagedByAR = [];
-            if (P.AutoRetainerApi?.Ready == true)
+            if (P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
             {
                 var chars = P.AutoRetainerApi.GetRegisteredCharacters();
                 foreach (var c in chars)

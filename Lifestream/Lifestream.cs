@@ -18,6 +18,7 @@ using Lifestream.GUI;
 using Lifestream.Schedulers;
 using Lifestream.Tasks;
 using Lumina.Excel.GeneratedSheets;
+using NotificationMasterAPI;
 using System.Security.Permissions;
 
 namespace Lifestream
@@ -35,11 +36,12 @@ namespace Lifestream
         internal TinyAetheryte? ActiveAetheryte = null;
         internal AutoRetainerApi AutoRetainerApi;
         internal uint Territory => Svc.ClientState.TerritoryType;
+        internal NotificationMasterApi NotificationMasterApi;
 
         public Lifestream(DalamudPluginInterface pluginInterface)
         {
             P = this;
-            ECommonsMain.Init(pluginInterface, this, Module.DalamudReflector);
+            ECommonsMain.Init(pluginInterface, this);
             new TickScheduler(delegate
             {
                 Config = EzConfig.Init<Config>();
@@ -60,6 +62,7 @@ namespace Lifestream
                 //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
                 Svc.Toasts.ErrorToast += Toasts_ErrorToast;
                 AutoRetainerApi = new();
+                NotificationMasterApi = new(Svc.PluginInterface);
             });
         }
 

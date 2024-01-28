@@ -9,8 +9,6 @@ namespace Lifestream
 {
     internal static class YesAlreadyManager
     {
-        internal static Version Version => Svc.PluginInterface.InstalledPlugins.FirstOrDefault(x => x.IsLoaded && x.InternalName == "YesAlready")?.Version;
-        internal static readonly Version NewVersion = new("1.4.0.0");
         internal static bool Reenable = false;
         internal static HashSet<string> Data = null;
 
@@ -25,77 +23,36 @@ namespace Lifestream
 
         internal static void DisableIfNeeded()
         {
-            if(Version != null)
+            GetData();
+            if (Data != null)
             {
-                if(Version < NewVersion)
-                {
-                    if (DalamudReflector.TryGetDalamudPlugin("Yes Already", out var pl, false, true))
-                    {
-                        PluginLog.Information("Disabling Yes Already (old)");
-                        pl.GetStaticFoP("YesAlready.Service", "Configuration").SetFoP("Enabled", false);
-                        Reenable = true;
-                    }
-                }
-                else
-                {
-                    GetData();
-                    if (Data != null)
-                    {
-                        PluginLog.Information("Disabling Yes Already (new)");
-                        Data.Add(Svc.PluginInterface.InternalName);
-                        Reenable = true;
-                    }
-                }
+                PluginLog.Information("Disabling Yes Already (new)");
+                Data.Add(Svc.PluginInterface.InternalName);
+                Reenable = true;
             }
         }
 
         internal static void EnableIfNeeded()
         {
-            if (Reenable && Version != null)
+            if (Reenable)
             {
-                if (Version < NewVersion)
+                GetData();
+                if (Data != null)
                 {
-                    if (DalamudReflector.TryGetDalamudPlugin("Yes Already", out var pl, false, true))
-                    {
-                        PluginLog.Information("Enabling Yes Already");
-                        pl.GetStaticFoP("YesAlready.Service", "Configuration").SetFoP("Enabled", true);
-                        Reenable = false;
-                    }
-                }
-                else
-                {
-                    GetData();
-                    if (Data != null)
-                    {
-                        PluginLog.Information("Enabling Yes Already (new)");
-                        Data.Remove(Svc.PluginInterface.InternalName);
-                        Reenable = false;
-                    }
+                    PluginLog.Information("Enabling Yes Already (new)");
+                    Data.Remove(Svc.PluginInterface.InternalName);
+                    Reenable = false;
                 }
             }
         }
 
         internal static bool IsEnabled()
         {
-            if(Version != null)
+            GetData();
+            if (Data != null)
             {
-                if(Version < NewVersion)
-                {
-                    if (DalamudReflector.TryGetDalamudPlugin("Yes Already", out var pl, false, true))
-                    {
-                        return pl.GetStaticFoP("YesAlready.Service", "Configuration").GetFoP<bool>("Enabled");
-                    }
-                }
-                else
-                {
-                    GetData();
-                    if (Data != null)
-                    {
-                        return !Data.Contains(Svc.PluginInterface.InternalName);
-                    }
-                }
+                return !Data.Contains(Svc.PluginInterface.InternalName);
             }
-            
             return false;
         }
 

@@ -8,6 +8,12 @@
         "resolved": "2.1.12",
         "contentHash": "Sc0PVxvgg4NQjcI8n10/VfUQBAS4O+Fw2pZrAqBdRMbthYGeogzu5+xmIGCGmsEZ/ukMOBuAqiNiB5qA3MRalg=="
       },
+      "NotificationMasterAPI": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "GbUtZU4TlyVtQIq2LlI0fzSEMxIftVSD1GVvhu3Y3w3eC+C66rCj5gHfN6HL13IN8cyw451xxPP6rD2Wo/gYqQ=="
+      },
       "ILRepack": {
         "type": "Transitive",
         "resolved": "2.0.18",
@@ -21,7 +27,7 @@
       "autoretainerapi": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[2.1.0.2, )"
+          "ECommons": "[2.1.0.5, )"
         }
       },
       "clicklib": {
