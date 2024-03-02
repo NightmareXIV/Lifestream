@@ -1,0 +1,11 @@
+name: Trigger Update Pluginmaster
+
+on:
+  release:
+  workflow_dispatch:
+
+jobs:
+  TriggerUpdatePluginmaster:
+    uses:
+      NightmareXIV/MyDalamudPlugins/.github/workflows/Trigger_Update_Pluginmaster.yml@main
+    secrets: inherit

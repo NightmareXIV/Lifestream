@@ -40,5 +40,7 @@ namespace Lifestream
         public string WorldVisitTPTarget = "";
         public bool WorldVisitTPOnlyCmd = true;
         public bool UseAutoRetainerAccounts = true;
+        public bool SlowTeleport = false;
+        public int SlowTeleportThrottle = 0;
     }
 }

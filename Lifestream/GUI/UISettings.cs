@@ -18,6 +18,12 @@ namespace Lifestream.GUI
                 ImGui.Checkbox($"Display Aethernet menu", ref P.Config.ShowAethernet);
                 ImGui.Checkbox($"Display world visit menu", ref P.Config.ShowWorldVisit);
                 ImGui.Checkbox("Click aetheryte on map to teleport", ref P.Config.UseMapTeleport);
+                ImGui.Checkbox($"Slow down aetheryte teleporting", ref P.Config.SlowTeleport);
+                if (P.Config.SlowTeleport)
+                {
+                    ImGui.SetNextItemWidth(200f);
+                    ImGui.DragInt("Teleport delay (ms)", ref P.Config.SlowTeleportThrottle);
+                }
                 ImGui.Checkbox("Fixed Lifestream position", ref P.Config.FixedPosition);
                 if (P.Config.FixedPosition)
                 {
