@@ -189,7 +189,7 @@ namespace Lifestream
                 {
                     if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
                     TaskWaitUntilInHomeWorld.Enqueue();
-                    TaskLogoutAndRelog.Enqueue();
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
@@ -200,7 +200,7 @@ namespace Lifestream
                 }
                 else if(type == DCVType.GuestToHome)
                 {
-                    TaskLogoutAndRelog.Enqueue();
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     if (Player.HomeWorld != w)
@@ -219,7 +219,7 @@ namespace Lifestream
                 }
                 else if(type == DCVType.GuestToGuest)
                 {
-                    TaskLogoutAndRelog.Enqueue();
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);

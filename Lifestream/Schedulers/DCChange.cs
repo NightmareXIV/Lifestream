@@ -27,7 +27,7 @@ namespace Lifestream.Schedulers
         internal static bool? WaitUntilNotBusy()
         {
             if (!Player.Available) return false;
-            return Player.Object.CastActionId == 0 && !IsOccupied() && Player.Object.IsTargetable();
+            return Player.Object.CastActionId == 0 && !IsOccupied() && Player.Object.IsTargetable;
         }
 
         internal static bool? Logout()
@@ -382,6 +382,34 @@ namespace Lifestream.Schedulers
             else
             {
                 DCRethrottle();
+            }
+            return false;
+        }
+
+        internal static bool? SelectServiceAccount(int account)
+        {
+            var dcMenu = (AtkUnitBase*)Svc.GameGui.GetAddonByName("TitleDCWorldMap", 1);
+            if(dcMenu != null) dcMenu->Close(true);
+            if (TryGetAddonByName<AtkUnitBase>("_CharaSelectWorldServer", out _))
+            {
+                return true;
+            }
+            if (TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase)
+                && addon->AtkUnitBase.UldManager.NodeListCount >= 4)
+            {
+                var text = MemoryHelper.ReadSeString(&addon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText();
+                var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11)?.Text.ToString();
+                if (text == compareTo)
+                {
+                    PluginLog.Information($"Selecting service account");
+                    ClickSelectString.Using((nint)addon).SelectItem((ushort)account);
+                    return true;
+                }
+                else
+                {
+                    PluginLog.Information($"Found different SelectString: {text}");
+                    return false;
+                }
             }
             return false;
         }

@@ -1,4 +1,5 @@
-﻿using Lifestream.Schedulers;
+﻿using Dalamud.Utility;
+using Lifestream.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Lifestream.Tasks
 {
     internal static class TaskLogoutAndRelog
     {
-        internal static void Enqueue()
+        internal static void Enqueue(string nameWithWorld)
         {
             P.TaskManager.Enqueue(DCChange.WaitUntilNotBusy, 1.Minutes());
             P.TaskManager.Enqueue(DCChange.Logout);

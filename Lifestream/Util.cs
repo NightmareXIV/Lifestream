@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
 using Dalamud.Utility;
+using ECommons.ExcelServices;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
@@ -381,6 +382,33 @@ namespace Lifestream
             }
             //PluginLog.Debug($"{list.Print()}");
             return list;
+        }
+
+        internal static int GetServiceAccount(string name, uint world) => GetServiceAccount($"{name}@{ExcelWorldHelper.GetWorldNameById(world)}");
+
+        internal static int GetServiceAccount(string nameWithWorld)
+        {
+            if (P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
+            {
+                var chars = P.AutoRetainerApi.GetRegisteredCharacters();
+                foreach (var c in chars)
+                {
+                    var data = P.AutoRetainerApi.GetOfflineCharacterData(c);
+                    if (data != null)
+                    {
+                        var name = $"{data.Name}@{data.World}";
+                        if(nameWithWorld == name && data.ServiceAccount > -1)
+                        {
+                            return data.ServiceAccount;
+                        }
+                    }
+                }
+            }
+            if(P.Config.ServiceAccounts.TryGetValue(nameWithWorld, out var ret))
+            {
+                if (ret > -1) return ret;
+            }
+            return 0;
         }
     }
 }
