@@ -41,13 +41,13 @@ namespace Lifestream
         {
             PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
             PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->Type}, {a4->Unk29}, {a4->Flags}");
-            PluginLog.Debug($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}), {a5->unk_16}, {a5->unk_24} | {a5->RawDumpSpan.ToArray().Print()}");
-            var span = new Span<byte>((void*)*a5->unk_8, 0x40).ToArray().Select(x => $"{x:X2}");
-            PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {a5->unk_8s->unk_8},  :{string.Join(" ", span)}");
+            PluginLog.Debug($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}/{*a5->unk_8:X16}), [{a5->unk_8s->unk_4}/{a5->unk_8s->SelectedItem}] {a5->unk_16}, {a5->unk_24} | "); //{a5->RawDumpSpan.ToArray().Print()}
+            //var span = new Span<byte>((void*)*a5->unk_8, 0x40).ToArray().Select(x => $"{x:X2}");
+            //PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {MemoryHelper.ReadRaw((nint)a5->unk_8s->CategorySelection, 4).Print(",")},  :{string.Join(" ", span)}");
             AddonDKTWorldList_ReceiveEventHook.Original(a1, a2, a3, a4, a5);
         }
 
-        internal void ConstructEvent(AtkUnitBase* addon, int which, int nodeIndex, int itemToSelect)
+        internal void ConstructEvent(AtkUnitBase* addon, int category, int which, int nodeIndex, int itemToSelect, int itemToHighlight)
         {
             if (itemToSelect == 0) throw new Exception("Enumeration starts with 1");
             var Event = stackalloc AtkEvent[1]
@@ -69,7 +69,7 @@ namespace Lifestream
                 new()
                 {
                     unk_4 = 1,
-                    unk_8 = (byte)(itemToSelect - 1),
+                    SelectedItem = (itemToSelect - 1) + (category << 8)
                 }
             };
             var ptr = stackalloc nint[1]
@@ -86,13 +86,14 @@ namespace Lifestream
                 }
             };
             AddonDKTWorldList_ReceiveEventDetour((nint)addon, 35, which, Event, Data);
-            AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)itemToSelect, 0);
+            AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)(itemToHighlight), 0);
         }
 
         internal Memory()
         {
             SignatureHelper.Initialise(this);
             AddonAreaMap_ReceiveEventHook.Enable();
+            //AddonDKTWorldList_ReceiveEventHook.Enable();
         }
 
         long AddonAreaMap_ReceiveEventDetour(long a1, ushort a2, uint a3, long a4, long a5)
