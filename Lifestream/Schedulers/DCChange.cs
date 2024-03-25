@@ -260,14 +260,16 @@ namespace Lifestream.Schedulers
                 for (int i = 3; i < 3+4; i++)
                 {
                     var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                    var t2 = (AtkComponentListItemRenderer*)list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component;
                     if (t->AtkResNode.Alpha_2 == 255)
                     {
                         var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
                         if (text != "") num++;
+
                         if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
                         {
-                            PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {i}");
-                            P.Memory.ConstructEvent(addon, 1, 7, i - 2);
+                            PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {t2->ListItemIndex}");
+                            P.Memory.ConstructEvent(addon, 1, 7, t2->ListItemIndex);
                             DCRethrottle();
                             return false;
                         }
