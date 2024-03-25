@@ -252,7 +252,7 @@ namespace Lifestream.Schedulers
             {
                 var reader = new ReaderLobbyDKTWorldList(addon);
                 var cw = MemoryHelper.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).ExtractText();
-                if(cw == name)
+                if(reader.SelectedDataCenter == name)
                 {
                     PluginLog.Information($"SelectTargetDataCenter complete");
                     return true;
