@@ -254,6 +254,7 @@ namespace Lifestream.Schedulers
                 var cw = MemoryHelper.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).ExtractText();
                 if(cw == name)
                 {
+                    PluginLog.Information($"SelectTargetDataCenter complete");
                     return true;
                 }
                 var list = addon->UldManager.SearchNodeById(21)->GetAsAtkComponentNode();
@@ -288,7 +289,7 @@ namespace Lifestream.Schedulers
                     }
                     category++;
                 }
-                if (reader.Regions.Count > 0) DCRethrottle();
+                if (reader.Regions.Count == 0) DCRethrottle();
             }
             else
             {
@@ -324,7 +325,7 @@ namespace Lifestream.Schedulers
                         }
                     }
                 }
-                if (num > 0) DCRethrottle();
+                if (num == 0) DCRethrottle();
             }
             else
             {
