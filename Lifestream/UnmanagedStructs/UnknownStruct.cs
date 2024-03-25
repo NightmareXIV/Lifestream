@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Lifestream.UnmanagedStructs
 {
     [StructLayout(LayoutKind.Explicit, Size = 0x40)]
-    internal struct UnknownStruct
+    internal unsafe struct UnknownStruct
     {
         [FieldOffset(4)] public byte unk_4;
-        [FieldOffset(8)] public byte unk_8;
+        [FieldOffset(8)] public int SelectedItem;
     }
 }

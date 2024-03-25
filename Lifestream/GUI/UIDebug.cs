@@ -33,14 +33,32 @@ namespace Lifestream.GUI
 
         static void Reader()
         {
-            if(TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
             {
-                var reader = new ReaderTelepotTown(addon);
-                for (int i = 0; i < reader.DestinationData.Count; i++)
+                if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
                 {
-                    var data = reader.DestinationData[i];
-                    var name = reader.DestinationName[i];
-                    ImGuiEx.Text($"{data.Type}|{data.State}|{data.CallbackData}|{data.IconID}|{name.Name}");
+                    var r = new ReaderLobbyDKTWorldList(addon);
+                    ImGuiEx.Text($"Source: {r.Source}");
+                    ImGuiEx.Text($"Destination: {r.Destination}");
+                    foreach(var dc in r.Regions)
+                    {
+                        ImGuiEx.Text($"  {dc.RegionTitle}");
+                        foreach(var world in dc.DataCenters)
+                        {
+                            ImGuiEx.Text($"    {world.Id}/{world.Name}");
+                        }
+                    }
+                }
+            }
+            {
+                if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
+                {
+                    var reader = new ReaderTelepotTown(addon);
+                    for (int i = 0; i < reader.DestinationData.Count; i++)
+                    {
+                        var data = reader.DestinationData[i];
+                        var name = reader.DestinationName[i];
+                        ImGuiEx.Text($"{data.Type}|{data.State}|{data.CallbackData}|{data.IconID}|{name.Name}");
+                    }
                 }
             }
         }

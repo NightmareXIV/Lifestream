@@ -250,32 +250,45 @@ namespace Lifestream.Schedulers
         {
             if (TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
             {
+                var reader = new ReaderLobbyDKTWorldList(addon);
                 var cw = MemoryHelper.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).ExtractText();
                 if(cw == name)
                 {
                     return true;
                 }
-                var list = addon->UldManager.NodeList[7]->GetAsAtkComponentNode();
-                var num = 0;
-                for (int i = 3; i < 3+4; i++)
+                var list = addon->UldManager.SearchNodeById(21)->GetAsAtkComponentNode();
+                var addonItem = 0;
+                var listIndex = 3;
+                var category = 0;
+                var categoryIndex = 0;
+                foreach(var region in reader.Regions)
                 {
-                    var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
-                    var t2 = (AtkComponentListItemRenderer*)list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component;
-                    if (t->AtkResNode.Alpha_2 == 255)
+                    addonItem++;
+                    categoryIndex = 1;
+                    foreach (var dc in region.DataCenters)
                     {
-                        var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
-                        if (text != "") num++;
-
-                        if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
+                        if (dc.Name == name)
                         {
-                            PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {t2->ListItemIndex}");
-                            P.Memory.ConstructEvent(addon, 1, 7, t2->ListItemIndex);
-                            DCRethrottle();
-                            return false;
+                            var t = list->Component->UldManager.NodeList[listIndex]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                            if (t->AtkResNode.Alpha_2 == 255)
+                            {
+                                var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
+                                if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
+                                {
+                                    PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {addonItem} list {listIndex}");
+                                    P.Memory.ConstructEvent(addon, category, 1, 7, categoryIndex, addonItem);
+                                    DCRethrottle();
+                                    return false;
+                                }
+                            }
                         }
+                        addonItem++;
+                        listIndex++;
+                        categoryIndex++;
                     }
+                    category++;
                 }
-                if (num > 0) DCRethrottle();
+                if (reader.Regions.Count > 0) DCRethrottle();
             }
             else
             {
@@ -305,13 +318,13 @@ namespace Lifestream.Schedulers
                         if (text == name && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                         {
                             PluginLog.Debug($"[DCChange] Selecting target world {name} index {i}");
-                            P.Memory.ConstructEvent(addon, 2, 6, i - 2);
+                            P.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i-2);
                             DCRethrottle();
                             return false;
                         }
                     }
                 }
-                if (num == 0) DCRethrottle();
+                if (num > 0) DCRethrottle();
             }
             else
             {
