@@ -1,12 +1,6 @@
 ﻿using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
-using Dalamud.Utility;
 using ECommons.MathHelpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PInvoke;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Memory;

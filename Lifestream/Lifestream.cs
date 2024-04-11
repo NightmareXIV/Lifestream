@@ -1,18 +1,13 @@
 ﻿using AutoRetainerAPI;
-using Dalamud.Game;
 using ECommons.Automation;
 using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.ExcelServices;
-using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SimpleGui;
-using ECommons.StringHelpers;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.Schedulers;
@@ -22,7 +17,6 @@ using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.GeneratedSheets;
 using NotificationMasterAPI;
-using System.Security.Permissions;
 
 namespace Lifestream;
 

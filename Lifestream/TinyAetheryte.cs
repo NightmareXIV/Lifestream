@@ -1,10 +1,4 @@
-﻿using Dalamud.Game.ClientState.Aetherytes;
-using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream;
 

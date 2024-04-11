@@ -1,18 +1,11 @@
 ﻿using ECommons.Throttlers;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ECommons.Configuration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons.Automation;
 using Lifestream.Schedulers;
-using ECommons.GameFunctions;
-using ECommons.UIHelpers;
 
 namespace Lifestream.GUI;
 

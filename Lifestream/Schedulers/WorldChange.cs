@@ -2,18 +2,11 @@
 using ECommons.Automation;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
-using ECommons.StringHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using FFXIVClientStructs.Havok;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Schedulers;
 
