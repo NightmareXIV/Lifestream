@@ -7,19 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Tasks.SameWorld
+namespace Lifestream.Tasks.SameWorld;
+
+internal static class TaskFirmanentTeleport
 {
-    internal static class TaskFirmanentTeleport
+    internal static void Enqueue()
     {
-        internal static void Enqueue()
+        P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
+        P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
+        P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
-            P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
-            P.TaskManager.Enqueue(() =>
-            {
-                if (!Player.Available) return false;
-                return Util.TrySelectSpecificEntry(Lang.TravelToFirmament, () => EzThrottler.Throttle("SelectString"));
-            }, $"TeleportToFirmamentSelect {Lang.TravelToFirmament}");
-        }
+            if (!Player.Available) return false;
+            return Util.TrySelectSpecificEntry(Lang.TravelToFirmament, () => EzThrottler.Throttle("SelectString"));
+        }, $"TeleportToFirmamentSelect {Lang.TravelToFirmament}");
     }
 }

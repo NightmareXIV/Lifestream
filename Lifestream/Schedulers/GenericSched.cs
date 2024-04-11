@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Schedulers
+namespace Lifestream.Schedulers;
+
+internal static unsafe class GenericSched
 {
-    internal static unsafe class GenericSched
-    {
-    }
 }

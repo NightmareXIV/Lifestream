@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Enums
+namespace Lifestream.Enums;
+
+internal enum DCVType
 {
-    internal enum DCVType
-    {
-        Unknown, HomeToGuest, GuestToHome, GuestToGuest
-    }
+    Unknown, HomeToGuest, GuestToHome, GuestToGuest
 }

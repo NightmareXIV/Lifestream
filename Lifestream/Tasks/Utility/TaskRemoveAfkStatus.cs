@@ -7,29 +7,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks;
+
+internal static class TaskRemoveAfkStatus
 {
-    internal static class TaskRemoveAfkStatus
+    internal static void Enqueue()
     {
-        internal static void Enqueue()
+        P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.Enqueue(() =>
+            if(Player.Object.OnlineStatus.Id == 17)
             {
-                if(Player.Object.OnlineStatus.Id == 17)
+                if (EzThrottler.Throttle("RemoveAfk"))
                 {
-                    if (EzThrottler.Throttle("RemoveAfk"))
-                    {
-                        Chat.Instance.SendMessage("/afk off");
-                        return true;
-                    }
-                }
-                else
-                {
+                    Chat.Instance.SendMessage("/afk off");
                     return true;
                 }
-                return false;
-            }, "Remove afk");
-            P.TaskManager.Enqueue(() => Player.Object.OnlineStatus.Id != 17, "WaitUntilNotAfk");
-        }
+            }
+            else
+            {
+                return true;
+            }
+            return false;
+        }, "Remove afk");
+        P.TaskManager.Enqueue(() => Player.Object.OnlineStatus.Id != 17, "WaitUntilNotAfk");
     }
 }

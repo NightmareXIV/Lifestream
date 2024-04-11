@@ -5,78 +5,77 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream
+namespace Lifestream;
+
+internal static class YesAlreadyManager
 {
-    internal static class YesAlreadyManager
+    internal static bool Reenable = false;
+    internal static HashSet<string> Data = null;
+
+    internal static void GetData()
     {
-        internal static bool Reenable = false;
-        internal static HashSet<string> Data = null;
-
-        internal static void GetData()
+        if (Data != null) return;
+        if (Svc.PluginInterface.TryGetData<HashSet<string>>("YesAlready.StopRequests", out var data))
         {
-            if (Data != null) return;
-            if (Svc.PluginInterface.TryGetData<HashSet<string>>("YesAlready.StopRequests", out var data))
-            {
-                Data = data;
-            }
+            Data = data;
         }
+    }
 
-        internal static void DisableIfNeeded()
+    internal static void DisableIfNeeded()
+    {
+        GetData();
+        if (Data != null)
+        {
+            PluginLog.Information("Disabling Yes Already (new)");
+            Data.Add(Svc.PluginInterface.InternalName);
+            Reenable = true;
+        }
+    }
+
+    internal static void EnableIfNeeded()
+    {
+        if (Reenable)
         {
             GetData();
             if (Data != null)
             {
-                PluginLog.Information("Disabling Yes Already (new)");
-                Data.Add(Svc.PluginInterface.InternalName);
-                Reenable = true;
+                PluginLog.Information("Enabling Yes Already (new)");
+                Data.Remove(Svc.PluginInterface.InternalName);
+                Reenable = false;
             }
         }
+    }
 
-        internal static void EnableIfNeeded()
+    internal static bool IsEnabled()
+    {
+        GetData();
+        if (Data != null)
+        {
+            return !Data.Contains(Svc.PluginInterface.InternalName);
+        }
+        return false;
+    }
+
+    internal static void Tick()
+    {
+        if (P.TaskManager.IsBusy)
+        {
+            if (IsEnabled())
+            {
+                DisableIfNeeded();
+            }
+        }
+        else
         {
             if (Reenable)
             {
-                GetData();
-                if (Data != null)
-                {
-                    PluginLog.Information("Enabling Yes Already (new)");
-                    Data.Remove(Svc.PluginInterface.InternalName);
-                    Reenable = false;
-                }
+                EnableIfNeeded();
             }
         }
+    }
 
-        internal static bool IsEnabled()
-        {
-            GetData();
-            if (Data != null)
-            {
-                return !Data.Contains(Svc.PluginInterface.InternalName);
-            }
-            return false;
-        }
-
-        internal static void Tick()
-        {
-            if (P.TaskManager.IsBusy)
-            {
-                if (IsEnabled())
-                {
-                    DisableIfNeeded();
-                }
-            }
-            else
-            {
-                if (Reenable)
-                {
-                    EnableIfNeeded();
-                }
-            }
-        }
-
-        internal static bool? WaitForYesAlreadyDisabledTask()
-        {
-            return !IsEnabled();
-        }
+    internal static bool? WaitForYesAlreadyDisabledTask()
+    {
+        return !IsEnabled();
     }
 }

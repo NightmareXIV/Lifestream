@@ -5,19 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks;
+
+internal unsafe static class TaskDesktopNotification
 {
-    internal unsafe static class TaskDesktopNotification
+    internal static void Enqueue(string s)
     {
-        internal static void Enqueue(string s)
+        P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.Enqueue(() =>
+            if (CSFramework.Instance()->WindowInactive)
             {
-                if (CSFramework.Instance()->WindowInactive)
-                {
-                    Util.TryNotify(s);
-                }
-            }, "TaskNotify");
-        }
+                Util.TryNotify(s);
+            }
+        }, "TaskNotify");
     }
 }

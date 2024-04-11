@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Enums
+namespace Lifestream.Enums;
+
+public enum WorldChangeAetheryte
 {
-    public enum WorldChangeAetheryte
-    {
-        Uldah = 9,
-        Gridania = 2,
-        Limsa = 8,
-    }
+    Uldah = 9,
+    Gridania = 2,
+    Limsa = 8,
 }
