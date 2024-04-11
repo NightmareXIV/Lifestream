@@ -1,18 +1,19 @@
 ﻿using ECommons.GameHelpers;
 using Lifestream.Schedulers;
+using Lifestream.Tasks.SameWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks.CrossWorld
 {
     internal static class TaskTPAndChangeWorld
     {
         internal static void Enqueue(string world)
         {
-            if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
+            if (P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {
                 TaskChangeWorld.Enqueue(world);
             }
@@ -24,7 +25,7 @@ namespace Lifestream.Tasks
                 }
                 P.TaskManager.Enqueue(() =>
                 {
-                    if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Util.GetReachableWorldChangeAetheryte() != null)
+                    if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Util.GetReachableWorldChangeAetheryte() != null)
                     {
                         P.TaskManager.DelayNextImmediate(10, true);
                         P.TaskManager.EnqueueImmediate(WorldChange.TargetReachableAetheryte);

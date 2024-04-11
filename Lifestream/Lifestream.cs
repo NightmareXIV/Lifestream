@@ -17,6 +17,9 @@ using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.Schedulers;
 using Lifestream.Tasks;
+using Lifestream.Tasks.CrossDC;
+using Lifestream.Tasks.CrossWorld;
+using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.GeneratedSheets;
 using NotificationMasterAPI;
 using System.Security.Permissions;
@@ -56,7 +59,7 @@ namespace Lifestream
                     AbortOnTimeout = true
                 };
                 DataStore = new();
-                ProperOnLogin.Register(() => P.DataStore.BuildWorlds());
+                ProperOnLogin.RegisterAvailable(() => P.DataStore.BuildWorlds());
                 Svc.Framework.Update += Framework_Update;
                 Memory = new();
                 //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");

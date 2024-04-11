@@ -2,6 +2,8 @@
 using ECommons.GameHelpers;
 using Lifestream.Enums;
 using Lifestream.Tasks;
+using Lifestream.Tasks.CrossWorld;
+using Lifestream.Tasks.SameWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using PInvoke;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Memory;
-using Lifestream.Tasks;
 using System.Windows.Forms;
 using Lifestream.UnmanagedStructs;
+using Lifestream.Tasks.SameWorld;
 
 namespace Lifestream
 {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks.CrossDC
 {
     internal static class TaskChangeDatacenter
     {

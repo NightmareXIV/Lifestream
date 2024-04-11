@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static FFXIVClientStructs.FFXIV.Client.UI.AddonRelicNoteBook;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks.SameWorld
 {
     internal static class TaskTryTpToAethernetDestination
     {
@@ -41,8 +41,8 @@ namespace Lifestream.Tasks
                 {
                     if (P.ActiveAetheryte != master)
                     {
-                        var name = (master.Name);
-                        if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || (P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName)))
+                        var name = master.Name;
+                        if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                         {
                             TaskRemoveAfkStatus.Enqueue();
                             TaskAethernetTeleport.Enqueue(master);
@@ -56,7 +56,7 @@ namespace Lifestream.Tasks
                     if (P.ActiveAetheryte != x)
                     {
                         var name = x.Name;
-                        if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || (P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName)))
+                        if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                         {
                             TaskRemoveAfkStatus.Enqueue();
                             TaskAethernetTeleport.Enqueue(x);

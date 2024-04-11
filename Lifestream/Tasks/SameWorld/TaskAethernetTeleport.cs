@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Lifestream.Schedulers;
 
-namespace Lifestream.Tasks
+namespace Lifestream.Tasks.SameWorld
 {
     internal static class TaskAethernetTeleport
     {
