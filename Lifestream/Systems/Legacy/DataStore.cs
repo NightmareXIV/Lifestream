@@ -4,7 +4,7 @@ using ECommons.GameHelpers;
 using Lumina.Excel.GeneratedSheets;
 using System.IO;
 
-namespace Lifestream;
+namespace Lifestream.Systems.Legacy;
 
 internal class DataStore
 {
@@ -17,7 +17,7 @@ internal class DataStore
 
     internal TinyAetheryte GetMaster(TinyAetheryte aetheryte)
     {
-        foreach(var x in Aetherytes.Keys)
+        foreach (var x in Aetherytes.Keys)
         {
             if (x.Group == aetheryte.Group) return x;
         }
@@ -36,7 +36,7 @@ internal class DataStore
                 {
                     Aetherytes[GetTinyAetheryte(x)] = new();
                     terr.Add(x.Territory.Value.RowId);
-                    if(!StaticData.Callback.ContainsKey(x.RowId))
+                    if (!StaticData.Callback.ContainsKey(x.RowId))
                     {
                         StaticData.Callback[x.RowId] = 0;
                     }
@@ -59,7 +59,7 @@ internal class DataStore
                 }
             }
         });
-        foreach(var x in Aetherytes.Keys.ToArray())
+        foreach (var x in Aetherytes.Keys.ToArray())
         {
             Aetherytes[x] = Aetherytes[x].OrderBy(x => GetAetheryteSortOrder(x.ID)).ToList();
         }
@@ -69,11 +69,11 @@ internal class DataStore
             BuildWorlds();
         }
     }
-    
+
     internal uint GetAetheryteSortOrder(uint id)
     {
         var ret = 10000u;
-        if(StaticData.SortOrder.TryGetValue(id, out var x))
+        if (StaticData.SortOrder.TryGetValue(id, out var x))
         {
             ret += x;
         }
@@ -87,7 +87,7 @@ internal class DataStore
     internal void BuildWorlds()
     {
         BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.GameData.DataCenter.Value.RowId);
-        if(Player.Available)
+        if (Player.Available)
         {
             if (P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
             {
@@ -97,7 +97,7 @@ internal class DataStore
                     P.Config.ServiceAccounts[Player.NameWithWorld] = data.ServiceAccount;
                 }
             }
-            else if(!P.Config.ServiceAccounts.ContainsKey(Player.NameWithWorld))
+            else if (!P.Config.ServiceAccounts.ContainsKey(Player.NameWithWorld))
             {
                 P.Config.ServiceAccounts[Player.NameWithWorld] = -1;
             }
@@ -125,7 +125,7 @@ internal class DataStore
         {
             var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == aetheryte.Territory.Value.RowId);
             var scale = map.SizeFactor;
-            var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => (m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.Value.RowId)));
+            var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.Value.RowId));
             if (mapMarker != null)
             {
                 AethersX = Util.ConvertMapMarkerToRawPosition(mapMarker.X, scale);

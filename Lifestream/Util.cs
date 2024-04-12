@@ -10,6 +10,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
+using Lifestream.Systems.Legacy;
 using Lumina.Excel.GeneratedSheets;
 using CharaData = (string Name, ushort World);
 

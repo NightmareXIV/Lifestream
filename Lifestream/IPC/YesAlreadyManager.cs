@@ -1,4 +1,6 @@
-﻿namespace Lifestream;
+﻿using ECommons.EzSharedDataManager;
+
+namespace Lifestream.IPC;
 
 internal static class YesAlreadyManager
 {
@@ -8,7 +10,7 @@ internal static class YesAlreadyManager
     internal static void GetData()
     {
         if (Data != null) return;
-        if (Svc.PluginInterface.TryGetData<HashSet<string>>("YesAlready.StopRequests", out var data))
+        if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var data))
         {
             Data = data;
         }

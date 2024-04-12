@@ -6,6 +6,7 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons.Automation;
 using Lifestream.Schedulers;
+using Lifestream.Systems.Legacy;
 
 namespace Lifestream.GUI;
 

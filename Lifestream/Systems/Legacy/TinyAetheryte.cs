@@ -1,6 +1,6 @@
 ﻿using Lumina.Excel.GeneratedSheets;
 
-namespace Lifestream;
+namespace Lifestream.Systems.Legacy;
 
 internal struct TinyAetheryte : IEquatable<TinyAetheryte>
 {
