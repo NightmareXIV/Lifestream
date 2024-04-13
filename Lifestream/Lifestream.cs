@@ -9,9 +9,11 @@ using ECommons.SimpleGui;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Enums;
+using Lifestream.Game;
 using Lifestream.GUI;
 using Lifestream.IPC;
 using Lifestream.Schedulers;
+using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
@@ -37,6 +39,8 @@ public unsafe class Lifestream : IDalamudPlugin
     internal uint Territory => Svc.ClientState.TerritoryType;
     internal NotificationMasterApi NotificationMasterApi;
 
+    public ResidentialAethernet ResidentialAethernet;
+
     public Lifestream(DalamudPluginInterface pluginInterface)
     {
         P = this;
@@ -55,13 +59,14 @@ public unsafe class Lifestream : IDalamudPlugin
                 AbortOnTimeout = true
             };
             DataStore = new();
-            ProperOnLogin.RegisterAvailable(() => P.DataStore.BuildWorlds());
+            ProperOnLogin.RegisterAvailable(() => DataStore.BuildWorlds());
             Svc.Framework.Update += Framework_Update;
             Memory = new();
             //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
             Svc.Toasts.ErrorToast += Toasts_ErrorToast;
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
+            ResidentialAethernet = new();
         });
     }
 
@@ -156,7 +161,7 @@ public unsafe class Lifestream : IDalamudPlugin
             var type = DCVType.Unknown;
             var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
             var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
-            var targetDC = Util.GetDataCenter(w);
+            var targetDC = Utils.GetDataCenter(w);
             if(currentDC == homeDC)
             {
                 type = DCVType.HomeToGuest;
@@ -262,6 +267,7 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             ActiveAetheryte = null;
         }
+        P.ResidentialAethernet.Tick();
     }
 
     public void Dispose()
@@ -275,7 +281,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     void UpdateActiveAetheryte()
     {
-        var a = Util.GetValidAetheryte();
+        var a = Utils.GetValidAetheryte();
         if (a != null)
         {
             var pos2 = a.Position.ToVector2();

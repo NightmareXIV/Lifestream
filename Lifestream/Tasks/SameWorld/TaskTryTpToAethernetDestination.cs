@@ -6,6 +6,7 @@ internal static class TaskTryTpToAethernetDestination
 {
     public static void Enqueue(string targetName)
     {
+        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if (P.ActiveAetheryte != null)
         {
             P.TaskManager.Enqueue(Process);
@@ -14,7 +15,7 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(() =>
             {
-                if (P.ActiveAetheryte == null && Util.GetReachableWorldChangeAetheryte() != null)
+                if (P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
                     P.TaskManager.DelayNextImmediate(10, true);
                     P.TaskManager.EnqueueImmediate(WorldChange.TargetReachableAetheryte);
@@ -31,7 +32,7 @@ internal static class TaskTryTpToAethernetDestination
 
         void Process()
         {
-            var master = Util.GetMaster();
+            var master = Utils.GetMaster();
             {
                 if (P.ActiveAetheryte != master)
                 {

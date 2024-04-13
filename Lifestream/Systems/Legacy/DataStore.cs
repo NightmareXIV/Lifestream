@@ -10,7 +10,7 @@ internal class DataStore
 {
     internal const string FileName = "StaticData.json";
     internal uint[] Territories;
-    internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = new();
+    internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = [];
     internal string[] Worlds = Array.Empty<string>();
     internal string[] DCWorlds = Array.Empty<string>();
     internal StaticData StaticData;
@@ -34,7 +34,7 @@ internal class DataStore
             {
                 if (x.IsAetheryte)
                 {
-                    Aetherytes[GetTinyAetheryte(x)] = new();
+                    Aetherytes[GetTinyAetheryte(x)] = [];
                     terr.Add(x.Territory.Value.RowId);
                     if (!StaticData.Callback.ContainsKey(x.RowId))
                     {
@@ -61,9 +61,9 @@ internal class DataStore
         });
         foreach (var x in Aetherytes.Keys.ToArray())
         {
-            Aetherytes[x] = Aetherytes[x].OrderBy(x => GetAetheryteSortOrder(x.ID)).ToList();
+            Aetherytes[x] = [.. Aetherytes[x].OrderBy(x => GetAetheryteSortOrder(x.ID))];
         }
-        Territories = terr.ToArray();
+        Territories = [.. terr];
         if (ProperOnLogin.PlayerPresent)
         {
             BuildWorlds();
@@ -106,7 +106,7 @@ internal class DataStore
 
     internal void BuildWorlds(uint dc)
     {
-        Worlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).Order().ToArray();
+        Worlds = [.. Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic).Select(x => x.Name.ToString()).Order()];
         PluginLog.Debug($"Built worlds: {Worlds.Print()}");
         DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic && (x.DataCenter.Value.Region == Player.Object.HomeWorld.GameData.DataCenter.Value.Region || x.DataCenter.Value.Region == 4)).Select(x => x.Name.ToString()).ToArray();
         PluginLog.Debug($"Built DCworlds: {DCWorlds.Print()}");
@@ -128,8 +128,8 @@ internal class DataStore
             var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.Value.RowId));
             if (mapMarker != null)
             {
-                AethersX = Util.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
-                AethersY = Util.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);
+                AethersX = Utils.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
+                AethersY = Utils.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);
             }
         }
         return new(new(AethersX, AethersY), aetheryte.Territory.Value.RowId, aetheryte.RowId, aetheryte.AethernetGroup);

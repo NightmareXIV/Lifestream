@@ -5,10 +5,10 @@ using PInvoke;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Memory;
 using System.Windows.Forms;
-using Lifestream.UnmanagedStructs;
 using Lifestream.Tasks.SameWorld;
+using Lifestream.Enums;
 
-namespace Lifestream;
+namespace Lifestream.Game;
 
 internal unsafe class Memory : IDisposable
 {
@@ -63,7 +63,7 @@ internal unsafe class Memory : IDisposable
             new()
             {
                 unk_4 = 1,
-                SelectedItem = (itemToSelect - 1) + (category << 8)
+                SelectedItem = itemToSelect - 1 + (category << 8)
             }
         };
         var ptr = stackalloc nint[1]
@@ -80,7 +80,7 @@ internal unsafe class Memory : IDisposable
             }
         };
         AddonDKTWorldList_ReceiveEventDetour((nint)addon, 35, which, Event, Data);
-        AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)(itemToHighlight), 0);
+        AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)itemToHighlight, 0);
     }
 
     internal Memory()
@@ -95,9 +95,9 @@ internal unsafe class Memory : IDisposable
         //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
         try
         {
-            if (P.ActiveAetheryte != null && Util.CanUseAetheryte())
+            if (P.ActiveAetheryte != null && Utils.CanUseAetheryte() != AetheryteUseState.None)
             {
-                var master = Util.GetMaster();
+                var master = Utils.GetMaster();
                 if (a2 == 3)
                 {
                     IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
@@ -111,9 +111,9 @@ internal unsafe class Memory : IDisposable
                         {
                             var node = addon->UldManager.NodeList[2]->GetAsAtkTextNode();
                             var text = MemoryHelper.ReadSeString(&node->NodeText).ExtractText();
-                            foreach(var x in P.DataStore.Aetherytes[master])
+                            foreach (var x in P.DataStore.Aetherytes[master])
                             {
-                                if(x.Name == text)
+                                if (x.Name == text)
                                 {
                                     TaskAethernetTeleport.Enqueue(x);
                                     break;

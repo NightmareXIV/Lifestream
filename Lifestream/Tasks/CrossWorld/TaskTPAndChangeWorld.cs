@@ -7,19 +7,20 @@ internal static class TaskTPAndChangeWorld
 {
     internal static void Enqueue(string world)
     {
+        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if (P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
         {
             TaskChangeWorld.Enqueue(world);
         }
         else
         {
-            if (Util.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
+            if (Utils.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
             {
                 TaskTpToGateway.Enqueue();
             }
             P.TaskManager.Enqueue(() =>
             {
-                if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Util.GetReachableWorldChangeAetheryte() != null)
+                if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
                     P.TaskManager.DelayNextImmediate(10, true);
                     P.TaskManager.EnqueueImmediate(WorldChange.TargetReachableAetheryte);

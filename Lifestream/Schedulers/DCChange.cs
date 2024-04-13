@@ -7,6 +7,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.AtkReaders;
 using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream.Schedulers;
@@ -47,7 +48,7 @@ internal static unsafe class DCChange
             }
         }
         {
-            var addon = Util.GetSpecificYesno(true, Lang.LogInPartialText);
+            var addon = Utils.GetSpecificYesno(true, Lang.LogInPartialText);
             if (addon == null || !IsAddonReady(addon))
             {
                 DCRethrottle();
@@ -72,7 +73,7 @@ internal static unsafe class DCChange
         {
             return true;
         }
-        var addon = Util.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Addon>()?.GetRow(115)?.Text.ToDalamudString().ExtractText());
+        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Addon>()?.GetRow(115)?.Text.ToDalamudString().ExtractText());
         if (addon == null || !IsAddonReady(addon))
         {
             DCRethrottle();
@@ -99,7 +100,7 @@ internal static unsafe class DCChange
             if (addon == null) return false;
             if (!AgentLobby.Instance()->AgentInterface.IsAgentActive()) return false;
             if (AgentLobby.Instance()->TemporaryLocked) return false;
-            if (Util.TryGetCharacterIndex(name, world, out var index))
+            if (Utils.TryGetCharacterIndex(name, world, out var index))
             {
                 if (DCThrottle && EzThrottler.Check("CharaSelectListMenuError"))
                 {
@@ -119,17 +120,17 @@ internal static unsafe class DCChange
 
     internal static bool? WaitUntilCanAutoLogin()
     {
-        return Util.CanAutoLogin();
+        return Utils.CanAutoLogin();
     }
 
     internal static bool? TitleScreenClickStart()
     {
-        if (!Util.CanAutoLogin())
+        if (!Utils.CanAutoLogin())
         {
             DCRethrottle();
             return true;
         }
-        if(Util.CanAutoLogin() && TryGetAddonByName<AtkUnitBase>("_TitleMenu", out var title) && IsAddonReady(title) && DCThrottle && EzThrottler.Throttle("TitleScreenClickStart"))
+        if(Utils.CanAutoLogin() && TryGetAddonByName<AtkUnitBase>("_TitleMenu", out var title) && IsAddonReady(title) && DCThrottle && EzThrottler.Throttle("TitleScreenClickStart"))
         {
             PluginLog.Debug($"[DCChange] Clicking start");
             Callback.Fire(title, true, (int)1);
@@ -152,7 +153,7 @@ internal static unsafe class DCChange
         }
         if (TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon))
         {
-            if (Util.TryGetCharacterIndex(name, world, out var index) && DCThrottle && EzThrottler.Throttle("OpenContextMenuForChara"))
+            if (Utils.TryGetCharacterIndex(name, world, out var index) && DCThrottle && EzThrottler.Throttle("OpenContextMenuForChara"))
             {
                 PluginLog.Debug($"[DCChange] Opening context menu index {index}");
                 Callback.Fire(addon, true, (int)18, (int)1, (int)index);

@@ -2,14 +2,14 @@
 
 namespace Lifestream.Systems.Legacy;
 
-internal struct TinyAetheryte : IEquatable<TinyAetheryte>
+public struct TinyAetheryte : IEquatable<TinyAetheryte>, IAetheryte
 {
-    internal Vector2 Position;
-    internal uint TerritoryType;
-    internal uint ID;
-    internal uint Group;
-    internal string Name;
-    internal bool IsAetheryte;
+    public Vector2 Position { get; set; }
+    public uint TerritoryType { get; set; }
+    public uint ID { get; set; }
+    public string Name { get; set; }
+    public uint Group;
+    public bool IsAetheryte;
     private Aetheryte Ref { get; init; }
 
     public TinyAetheryte(Vector2 position, uint territoryType, uint iD, uint group)

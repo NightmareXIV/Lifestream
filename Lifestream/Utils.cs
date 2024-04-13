@@ -16,8 +16,12 @@ using CharaData = (string Name, ushort World);
 
 namespace Lifestream;
 
-internal static unsafe class Util
+internal static unsafe class Utils
 {
+    public static uint[] AethernetShards = [2000151, 2000153, 2000154, 2000155, 2000156, 2000157, 2003395, 2003396, 2003397, 2003398, 2003399, 2003400, 2003401, 2003402, 2003403, 2003404, 2003405, 2003406, 2003407, 2003408, 2003409, 2003995, 2003996, 2003997, 2003998, 2003999, 2004000, 2004968, 2004969, 2004970, 2004971, 2004972, 2004973, 2004974, 2004976, 2004977, 2004978, 2004979, 2004980, 2004981, 2004982, 2004983, 2004984, 2004985, 2004986, 2004987, 2004988, 2004989, 2007434, 2007435, 2007436, 2007437, 2007438, 2007439, 2007855, 2007856, 2007857, 2007858, 2007859, 2007860, 2007861, 2007862, 2007863, 2007864, 2007865, 2007866, 2007867, 2007868, 2007869, 2007870, 2009421, 2009432, 2009433, 2009562, 2009563, 2009564, 2009565, 2009615, 2009616, 2009617, 2009618, 2009713, 2009714, 2009715, 2009981, 2010135, 2011142, 2011162, 2011163, 2011241, 2011243, 2011373, 2011374, 2011384, 2011385, 2011386, 2011387, 2011388, 2011389, 2011573, 2011574, 2011575, 2011677, 2011678, 2011679, 2011680, 2011681, 2011682, 2011683, 2011684, 2011685, 2011686, 2011687, 2011688, 2011689, 2011690, 2011691, 2011692, 2012252, 2012253,];
+
+    public static bool? WaitForScreen() => IsScreenReady();
+
     internal static uint GetTerritoryType(this WorldChangeAetheryte wca)
     {
         if (wca == WorldChangeAetheryte.Gridania) return 132;
@@ -104,7 +108,7 @@ internal static unsafe class Util
     internal static GameObject GetReachableWorldChangeAetheryte(bool littleDistance = false)
     {
         if (!Player.Available) return null;
-        var a = Svc.Objects.OrderBy(x => Vector3.DistanceSquared(Player.Object.Position, x.Position)).FirstOrDefault(x => Util.TryGetTinyAetheryteFromGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true);
+        var a = Svc.Objects.OrderBy(x => Vector3.DistanceSquared(Player.Object.Position, x.Position)).FirstOrDefault(x => Utils.TryGetTinyAetheryteFromGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true);
         if(a != null && a.IsTargetable() && Vector3.Distance(a.Position, Player.Object.Position) < (littleDistance?13f:30f))
         {
             return a;
@@ -116,7 +120,7 @@ internal static unsafe class Util
     {
         return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld]
             || Svc.Condition[ConditionFlag.ReadyingVisitOtherWorld]
-            || Svc.Condition[ConditionFlag.BoundToDuty97]
+            || Svc.Condition[ConditionFlag.InDutyQueue]
             || Svc.Condition[ConditionFlag.BoundByDuty95]
             || Svc.Party.Length > 0
             ;
@@ -178,9 +182,12 @@ internal static unsafe class Util
         return false;
     }
 
-    internal static bool CanUseAetheryte()
+    internal static AetheryteUseState CanUseAetheryte()
     {
-        return P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null && !P.TaskManager.IsBusy && !IsOccupied() && !IsDisallowedToUseAethernet();
+        if (P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
+        if (P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
+        if (P.ResidentialAethernet.IsInResidentialZone() && P.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
+        return AetheryteUseState.None;
     }
 
     internal static TinyAetheryte GetMaster()
@@ -282,7 +289,7 @@ internal static unsafe class Util
     {
         if (TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
         {
-            List<string> arr = new();
+            List<string> arr = [];
             for (int i = 3; i <= 9; i++)
             {
                 var item = addon->UldManager.NodeList[4]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
@@ -290,7 +297,7 @@ internal static unsafe class Util
                 if (text == "") break;
                 arr.Add(text);
             }
-            return arr.ToArray();
+            return [.. arr];
         }
         return Array.Empty<string>();
     }
@@ -299,7 +306,7 @@ internal static unsafe class Util
     {
         if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
         {
-            List<string> arr = new();
+            List<string> arr = [];
             for (int i = 1; i <= 52; i++)
             {
                 var item = addon->UldManager.NodeList[16]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
@@ -307,7 +314,7 @@ internal static unsafe class Util
                 if (text == "") break;
                 arr.Add(text);
             }
-            return arr.ToArray();
+            return [.. arr];
         }
         return Array.Empty<string>();
     }
@@ -316,15 +323,28 @@ internal static unsafe class Util
     {
         foreach(var x in Svc.Objects)
         {
-            if(x.ObjectKind == ObjectKind.Aetheryte)
+            if(x.IsAetheryte())
             {
-                if(Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2()) < 11f && Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position) < 15f && x.IsVPosValid() && x.IsTargetable())
+                var d2d = Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2());
+                var d3d = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
+                if (P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
+
+                if (d2d < 11f 
+                    && d3d < 15f 
+                    && x.IsVPosValid() 
+                    && x.IsTargetable)
                 {
                     return x;
                 }
             }
         }
         return null;
+    }
+
+    public static bool IsAetheryte(this GameObject obj)
+    {
+        if (obj.ObjectKind == ObjectKind.Aetheryte) return true;
+        return Utils.AethernetShards.Contains(obj.DataId);
     }
 
     internal static bool IsVPosValid(this GameObject x)

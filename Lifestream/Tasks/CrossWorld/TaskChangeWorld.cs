@@ -6,6 +6,7 @@ internal static unsafe class TaskChangeWorld
 {
     internal static void Enqueue(string world)
     {
+        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if (P.Config.LeavePartyBeforeWorldChange)
         {
             P.TaskManager.Enqueue(WorldChange.LeaveParty);

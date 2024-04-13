@@ -8,7 +8,7 @@ internal unsafe static class TaskDesktopNotification
         {
             if (CSFramework.Instance()->WindowInactive)
             {
-                Util.TryNotify(s);
+                Utils.TryNotify(s);
             }
         }, "TaskNotify");
     }

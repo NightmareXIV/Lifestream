@@ -4,7 +4,7 @@ namespace Lifestream;
 
 public class StaticData : IEzConfig
 {
-    public Dictionary<uint, uint> Callback = new();
-    public Dictionary<uint, Vector3> CustomPositions = new();
-    public Dictionary<uint, uint> SortOrder = new();
+    public Dictionary<uint, uint> Callback = [];
+    public Dictionary<uint, Vector3> CustomPositions = [];
+    public Dictionary<uint, uint> SortOrder = [];
 }

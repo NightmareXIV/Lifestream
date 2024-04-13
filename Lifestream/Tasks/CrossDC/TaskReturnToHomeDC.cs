@@ -12,6 +12,6 @@ internal class TaskReturnToHomeDC
         P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, 2.Minutes());
         P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, 2.Minutes());
         P.TaskManager.Enqueue(DCChange.SelectOk, int.MaxValue);
-        P.TaskManager.Enqueue(() => DCChange.SelectServiceAccount(Util.GetServiceAccount(charaName, charaWorld)), 1.Minutes(), $"SelectServiceAccount_{charaName}@{charaWorld}");
+        P.TaskManager.Enqueue(() => DCChange.SelectServiceAccount(Utils.GetServiceAccount(charaName, charaWorld)), 1.Minutes(), $"SelectServiceAccount_{charaName}@{charaWorld}");
     }
 }

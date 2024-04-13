@@ -18,9 +18,9 @@ public class Config : IEzConfig
     public BasePositionVertical PosVertical = BasePositionVertical.Middle;
     public bool ShowAethernet = true;
     public bool ShowWorldVisit = true;
-    public HashSet<uint> Favorites = new();
-    public HashSet<uint> Hidden = new();
-    public Dictionary<uint, string> Renames = new();
+    public HashSet<uint> Favorites = [];
+    public HashSet<uint> Hidden = [];
+    public Dictionary<uint, string> Renames = [];
     public WorldChangeAetheryte WorldChangeAetheryte = WorldChangeAetheryte.Uldah;
     public bool Firmament = true;
     public bool WalkToAetheryte = true;
@@ -37,4 +37,5 @@ public class Config : IEzConfig
     public bool UseAutoRetainerAccounts = true;
     public bool SlowTeleport = false;
     public int SlowTeleportThrottle = 0;
+    public bool WaitForScreen = false;
 }

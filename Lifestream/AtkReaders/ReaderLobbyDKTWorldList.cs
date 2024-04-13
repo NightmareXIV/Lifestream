@@ -1,7 +1,7 @@
 ﻿using ECommons.UIHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace Lifestream;
+namespace Lifestream.AtkReaders;
 public unsafe class ReaderLobbyDKTWorldList(AtkUnitBase* UnitBase, int BeginOffset = 0) : AtkReader(UnitBase, BeginOffset)
 {
     public string Source => ReadString(3);

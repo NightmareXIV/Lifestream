@@ -1,4 +1,4 @@
-﻿namespace Lifestream.UnmanagedStructs;
+﻿namespace Lifestream.Game;
 
 [StructLayout(LayoutKind.Explicit, Size = 0x40)]
 internal unsafe struct UnknownStruct

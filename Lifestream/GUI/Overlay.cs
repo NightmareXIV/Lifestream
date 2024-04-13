@@ -1,5 +1,6 @@
 ﻿using ECommons.GameHelpers;
 using Lifestream.Enums;
+using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossWorld;
@@ -27,7 +28,7 @@ internal class Overlay : Window
         }
     }
 
-    float GetBasePosX()
+    private float GetBasePosX()
     {
         if (P.Config.PosHorizontal == BasePositionHorizontal.Middle)
         {
@@ -43,7 +44,7 @@ internal class Overlay : Window
         }
     }
 
-    float GetBasePosY()
+    private float GetBasePosY()
     {
         if (P.Config.PosVertical == BasePositionVertical.Middle)
         {
@@ -62,28 +63,37 @@ internal class Overlay : Window
     public override void Draw()
     {
         RespectCloseHotkey = P.Config.AllowClosingESC2;
-        List<Action> actions = new();
-        if (P.Config.ShowAethernet) actions.Add(DrawAethernet);
-        if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
-        ImGuiEx.EzTableColumns("LifestreamTable", actions.ToArray());
+        List<Action> actions = [];
+        if (P.ResidentialAethernet.IsInResidentialZone())
+        {
+            if (P.Config.ShowAethernet)
+            {
+                actions.Add(() => DrawResidentialAethernet(false));
+                actions.Add(() => DrawResidentialAethernet(true));
+            }
+        }
+        else
+        {
+            if (P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
+            if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
+        }
+        ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
         WSize = ImGui.GetWindowSize();
     }
 
-    void DrawAethernet()
+    private void DrawNormalAethernet()
     {
-        var master = Util.GetMaster();
+        var master = Utils.GetMaster();
         if (!P.Config.Hidden.Contains(master.ID))
         {
             var name = (P.Config.Favorites.Contains(master.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
             ResizeButton(name);
             var md = P.ActiveAetheryte == master;
-            if (md) ImGui.BeginDisabled();
-            if (ImGui.Button(name, ButtonSizeAetheryte))
+            if (ImGuiEx.Button(name, ButtonSizeAetheryte, !md))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskAethernetTeleport.Enqueue(master);
             }
-            if (md) ImGui.EndDisabled();
             Popup(master);
         }
 
@@ -94,18 +104,16 @@ internal class Overlay : Window
                 var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                 ResizeButton(name);
                 var d = P.ActiveAetheryte == x;
-                if (d) ImGui.BeginDisabled();
-                if (ImGui.Button(name, ButtonSizeAetheryte))
+                if (ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
                 {
                     TaskRemoveAfkStatus.Enqueue();
                     TaskAethernetTeleport.Enqueue(x);
                 }
-                if (d) ImGui.EndDisabled();
                 Popup(x);
             }
         }
 
-        if(P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
+        if (P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
         {
             var name = "Firmament";
             ResizeButton(name);
@@ -117,7 +125,34 @@ internal class Overlay : Window
         }
     }
 
-    void Popup(TinyAetheryte x)
+    private void DrawResidentialAethernet(bool? subdivision = null)
+    {
+        var zinfo = P.ResidentialAethernet.ZoneInfo[P.Territory];
+        Draw(true);
+        Draw(false);
+        void Draw(bool favorites)
+        {
+            foreach (var x in zinfo.Aetherytes)
+            {
+                if (P.Config.Favorites.Contains(x.ID) != favorites) continue;
+                if (subdivision != null && x.IsSubdivision != subdivision) continue;
+                if (!P.Config.Hidden.Contains(x.ID))
+                {
+                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    ResizeButton(name);
+                    var d = P.ResidentialAethernet.ActiveAetheryte == x;
+                    if (ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
+                    {
+                        TaskRemoveAfkStatus.Enqueue();
+                        TaskAethernetTeleport.Enqueue(x.Name);
+                    }
+                    Popup(x);
+                }
+            }
+        }
+    }
+
+    private void Popup(IAetheryte x)
     {
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
         {
@@ -149,16 +184,15 @@ internal class Overlay : Window
         }
     }
 
-    void DrawWorldVisit()
+    private void DrawWorldVisit()
     {
         var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.GameData.Name.ToString();
         foreach (var x in P.DataStore.Worlds)
         {
             ResizeButton(x);
             var isHomeWorld = x == Player.HomeWorld;
-            var d = x == cWorld || Util.IsDisallowedToChangeWorld();
-            if (d) ImGui.BeginDisabled();
-            if (ImGui.Button((isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "") + x, ButtonSizeWorld))
+            var d = x == cWorld || Utils.IsDisallowedToChangeWorld();
+            if (ImGuiEx.Button((isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "") + x, ButtonSizeWorld, !d))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskChangeWorld.Enqueue(x);
@@ -169,12 +203,11 @@ internal class Overlay : Window
                     P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.Enqueue(P.Config.WorldVisitTPTarget));
                 }
             }
-            if (d) ImGui.EndDisabled();
         }
 
     }
 
-    void ResizeButton(string t)
+    private void ResizeButton(string t)
     {
         var s = ImGuiHelpers.GetButtonSize(t);
         if (bWidth.X < s.X)
@@ -186,8 +219,9 @@ internal class Overlay : Window
     public override bool DrawConditions()
     {
         if (!P.Config.Enable) return false;
-        var ret = Util.CanUseAetheryte();
-        if(ret)
+        var canUse = Utils.CanUseAetheryte();
+        var ret = canUse != AetheryteUseState.None;
+        if(canUse == AetheryteUseState.Normal)
         {
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {
@@ -198,10 +232,14 @@ internal class Overlay : Window
                 ret = P.Config.ShowAethernet;
             }
         }
-        if (!ret)
+        else if(canUse == AetheryteUseState.Residential)
+        {
+            ret = P.Config.ShowAethernet;
+        }
+        if (canUse == AetheryteUseState.None)
         {
             bWidth = new(10, 10);
         }
-        return ret && !(P.Config.HideAddon && Util.IsAddonsVisible(Util.Addons));
+        return ret && !(P.Config.HideAddon && Utils.IsAddonsVisible(Utils.Addons));
     }
 }

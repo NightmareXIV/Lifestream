@@ -7,6 +7,9 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using ECommons.Automation;
 using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
+using Lifestream.AtkReaders;
+using ECommons.ExcelServices;
+using Dalamud.Utility;
 
 namespace Lifestream.GUI;
 
@@ -63,6 +66,26 @@ internal static unsafe class UIDebug
     static string str3 = "";
     static void Debug()
     {
+        if (ImGui.CollapsingHeader("State"))
+        {
+            ImGuiEx.Text($"CanUseAetheryte = {Utils.CanUseAetheryte()}");
+            ImGuiEx.Text($"ResidentialAethernet.ActiveAetheryte = {P.ResidentialAethernet.ActiveAetheryte}");
+            ImGuiEx.Text($"GetValidAetheryte = {Utils.GetValidAetheryte()}");
+        }
+        if(ImGui.CollapsingHeader("Housing aethernet"))
+        {
+            foreach(var x in P.ResidentialAethernet.ZoneInfo)
+            {
+                if (ImGuiEx.TreeNode($"{x}"))
+                {
+                    foreach(var a in x.Value.Aetherytes)
+                    {
+                        ImGuiEx.Text($"{a.Name} / {a.Position} / {ExcelTerritoryHelper.GetName(a.TerritoryType)}");
+                    }
+                    ImGui.TreePop();
+                }
+            }
+        }
         if (ImGui.CollapsingHeader("DCV"))
         {
             if(ImGui.Button("Enable AtkComponentTreeList_vf31Hook hook"))
@@ -103,7 +126,7 @@ internal static unsafe class UIDebug
                     Callback.Fire(addon, false, (int)17, (int)1, (int)index);
                 }
             }
-            ImGuiEx.TextWrapped($"Names: {Util.GetCharacterNames().Print()}");
+            ImGuiEx.TextWrapped($"Names: {Utils.GetCharacterNames().Print()}");
         }
         if (ImGui.CollapsingHeader("Throttle"))
         {
@@ -210,7 +233,7 @@ internal static unsafe class UIDebug
                 }
             }
         }
-        ImGuiEx.Text(Util.GetAvailableAethernetDestinations().Join("\n"));
+        ImGuiEx.Text(Utils.GetAvailableAethernetDestinations().Join("\n"));
         if (ImGui.Button($"null")) DebugAetheryte = null;
     }
 }

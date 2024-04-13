@@ -1,4 +1,5 @@
 ﻿using ClickLib.Clicks;
+using Dalamud.Plugin.Ipc.Exceptions;
 using ECommons.Automation;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
@@ -7,6 +8,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.AtkReaders;
 using Lifestream.Systems.Legacy;
 
 namespace Lifestream.Schedulers;
@@ -17,7 +19,7 @@ internal unsafe static class WorldChange
     {
         if (!Player.Available) return false;
         if (IsOccupied()) return false;
-        var a = Util.GetValidAetheryte();
+        var a = Utils.GetValidAetheryte();
         if (a != null)
         {
             if (a.Address != Svc.Targets.Target?.Address)
@@ -40,7 +42,7 @@ internal unsafe static class WorldChange
     {
         if (!Player.Available) return false;
         if (IsOccupied()) return false;
-        var a = Util.GetValidAetheryte();
+        var a = Utils.GetValidAetheryte();
         if (a != null && Svc.Targets.Target?.Address == a.Address)
         {
             if (EzThrottler.Throttle("InteractWithTargetedAetheryte", 500))
@@ -55,19 +57,19 @@ internal unsafe static class WorldChange
     internal static bool? SelectAethernet()
     {
         if (!Player.Available) return false;
-        return Util.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
+        return Utils.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? SelectVisitAnotherWorld()
     {
         if (!Player.Available) return false;
-        return Util.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
+        return Utils.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? ConfirmWorldVisit(string s)
     {
         if (!Player.Available) return false;
-        var x = (AddonSelectYesno*)Util.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
+        var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
         if (x != null)
         {
             if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
@@ -82,7 +84,7 @@ internal unsafe static class WorldChange
     internal static bool? SelectWorldToVisit(string world)
     {
         if (!Player.Available) return false;
-        var worlds = Util.GetAvailableWorldDestinations();
+        var worlds = Utils.GetAvailableWorldDestinations();
         var index = Array.IndexOf(worlds, world);
         if (index != -1)
         {
@@ -105,11 +107,11 @@ internal unsafe static class WorldChange
         {
             if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
             {
-                if (Util.GetAvailableAethernetDestinations().Any(x => x.Equals(t.Name)))
+                if (Utils.GetAvailableAethernetDestinations().Any(x => x.Equals(t.Name)))
                 {
                     if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                     {
-                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep,true, 11, callback));
+                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
                         P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
                         return true;
                     }
@@ -117,9 +119,9 @@ internal unsafe static class WorldChange
                 else
                 {
                     PluginLog.Debug($"Could not find destination {t.Name}, attempting partial search...");
-                    foreach(var destText in Util.GetAvailableAethernetDestinations())
+                    foreach (var destText in Utils.GetAvailableAethernetDestinations())
                     {
-                        if(destText.Length > 20)
+                        if (destText.Length > 20)
                         {
                             var text = destText[..^3];
                             if (t.Name.StartsWith(text))
@@ -136,7 +138,7 @@ internal unsafe static class WorldChange
                     }
                     if (EzThrottler.Throttle("TeleportToAethernetDestinationLog", 5000))
                     {
-                        PluginLog.Warning($"GetAvailableAethernetDestinations does not contains {t.Name}, contains {Util.GetAvailableAethernetDestinations().Print()}");
+                        PluginLog.Warning($"GetAvailableAethernetDestinations does not contains {t.Name}, contains {Utils.GetAvailableAethernetDestinations().Print()}");
                     }
                 }
             }
@@ -144,6 +146,33 @@ internal unsafe static class WorldChange
             {
                 DuoLog.Error($"Callback data absent for {t.Name}");
                 return null;
+            }
+        }
+        return false;
+    }
+
+    internal static bool? TeleportToAethernetDestination(string name)
+    {
+        if (!Player.Available) return false;
+        if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
+        {
+            var reader = new ReaderTelepotTown(telep);
+            for (int i = 0; i < reader.DestinationName.Count; i++)
+            {
+                if (reader.DestinationName[i].Name == name)
+                {
+                    var data = reader.DestinationData.SafeSelect(i);
+                    if(data != null)
+                    {
+                        if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
+                        {
+                            var callback = data.CallbackData;
+                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                            return true;
+                        }
+                    }
+                }
             }
         }
         return false;
@@ -162,14 +191,14 @@ internal unsafe static class WorldChange
     internal static bool? WaitUntilNotBusy()
     {
         if (!Player.Available) return false;
-        return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Util.IsDisallowedToUseAethernet() && Player.Object.IsTargetable();
+        return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable();
     }
 
 
     internal static bool? TargetReachableAetheryte()
     {
         if (!Player.Available) return false;
-        var a = Util.GetReachableWorldChangeAetheryte();
+        var a = Utils.GetReachableWorldChangeAetheryte();
         if (a != null)
         {
             if (!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
@@ -248,7 +277,7 @@ internal unsafe static class WorldChange
     {
         if (!Player.Available) return false;
         if (Svc.Party.Length < 2) return true;
-        var x = (AddonSelectYesno*)Util.GetSpecificYesno();
+        var x = (AddonSelectYesno*)Utils.GetSpecificYesno();
         if (x != null)
         {
             if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmLeaveParty"))
