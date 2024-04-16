@@ -3,11 +3,6 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.GUI;
 public static unsafe class TabAddressBook

@@ -1,7 +1,5 @@
 ﻿using ClickLib.Clicks;
-using Dalamud.Plugin.Ipc.Exceptions;
 using ECommons.Automation;
-using ECommons.Automation.NeoTaskManager;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;

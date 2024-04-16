@@ -1,7 +1,6 @@
 ﻿using ECommons.GameHelpers;
 using Lifestream.Enums;
 using Lifestream.Systems;
-using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;

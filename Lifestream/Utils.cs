@@ -4,7 +4,6 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
-using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;

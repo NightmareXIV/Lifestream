@@ -1,15 +1,8 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
-using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using Lifestream.Enums;
-using Lifestream.Systems.Legacy;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard

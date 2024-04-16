@@ -1,8 +1,6 @@
 ﻿using ClickLib.Enums;
 using ClickLib.Structures;
-using Dalamud.Utility.Signatures;
 using ECommons.EzHookManager;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Lifestream;

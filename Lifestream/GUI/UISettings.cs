@@ -1,5 +1,4 @@
-﻿using Dalamud.Interface.Components;
-using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream.GUI;
 

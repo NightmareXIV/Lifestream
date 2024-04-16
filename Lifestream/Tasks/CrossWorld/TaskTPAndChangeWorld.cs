@@ -1,5 +1,4 @@
-﻿using ECommons.Automation.NeoTaskManager;
-using ECommons.Automation.NeoTaskManager.Tasks;
+﻿using ECommons.Automation.NeoTaskManager.Tasks;
 using Lifestream.Enums;
 using Lifestream.Schedulers;
 using Lifestream.Tasks.SameWorld;

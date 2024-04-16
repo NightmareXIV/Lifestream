@@ -1,13 +1,6 @@
 ﻿using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
-using Lifestream.GUI;
-using Lifestream.Systems.Legacy;
 using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Systems;
 public sealed class ResidentialAethernet : IDisposable
