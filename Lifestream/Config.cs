@@ -38,4 +38,5 @@ public class Config : IEzConfig
     public bool SlowTeleport = false;
     public int SlowTeleportThrottle = 0;
     public bool WaitForScreen = false;
+    public bool ShowWards = true;
 }

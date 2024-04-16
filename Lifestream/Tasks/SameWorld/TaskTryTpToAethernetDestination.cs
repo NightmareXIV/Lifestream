@@ -1,4 +1,5 @@
-﻿using Lifestream.Schedulers;
+﻿using ECommons.Automation.NeoTaskManager.Tasks;
+using Lifestream.Schedulers;
 
 namespace Lifestream.Tasks.SameWorld;
 
@@ -17,16 +18,18 @@ internal static class TaskTryTpToAethernetDestination
             {
                 if (P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
-                    P.TaskManager.DelayNextImmediate(10, true);
-                    P.TaskManager.EnqueueImmediate(WorldChange.TargetReachableAetheryte);
-                    P.TaskManager.EnqueueImmediate(WorldChange.LockOn);
-                    P.TaskManager.EnqueueImmediate(WorldChange.EnableAutomove);
-                    P.TaskManager.EnqueueImmediate(WorldChange.WaitUntilWorldChangeAetheryteExists);
-                    P.TaskManager.EnqueueImmediate(WorldChange.DisableAutomove);
+                    P.TaskManager.InsertMulti([
+                        new FrameDelayTask(10),
+                        new(WorldChange.TargetReachableAetheryte),
+                        new(WorldChange.LockOn),
+                        new(WorldChange.EnableAutomove),
+                        new(WorldChange.WaitUntilWorldChangeAetheryteExists),
+                        new(WorldChange.DisableAutomove),
+                        ]);
                 }
             }, "ConditionalLockonTask");
             P.TaskManager.Enqueue(WorldChange.WaitUntilWorldChangeAetheryteExists);
-            P.TaskManager.DelayNext(10, true);
+            P.TaskManager.EnqueueDelay(10, true);
             P.TaskManager.Enqueue(Process);
         }
 

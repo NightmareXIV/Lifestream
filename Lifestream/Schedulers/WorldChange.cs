@@ -1,6 +1,7 @@
 ﻿using ClickLib.Clicks;
 using Dalamud.Plugin.Ipc.Exceptions;
 using ECommons.Automation;
+using ECommons.Automation.NeoTaskManager;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -111,8 +112,10 @@ internal unsafe static class WorldChange
                 {
                     if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                     {
-                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
-                        P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                        P.TaskManager.InsertMulti([
+                            new(() => Callback.Fire(telep, true, 11, callback)),
+                            new(() => Callback.Fire(telep, true, 11, callback)),
+                            ]);
                         return true;
                     }
                 }
@@ -129,8 +132,10 @@ internal unsafe static class WorldChange
                                 if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                                 {
                                     PluginLog.Debug($"Destination {t.Name} starts with {text}, assuming successful search");
-                                    P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
-                                    P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                                    P.TaskManager.InsertMulti([
+                                        new(() => Callback.Fire(telep, true, 11, callback)),
+                                        new(() => Callback.Fire(telep, true, 11, callback)),
+                                        ]);
                                     return true;
                                 }
                             }
@@ -167,8 +172,10 @@ internal unsafe static class WorldChange
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
                             var callback = data.CallbackData;
-                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
-                            P.TaskManager.EnqueueImmediate(() => Callback.Fire(telep, true, 11, callback));
+                            P.TaskManager.InsertMulti([
+                                new(() => Callback.Fire(telep, true, 11, callback)),
+                                new(() => Callback.Fire(telep, true, 11, callback)),
+                                ]);
                             return true;
                         }
                     }
@@ -178,12 +185,12 @@ internal unsafe static class WorldChange
         return false;
     }
 
-    internal static bool? ExecuteTPToGatewayCommand()
+    internal static bool? ExecuteTPToAethernetDestination(uint destination)
     {
         if (!Player.Available) return false;
         if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
-            return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc((uint)P.Config.WorldChangeAetheryte, 0);
+            return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, 0);
         }
         return false;
     }
@@ -191,7 +198,7 @@ internal unsafe static class WorldChange
     internal static bool? WaitUntilNotBusy()
     {
         if (!Player.Available) return false;
-        return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable();
+        return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable;
     }
 
 

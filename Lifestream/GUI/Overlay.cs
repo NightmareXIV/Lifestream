@@ -76,6 +76,7 @@ internal class Overlay : Window
         {
             if (P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
+            if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType)) actions.Add(DrawHousingWards);
         }
         ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
         WSize = ImGui.GetWindowSize();
@@ -204,7 +205,21 @@ internal class Overlay : Window
                 }
             }
         }
+    }
 
+    private void DrawHousingWards()
+    {
+        for (int i = 1; i <= 30; i++)
+        {
+            ResizeButton($"{i}");
+            var buttonSize = new Vector2((ButtonSizeWorld.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
+            if (ImGuiEx.Button($"{i}##ward", buttonSize))
+            {
+                TaskRemoveAfkStatus.Enqueue();
+                TaskGoToResidentialDistrict.Enqueue(i);
+            }
+            if (i % 3 != 0) ImGui.SameLine();
+        }
     }
 
     private void ResizeButton(string t)

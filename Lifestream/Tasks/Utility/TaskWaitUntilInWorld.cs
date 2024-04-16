@@ -13,6 +13,6 @@ internal static class TaskWaitUntilInWorld
                 return true;
             }
             return false;
-        }, 60.Minutes(), nameof(TaskWaitUntilInWorld));
+        }, nameof(TaskWaitUntilInWorld), new(timeLimitMS: 60.Minutes()));
     }
 }

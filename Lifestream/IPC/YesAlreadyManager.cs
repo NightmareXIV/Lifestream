@@ -1,4 +1,5 @@
 ﻿using ECommons.EzSharedDataManager;
+using System.Diagnostics;
 
 namespace Lifestream.IPC;
 
