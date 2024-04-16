@@ -230,14 +230,14 @@ internal static unsafe class Utils
         return TerritoryForWorldChangeAetheryte[r];
     }
 
-    internal static ResidentialAetheryte GetResidentialAetheryteByTerritoryType(uint territoryType)
+    internal static ResidentialAetheryte? GetResidentialAetheryteByTerritoryType(uint territoryType)
     {
-        return TerritoryForResidentialAetheryte.FindKeysByValue(territoryType).First();
+        return TerritoryForResidentialAetheryte.FindKeysByValue(territoryType).FirstOrDefault();
     }
 
-    internal static WorldChangeAetheryte GetWorldChangeAetheryteByTerritoryType(uint territoryType)
+    internal static WorldChangeAetheryte? GetWorldChangeAetheryteByTerritoryType(uint territoryType)
     {
-        return TerritoryForWorldChangeAetheryte.FindKeysByValue(territoryType).First();
+        return TerritoryForWorldChangeAetheryte.FindKeysByValue(territoryType).FirstOrDefault();
     }
 
     internal static bool TryGetTinyAetheryteFromGameObject(GameObject a, out TinyAetheryte? t, uint? TerritoryType = null)

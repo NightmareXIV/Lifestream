@@ -6,6 +6,7 @@ internal unsafe static class MainGui
     {
         KoFiButton.DrawRight();
         ImGuiEx.EzTabBar("LifestreamTabs",
+            ("Address Book", TabAddressBook.Draw, null, true),
             ("Settings", UISettings.Draw, null, true),
             ("Service accounts", UIServiceAccount.Draw, null, true),
             InternalLog.ImGuiTab(),
