@@ -10,6 +10,8 @@ using Lifestream.Systems.Legacy;
 using Lifestream.AtkReaders;
 using ECommons.ExcelServices;
 using Dalamud.Utility;
+using Lifestream.Tasks.CrossDC;
+using Lifestream.Enums;
 
 namespace Lifestream.GUI;
 
@@ -64,8 +66,21 @@ internal static unsafe class UIDebug
     static string str = "";
     static string str2 = "";
     static string str3 = "";
+    static string World = "";
+    static ResidentialAetheryte ResiA;
+    static int Ward = 1;
     static void Debug()
     {
+        if (ImGui.CollapsingHeader("TPW"))
+        {
+            ImGui.InputText("World", ref World, 100);
+            ImGuiEx.EnumCombo("Resi", ref ResiA);
+            ImGui.InputInt("Ward", ref Ward);
+            if (ImGui.Button("Go"))
+            {
+                TaskTpAndGoToWard.Enqueue(World, ResiA, Ward);
+            }
+        }
         if (ImGui.CollapsingHeader("State"))
         {
             ImGuiEx.Text($"CanUseAetheryte = {Utils.CanUseAetheryte()}");

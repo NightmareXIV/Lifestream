@@ -45,12 +45,18 @@ internal static class Lang
     //0	TEXT_AETHERYTEISHGARD_HWD_WARP	<Gui(69)/> 蒼天街転送
     //0	TEXT_AETHERYTEISHGARD_HWD_WARP<Gui(69)/> Himmelsstadt
     //0	TEXT_AETHERYTEISHGARD_HWD_WARP	<Gui(69)/> Azurée
-    internal static string[] TravelToFirmament = ["Travel to the Firmament.", "蒼天街転送", "Himmelsstadt", "Azurée"];
+    internal static readonly string[] TravelToFirmament = ["Travel to the Firmament.", "蒼天街転送", "Himmelsstadt", "Azurée"];
 
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> Residential District Aethernet.
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> 冒険者居住区転送
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> Wohngebiet
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> Quartier résidentiel
-    public static string[] ResidentialDistrict = ["Residential District Aethernet.", "冒険者居住区転送", "Wohngebiet", "Quartier résidentiel"];
-    public static string[] GoToWard = ["Go to specified ward. (Review Tabs)"];
+    public static readonly string[] ResidentialDistrict = ["Residential District Aethernet.", "冒険者居住区転送", "Wohngebiet", "Quartier résidentiel"];
+    public static readonly string[] GoToWard = ["Go to specified ward. (Review Tabs)"];
+
+    //6355	<Sheet(PlaceName,IntegerParameter(1),0)/>第<Value>IntegerParameter(2)</Value>区に移動します。
+    //よろしいですか？
+    //6355	Zu Wohnbezirk <Value>IntegerParameter(2)</Value> <Sheet(PlaceName,IntegerParameter(1),8,2)/> gehen?
+    //6355	Vous allez vous rendre à “<Sheet(PlaceName,IntegerParameter(1),0)/>” dans le secteur <Value>IntegerParameter(2)</Value>. Confirmer<Indent/>?
+    public static readonly string[] TravelTo = ["Travel to", "よろしいですか？", "Zu Wohnbezirk", "Vous allez vous rendre à"];
 }

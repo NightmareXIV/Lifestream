@@ -112,10 +112,10 @@ internal unsafe static class WorldChange
                 {
                     if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                     {
-                        P.TaskManager.InsertMulti([
+                        P.TaskManager.InsertMulti(
                             new(() => Callback.Fire(telep, true, 11, callback)),
-                            new(() => Callback.Fire(telep, true, 11, callback)),
-                            ]);
+                            new(() => Callback.Fire(telep, true, 11, callback))
+                            );
                         return true;
                     }
                 }
@@ -132,10 +132,10 @@ internal unsafe static class WorldChange
                                 if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                                 {
                                     PluginLog.Debug($"Destination {t.Name} starts with {text}, assuming successful search");
-                                    P.TaskManager.InsertMulti([
+                                    P.TaskManager.InsertMulti(
                                         new(() => Callback.Fire(telep, true, 11, callback)),
-                                        new(() => Callback.Fire(telep, true, 11, callback)),
-                                        ]);
+                                        new(() => Callback.Fire(telep, true, 11, callback))
+                                        );
                                     return true;
                                 }
                             }
@@ -172,10 +172,10 @@ internal unsafe static class WorldChange
                         if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
                             var callback = data.CallbackData;
-                            P.TaskManager.InsertMulti([
+                            P.TaskManager.InsertMulti(
                                 new(() => Callback.Fire(telep, true, 11, callback)),
-                                new(() => Callback.Fire(telep, true, 11, callback)),
-                                ]);
+                                new(() => Callback.Fire(telep, true, 11, callback))
+                                );
                             return true;
                         }
                     }

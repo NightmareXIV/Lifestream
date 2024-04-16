@@ -1,5 +1,7 @@
-﻿using ECommons.Automation;
+﻿using ClickLib.Clicks;
+using ECommons.Automation;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
 using System;
@@ -21,6 +23,21 @@ public unsafe static class TaskGoToResidentialDistrict
         P.TaskManager.Enqueue(() => Utils.TrySelectSpecificEntry(Lang.GoToWard, () => EzThrottler.Throttle("SelectGoToWard")), $"TaskGoToResidentialDistrictSelect {Lang.GoToWard}");
         if(ward > 1) P.TaskManager.Enqueue(() => SelectWard(ward));
         P.TaskManager.Enqueue(GoToWard);
+        P.TaskManager.Enqueue(ConfirmYesNoGoToWard);
+    }
+
+    public static bool ConfirmYesNoGoToWard()
+    {
+        var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.TravelTo);
+        if (x != null)
+        {
+            if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmTravelTo"))
+            {
+                ClickSelectYesNo.Using((nint)x).Yes();
+                return true;
+            }
+        }
+        return false;
     }
 
     public static bool? SelectWard(int ward)

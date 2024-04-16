@@ -15,7 +15,7 @@ public static class TaskTpToResidentialAetheryte
         P.TaskManager.Insert(() => Player.Interactable && Svc.ClientState.TerritoryType == target.GetTerritory(), "WaitUntilPlayerInteractable", new(timeLimitMS: 120000));
         P.TaskManager.Insert(WorldChange.WaitUntilNotBusy, new(timeLimitMS: 120000));
         P.TaskManager.Insert(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-        P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(target.GetTerritory()));
+        P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination((uint)target), $"ExecuteTPToAethernetDestination {target}");
         if (P.Config.WaitForScreen) P.TaskManager.Insert(Utils.WaitForScreen);
     }
 }

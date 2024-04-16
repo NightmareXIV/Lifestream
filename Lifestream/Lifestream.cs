@@ -186,7 +186,7 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                 {
-                    TaskTpToAethernetDestination.Enqueue();
+                    TaskTpToAethernetDestination.Enqueue(gateway.Value);
                 }
                 if(Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
                 {
@@ -195,7 +195,7 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             if(type == DCVType.HomeToGuest)
             {
-                if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld);
+                if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value);
                 TaskWaitUntilInHomeWorld.Enqueue();
                 TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                 TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
@@ -216,7 +216,7 @@ public unsafe class Lifestream : IDalamudPlugin
                     TaskManager.EnqueueMulti([
                         new(WorldChange.WaitUntilNotBusy, new(timeLimitMS:60.Minutes())),
                         new DelayTask(1000),
-                        new(() => TaskTPAndChangeWorld.Enqueue(w)),
+                        new(() => TaskTPAndChangeWorld.Enqueue(w, gateway.Value)),
                         ]);
                 }
                 else
@@ -247,7 +247,7 @@ public unsafe class Lifestream : IDalamudPlugin
         else
         {
             TaskRemoveAfkStatus.Enqueue();
-            TaskTPAndChangeWorld.Enqueue(w);
+            TaskTPAndChangeWorld.Enqueue(w, gateway.Value);
             if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
             EnqueueSecondary();
         }

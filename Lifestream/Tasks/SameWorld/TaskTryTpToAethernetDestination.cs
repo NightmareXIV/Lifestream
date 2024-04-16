@@ -18,14 +18,14 @@ internal static class TaskTryTpToAethernetDestination
             {
                 if (P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
-                    P.TaskManager.InsertMulti([
+                    P.TaskManager.InsertMulti(
                         new FrameDelayTask(10),
                         new(WorldChange.TargetReachableAetheryte),
                         new(WorldChange.LockOn),
                         new(WorldChange.EnableAutomove),
                         new(WorldChange.WaitUntilWorldChangeAetheryteExists),
-                        new(WorldChange.DisableAutomove),
-                        ]);
+                        new(WorldChange.DisableAutomove)
+                        );
                 }
             }, "ConditionalLockonTask");
             P.TaskManager.Enqueue(WorldChange.WaitUntilWorldChangeAetheryteExists);

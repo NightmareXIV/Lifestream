@@ -14,12 +14,12 @@ public static class TaskReturnToGateway
         {
             if (Svc.ClientState.TerritoryType != gateway.GetTerritory())
             {
-                P.TaskManager.InsertMulti([
+                P.TaskManager.InsertMulti(
                     new(() => WorldChange.ExecuteTPToAethernetDestination((uint)gateway), $"ExecuteTPToAethernetDestination({gateway})"),
                     new(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas"),
                     new(WorldChange.WaitUntilNotBusy, new(timeLimitMS:120000)),
                     new(() => Player.Interactable && Svc.ClientState.TerritoryType == gateway.GetTerritory(), "WaitUntilPlayerInteractable", new(timeLimitMS:120000))
-                    ]);
+                    );
             }
         }, "TaskReturnToGatewayMaster");
     }

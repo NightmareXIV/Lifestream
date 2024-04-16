@@ -1,8 +1,10 @@
-﻿using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using Lifestream.Enums;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks.SameWorld;
+using Lifestream.Tasks.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,16 +14,16 @@ using System.Threading.Tasks;
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard
 {
-    public static void Enqueue(string primary, ResidentialAetheryte zone, int ward)
+    public static void Enqueue(string world, ResidentialAetheryte zone, int ward)
     {
         var gateway = DetermineGatewayAetheryte(zone);
-        if (Player.CurrentWorld != primary)
+        if (Player.CurrentWorld != world)
         {
-            if (P.DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
+            if (P.DataStore.Worlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var w))
             {
                 P.TPAndChangeWorld(w, false, null, true, gateway, false, gateway != null);
             }
-            else if (P.DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
+            else if (P.DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var dcw))
             {
                 P.TPAndChangeWorld(dcw, true, null, true, gateway, false, gateway != null);
             }
@@ -34,7 +36,10 @@ public static class TaskTpAndGoToWard
             {
                 TaskTpToResidentialAetheryte.Insert(zone);
             }
-        });
+        }, "TaskTpToResidentialAetheryteIfNeeded");
+        P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
+        TaskApproachAetheryteIfNeeded.Enqueue();
+        TaskGoToResidentialDistrict.Enqueue(ward);
     }
 
     public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryte targetZone)
