@@ -23,14 +23,26 @@ internal class ProgressOverlay : Window
         if (ImGui.IsWindowHovered())
         {
             ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
-            ImGui.SetTooltip("Right click to stop all tasks");
+            ImGui.SetTooltip("Right click to stop all tasks and movement");
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
             {
                 P.TaskManager.Abort();
+                P.FollowPath.Stop();
             }
         }
-        var percent = 1f - (float)P.TaskManager.NumQueuedTasks / (float)P.TaskManager.MaxTasks;
-        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, EColor.Violet);
+        float percent;
+        Vector4 col;
+        if(P.FollowPath.Waypoints.Count > 0)
+        {
+            percent = 1f - (float)P.FollowPath.Waypoints.Count / (float)P.FollowPath.MaxWaypoints;
+            col = GradientColor.Get(EColor.VioletBright, EColor.Violet);
+        }
+        else
+        {
+            percent = 1f - (float)P.TaskManager.NumQueuedTasks / (float)P.TaskManager.MaxTasks;
+            col = EColor.Violet;
+        }
+        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, col);
         ImGui.ProgressBar(percent, new(ImGui.GetContentRegionAvail().X, 20));
         ImGui.PopStyleColor();
         this.Position = new(0, ImGuiHelpers.MainViewport.Size.Y - ImGui.GetWindowSize().Y);
@@ -38,6 +50,6 @@ internal class ProgressOverlay : Window
 
     public override bool DrawConditions()
     {
-        return P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0 && !P.Config.NoProgressBar;
+        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || P.FollowPath.Waypoints.Count > 0) && !P.Config.NoProgressBar;
     }
 }

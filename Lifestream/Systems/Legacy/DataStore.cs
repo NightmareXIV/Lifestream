@@ -1,8 +1,10 @@
 ﻿using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.GameHelpers;
+using Lifestream.Data;
 using Lumina.Excel.GeneratedSheets;
 using System.IO;
+using Path = System.IO.Path;
 
 namespace Lifestream.Systems.Legacy;
 

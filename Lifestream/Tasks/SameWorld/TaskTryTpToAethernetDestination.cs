@@ -7,7 +7,7 @@ internal static class TaskTryTpToAethernetDestination
 {
     public static void Enqueue(string targetName)
     {
-        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if (P.ActiveAetheryte != null)
         {
             P.TaskManager.Enqueue(Process);

@@ -7,6 +7,8 @@ using Dalamud.Memory;
 using System.Windows.Forms;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Enums;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using ECommons.EzHookManager;
 
 namespace Lifestream.Game;
 
@@ -24,6 +26,11 @@ internal unsafe class Memory : IDisposable
     internal delegate void AtkComponentTreeList_vf31(nint a1, uint a2, byte a3);
     [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour))]
     internal Hook<AtkComponentTreeList_vf31> AtkComponentTreeList_vf31Hook;
+
+    private delegate void ActionManager_FaceTargetDelegate(ActionManager* actionManager, Vector3* position, ulong a3);
+    private ActionManager_FaceTargetDelegate ActionManager_FaceTarget = EzDelegate.Get<ActionManager_FaceTargetDelegate>("E8 ?? ?? ?? ?? 81 FE ?? ?? ?? ?? 74 2E");
+
+    public void FaceTarget(Vector3 position) => ActionManager_FaceTarget(ActionManager.Instance(), &position, 0xE0000000);
 
     void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
     {

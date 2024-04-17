@@ -6,9 +6,11 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Game;
 using Lifestream.GUI;
@@ -42,11 +44,13 @@ public unsafe class Lifestream : IDalamudPlugin
     public TaskManager TaskManager;
 
     public ResidentialAethernet ResidentialAethernet;
+    //public FollowPath FollowPath;
+    public VnavmeshManager VnavmeshManager;
 
     public Lifestream(DalamudPluginInterface pluginInterface)
     {
         P = this;
-        ECommonsMain.Init(pluginInterface, this);
+        ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);
         new TickScheduler(delegate
         {
             Config = EzConfig.Init<Config>();
@@ -67,6 +71,8 @@ public unsafe class Lifestream : IDalamudPlugin
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
             ResidentialAethernet = new();
+            //FollowPath = new();
+            VnavmeshManager = new();
         });
     }
 
@@ -267,6 +273,7 @@ public unsafe class Lifestream : IDalamudPlugin
     private void Framework_Update(object framework)
     {
         YesAlreadyManager.Tick();
+        //FollowPath.Update();
         if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
         {
             UpdateActiveAetheryte();
@@ -283,6 +290,7 @@ public unsafe class Lifestream : IDalamudPlugin
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
         Memory.Dispose();
+        //FollowPath.Dispose();
         ECommonsMain.Dispose();
         P = null;
     }

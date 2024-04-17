@@ -9,7 +9,7 @@ internal static class TaskTPAndChangeWorld
 {
     internal static void Enqueue(string world, WorldChangeAetheryte gateway)
     {
-        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if (P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
         {
             TaskChangeWorld.Enqueue(world);

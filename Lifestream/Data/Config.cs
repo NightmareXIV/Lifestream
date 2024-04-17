@@ -1,7 +1,7 @@
 ﻿using ECommons.Configuration;
 using Lifestream.Enums;
 
-namespace Lifestream;
+namespace Lifestream.Data;
 
 public class Config : IEzConfig
 {
@@ -37,7 +37,7 @@ public class Config : IEzConfig
     public bool UseAutoRetainerAccounts = true;
     public bool SlowTeleport = false;
     public int SlowTeleportThrottle = 0;
-    public bool WaitForScreen = false;
+    public bool WaitForScreenReady = true;
     public bool ShowWards = true;
     public List<AddressBookEntry> AddressBook = [];
 }

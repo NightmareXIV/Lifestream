@@ -1,5 +1,6 @@
 ﻿using ClickLib.Clicks;
 using ECommons.Automation;
+using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -11,7 +12,7 @@ public unsafe static class TaskGoToResidentialDistrict
     public static void Enqueue(int ward)
     {
         if (ward < 1 || ward > 30) throw new ArgumentOutOfRangeException(nameof(ward));
-        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         P.TaskManager.Enqueue(() => Utils.TrySelectSpecificEntry(Lang.ResidentialDistrict, () => EzThrottler.Throttle("SelectResidentialDistrict")), $"TaskGoToResidentialDistrictSelect {Lang.ResidentialDistrict}");
@@ -19,6 +20,7 @@ public unsafe static class TaskGoToResidentialDistrict
         if(ward > 1) P.TaskManager.Enqueue(() => SelectWard(ward));
         P.TaskManager.Enqueue(GoToWard);
         P.TaskManager.Enqueue(ConfirmYesNoGoToWard);
+        P.TaskManager.EnqueueTask(new(() => Player.Interactable && P.ResidentialAethernet.IsInResidentialZone(), "Wait until player arrives"));
     }
 
     public static bool ConfirmYesNoGoToWard()

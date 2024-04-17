@@ -20,6 +20,7 @@ internal static unsafe class UIDebug
     internal static TinyAetheryte? DebugAetheryte = null;
     internal static int DC = 0;
     internal static int Destination = 0;
+    internal static List<Vector3> DebugPath = [];
     internal static void Draw()
     {
         ImGuiEx.EzTabBar("debug",
@@ -70,6 +71,21 @@ internal static unsafe class UIDebug
     static int Ward = 1;
     static void Debug()
     {
+        if (ImGui.CollapsingHeader("Path"))
+        {
+            if (ImGui.Button("Add")) DebugPath.Add(Player.Object.Position);
+            if (ImGui.Button("Go")) P.FollowPath.Waypoints.AddRange(Enumerable.Reverse(DebugPath));
+            if (ImGui.Button("Copy")) Copy($"new Vector3({Player.Object.Position.X}f, {Player.Object.Position.Y}f, {Player.Object.Position.Z}f);");
+            for (int i = 0; i < DebugPath.Count; i++)
+            {
+                ImGuiEx.Text($"{DebugPath[i]}");
+                if (ImGuiEx.HoveredAndClicked())
+                {
+                    DebugPath.RemoveAt(i);
+                    break;
+                }
+            }
+        }
         if (ImGui.CollapsingHeader("TPW"))
         {
             ImGui.InputText("World", ref World, 100);

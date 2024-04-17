@@ -14,7 +14,7 @@ public static class TaskApproachAetheryteIfNeeded
             if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null)
             {
                 P.TaskManager.InsertMulti(
-                    P.Config.WaitForScreen ? new(Utils.WaitForScreen) : null,
+                    P.Config.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
                     new FrameDelayTask(10),
                     new(TargetReachableAetheryte),
                     new(WorldChange.LockOn),

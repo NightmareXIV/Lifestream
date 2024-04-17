@@ -8,7 +8,7 @@ public static class TaskReturnToGateway
 {
     public static void Enqueue(WorldChangeAetheryte gateway)
     {
-        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WaitUntilInteractable);
         P.TaskManager.Enqueue(() =>
         {

@@ -1,6 +1,7 @@
 ﻿using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
+using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;
 

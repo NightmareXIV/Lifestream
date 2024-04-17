@@ -54,7 +54,7 @@ internal static class UISettings
                 ImGui.Checkbox($"Only teleport from command but not from overlay", ref P.Config.WorldVisitTPOnlyCmd);
             }
             ImGui.Checkbox($"Hide progress bar", ref P.Config.NoProgressBar);
-            ImGui.Checkbox($"Wait until game UI is ready before executing commands", ref P.Config.WaitForScreen);
+            ImGui.Checkbox($"Wait until game UI is ready before executing commands", ref P.Config.WaitForScreenReady);
             ImGuiEx.HelpMarker($"Enable this option if you are experiencing issues with Lifestream trying to use aetherytes or commands too early");
         }
         if (ImGui.CollapsingHeader("Hidden aetherytes"))

@@ -22,7 +22,7 @@ public static class TaskTpAndGoToWard
             }
         }
         P.TaskManager.Enqueue(TaskReturnToGateway.WaitUntilInteractable);
-        if (P.Config.WaitForScreen) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(() =>
         {
             if (Svc.ClientState.TerritoryType != zone.GetTerritory())
@@ -33,6 +33,7 @@ public static class TaskTpAndGoToWard
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
+        TaskApproachHousingAetheryte.Enqueue();
     }
 
     public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryte targetZone)

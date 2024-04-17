@@ -1,6 +1,6 @@
 ﻿using ECommons.Configuration;
 
-namespace Lifestream;
+namespace Lifestream.Data;
 
 public class StaticData : IEzConfig
 {

@@ -1,6 +1,6 @@
 ﻿using Lifestream.Enums;
 
-namespace Lifestream;
+namespace Lifestream.Data;
 [Serializable]
 public class AddressBookEntry
 {
