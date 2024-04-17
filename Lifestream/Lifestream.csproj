@@ -88,6 +88,9 @@
         <None Update="$(MSBuildProjectName).json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="HousingData.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
         <None Update="StaticData.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

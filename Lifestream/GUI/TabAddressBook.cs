@@ -51,7 +51,7 @@ public static unsafe class TabAddressBook
                 {
                     if(Player.Interactable && !P.TaskManager.IsBusy)
                     {
-                        TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward);
+                        TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1);
                     }
                 }
                 ImGui.PopStyleVar();

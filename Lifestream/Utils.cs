@@ -22,6 +22,16 @@ internal static unsafe class Utils
 
     public static uint[] HousingAethernet = [MainCities.Limsa_Lominsa_Lower_Decks, MainCities.Uldah_Steps_of_Nald, MainCities.New_Gridania, MainCities.Foundation, MainCities.Kugane];
 
+    public static float CalculatePathDistance(Vector3[] vectors)
+    {
+        var distance = 0f;
+        for (int i = 0; i < vectors.Length - 1; i++)
+        {
+            distance += Vector3.Distance(vectors[i], vectors[i + 1]);
+        }
+        return distance;
+    }
+
     public static bool? WaitForScreen() => IsScreenReady();
 
     internal static void TryNotify(string s)
@@ -212,6 +222,15 @@ internal static unsafe class Utils
         [ResidentialAetheryte.Foundation] = MainCities.Foundation,
     };
 
+    static Dictionary<ResidentialAetheryte, uint> ResidentialTerritoryForResidentialAetheryte = new()
+    {
+        [ResidentialAetheryte.Uldah] = ResidentalAreas.The_Goblet,
+        [ResidentialAetheryte.Gridania] = ResidentalAreas.The_Lavender_Beds,
+        [ResidentialAetheryte.Limsa] = ResidentalAreas.Mist,
+        [ResidentialAetheryte.Kugane] = ResidentalAreas.Shirogane,
+        [ResidentialAetheryte.Foundation] = ResidentalAreas.Empyreum,
+    };
+
     static Dictionary<WorldChangeAetheryte, uint> TerritoryForWorldChangeAetheryte = new()
     {
         [WorldChangeAetheryte.Uldah] = MainCities.Uldah_Steps_of_Nald,
@@ -222,6 +241,10 @@ internal static unsafe class Utils
     internal static uint GetTerritory(this ResidentialAetheryte r)
     {
         return TerritoryForResidentialAetheryte[r];
+    }
+    internal static uint GetResidentialTerritory(this ResidentialAetheryte r)
+    {
+        return ResidentialTerritoryForResidentialAetheryte[r];
     }
 
     internal static uint GetTerritory(this WorldChangeAetheryte r)

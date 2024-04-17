@@ -1,10 +1,18 @@
-﻿using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Configuration;
+using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
+using Lifestream.Data;
 using Lumina.Excel.GeneratedSheets;
+using System.IO;
+using Path = System.IO.Path;
 
 namespace Lifestream.Systems;
 public sealed class ResidentialAethernet : IDisposable
 {
+    private const string FileName = "HousingData.json";
+    public HousingData HousingData;
+
     public readonly Dictionary<uint, ResidentialZoneInfo> ZoneInfo = new() {
         [ResidentalAreas.The_Goblet] = new() { SubdivisionModifier = new(-700f, -700f)},
         [ResidentalAreas.Mist] = new() { SubdivisionModifier = new(-700f, -700f) },
@@ -21,6 +29,7 @@ public sealed class ResidentialAethernet : IDisposable
     {
         try
         {
+            HousingData = EzConfig.LoadConfiguration<HousingData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, FileName), false);
             foreach (var zone in ZoneInfo)
             {
                 var values = Svc.Data.GetExcelSheet<HousingAethernet>().Where(a => a.TerritoryType.Row == zone.Key).OrderBy(x => x.Order);
@@ -59,26 +68,35 @@ public sealed class ResidentialAethernet : IDisposable
         var a = Utils.GetValidAetheryte();
         if (a != null)
         {
-            var pos2 = a.Position.ToVector2();
-            if(ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
+            var aetheryte = GetFromGameObject(a);
+            if(aetheryte != null)
             {
-                foreach (var l in result.Aetherytes)
+                if (ActiveAetheryte == null)
                 {
-                    if (Vector2.Distance(l.Position, pos2) < 10)
-                    {
-                        if (ActiveAetheryte == null)
-                        {
-                            P.Overlay.IsOpen = true;
-                        }
-                        ActiveAetheryte = l;
-                        return;
-                    }
+                    P.Overlay.IsOpen = true;
                 }
+                ActiveAetheryte = aetheryte;
             }
         }
         else
         {
             ActiveAetheryte = null;
         }
+    }
+
+    public ResidentialAetheryte? GetFromGameObject(GameObject obj)
+    {
+        var pos2 = obj.Position.ToVector2();
+        if (ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
+        {
+            foreach (var l in result.Aetherytes)
+            {
+                if (Vector2.Distance(l.Position, pos2) < 10)
+                {
+                    return l;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -1,15 +1,16 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons.GameHelpers;
 using Lifestream.Enums;
+using Lifestream.Schedulers;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard
 {
-    public static void Enqueue(string world, ResidentialAetheryte zone, int ward)
+    public static void Enqueue(string world, ResidentialAetheryte residentialArtheryte, int ward, int plot)
     {
-        var gateway = DetermineGatewayAetheryte(zone);
+        var gateway = DetermineGatewayAetheryte(residentialArtheryte);
         if (Player.CurrentWorld != world)
         {
             if (P.DataStore.Worlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var w))
@@ -25,15 +26,31 @@ public static class TaskTpAndGoToWard
         if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(() =>
         {
-            if (Svc.ClientState.TerritoryType != zone.GetTerritory())
+            if (Svc.ClientState.TerritoryType != residentialArtheryte.GetTerritory())
             {
-                TaskTpToResidentialAetheryte.Insert(zone);
+                TaskTpToResidentialAetheryte.Insert(residentialArtheryte);
             }
         }, "TaskTpToResidentialAetheryteIfNeeded");
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
         TaskApproachHousingAetheryte.Enqueue();
+        if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
+        {
+            var info = plotInfos.SafeSelect(plot);
+            if (info != null)
+            {
+                var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
+                if (aetheryte != null)
+                {
+                    TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                    P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                    P.TaskManager.Enqueue(Utils.WaitForScreen);
+                    P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+                    P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
+                }
+            }
+        }
     }
 
     public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryte targetZone)

@@ -27,17 +27,17 @@ internal class ProgressOverlay : Window
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
             {
                 P.TaskManager.Abort();
-                P.FollowPath.Stop();
+                //P.FollowPath.Stop();
             }
         }
         float percent;
         Vector4 col;
-        if(P.FollowPath.Waypoints.Count > 0)
+        /*if(P.FollowPath.Waypoints.Count > 0)
         {
             percent = 1f - (float)P.FollowPath.Waypoints.Count / (float)P.FollowPath.MaxWaypoints;
             col = GradientColor.Get(EColor.VioletBright, EColor.Violet);
         }
-        else
+        else*/
         {
             percent = 1f - (float)P.TaskManager.NumQueuedTasks / (float)P.TaskManager.MaxTasks;
             col = EColor.Violet;
@@ -50,6 +50,7 @@ internal class ProgressOverlay : Window
 
     public override bool DrawConditions()
     {
-        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || P.FollowPath.Waypoints.Count > 0) && !P.Config.NoProgressBar;
+        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0)) && !P.Config.NoProgressBar;
+        //return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || P.FollowPath.Waypoints.Count > 0) && !P.Config.NoProgressBar;
     }
 }

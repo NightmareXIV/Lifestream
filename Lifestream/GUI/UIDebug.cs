@@ -11,6 +11,10 @@ using Lifestream.AtkReaders;
 using ECommons.ExcelServices;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Enums;
+using Lumina.Excel.GeneratedSheets;
+using Lifestream.Data;
+using Path = System.IO.Path;
+using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 
 namespace Lifestream.GUI;
 
@@ -25,9 +29,106 @@ internal static unsafe class UIDebug
     {
         ImGuiEx.EzTabBar("debug",
             ("Data editor", Editor, null, true),
+            ("Housing data", Housing, null, true),
             ("AtkReader", Reader, null, true),
             ("Debug", Debug, null, true)
             );
+    }
+
+    static int Resize = 60;
+    static int LastPlot = -1;
+    static bool doCurPlot = false;
+    static void Housing()
+    {
+        if(ImGui.Button("Load from config folder"))
+        {
+            var d = EzConfig.LoadConfiguration<HousingData>("GeneratedHousingData.json", true);
+            if (d != null) P.ResidentialAethernet.HousingData = d;
+        }
+        var data = P.ResidentialAethernet.HousingData.Data;
+        if (data.TryGetValue(Svc.ClientState.TerritoryType, out var plots)) 
+        {
+            var curPlot = HousingManager.Instance()->GetCurrentPlot();
+            if (curPlot != -1) LastPlot = curPlot;
+            ImGuiEx.Text($"Plot: {curPlot+1}");
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt($"Resize", ref Resize);
+            ImGui.SameLine();
+            if(ImGui.Button("Resize arrays"))
+            {
+                while (plots.Count > Resize) plots.RemoveAt(plots.Count - 1);
+                while (plots.Count < Resize) plots.Add(new());
+            }
+            if(ImGui.Button($"For plot {LastPlot+1}"))
+            {
+                doCurPlot = true;
+            }
+            List<ImGuiEx.EzTableEntry> entries = [];
+            for (int i = 0; i < plots.Count; i++)
+            {
+                var index = i;
+                var plot = plots[i];
+                entries.Add(
+                    new("Num", () => ImGuiEx.Text($"{index + 1}")),
+                    new("Front", () => ImGuiEx.Text($"{plot.Front}")),
+                    new("Aethernet", () => ImGuiEx.Text($"{Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(plot.AethernetID)?.PlaceName?.Value?.Name ?? plot.AethernetID.ToString()}")),
+                    new("Action", () =>
+                    {
+                        if (ImGui.Button($"Set{index + 1}") || (doCurPlot && index == LastPlot))
+                        {
+                            LastPlot = -1;
+                            doCurPlot = false;
+                            Chat.Instance.ExecuteCommand("/clearlog");
+                            DuoLog.Information($"For plot {index + 1}");
+                            plot.Front = Player.Object.Position;
+                            var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && P.ResidentialAethernet.GetFromGameObject(x) != null);
+                            Task.Run(() =>
+                            {
+                                var currentDistance = float.MaxValue;
+                                int currentAetheryte = -1;
+                                foreach (var x in candidates)
+                                {
+                                    DuoLog.Information($"Candidate: {P.ResidentialAethernet.GetFromGameObject(x).Value.Name}");
+                                    var path = P.VnavmeshManager.Pathfind(plot.Front, x.Position, false);
+                                    path.Wait();
+                                    if(path.Result != null)
+                                    {
+                                        var distance = Utils.CalculatePathDistance([.. path.Result]);
+                                        DuoLog.Information($"-- Distance: {distance} - best: {distance < currentDistance}");
+                                        if(distance < currentDistance)
+                                        {
+                                            currentDistance = distance;
+                                            currentAetheryte = (int)P.ResidentialAethernet.GetFromGameObject(x).Value.ID;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DuoLog.Information($"-- Failed to calculate distance");
+                                    }
+                                }
+                                Svc.Framework.RunOnFrameworkThread(() =>
+                                {
+                                    plot.AethernetID = (uint)currentAetheryte;
+                                    EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", true);
+                                });
+                            });
+                        }
+                    })
+                    );
+            }
+            if (ImGui.BeginChild("Table"))
+            {
+                ImGuiEx.EzTable(entries);
+            }
+            ImGui.EndChild();
+        }
+        else
+        {
+            if (ImGui.Button($"Create data for {ExcelTerritoryHelper.GetName(Svc.ClientState.TerritoryType)}"))
+            {
+                data[Svc.ClientState.TerritoryType] = [];
+            }
+        }
     }
 
     static void Reader()
@@ -74,7 +175,7 @@ internal static unsafe class UIDebug
         if (ImGui.CollapsingHeader("Path"))
         {
             if (ImGui.Button("Add")) DebugPath.Add(Player.Object.Position);
-            if (ImGui.Button("Go")) P.FollowPath.Waypoints.AddRange(Enumerable.Reverse(DebugPath));
+            //if (ImGui.Button("Go")) P.FollowPath.Waypoints.AddRange(Enumerable.Reverse(DebugPath));
             if (ImGui.Button("Copy")) Copy($"new Vector3({Player.Object.Position.X}f, {Player.Object.Position.Y}f, {Player.Object.Position.Z}f);");
             for (int i = 0; i < DebugPath.Count; i++)
             {
@@ -93,7 +194,7 @@ internal static unsafe class UIDebug
             ImGui.InputInt("Ward", ref Ward);
             if (ImGui.Button("Go"))
             {
-                TaskTpAndGoToWard.Enqueue(World, ResiA, Ward);
+                TaskTpAndGoToWard.Enqueue(World, ResiA, Ward, 1);
             }
         }
         if (ImGui.CollapsingHeader("State"))
