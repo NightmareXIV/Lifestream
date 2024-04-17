@@ -102,9 +102,8 @@ internal unsafe class Memory : IDisposable
         //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
         try
         {
-            if (P.ActiveAetheryte != null && Utils.CanUseAetheryte() != AetheryteUseState.None)
+            if ((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
             {
-                var master = Utils.GetMaster();
                 if (a2 == 3)
                 {
                     IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
@@ -118,12 +117,31 @@ internal unsafe class Memory : IDisposable
                         {
                             var node = addon->UldManager.NodeList[2]->GetAsAtkTextNode();
                             var text = MemoryHelper.ReadSeString(&node->NodeText).ExtractText();
-                            foreach (var x in P.DataStore.Aetherytes[master])
+                            if (P.ActiveAetheryte != null)
                             {
-                                if (x.Name == text)
+                                var master = Utils.GetMaster();
+                                foreach (var x in P.DataStore.Aetherytes[master])
                                 {
-                                    TaskAethernetTeleport.Enqueue(x);
-                                    break;
+                                    if (x.Name == text)
+                                    {
+                                        TaskAethernetTeleport.Enqueue(x);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (P.ResidentialAethernet.ActiveAetheryte != null)
+                            {
+                                var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(Svc.ClientState.TerritoryType);
+                                if (zone != null) 
+                                {
+                                    foreach (var x in zone.Aetherytes)
+                                    {
+                                        if(x.Name == text)
+                                        {
+                                            TaskAethernetTeleport.Enqueue(x.Name);
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
