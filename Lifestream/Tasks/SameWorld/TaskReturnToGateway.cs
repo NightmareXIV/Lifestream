@@ -17,8 +17,8 @@ public static class TaskReturnToGateway
                 P.TaskManager.InsertMulti(
                     new(() => WorldChange.ExecuteTPToAethernetDestination((uint)gateway), $"ExecuteTPToAethernetDestination({gateway})"),
                     new(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas"),
-                    new(WorldChange.WaitUntilNotBusy, new(timeLimitMS:120000)),
-                    new(() => Player.Interactable && Svc.ClientState.TerritoryType == gateway.GetTerritory(), "WaitUntilPlayerInteractable", new(timeLimitMS:120000))
+                    new(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M),
+                    new(() => Player.Interactable && Svc.ClientState.TerritoryType == gateway.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M)
                     );
             }
         }, "TaskReturnToGatewayMaster");

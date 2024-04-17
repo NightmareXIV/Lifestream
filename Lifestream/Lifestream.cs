@@ -219,7 +219,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 if (Player.HomeWorld != w)
                 {
                     TaskManager.EnqueueMulti([
-                        new(WorldChange.WaitUntilNotBusy, new(timeLimitMS:60.Minutes())),
+                        new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
                         new DelayTask(1000),
                         new(() => TaskTPAndChangeWorld.Enqueue(w, gateway.Value)),
                         ]);
