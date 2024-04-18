@@ -19,6 +19,19 @@
         "resolved": "2.0.18",
         "contentHash": "sR5Aj3JLDbA8JwESfWYfigSz5k1oNSHPN434W1LX8sboWJYEOSQP/KkvZGmJKPgajzSUKkl2jDar3LPZiMFU4Q=="
       },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "V8S3bsm50ig6JSyrbcJJ8bW2b9QLGouz+G1miK3UTaOWmMtFwNNNzUf4AleyDWUmTrWMLNnFSLEQtxmxgNQnNQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg=="
+      },
       "Reloaded.Memory": {
         "type": "Transitive",
         "resolved": "7.1.0",
@@ -27,7 +40,7 @@
       "autoretainerapi": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[2.1.0.7, )"
+          "ECommons": "[2.2.0.2, )"
         }
       },
       "clicklib": {
@@ -39,6 +52,26 @@
       },
       "ecommons": {
         "type": "Project"
+      },
+      "nightmareui": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[2.2.0.2, )"
+        }
+      },
+      "nightmareui.otterguiwrapper": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[2.2.0.2, )",
+          "NightmareUI": "[1.0.0, )",
+          "OtterGui": "[1.0.0, )"
+        }
+      },
+      "ottergui": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[8.0.0, )"
+        }
       }
     }
   }
