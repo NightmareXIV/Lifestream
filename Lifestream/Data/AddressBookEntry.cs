@@ -11,4 +11,5 @@ public class AddressBookEntry
     public PropertyType PropertyType;
     public int Plot = 1;
     public int Apartment = 1;
+    public bool ApartmentSubdivision = false;
 }

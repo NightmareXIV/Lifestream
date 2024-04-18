@@ -293,7 +293,7 @@ public unsafe class Lifestream : IDalamudPlugin
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
         Memory.Dispose();
-        //FollowPath.Dispose();
+        FollowPath.Dispose();
         ECommonsMain.Dispose();
         P = null;
     }

@@ -252,7 +252,7 @@ internal static unsafe class UIDebug
             ImGui.InputInt("Ward", ref Ward);
             if (ImGui.Button("Go"))
             {
-                TaskTpAndGoToWard.Enqueue(World, ResiA, Ward, 1);
+                TaskTpAndGoToWard.Enqueue(World, ResiA, Ward, 1, false, false);
             }
         }
         if (ImGui.CollapsingHeader("State"))

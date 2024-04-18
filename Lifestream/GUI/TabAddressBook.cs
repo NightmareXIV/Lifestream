@@ -51,7 +51,14 @@ public static unsafe class TabAddressBook
                 {
                     if(Player.Interactable && !P.TaskManager.IsBusy)
                     {
-                        TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1);
+                        if (entry.PropertyType == PropertyType.House)
+                        {
+                            TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
+                        }
+                        else if(entry.PropertyType == PropertyType.Apartment)
+                        {
+                            TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
+                        }
                     }
                 }
                 ImGui.PopStyleVar();
@@ -95,14 +102,17 @@ public static unsafe class TabAddressBook
                     ImGui.InputInt($"Ward", ref entry.Ward.ValidateRange(1, 30));
                     ImGui.SetNextItemWidth(200f);
                     ImGuiEx.EnumCombo("Property type", ref entry.PropertyType);
-                    ImGui.SetNextItemWidth(200f);
                     if (entry.PropertyType == PropertyType.House)
                     {
+                        ImGui.SetNextItemWidth(200f);
                         ImGui.InputInt($"Plot", ref entry.Plot.ValidateRange(1, 60));
                     }
                     else
                     {
+                        ImGui.SetNextItemWidth(100f);
                         ImGui.InputInt($"Room", ref entry.Apartment.ValidateRange(1, 9999999));
+                        ImGui.SameLine();
+                        ImGui.Checkbox("Subdivision", ref entry.ApartmentSubdivision);
                     }
                     ImGui.EndPopup();
                 }

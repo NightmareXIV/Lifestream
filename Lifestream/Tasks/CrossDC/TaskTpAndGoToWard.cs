@@ -1,15 +1,35 @@
-﻿using Dalamud.Game.ClientState.Objects.Enums;
+﻿using ClickLib.Clicks;
+using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons.Automation;
+using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.AtkReaders;
 using Lifestream.Enums;
 using Lifestream.Schedulers;
+using Lifestream.Systems;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using System.Linq;
+using ResidentialAetheryte = Lifestream.Enums.ResidentialAetheryte;
 
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard
 {
-    public static void Enqueue(string world, ResidentialAetheryte residentialArtheryte, int ward, int plot)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="world"></param>
+    /// <param name="residentialArtheryte"></param>
+    /// <param name="ward">Starts with 0</param>
+    /// <param name="plot">Starts with 0</param>
+    /// <param name="isApartment"></param>
+    /// <param name="isApartmentSubdivision"></param>
+    public static void Enqueue(string world, ResidentialAetheryte residentialArtheryte, int ward, int plot, bool isApartment, bool isApartmentSubdivision)
     {
         var gateway = DetermineGatewayAetheryte(residentialArtheryte);
         if (Player.CurrentWorld != world)
@@ -35,27 +55,159 @@ public static class TaskTpAndGoToWard
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
-        if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
+        if (isApartment)
         {
-            var info = plotInfos.SafeSelect(plot);
-            if (info != null)
+            var target = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory());
+            if(target != null && target.Aetherytes.TryGetFirst(x => (isApartmentSubdivision ? ResidentialAethernet.ApartmentSubdivisionAetherytes : ResidentialAethernet.ApartmentAetherytes).Contains(x.ID), out var aetheryte))
             {
-                if (!P.ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
-                {
-                    TaskApproachHousingAetheryte.Enqueue();
-                    var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
-                    if (aetheryte != null)
-                    {
-                        TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
-                        P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                        P.TaskManager.Enqueue(Utils.WaitForScreen);
-                        //P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-                        //P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
-                    }
-                }
-                TaskMoveToHouse.Enqueue(info);
+                TaskApproachHousingAetheryte.Enqueue();
+                TaskAethernetTeleport.Enqueue(aetheryte.Name);
+                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                P.TaskManager.Enqueue(Utils.WaitForScreen);
+                P.TaskManager.Enqueue(TargetApartmentEntrance);
+                P.TaskManager.Enqueue(WorldChange.LockOn);
+                P.TaskManager.Enqueue(WorldChange.EnableAutomove);
+                P.TaskManager.Enqueue(() => Vector3.Distance(Player.Object.Position, Svc.Targets.Target.Position) < 3.5f, "ReachApartment");
+                P.TaskManager.Enqueue(WorldChange.DisableAutomove);
+                P.TaskManager.Enqueue(InteractWithApartmentEntrance);
+                P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
+                P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
+                P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
             }
         }
+        else
+        {
+            if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
+            {
+                var info = plotInfos.SafeSelect(plot);
+                if (info != null)
+                {
+                    if (!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
+                    {
+                        TaskApproachHousingAetheryte.Enqueue();
+                        var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
+                        if (aetheryte != null)
+                        {
+                            TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                            P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                            P.TaskManager.Enqueue(Utils.WaitForScreen);
+                            //P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+                            //P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
+                        }
+                    }
+                    TaskMoveToHouse.Enqueue(info);
+                }
+            }
+        }
+    }
+
+    public static unsafe bool InteractWithApartmentEntrance()
+    {
+        if(Svc.Targets.Target?.ObjectKind == ObjectKind.EventObj && Svc.Targets.Target?.DataId == 2007402)
+        {
+            if(EzThrottler.Throttle("InteractWithApartment", 5000))
+            {
+                TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static unsafe bool SelectGoToSpecifiedApartment()
+    {
+        return Utils.TrySelectSpecificEntry(Lang.GoToApartment, () => EzThrottler.Throttle("SelectStringApartment"));
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="apartmentNum">Starts with 0</param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static unsafe bool? SelectApartment(int apartmentNum)
+    {
+        var section = (int)((apartmentNum) / 15);
+        if(TryGetAddonByName<AtkUnitBase>("MansionSelectRoom", out var addon) && IsAddonReady(addon))
+        {
+            var reader = new ReaderMansionSelectRoom(addon);
+            if (reader.IsLoaded)
+            {
+                if(reader.Section == section)
+                {
+                    if(EzThrottler.Throttle("ApartmentSelectRoom", 5000))
+                    {
+                        var target = apartmentNum - section * 15;
+                        if (target < 0 || target > 14) throw new InvalidOperationException($"Apartment number was out of range: was {target}, section {section}");
+                        if(target >= reader.SectionRoomsCount)
+                        {
+                            DuoLog.Error($"Could not find apartment {apartmentNum+1} ({target} in section {section})");
+                            return null;
+                        }
+                        var roomInfo = reader.Rooms.SafeSelect(target);
+                        if (roomInfo.Owner == "" || roomInfo.AccessState == 1)
+                        {
+                            DuoLog.Error($"Apartment {apartmentNum + 1} is vacant, could not enter.");
+                            return null;
+                        }
+                        Callback.Fire(addon, true, 0, target);
+                        return true;
+                    }
+                }
+                else
+                {
+                    if(section < 0 || section >= reader.ExistingSectionsCount)
+                    {
+                        DuoLog.Error($"Could not find apartment {apartmentNum+1} (section {section} does not exist)");
+                        return null;
+                    }
+                    if(EzThrottler.Throttle("EnterApartmentRool", 5000))
+                    {
+                        Callback.Fire(addon, true, 1, section);
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static unsafe bool ConfirmApartmentEnterYesno()
+    {
+        var addon = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.EnterApartmenr);
+        if(addon != null && addon->YesButton->IsEnabled)
+        {
+            if(EzThrottler.Throttle($"ConfirmApartmentEnter", 5000))
+            {
+                ClickSelectYesNo.Using((nint)addon).Yes();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static bool TargetApartmentEntrance()
+    {
+        //2007402	apartment building entrance	0	apartment building entrances	0	1	1	0	0
+        foreach(var x in Svc.Objects.OrderBy(x => Vector3.Distance(x.Position, Player.Object.Position)))
+        {
+            if (x.DataId == 2007402)
+            {
+                if (!x.IsTarget())
+                {
+                    if (EzThrottler.Throttle("TargetApartment"))
+                    {
+                        Svc.Targets.SetTarget(x);
+                    }
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryte targetZone)

@@ -27,7 +27,21 @@ public sealed class ResidentialAethernet : IDisposable
     //1966118	4656726	w1h1	Goblet North	5
     //1966145	8791382	r1h1	Highmorn's Horizon	1
     //1966129	6794232	e1h1	Akanegumo Bridge	0
-    public readonly uint[] StartingAetherytes = [1966103, 1966081, 1966118, 1966145, 1966129];
+    public static readonly uint[] StartingAetherytes = [1966103, 1966081, 1966118, 1966145, 1966129];
+
+    //1966132	6794243	e1h1	Kobai Goten	3
+    //1966088	6472423	s1h1	The Topmast	7
+    //1966120	6472443	w1h1	The Sultana's Breath	7
+    //1966104	6472421	f1h1	Lily Hills	7
+    //1966149	8791386	r1h1	Ingleside	5
+    public static readonly uint[] ApartmentAetherytes = [1966132, 1966088, 1966120, 1966104, 1966149];
+
+    //1966142	6794277	e1h1	Kobai Goten Subdivision	11
+    //1966096	6472426	s1h1	The Topmast Subdivision	15
+    //1966128	6472444	w1h1	The Sultana's Breath Subdivision	15
+    //1966112	6472422	f1h1	Lily Hills Subdivision	15
+    //1966157	8791394	r1h1	Ingleside Subdivision	14
+    public static readonly uint[] ApartmentSubdivisionAetherytes = [1966142, 1966096, 1966128, 1966112, 1966157];
 
     public ResidentialAetheryte? ActiveAetheryte = null;
 

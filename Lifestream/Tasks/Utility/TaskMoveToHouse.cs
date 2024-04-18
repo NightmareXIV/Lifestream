@@ -1,4 +1,5 @@
 ﻿using Lifestream.Data;
+using Lifestream.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ public static class TaskMoveToHouse
         if (info.Path.Count == 0) return null;
         P.FollowPath.Stop();
         P.FollowPath.Waypoints = [.. info.Path];
-        if (!P.ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID)) P.FollowPath.Waypoints.RemoveAt(0);
+        if (!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID)) P.FollowPath.Waypoints.RemoveAt(0);
         return true;
     }
 
