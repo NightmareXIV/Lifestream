@@ -106,6 +106,7 @@ internal static unsafe class UIDebug
                             TaskGeneratePath.EnqueueValidate(i, x, aetheryte.Value);
                         }
                     }
+                    P.TaskManager.Enqueue(() => P.NotificationMasterApi.DisplayTrayNotification("Path Completed"));
                 }
             }
             if(ImGui.Button($"For plot {LastPlot+1}"))
@@ -158,7 +159,7 @@ internal static unsafe class UIDebug
                                 Svc.Framework.RunOnFrameworkThread(() =>
                                 {
                                     plot.AethernetID = (uint)currentAetheryte;
-                                    EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", true);
+                                    Utils.SaveGeneratedHousingData();
                                 });
                             });
                         }

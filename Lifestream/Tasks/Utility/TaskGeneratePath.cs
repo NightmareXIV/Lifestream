@@ -34,12 +34,12 @@ public static class TaskGeneratePath
                     {
                         DuoLog.Information($"-- Success for {plotNum+1}, distance={Utils.CalculatePathDistance([Player.Object.Position, .. task.Result])}");
                         info.Path = [.. task.Result];
+                        Utils.SaveGeneratedHousingData();
                         return true;
                     }
                 })
                 );
         });
-        P.TaskManager.Enqueue(() => EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", true));
     }
 
     public static void EnqueueValidate(int plotNum, PlotInfo info, ResidentialAetheryte aetheryte)
@@ -63,10 +63,10 @@ public static class TaskGeneratePath
                         var distanceOld = Utils.CalculatePathDistance([..info.Path]);
                         if (distanceNew < distanceOld) 
                         {
-                            DuoLog.Warning($"-- For plot {plotNum + 1}, old distance was {distanceOld} < {distanceNew} new distance, replacing path and aetheryte, please double-check path.");
+                            DuoLog.Warning($"-- For plot {plotNum + 1}, old distance was {distanceOld} > {distanceNew} new distance, replacing path and aetheryte from {Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(info.AethernetID)?.PlaceName?.Value?.Name}, please double-check path.");
                             info.Path = [.. task.Result];
                             info.AethernetID = aetheryte.ID;
-                            EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", true);
+                            Utils.SaveGeneratedHousingData();
                         }
                         return true;
                     }
