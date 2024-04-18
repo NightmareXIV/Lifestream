@@ -7,12 +7,3 @@
 [submodule "AutoRetainerAPI"]
 	path = AutoRetainerAPI
 	url = https://github.com/PunishXIV/AutoRetainerAPI
-[submodule "NightmareUI"]
-	path = NightmareUI
-	url = https://github.com/NightmareXIV/NightmareUI
-[submodule "NightmareUI.OtterGuiWrapper"]
-	path = NightmareUI.OtterGuiWrapper
-	url = https://github.com/NightmareXIV/NightmareUI.OtterGuiWrapper
-[submodule "OtterGui"]
-	path = OtterGui
-	url = https://github.com/Limiana/OtterGui
