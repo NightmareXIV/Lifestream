@@ -46,6 +46,7 @@ public unsafe class Lifestream : IDalamudPlugin
     public ResidentialAethernet ResidentialAethernet;
     //public FollowPath FollowPath;
     public VnavmeshManager VnavmeshManager;
+    public SplatoonManager SplatoonManager;
 
     public Lifestream(DalamudPluginInterface pluginInterface)
     {
@@ -73,6 +74,7 @@ public unsafe class Lifestream : IDalamudPlugin
             ResidentialAethernet = new();
             //FollowPath = new();
             VnavmeshManager = new();
+            SplatoonManager = new();
         });
     }
 

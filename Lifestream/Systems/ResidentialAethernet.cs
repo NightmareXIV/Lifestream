@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Configuration;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
@@ -20,6 +21,13 @@ public sealed class ResidentialAethernet : IDisposable
         [ResidentalAreas.Empyreum] = new() { SubdivisionModifier = new(-704f, -654f) },
         [ResidentalAreas.Shirogane] = new() { SubdivisionModifier = new(-700f, -700f) },
     };
+
+    //1966103	4660263	f1h1	Amethyst Shallows	6
+    //1966081	4573387	s1h1	Mistgate Square	1
+    //1966118	4656726	w1h1	Goblet North	5
+    //1966145	8791382	r1h1	Highmorn's Horizon	1
+    //1966129	6794232	e1h1	Akanegumo Bridge	0
+    public readonly uint[] StartingAetherytes = [1966103, 1966081, 1966118, 1966145, 1966129];
 
     public ResidentialAetheryte? ActiveAetheryte = null;
 
@@ -86,6 +94,7 @@ public sealed class ResidentialAethernet : IDisposable
 
     public ResidentialAetheryte? GetFromGameObject(GameObject obj)
     {
+        if(obj == null) return null;
         var pos2 = obj.Position.ToVector2();
         if (ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
         {

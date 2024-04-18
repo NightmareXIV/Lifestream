@@ -15,6 +15,8 @@ using Lumina.Excel.GeneratedSheets;
 using Lifestream.Data;
 using Path = System.IO.Path;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
+using Lifestream.Tasks.Utility;
+using Lifestream.Tasks;
 
 namespace Lifestream.GUI;
 
@@ -38,6 +40,8 @@ internal static unsafe class UIDebug
     static int Resize = 60;
     static int LastPlot = -1;
     static bool doCurPlot = false;
+    static bool ShowPathes = false;
+    static bool ShowFirstPoint = true;
     static void Housing()
     {
         if(ImGui.Button("Load from config folder"))
@@ -48,6 +52,23 @@ internal static unsafe class UIDebug
         var data = P.ResidentialAethernet.HousingData.Data;
         if (data.TryGetValue(Svc.ClientState.TerritoryType, out var plots)) 
         {
+            ImGui.Checkbox($"Show pathes", ref ShowPathes);
+            ImGui.SameLine();
+            ImGui.Checkbox("Show first point", ref ShowFirstPoint);
+            if (ShowPathes)
+            {
+                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromGameObject(Svc.Targets.Target);
+                if(aetheryte != null)
+                {
+                    foreach(var x in plots)
+                    {
+                        if(x.AethernetID == aetheryte.Value.ID && x.Path.Count > 0)
+                        {
+                            P.SplatoonManager.RenderPath(ShowFirstPoint ? x.Path : x.Path[1..]);
+                        }
+                    }
+                }
+            }
             var curPlot = HousingManager.Instance()->GetCurrentPlot();
             if (curPlot != -1) LastPlot = curPlot;
             ImGuiEx.Text($"Plot: {curPlot+1}");
@@ -58,6 +79,34 @@ internal static unsafe class UIDebug
             {
                 while (plots.Count > Resize) plots.RemoveAt(plots.Count - 1);
                 while (plots.Count < Resize) plots.Add(new());
+            }
+            if(ImGui.Button("Begin path calculation"))
+            {
+                Chat.Instance.ExecuteCommand("/clearlog");
+                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromGameObject(Svc.Targets.Target);
+                if(aetheryte != null)
+                {
+                    P.TaskManager.Enqueue(() => P.VnavmeshManager.Rebuild());
+                    P.TaskManager.Enqueue(() => P.VnavmeshManager.IsReady(), TaskSettings.TimeoutInfinite);
+                    for (int i = 0; i < plots.Count; i++)
+                    {
+                        var x = plots[i];
+                        if (x.AethernetID == aetheryte.Value.ID)
+                        {
+                            var index = i;
+                            TaskGeneratePath.Enqueue(i, x);
+                        }
+                    }
+                    for (int i = 0; i < plots.Count; i++)
+                    {
+                        var x = plots[i];
+                        if (x.AethernetID != aetheryte.Value.ID && x.Path.Count > 0)
+                        {
+                            var index = i;
+                            TaskGeneratePath.EnqueueValidate(i, x, aetheryte.Value);
+                        }
+                    }
+                }
             }
             if(ImGui.Button($"For plot {LastPlot+1}"))
             {
@@ -112,6 +161,14 @@ internal static unsafe class UIDebug
                                     EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", true);
                                 });
                             });
+                        }
+                    }),
+                    new("Path", () =>
+                    {
+                        ImGuiEx.Text($"Points: {plot.Path.Count}, Distance: {Utils.CalculatePathDistance([Player.Object.Position, .. plot.Path])}");
+                        if (ImGui.IsItemHovered())
+                        {
+                            P.SplatoonManager.RenderPath(plot.Path);
                         }
                     })
                     );
