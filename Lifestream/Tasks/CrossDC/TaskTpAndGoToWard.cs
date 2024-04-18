@@ -4,6 +4,7 @@ using Lifestream.Enums;
 using Lifestream.Schedulers;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
+using System.Linq;
 
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard
@@ -34,21 +35,25 @@ public static class TaskTpAndGoToWard
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
-        TaskApproachHousingAetheryte.Enqueue();
         if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
         {
             var info = plotInfos.SafeSelect(plot);
             if (info != null)
             {
-                var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
-                if (aetheryte != null)
+                if (!P.ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
                 {
-                    TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
-                    P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                    P.TaskManager.Enqueue(Utils.WaitForScreen);
-                    P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-                    P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
+                    TaskApproachHousingAetheryte.Enqueue();
+                    var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
+                    if (aetheryte != null)
+                    {
+                        TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                        P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                        P.TaskManager.Enqueue(Utils.WaitForScreen);
+                        //P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+                        //P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
+                    }
                 }
+                TaskMoveToHouse.Enqueue(info);
             }
         }
     }

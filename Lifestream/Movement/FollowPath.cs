@@ -9,7 +9,7 @@ public class FollowPath : IDisposable
 {
     public bool MovementAllowed = true;
     public bool AlignCamera = false;
-    public bool IgnoreDeltaY = false;
+    public bool IgnoreDeltaY = true;
     public float Tolerance = 0.25f;
     public List<Vector3> Waypoints = new();
     public int MaxWaypoints = 0;

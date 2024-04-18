@@ -15,6 +15,7 @@ using Lifestream.Enums;
 using Lifestream.Game;
 using Lifestream.GUI;
 using Lifestream.IPC;
+using Lifestream.Movement;
 using Lifestream.Schedulers;
 using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
@@ -44,7 +45,7 @@ public unsafe class Lifestream : IDalamudPlugin
     public TaskManager TaskManager;
 
     public ResidentialAethernet ResidentialAethernet;
-    //public FollowPath FollowPath;
+    public FollowPath FollowPath;
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
 
@@ -72,7 +73,7 @@ public unsafe class Lifestream : IDalamudPlugin
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
             ResidentialAethernet = new();
-            //FollowPath = new();
+            FollowPath = new();
             VnavmeshManager = new();
             SplatoonManager = new();
         });
@@ -275,7 +276,7 @@ public unsafe class Lifestream : IDalamudPlugin
     private void Framework_Update(object framework)
     {
         YesAlreadyManager.Tick();
-        //FollowPath.Update();
+        FollowPath.Update();
         if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
         {
             UpdateActiveAetheryte();

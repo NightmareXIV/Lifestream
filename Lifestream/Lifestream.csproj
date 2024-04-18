@@ -29,12 +29,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Movement\**" />
-      <EmbeddedResource Remove="Movement\**" />
-      <None Remove="Movement\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="DalamudPackager" Version="2.1.12" />
         <PackageReference Include="NotificationMasterAPI" Version="1.0.0" />
     </ItemGroup>
