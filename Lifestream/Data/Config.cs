@@ -39,5 +39,5 @@ public class Config : IEzConfig
     public int SlowTeleportThrottle = 0;
     public bool WaitForScreenReady = true;
     public bool ShowWards = true;
-    public List<AddressBookEntry> AddressBook = [];
+    public List<AddressBookFolder> AddressBookFolders = [];
 }

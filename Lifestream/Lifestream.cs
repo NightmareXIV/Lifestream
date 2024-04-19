@@ -24,6 +24,7 @@ using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.GeneratedSheets;
+using NightmareUI.OtterGuiWrapper.FileSystems;
 using NotificationMasterAPI;
 
 namespace Lifestream;
@@ -48,6 +49,7 @@ public unsafe class Lifestream : IDalamudPlugin
     public FollowPath FollowPath;
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
+    public GenericFileSystem<AddressBookFolder> AddressBookFileSystem;
 
     public Lifestream(DalamudPluginInterface pluginInterface)
     {
@@ -76,6 +78,7 @@ public unsafe class Lifestream : IDalamudPlugin
             FollowPath = new();
             VnavmeshManager = new();
             SplatoonManager = new();
+            AddressBookFileSystem = new(Config.AddressBookFolders, "AddressBook");
         });
     }
 
