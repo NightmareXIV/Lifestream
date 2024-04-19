@@ -82,7 +82,7 @@ public unsafe class Lifestream : IDalamudPlugin
         });
     }
 
-    private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
+		private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
     {
         if (!Svc.ClientState.IsLoggedIn)
         {
