@@ -84,13 +84,12 @@ public static unsafe class TabAddressBook
 						book.Entries.Add(entry);
 						InputWardDetailDialog.Entry = entry;
 				}
-				if (ImGui.BeginTable($"##addressbook", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+				if (ImGui.BeginTable($"##addressbook", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
 				{
 						ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-						ImGui.TableSetupColumn("Address");
+						ImGui.TableSetupColumn("World");
 						ImGui.TableSetupColumn("Ward");
 						ImGui.TableSetupColumn("Plot");
-						ImGui.TableSetupColumn("##control");
 						ImGui.TableHeadersRow();
 
 						for (int i = 0; i < book.Entries.Count; i++)
@@ -116,6 +115,40 @@ public static unsafe class TabAddressBook
 												}
 										}
 								}
+								if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+								{
+										ImGui.OpenPopup($"ABMenu {i}");
+								}
+								if (ImGui.BeginPopup($"ABMenu {i}"))
+								{
+										if (ImGui.MenuItem("Copy to Clipboard"))
+										{
+
+										}
+										if (entry.Alias != "")
+										{
+												ImGui.MenuItem($"Enable Alias: {entry.Alias}", null, ref entry.AliasEnabled);
+										}
+										if (ImGui.MenuItem("Edit..."))
+										{
+												InputWardDetailDialog.Entry = entry;
+										}
+										if (ImGui.MenuItem("Delete"))
+										{
+												if (ImGuiEx.Ctrl)
+												{
+														var rem = i;
+														new TickScheduler(() => book.Entries.RemoveAt(rem));
+												}
+												else
+												{
+														Svc.Toasts.ShowError($"Hold CTRL and click to delete an entry");
+												}
+										}
+										ImGuiEx.Tooltip($"Hold CTRL and click to delete");
+										ImGui.EndPopup();
+								}
+
 								ImGui.PopStyleVar();
 								ImGui.PopStyleColor();
 
@@ -158,17 +191,6 @@ public static unsafe class TabAddressBook
 										ImGuiEx.Text($"{entry.Apartment.FancyDigits()}");
 								}
 
-								ImGui.TableNextColumn();
-								if (ImGuiEx.IconButton(FontAwesomeIcon.Edit))
-								{
-										InputWardDetailDialog.Entry = entry;
-								}
-								ImGui.SameLine();
-								if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, enabled: ImGuiEx.Ctrl))
-								{
-										var rem = i;
-										new TickScheduler(() => book.Entries.RemoveAt(rem));
-								}
 								ImGui.PopID();
 						}
 

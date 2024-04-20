@@ -12,4 +12,6 @@ public class AddressBookEntry
     public int Plot = 1;
     public int Apartment = 1;
     public bool ApartmentSubdivision = false;
+    public bool AliasEnabled = false;
+    public string Alias = "";
 }

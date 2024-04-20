@@ -1,4 +1,5 @@
 ﻿using ECommons.Configuration;
+using ECommons.ExcelServices;
 using Lifestream.Data;
 using OtterGui;
 using System;
@@ -37,9 +38,32 @@ public static class InputWardDetailDialog
 										ImGui.InputTextWithHint($"##name", Entry.GetAutoName(), ref Entry.Name, 150);
 
 										ImGui.TableNextColumn();
+										ImGuiEx.TextV($"Alias:");
+										ImGuiEx.HelpMarker($"If you enable and set alias, you will be able to use it in a \"li\" command: \"/li alias\". Aliases are case-insensitive.");
+										ImGui.TableNextColumn();
+										ImGui.Checkbox($"##alias", ref Entry.AliasEnabled);
+										if (Entry.AliasEnabled)
+										{
+												ImGui.SameLine();
+												ImGuiEx.InputWithRightButtonsArea(() => ImGui.InputText($"##aliasname", ref Entry.Alias, 150), () =>
+												{
+														AddressBookEntry existing = null;
+														if(Entry.Alias != "" && P.Config.AddressBookFolders.Any(b => b.Entries.TryGetFirst(a => a != Entry && a.AliasEnabled && a.Alias.EqualsIgnoreCase(Entry.Alias), out existing)))
+														{
+																ImGuiEx.HelpMarker($"Alias conflict found: this alias already set for {existing?.Name.NullWhenEmpty() ?? existing?.GetAutoName()}", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+														}
+												});
+										}
+
+										ImGui.TableNextColumn();
 										ImGuiEx.TextV($"World:");
 										ImGui.TableNextColumn();
-										ImGuiEx.Text($"World selector...");
+										ImGuiEx.SetNextItemFullWidth();
+										if(ImGui.BeginCombo($"##world", ExcelWorldHelper.GetName(Entry.World), ImGuiComboFlags.HeightLarge))
+										{
+												Utils.DrawWorldSelector(ref Entry.World);
+												ImGui.EndCombo();
+										}
 
 										ImGui.TableNextColumn();
 										ImGuiEx.TextV($"Residential District:");
