@@ -4,6 +4,7 @@ namespace Lifestream.Data;
 [Serializable]
 public class AddressBookEntry
 {
+    internal Guid GUID = Guid.NewGuid();
     public string Name = "";
     public int World = 21;
     public ResidentialAetheryte City = ResidentialAetheryte.Uldah;

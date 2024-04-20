@@ -1,4 +1,5 @@
-﻿using ECommons.ExcelServices;
+﻿using ECommons;
+using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
@@ -17,6 +18,9 @@ public static unsafe class TabAddressBook
         [ResidentialAetheryte.Kugane] = "Shirogane",
         [ResidentialAetheryte.Foundation] = "Empyreum",
     };
+
+		static Guid CurrentDrag = Guid.Empty;
+
     public static void Draw()
     {
 				InputWardDetailDialog.Draw();
@@ -90,18 +94,26 @@ public static unsafe class TabAddressBook
 						ImGui.TableSetupColumn("World");
 						ImGui.TableSetupColumn("Ward");
 						ImGui.TableSetupColumn("Plot");
+						List<(Vector2 RowPos, Action AcceptDraw)> MoveCommands = [];
 						ImGui.TableHeadersRow();
 
 						for (int i = 0; i < book.Entries.Count; i++)
 						{
 								var entry = book.Entries[i];
-								ImGui.PushID($"House{i}");
-								ImGui.TableNextRow();
+								ImGui.PushID($"House{entry.GUID}");
+								ImGui.TableNextRow(); 
+								if (CurrentDrag == entry.GUID)
+								{
+										var color = GradientColor.Get(EColor.Green, EColor.Green with { W = EColor.Green.W / 4 }, 500).ToUint();
+										ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, color);
+										ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg1, color);
+								}
 								ImGui.TableNextColumn();
+								var rowPos = ImGui.GetCursorPos();
 								var bsize = ImGuiHelpers.GetButtonSize("A") with { X = ImGui.GetContentRegionAvail().X };
 								ImGui.PushStyleColor(ImGuiCol.Button, 0);
 								ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, Vector2.Zero);
-								if (ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry{i}", bsize))
+								if (ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry", bsize))
 								{
 										if (Player.Interactable && !P.TaskManager.IsBusy)
 										{
@@ -148,6 +160,32 @@ public static unsafe class TabAddressBook
 										ImGuiEx.Tooltip($"Hold CTRL and click to delete");
 										ImGui.EndPopup();
 								}
+								if (ImGui.BeginDragDropSource(ImGuiDragDropFlags.SourceNoPreviewTooltip))
+								{
+										ImGuiDragDrop.SetDragDropPayload("MoveRule", entry.GUID);
+										CurrentDrag = entry.GUID;
+										InternalLog.Verbose($"DragDropSource = {entry.GUID}");
+										ImGui.EndDragDropSource();
+								}
+								else if (CurrentDrag == entry.GUID)
+								{
+										InternalLog.Verbose($"Current drag reset!");
+										CurrentDrag = Guid.Empty;
+								}
+
+								var moveItemIndex = i;
+								MoveCommands.Add((rowPos, () =>
+								{
+										if (ImGui.BeginDragDropTarget())
+										{
+												if (ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload, ImGuiDragDropFlags.AcceptBeforeDelivery | ImGuiDragDropFlags.AcceptNoDrawDefaultRect))
+												{
+														MoveItemToPosition(book.Entries, (x) => x.GUID == payload, moveItemIndex);
+												}
+												ImGui.EndDragDropTarget();
+										}
+								}
+								));
 
 								ImGui.PopStyleVar();
 								ImGui.PopStyleColor();
@@ -195,6 +233,13 @@ public static unsafe class TabAddressBook
 						}
 
 						ImGui.EndTable();
+
+						foreach (var x in MoveCommands)
+						{
+								ImGui.SetCursorPos(x.RowPos);
+								ImGui.Dummy(new Vector2(ImGui.GetContentRegionAvail().X, ImGuiHelpers.GetButtonSize(" ").Y));
+								x.AcceptDraw();
+						}
 				}
 		}
 }
