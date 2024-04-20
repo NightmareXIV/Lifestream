@@ -1,4 +1,6 @@
 ﻿using ECommons;
+using ECommons.ChatMethods;
+using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
@@ -6,18 +8,36 @@ using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;
+using NightmareUI.OtterGuiWrapper.FileSystems;
+using OtterGui.Filesystem;
+using System.Collections.Frozen;
+using System.Windows.Forms;
+using SortMode = Lifestream.Data.SortMode;
 
 namespace Lifestream.GUI;
 public static unsafe class TabAddressBook
 {
-    public static Dictionary<ResidentialAetheryte, string> ResidentialNames = new()
+    public static readonly FrozenDictionary<ResidentialAetheryte, string> ResidentialNames = new Dictionary<ResidentialAetheryte, string>()
     {
         [ResidentialAetheryte.Gridania] = "Lavender Beds",
         [ResidentialAetheryte.Limsa] = "Mist",
         [ResidentialAetheryte.Uldah] = "Goblet",
         [ResidentialAetheryte.Kugane] = "Shirogane",
         [ResidentialAetheryte.Foundation] = "Empyreum",
-    };
+    }.ToFrozenDictionary();
+
+		public static readonly FrozenDictionary<SortMode, string> SortModeNames = new Dictionary<SortMode, string>()
+		{
+				[SortMode.Manual] = "Manual (drag and drop)",
+				[SortMode.Name] = "Name (A-Z)",
+				[SortMode.NameReversed] = "Name (Z-A)",
+				[SortMode.World] = "World (A-Z)",
+				[SortMode.WorldReversed] = "World (Z-A)",
+				[SortMode.Plot] = "Plot (1-9)",
+				[SortMode.PlotReversed] = "Plot (9-1)",
+				[SortMode.Ward] = "Ward (1-9)",
+				[SortMode.WardReversed] = "Ward (9-1)",
+		}.ToFrozenDictionary();
 
 		static Guid CurrentDrag = Guid.Empty;
 
@@ -80,14 +100,46 @@ public static unsafe class TabAddressBook
 		}
 
 		static void DrawBook(AddressBookFolder book)
-    {
-				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New Address"))
+		{
+				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New"))
 				{
 						var h = HousingManager.Instance();
 						var entry = GetNewAddressBookEntry();
 						book.Entries.Add(entry);
 						InputWardDetailDialog.Entry = entry;
 				}
+				ImGui.SameLine();
+				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
+				{
+						try
+						{
+								var entry = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookEntry>(Paste());
+								if (entry != null)
+								{
+										if (!entry.IsValid(out var error))
+										{
+												Notify.Error($"Could not paste from clipboard:\n{error}");
+										}
+										else
+										{
+												book.Entries.Add(entry);
+										}
+								}
+								else
+								{
+										Notify.Error($"Could not paste from clipboard");
+								}
+						}
+						catch(Exception e)
+						{
+								Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+						}
+				}
+				ImGui.SameLine();
+				ImGui.SetNextItemWidth(100f);
+				ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
+				ImGuiEx.Tooltip($"Select sort mode for this address book");
+
 				if (ImGui.BeginTable($"##addressbook", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
 				{
 						ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
@@ -97,9 +149,20 @@ public static unsafe class TabAddressBook
 						List<(Vector2 RowPos, Action AcceptDraw)> MoveCommands = [];
 						ImGui.TableHeadersRow();
 
-						for (int i = 0; i < book.Entries.Count; i++)
+						List<AddressBookEntry> entryArray;
+						if (book.SortMode.EqualsAny(SortMode.Name, SortMode.NameReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName()).ThenBy(x => x.Ward).ThenBy(x => x.Plot)];
+						else if (book.SortMode.EqualsAny(SortMode.World, SortMode.WorldReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Ward).ThenBy(x => x.Plot).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+						else if (book.SortMode.EqualsAny(SortMode.Ward, SortMode.WardReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Ward).ThenBy(x => x.Plot).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+						else if (book.SortMode.EqualsAny(SortMode.Plot, SortMode.PlotReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Plot).ThenBy(x => x.Ward).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+						else entryArray = [..book.Entries];
+						if (book.SortMode.EqualsAny(SortMode.PlotReversed, SortMode.NameReversed, SortMode.WardReversed, SortMode.WorldReversed))
 						{
-								var entry = book.Entries[i];
+								entryArray.Reverse();
+						}
+
+						for (int i = 0; i < entryArray.Count; i++)
+						{
+								var entry = entryArray[i];
 								ImGui.PushID($"House{entry.GUID}");
 								ImGui.TableNextRow(); 
 								if (CurrentDrag == entry.GUID)
@@ -129,13 +192,18 @@ public static unsafe class TabAddressBook
 								}
 								if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
 								{
-										ImGui.OpenPopup($"ABMenu {i}");
+										ImGui.OpenPopup($"ABMenu {entry.GUID}");
 								}
-								if (ImGui.BeginPopup($"ABMenu {i}"))
+								if (ImGui.BeginPopup($"ABMenu {entry.GUID}"))
 								{
-										if (ImGui.MenuItem("Copy to Clipboard"))
+										if (ImGui.MenuItem("Copy chat-friendly name to clipboard"))
 										{
-
+												Copy(entry.GetAddressString());
+										}
+										ImGui.Separator();
+										if (ImGui.MenuItem("Export to Clipboard"))
+										{
+												Copy(EzConfig.DefaultSerializationFactory.Serialize(entry, false));
 										}
 										if (entry.Alias != "")
 										{
@@ -143,14 +211,13 @@ public static unsafe class TabAddressBook
 										}
 										if (ImGui.MenuItem("Edit..."))
 										{
-												InputWardDetailDialog.Entry = entry;
+												InputWardDetailDialog.Entry = entry;		
 										}
 										if (ImGui.MenuItem("Delete"))
 										{
 												if (ImGuiEx.Ctrl)
 												{
-														var rem = i;
-														new TickScheduler(() => book.Entries.RemoveAt(rem));
+														new TickScheduler(() => book.Entries.Remove(entry));
 												}
 												else
 												{
@@ -160,11 +227,19 @@ public static unsafe class TabAddressBook
 										ImGuiEx.Tooltip($"Hold CTRL and click to delete");
 										ImGui.EndPopup();
 								}
-								if (ImGui.BeginDragDropSource(ImGuiDragDropFlags.SourceNoPreviewTooltip))
+								if (ImGui.BeginDragDropSource())
 								{
 										ImGuiDragDrop.SetDragDropPayload("MoveRule", entry.GUID);
 										CurrentDrag = entry.GUID;
 										InternalLog.Verbose($"DragDropSource = {entry.GUID}");
+										if(book.SortMode == SortMode.Manual)
+										{
+												ImGui.SetTooltip("Reorder or move to other folder");
+										}
+										else
+										{
+												ImGui.SetTooltip("Move to other folder");
+										}
 										ImGui.EndDragDropSource();
 								}
 								else if (CurrentDrag == entry.GUID)
@@ -173,16 +248,27 @@ public static unsafe class TabAddressBook
 										CurrentDrag = Guid.Empty;
 								}
 
+								if (entry.AliasEnabled)
+								{
+										var size = ImGui.CalcTextSize(entry.Alias);
+										ImGui.SameLine(0,0);
+										ImGui.SetCursorPosX(ImGui.GetCursorPosX() - size.X - ImGui.GetStyle().FramePadding.X);
+										ImGuiEx.Text(ImGuiColors.DalamudGrey3, entry.Alias);
+								}
+
 								var moveItemIndex = i;
 								MoveCommands.Add((rowPos, () =>
 								{
-										if (ImGui.BeginDragDropTarget())
+										if (book.SortMode == SortMode.Manual)
 										{
-												if (ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload, ImGuiDragDropFlags.AcceptBeforeDelivery | ImGuiDragDropFlags.AcceptNoDrawDefaultRect))
+												if (ImGui.BeginDragDropTarget())
 												{
-														MoveItemToPosition(book.Entries, (x) => x.GUID == payload, moveItemIndex);
+														if (ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload, ImGuiDragDropFlags.AcceptBeforeDelivery | ImGuiDragDropFlags.AcceptNoDrawDefaultRect))
+														{
+																MoveItemToPosition(book.Entries, (x) => x.GUID == payload, moveItemIndex);
+														}
+														ImGui.EndDragDropTarget();
 												}
-												ImGui.EndDragDropTarget();
 										}
 								}
 								));
@@ -240,6 +326,44 @@ public static unsafe class TabAddressBook
 								ImGui.Dummy(new Vector2(ImGui.GetContentRegionAvail().X, ImGuiHelpers.GetButtonSize(" ").Y));
 								x.AcceptDraw();
 						}
+				}
+		}
+
+		public static void Selector_OnAfterDrawLeafName(AddressBookFS.Leaf leaf, GenericFileSystem<AddressBookFolder>.FileSystemSelector.State arg2, bool arg3)
+		{
+				if (ImGui.BeginDragDropTarget())
+				{
+						if (ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload))
+						{
+								AddressBookEntry entry = null;
+								AddressBookFolder folder = null;
+								foreach(var f in P.Config.AddressBookFolders)
+								{
+										foreach(var e in f.Entries)
+										{
+												if(e.GUID == payload)
+												{
+														entry = e;
+														folder = f;
+														break;
+												}
+										}
+								}
+								if(entry == null)
+								{
+										Notify.Error("Could not move");
+								}
+								else if(folder == leaf.Value)
+								{
+										Notify.Error($"Could not move to the same folder");
+								}
+								else
+								{
+										folder.Entries.Remove(entry);
+										leaf.Value.Entries.Add(entry);
+								}
+						}
+						ImGui.EndDragDropTarget();
 				}
 		}
 }

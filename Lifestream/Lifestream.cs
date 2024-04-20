@@ -79,8 +79,45 @@ public unsafe class Lifestream : IDalamudPlugin
             VnavmeshManager = new();
             SplatoonManager = new();
             AddressBookFileSystem = new(Config.AddressBookFolders, "AddressBook");
-        });
+						AddressBookFileSystem.Selector.OnAfterDrawLeafName += TabAddressBook.Selector_OnAfterDrawLeafName;
+						AddressBookFileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
+						AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
+						AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
+				});
     }
+
+		private void Selector_OnImportPopupOpen(string clipboardText, ref string newName)
+		{
+        try
+        {
+            var item = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookFolder>(clipboardText);
+            if(item != null && item.ExportedName != null && !item.ExportedName.EqualsIgnoreCase("Default Book"))
+            {
+                newName = item.ExportedName;
+            }
+        }
+        catch(Exception e) { }
+		}
+
+		private void Selector_OnBeforeCopy(AddressBookFolder original, ref AddressBookFolder copy)
+		{
+				copy.IsCopy = true;
+        if(AddressBookFileSystem.FindLeaf(original, out var leaf))
+        {
+            copy.ExportedName = leaf.Name;
+        }
+		}
+
+		private void Selector_OnBeforeItemCreation(ref AddressBookFolder item)
+		{
+        if (item.Entries == null)
+        {
+            item = null;
+            Notify.Error($"Item contains invalid data");
+        }
+        item.IsDefault = false;
+        item.GUID = Guid.NewGuid();
+		}
 
 		private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
     {

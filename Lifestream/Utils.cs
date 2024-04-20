@@ -435,9 +435,15 @@ internal static unsafe class Utils
 
     internal static ResidentialAetheryte? GetResidentialAetheryteByTerritoryType(uint territoryType)
     {
-        var c = TerritoryForResidentialAetheryte.FindKeysByValue(territoryType);
-        return c.Any() ? c.First() : null;
-    }
+        var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(territoryType);
+        if (t == null) return null;
+				if (t.PlaceNameRegion.Row == 2402) return ResidentialAetheryte.Kugane;
+				if (t.PlaceNameRegion.Row == 25) return ResidentialAetheryte.Foundation;
+				if (t.PlaceNameRegion.Row == 23) return ResidentialAetheryte.Gridania;
+				if (t.PlaceNameRegion.Row == 24) return ResidentialAetheryte.Uldah;
+				if (t.PlaceNameRegion.Row == 22) return ResidentialAetheryte.Limsa;
+        return null;
+		}
 
     internal static WorldChangeAetheryte? GetWorldChangeAetheryteByTerritoryType(uint territoryType)
     {
