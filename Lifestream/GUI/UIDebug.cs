@@ -42,6 +42,8 @@ internal static unsafe class UIDebug
     static bool doCurPlot = false;
     static bool ShowPathes = false;
     static bool ShowFirstPoint = true;
+    static int u;
+    static int v;
     static void Housing()
     {
         if(ImGui.Button("Load from config folder"))
@@ -228,8 +230,31 @@ internal static unsafe class UIDebug
     static string World = "";
     static ResidentialAetheryte ResiA;
     static int Ward = 1;
-    static void Debug()
+		static Vector2 uv0;
+		static Vector2 uv1;
+		static Vector2 size;
+		static string addr = "";
+		static void Debug()
     {
+        if (ImGui.CollapsingHeader("Render"))
+        {
+            
+            if (ImGui.Button("Save")) Svc.Data.GetFile("ui/uld/Teleport_hr1.tex").SaveFile("d:\\file.tex");
+				}
+        if(ImGui.CollapsingHeader("Housing manager"))
+        {
+            var h = HousingManager.Instance();
+            if(h == null)
+            {
+                ImGuiEx.Text("null");
+            }
+            else
+						{
+								ImGuiEx.Text($"Ward: {h->GetCurrentWard()}");
+								ImGuiEx.Text($"Plot: {h->GetCurrentPlot()}");
+								ImGuiEx.Text($"Division: {h->GetCurrentDivision()}");
+						}
+        }
         if (ImGui.CollapsingHeader("Path"))
         {
             if (ImGui.Button("Add")) DebugPath.Add(Player.Object.Position);

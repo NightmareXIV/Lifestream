@@ -1,4 +1,5 @@
 ﻿using ECommons.ExcelServices;
+using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using Lifestream.Data;
@@ -18,7 +19,8 @@ public static unsafe class TabAddressBook
     };
     public static void Draw()
     {
-        var selector = P.AddressBookFileSystem.Selector;
+				InputWardDetailDialog.Draw();
+				var selector = P.AddressBookFileSystem.Selector;
 				selector.Draw(150f);
 				ImGui.SameLine();
 				if (P.Config.AddressBookFolders.Count == 0)
@@ -45,25 +47,49 @@ public static unsafe class TabAddressBook
         ImGui.EndChild();
     }
 
-    static void DrawBook(AddressBookFolder book)
+		static AddressBookEntry GetNewAddressBookEntry()
+		{
+				var entry = new AddressBookEntry();
+				var h = HousingManager.Instance();
+				if(h != null)
+				{
+						if(Svc.ClientState.TerritoryType.EqualsAny(Houses.Ingleside_Apartment, Houses.Kobai_Goten_Apartment, Houses.Lily_Hills_Apartment, Houses.Sultanas_Breath_Apartment, Houses.Topmast_Apartment))
+						{
+								entry.PropertyType = PropertyType.Apartment;
+								entry.ApartmentSubdivision = h->GetCurrentDivision() == 2;
+						}
+						entry.Ward = h->GetCurrentWard() + 1;
+						entry.Plot = h->GetCurrentPlot() + 1;
+						entry.Ward.ValidateRange(1, 30);
+						entry.Plot.ValidateRange(1, 60);
+						if (Player.Available)
+						{
+								entry.World = (int)Player.Object.CurrentWorld.Id;
+						}
+						var ra = Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType);
+						if (ra != null)
+						{
+								entry.City = ra.Value;
+						}
+				}
+				return entry;
+		}
+
+		static void DrawBook(AddressBookFolder book)
     {
 				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New Address"))
 				{
 						var h = HousingManager.Instance();
-						var entry = new AddressBookEntry();
-						if (h != null)
-						{
-								entry.Ward = h->GetCurrentWard() + 1;
-								entry.Plot = h->GetCurrentPlot() + 1;
-								entry.World = (int)(Player.Object?.CurrentWorld.Id ?? 21);
-								entry.City = Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) ?? ResidentialAetheryte.Uldah;
-						}
+						var entry = GetNewAddressBookEntry();
 						book.Entries.Add(entry);
+						InputWardDetailDialog.Entry = entry;
 				}
-				if (ImGui.BeginTable($"##addressbook", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+				if (ImGui.BeginTable($"##addressbook", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
 				{
 						ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
 						ImGui.TableSetupColumn("Address");
+						ImGui.TableSetupColumn("Ward");
+						ImGui.TableSetupColumn("Plot");
 						ImGui.TableSetupColumn("##control");
 						ImGui.TableHeadersRow();
 
@@ -76,7 +102,7 @@ public static unsafe class TabAddressBook
 								var bsize = ImGuiHelpers.GetButtonSize("A") with { X = ImGui.GetContentRegionAvail().X };
 								ImGui.PushStyleColor(ImGuiCol.Button, 0);
 								ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, Vector2.Zero);
-								if (ImGui.Button($"{entry.Name}", bsize))
+								if (ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry{i}", bsize))
 								{
 										if (Player.Interactable && !P.TaskManager.IsBusy)
 										{
@@ -92,12 +118,50 @@ public static unsafe class TabAddressBook
 								}
 								ImGui.PopStyleVar();
 								ImGui.PopStyleColor();
+
 								ImGui.TableNextColumn();
-								ImGuiEx.TextV($"{ExcelWorldHelper.GetName(entry.World)}, {ResidentialNames.SafeSelect(entry.City)}, w{entry.Ward}, " + (entry.PropertyType == PropertyType.House ? $"p{entry.Plot}" : $"a{entry.Apartment}"));
+
+								ImGuiEx.TextV(ImGuiColors.DalamudGrey2, ExcelWorldHelper.GetName(entry.World));
+
+								ImGui.TableNextColumn();
+								if(entry.City.RenderIcon())
+								{
+										ImGuiEx.Tooltip($"{ResidentialNames.SafeSelect(entry.City)}");
+										ImGui.SameLine(0, 1);
+								}
+								
+
+								ImGuiEx.Text($"{entry.Ward.FancyDigits()}");
+
+								ImGui.TableNextColumn();
+
+								if (entry.PropertyType == PropertyType.House)
+								{
+										ImGuiEx.Text(Colors.TabGreen, Lang.SymbolPlot);
+										ImGuiEx.Tooltip("Plot");
+										ImGui.SameLine(0, 0);
+										ImGuiEx.Text($"{entry.Plot.FancyDigits()}");
+								}
+								if (entry.PropertyType == PropertyType.Apartment)
+								{
+										if (!entry.ApartmentSubdivision)
+										{
+												ImGuiEx.Text(Colors.TabYellow, Lang.SymbolApartment);
+												ImGuiEx.Tooltip("Apartment");
+										}
+										else
+										{
+												ImGuiEx.Text(Colors.TabYellow, Lang.SymbolSubdivision);
+												ImGuiEx.Tooltip("Subdivision Apartment");
+										}
+										ImGui.SameLine(0, 0);
+										ImGuiEx.Text($"{entry.Apartment.FancyDigits()}");
+								}
+
 								ImGui.TableNextColumn();
 								if (ImGuiEx.IconButton(FontAwesomeIcon.Edit))
 								{
-										ImGui.OpenPopup($"Edit{i}");
+										InputWardDetailDialog.Entry = entry;
 								}
 								ImGui.SameLine();
 								if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, enabled: ImGuiEx.Ctrl))
@@ -105,47 +169,6 @@ public static unsafe class TabAddressBook
 										var rem = i;
 										new TickScheduler(() => book.Entries.RemoveAt(rem));
 								}
-
-								if (ImGui.BeginPopup($"Edit{i}"))
-								{
-										ImGui.SetNextItemWidth(200f);
-										ImGui.InputTextWithHint("Name", "Entry name", ref entry.Name, 200);
-										ImGui.SetNextItemWidth(200f);
-										if (ImGui.BeginCombo($"World", ExcelWorldHelper.GetName(entry.World), ImGuiComboFlags.HeightLarge))
-										{
-												foreach (var x in ExcelWorldHelper.GetDataCenters())
-												{
-														ImGuiEx.Text($"{x.Name}");
-														foreach (var w in ExcelWorldHelper.GetPublicWorlds(x.RowId))
-														{
-																ImGuiEx.Spacing();
-																if (ImGui.Selectable($"{w.Name}", entry.World == w.RowId)) entry.World = (int)w.RowId;
-																if (entry.World == w.RowId && ImGui.IsWindowAppearing()) ImGui.SetScrollHereY();
-														}
-												}
-												ImGui.EndCombo();
-										}
-										ImGui.SetNextItemWidth(200f);
-										ImGuiEx.EnumCombo($"Residential district", ref entry.City, ResidentialNames);
-										ImGui.SetNextItemWidth(200f);
-										ImGui.InputInt($"Ward", ref entry.Ward.ValidateRange(1, 30));
-										ImGui.SetNextItemWidth(200f);
-										ImGuiEx.EnumCombo("Property type", ref entry.PropertyType);
-										if (entry.PropertyType == PropertyType.House)
-										{
-												ImGui.SetNextItemWidth(200f);
-												ImGui.InputInt($"Plot", ref entry.Plot.ValidateRange(1, 60));
-										}
-										else
-										{
-												ImGui.SetNextItemWidth(100f);
-												ImGui.InputInt($"Room", ref entry.Apartment.ValidateRange(1, int.MaxValue));
-												ImGui.SameLine();
-												ImGui.Checkbox("Subdivision", ref entry.ApartmentSubdivision);
-										}
-										ImGui.EndPopup();
-								}
-
 								ImGui.PopID();
 						}
 

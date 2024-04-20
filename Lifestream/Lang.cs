@@ -6,7 +6,14 @@ namespace Lifestream;
 
 internal static class Lang
 {
-    internal static Dictionary<WorldChangeAetheryte, string> WorldChangeAetherytes = new()
+    public const string SymbolWard = "";
+    public const string SymbolPlot = "";
+    public const string SymbolApartment = "";
+    public const string SymbolSubdivision = "";
+		public static readonly (string Normal, string GameFont) Digits = ("0123456789", "");
+
+
+		internal static Dictionary<WorldChangeAetheryte, string> WorldChangeAetherytes = new()
     {
         [WorldChangeAetheryte.Gridania] = "New Gridania",
         [WorldChangeAetheryte.Uldah] = "Ul'Dah - Steps of Thal",
