@@ -149,6 +149,17 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 var primary = arguments.Split(' ').SafeSelect(0);
                 var secondary = arguments.Split(' ').SafeSelect(1);
+                foreach(var b in Config.AddressBookFolders)
+                {
+                    foreach(var e in b.Entries)
+                    {
+                        if(e.AliasEnabled && e.Alias != "" && e.Alias.EqualsIgnoreCase(primary))
+                        {
+                            e.GoTo();
+                            return;
+                        }
+                    }
+                }
                 if (DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
                     TPAndChangeWorld(w, false, secondary);

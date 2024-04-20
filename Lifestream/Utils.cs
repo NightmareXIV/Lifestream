@@ -14,6 +14,7 @@ using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.Systems.Legacy;
+using Lifestream.Tasks.CrossDC;
 using Lumina.Excel.GeneratedSheets;
 using OtterGui;
 using Action = System.Action;
@@ -29,6 +30,29 @@ internal static unsafe class Utils
 
     static string WorldFilter = "";
     static bool WorldFilterActive = false;
+
+    public static void GoTo(this AddressBookEntry entry)
+    {
+        if(!Player.Available)
+        {
+            Notify.Error($"Can not travel while character is not available");
+            return;
+        }
+        if (!P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        {
+            Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
+            return;
+        }
+				if (entry.PropertyType == PropertyType.House)
+				{
+						TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
+				}
+				else if (entry.PropertyType == PropertyType.Apartment)
+				{
+						TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
+				}
+		}
+
 		public static void DrawWorldSelector(ref int worldConfig)
     {
         ImGuiEx.SetNextItemFullWidth();

@@ -101,44 +101,56 @@ public static unsafe class TabAddressBook
 
 		static void DrawBook(AddressBookFolder book)
 		{
-				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New"))
+				ImGuiEx.LineCentered(() =>
 				{
-						var h = HousingManager.Instance();
-						var entry = GetNewAddressBookEntry();
-						book.Entries.Add(entry);
-						InputWardDetailDialog.Entry = entry;
-				}
-				ImGui.SameLine();
-				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
-				{
-						try
+						if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New"))
 						{
-								var entry = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookEntry>(Paste());
-								if (entry != null)
+								var h = HousingManager.Instance();
+								var entry = GetNewAddressBookEntry();
+								book.Entries.Add(entry);
+								InputWardDetailDialog.Entry = entry;
+						}
+						ImGui.SameLine();
+						if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
+						{
+								try
 								{
-										if (!entry.IsValid(out var error))
+										var entry = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookEntry>(Paste());
+										if (entry != null)
 										{
-												Notify.Error($"Could not paste from clipboard:\n{error}");
+												if (!entry.IsValid(out var error))
+												{
+														Notify.Error($"Could not paste from clipboard:\n{error}");
+												}
+												else
+												{
+														book.Entries.Add(entry);
+												}
 										}
 										else
 										{
-												book.Entries.Add(entry);
+												Notify.Error($"Could not paste from clipboard");
 										}
 								}
-								else
+								catch (Exception e)
 								{
-										Notify.Error($"Could not paste from clipboard");
+										Notify.Error($"Could not paste from clipboard:\n{e.Message}");
 								}
 						}
-						catch(Exception e)
+						ImGui.SameLine();
+						ImGui.SetNextItemWidth(100f);
+						ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
+						ImGuiEx.Tooltip($"Select sort mode for this address book");
+						ImGui.SameLine();
+						if (ImGui.Checkbox($"Default", ref book.IsDefault))
 						{
-								Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+								if (book.IsDefault)
+								{
+										P.Config.AddressBookFolders.Where(z => z != book).Each(z => z.IsDefault = false);
+								}
 						}
-				}
-				ImGui.SameLine();
-				ImGui.SetNextItemWidth(100f);
-				ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
-				ImGuiEx.Tooltip($"Select sort mode for this address book");
+						ImGuiEx.Tooltip($"Default book automatically opens when you open plugin first time in a game session.");
+				});
 
 				if (ImGui.BeginTable($"##addressbook", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
 				{
@@ -180,14 +192,7 @@ public static unsafe class TabAddressBook
 								{
 										if (Player.Interactable && !P.TaskManager.IsBusy)
 										{
-												if (entry.PropertyType == PropertyType.House)
-												{
-														TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
-												}
-												else if (entry.PropertyType == PropertyType.Apartment)
-												{
-														TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
-												}
+												entry.GoTo();
 										}
 								}
 								if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
