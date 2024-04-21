@@ -77,15 +77,20 @@ public static unsafe class TabAddressBook
 				var h = HousingManager.Instance();
 				if(h != null)
 				{
-						if(Svc.ClientState.TerritoryType.EqualsAny(Houses.Ingleside_Apartment, Houses.Kobai_Goten_Apartment, Houses.Lily_Hills_Apartment, Houses.Sultanas_Breath_Apartment, Houses.Topmast_Apartment))
+						entry.Ward = h->GetCurrentWard() + 1;
+						if (Svc.ClientState.TerritoryType.EqualsAny(Houses.Ingleside_Apartment, Houses.Kobai_Goten_Apartment, Houses.Lily_Hills_Apartment, Houses.Sultanas_Breath_Apartment, Houses.Topmast_Apartment))
 						{
 								entry.PropertyType = PropertyType.Apartment;
 								entry.ApartmentSubdivision = h->GetCurrentDivision() == 2;
+								entry.Apartment = h->GetCurrentRoom();
+								entry.Apartment.ValidateRange(1, 9999);
 						}
-						entry.Ward = h->GetCurrentWard() + 1;
-						entry.Plot = h->GetCurrentPlot() + 1;
-						entry.Ward.ValidateRange(1, 30);
-						entry.Plot.ValidateRange(1, 60);
+						else
+						{
+								entry.Plot = h->GetCurrentPlot() + 1;
+								entry.Ward.ValidateRange(1, 30);
+								entry.Plot.ValidateRange(1, 60);
+						}
 						if (Player.Available)
 						{
 								entry.World = (int)Player.Object.CurrentWorld.Id;
@@ -188,6 +193,8 @@ public static unsafe class TabAddressBook
 								var bsize = ImGuiHelpers.GetButtonSize("A") with { X = ImGui.GetContentRegionAvail().X };
 								ImGui.PushStyleColor(ImGuiCol.Button, 0);
 								ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, Vector2.Zero);
+								var col = entry.IsHere();
+								if (col) ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
 								if (ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry", bsize))
 								{
 										if (Player.Interactable && !P.TaskManager.IsBusy)
@@ -195,6 +202,7 @@ public static unsafe class TabAddressBook
 												entry.GoTo();
 										}
 								}
+								if (col) ImGui.PopStyleColor();
 								if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
 								{
 										ImGui.OpenPopup($"ABMenu {entry.GUID}");

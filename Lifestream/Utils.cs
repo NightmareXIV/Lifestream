@@ -7,6 +7,7 @@ using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -30,6 +31,29 @@ internal static unsafe class Utils
 
     static string WorldFilter = "";
     static bool WorldFilterActive = false;
+
+    public static bool IsTeleporterInstalled()
+    {
+        return Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded);
+    }
+
+    public static bool IsHere(this AddressBookEntry entry)
+    {
+        var h = HousingManager.Instance();
+        if (h == null) return false;
+        if(h->GetCurrentWard() != entry.Ward-1) return false;
+        if (Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) != entry.City) return false;
+        if(entry.PropertyType == PropertyType.House)
+        {
+            return h->GetCurrentPlot() == entry.Plot-1;
+        }
+        if(entry.PropertyType == PropertyType.Apartment)
+        {
+            if (entry.ApartmentSubdivision && h->GetCurrentDivision() != 2) return false;
+            return entry.Apartment == h->GetCurrentRoom();
+        }
+        return false;
+    }
 
     public static void GoTo(this AddressBookEntry entry)
     {

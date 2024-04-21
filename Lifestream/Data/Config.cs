@@ -42,4 +42,5 @@ public class Config : IEzConfig
     public List<AddressBookFolder> AddressBookFolders = [];
     public bool AddressNoPathing = false;
     public bool AddressApartmentNoEntry = false;
+    public bool SingleBookMode = false;
 }

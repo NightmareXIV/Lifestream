@@ -82,10 +82,10 @@ internal static class UISettings
 
         UtilsUI.DrawSection("Address Book", null, () =>
 				{
-						ImGui.Checkbox($"Disable pathing to a ward", ref P.Config.AddressNoPathing);
+						ImGui.Checkbox($"Disable pathing to a plot", ref P.Config.AddressNoPathing);
 						ImGuiEx.HelpMarker($"You will be left at a closest aetheryte to the ward");
 						ImGui.Checkbox($"Disable entering an apartment", ref P.Config.AddressApartmentNoEntry);
-						ImGuiEx.HelpMarker($"You will be left at a entry confirmation dialogue");
+						ImGuiEx.HelpMarker($"You will be left at an entry confirmation dialogue");
 				});
 
         UtilsUI.DrawSection("Expert Settings", null, () =>
