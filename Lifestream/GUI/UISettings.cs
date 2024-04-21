@@ -80,6 +80,14 @@ internal static class UISettings
             ImGui.Checkbox($"Teleport to gateway aetheryte after completing data center travel", ref P.Config.DCReturnToGateway);
         });
 
+        UtilsUI.DrawSection("Address Book", null, () =>
+				{
+						ImGui.Checkbox($"Disable pathing to a ward", ref P.Config.AddressNoPathing);
+						ImGuiEx.HelpMarker($"You will be left at a closest aetheryte to the ward");
+						ImGui.Checkbox($"Disable entering an apartment", ref P.Config.AddressApartmentNoEntry);
+						ImGuiEx.HelpMarker($"You will be left at a entry confirmation dialogue");
+				});
+
         UtilsUI.DrawSection("Expert Settings", null, () =>
         {
             ImGui.Checkbox($"Slow down aetheryte teleporting", ref P.Config.SlowTeleport);

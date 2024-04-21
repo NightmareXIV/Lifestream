@@ -46,7 +46,15 @@ public unsafe class Lifestream : IDalamudPlugin
     public TaskManager TaskManager;
 
     public ResidentialAethernet ResidentialAethernet;
-    public FollowPath FollowPath;
+    internal FollowPath followPath = null;
+    public FollowPath FollowPath
+    {
+        get
+        {
+            followPath ??= new();
+            return followPath;
+        }
+    }
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
     public GenericFileSystem<AddressBookFolder> AddressBookFileSystem;
@@ -75,7 +83,6 @@ public unsafe class Lifestream : IDalamudPlugin
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
             ResidentialAethernet = new();
-            FollowPath = new();
             VnavmeshManager = new();
             SplatoonManager = new();
             AddressBookFileSystem = new(Config.AddressBookFolders, "AddressBook");
@@ -327,7 +334,7 @@ public unsafe class Lifestream : IDalamudPlugin
     private void Framework_Update(object framework)
     {
         YesAlreadyManager.Tick();
-        FollowPath.Update();
+        followPath?.Update();
         if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
         {
             UpdateActiveAetheryte();
@@ -344,7 +351,7 @@ public unsafe class Lifestream : IDalamudPlugin
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
         Memory.Dispose();
-        FollowPath.Dispose();
+        followPath?.Dispose();
         ECommonsMain.Dispose();
         P = null;
     }

@@ -40,4 +40,6 @@ public class Config : IEzConfig
     public bool WaitForScreenReady = true;
     public bool ShowWards = true;
     public List<AddressBookFolder> AddressBookFolders = [];
+    public bool AddressNoPathing = false;
+    public bool AddressApartmentNoEntry = false;
 }

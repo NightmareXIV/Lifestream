@@ -72,7 +72,7 @@ public static class TaskTpAndGoToWard
                 P.TaskManager.Enqueue(InteractWithApartmentEntrance);
                 P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
                 P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
-                P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
+                if(!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
             }
         }
         else
@@ -95,7 +95,7 @@ public static class TaskTpAndGoToWard
                             //P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
                         }
                     }
-                    TaskMoveToHouse.Enqueue(info);
+                    if(!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info);
                 }
             }
         }

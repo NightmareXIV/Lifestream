@@ -1,5 +1,7 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Utility;
 using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using Lifestream.Schedulers;
@@ -48,7 +50,7 @@ public static class TaskApproachHousingAetheryte
         }
     }*/
 
-    public static void FaceIMP()
+    public unsafe static void FaceIMP()
     {
         if (Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
         {
