@@ -11,7 +11,8 @@ public class FollowPath : IDisposable
     public bool AlignCamera = false;
     public bool IgnoreDeltaY = true;
     public float Tolerance = 0.25f;
-    public List<Vector3> Waypoints = new();
+    public List<Vector3> waypointsInternal = new();
+    public IReadOnlyList<Vector3> Waypoints => waypointsInternal;
     public int MaxWaypoints = 0;
 
     private OverrideCamera _camera = new();
@@ -34,32 +35,32 @@ public class FollowPath : IDisposable
         if (player == null)
             return;
 
-        while (Waypoints.Count > 0)
+        while (waypointsInternal.Count > 0)
         {
-            if(Waypoints.Count > MaxWaypoints) MaxWaypoints = Waypoints.Count;
+            if(waypointsInternal.Count > MaxWaypoints) MaxWaypoints = waypointsInternal.Count;
             if (TimeoutAt == 0) TimeoutAt = Environment.TickCount64 + 30000;
             if (P.VnavmeshManager.IsRunning())
             {
-                Waypoints.Clear();
+								waypointsInternal.Clear();
                 DuoLog.Error($"Detected vnavmesh movement, Lifestream will abort all tasks now.");
                 break;
             }
             if(Environment.TickCount64 > TimeoutAt)
             {
-                Waypoints.Clear();
+								waypointsInternal.Clear();
                 DuoLog.Error($"Lifestream movement has timed out.");
                 break;
             }
-            var toNext = Waypoints[0] - player.Position;
+            var toNext = waypointsInternal[0] - player.Position;
             if (IgnoreDeltaY)
                 toNext.Y = 0;
             if (toNext.LengthSquared() > Tolerance * Tolerance)
                 break;
-            Waypoints.RemoveAt(0);
+						waypointsInternal.RemoveAt(0);
             TimeoutAt = 0;
         }
 
-        if (Waypoints.Count == 0)
+        if (waypointsInternal.Count == 0)
         {
             _movement.Enabled = _camera.Enabled = false;
             _camera.SpeedH = _camera.SpeedV = default;
@@ -70,7 +71,7 @@ public class FollowPath : IDisposable
         {
             OverrideAFK.ResetTimers();
             _movement.Enabled = MovementAllowed;
-            _movement.DesiredPosition = Waypoints[0];
+            _movement.DesiredPosition = waypointsInternal[0];
             _camera.Enabled = AlignCamera;
             _camera.SpeedH = _camera.SpeedV = 360.Degrees();
             _camera.DesiredAzimuth = Angle.FromDirectionXZ(_movement.DesiredPosition - player.Position) + 180.Degrees();
@@ -78,11 +79,14 @@ public class FollowPath : IDisposable
         }
     }
 
-    public void Stop() => Waypoints.Clear();
+    public void Stop() => waypointsInternal.Clear();
+
+    public void RemoveFirst() => waypointsInternal.RemoveAt(0);
 
     public void Move(List<Vector3> waypoints, bool ignoreDeltaY)
     {
-        Waypoints = waypoints;
+        TimeoutAt = 0;
+				waypointsInternal = waypoints;
         IgnoreDeltaY = ignoreDeltaY;
     }
 }

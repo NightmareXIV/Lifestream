@@ -18,7 +18,7 @@ public class AddressBookEntry
 		internal Guid GUID = Guid.NewGuid();
     [DefaultValue("")] public string Name = "";
     public int World = 21;
-    public ResidentialAetheryte City = ResidentialAetheryte.Uldah;
+    public ResidentialAetheryteKind City = ResidentialAetheryteKind.Uldah;
     public int Ward = 1;
     public PropertyType PropertyType;
     public int Plot = 1;
@@ -56,7 +56,7 @@ public class AddressBookEntry
             error = "World identifier is not valid";
             return false;
         }
-        if(!Enum.GetValues<ResidentialAetheryte>().Contains(City))
+        if(!Enum.GetValues<ResidentialAetheryteKind>().Contains(City))
         {
             error = "Residential aetheryte is not valid";
             return false;

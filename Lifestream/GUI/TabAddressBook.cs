@@ -17,13 +17,13 @@ using SortMode = Lifestream.Data.SortMode;
 namespace Lifestream.GUI;
 public static unsafe class TabAddressBook
 {
-    public static readonly FrozenDictionary<ResidentialAetheryte, string> ResidentialNames = new Dictionary<ResidentialAetheryte, string>()
+    public static readonly FrozenDictionary<ResidentialAetheryteKind, string> ResidentialNames = new Dictionary<ResidentialAetheryteKind, string>()
     {
-        [ResidentialAetheryte.Gridania] = "Lavender Beds",
-        [ResidentialAetheryte.Limsa] = "Mist",
-        [ResidentialAetheryte.Uldah] = "Goblet",
-        [ResidentialAetheryte.Kugane] = "Shirogane",
-        [ResidentialAetheryte.Foundation] = "Empyreum",
+        [ResidentialAetheryteKind.Gridania] = "Lavender Beds",
+        [ResidentialAetheryteKind.Limsa] = "Mist",
+        [ResidentialAetheryteKind.Uldah] = "Goblet",
+        [ResidentialAetheryteKind.Kugane] = "Shirogane",
+        [ResidentialAetheryteKind.Foundation] = "Empyreum",
     }.ToFrozenDictionary();
 
 		public static readonly FrozenDictionary<SortMode, string> SortModeNames = new Dictionary<SortMode, string>()

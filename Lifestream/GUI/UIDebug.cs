@@ -228,7 +228,7 @@ internal static unsafe class UIDebug
     static string str2 = "";
     static string str3 = "";
     static string World = "";
-    static ResidentialAetheryte ResiA;
+    static ResidentialAetheryteKind ResiA;
     static int Ward = 1;
 		static Vector2 uv0;
 		static Vector2 uv1;

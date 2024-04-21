@@ -5,7 +5,7 @@ using Lifestream.Schedulers;
 namespace Lifestream.Tasks.SameWorld;
 public static class TaskTpToResidentialAetheryte
 {
-    public static void Insert(ResidentialAetheryte target)
+    public static void Insert(ResidentialAetheryteKind target)
     {
         P.TaskManager.Insert(() => Player.Interactable && Svc.ClientState.TerritoryType == target.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
         P.TaskManager.Insert(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M);

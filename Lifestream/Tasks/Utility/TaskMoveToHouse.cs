@@ -9,20 +9,20 @@ using System.Threading.Tasks;
 namespace Lifestream.Tasks.Utility;
 public static class TaskMoveToHouse
 {
-    public static void Enqueue(PlotInfo info)
+    public static void Enqueue(PlotInfo info, bool includeFirst)
     {
-        P.TaskManager.EnqueueMulti(
-            new(() => LoadPath(info), "LoadPath"),
+				P.TaskManager.EnqueueMulti(
+            new(() => LoadPath(info, includeFirst), "LoadPath"),
             new(WaitUntilPathCompleted, TaskSettings.Timeout5M)
             );
     }
 
-    public static bool? LoadPath(PlotInfo info)
+    public static bool? LoadPath(PlotInfo info, bool includeFirst)
     {
         if (info.Path.Count == 0) return null;
         P.FollowPath.Stop();
-        P.FollowPath.Waypoints = [.. info.Path];
-        if (!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID)) P.FollowPath.Waypoints.RemoveAt(0);
+        P.FollowPath.Move([.. info.Path], true);
+        if (!includeFirst) P.FollowPath.RemoveFirst();
         return true;
     }
 

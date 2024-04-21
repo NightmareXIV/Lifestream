@@ -2,8 +2,10 @@
 using Lifestream.Enums;
 using Lifestream.Systems;
 using Lifestream.Tasks;
+using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
+using System;
 
 namespace Lifestream.GUI;
 
@@ -78,7 +80,46 @@ internal class Overlay : Window
             if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType)) actions.Add(DrawHousingWards);
         }
         ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
-        WSize = ImGui.GetWindowSize();
+
+				if (P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+				{
+						if (ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
+						{
+								ImGui.TableSetupColumn("1");
+								ImGui.TableSetupColumn("2");
+								ImGui.TableSetupColumn("3");
+								ImGui.TableSetupColumn("4");
+								ImGui.TableSetupColumn("5");
+								ImGui.TableSetupColumn("6");
+
+								for (int i = 0; i < 10; i++)
+								{
+										ImGui.TableNextRow();
+										var buttonSize = new Vector2((ButtonSizeAetheryte.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeAetheryte.Y);
+										for (int q = 0; q < 3; q++)
+										{
+												ImGui.TableNextColumn();
+                        var num = i * 3 + q + 1;
+												if (ImGui.Button($"{num}", buttonSize))
+												{
+                            TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType).Value, num-1, false, false, false);
+												}
+										}
+										for (int q = 0; q < 3; q++)
+										{
+												ImGui.TableNextColumn();
+                        var num = i * 3 + q + 30 + 1;
+												if (ImGui.Button($"{num}", buttonSize))
+												{
+														TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType).Value, num-1, false, false, false);
+												}
+										}
+								}
+								ImGui.EndTable();
+						}
+				}
+
+				WSize = ImGui.GetWindowSize();
     }
 
     private void DrawNormalAethernet()

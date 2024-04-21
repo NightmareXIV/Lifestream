@@ -15,7 +15,7 @@ using Lifestream.Systems;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using System.Linq;
-using ResidentialAetheryte = Lifestream.Enums.ResidentialAetheryte;
+using ResidentialAetheryteKind = Lifestream.Enums.ResidentialAetheryteKind;
 
 namespace Lifestream.Tasks.CrossDC;
 public static class TaskTpAndGoToWard
@@ -29,7 +29,7 @@ public static class TaskTpAndGoToWard
     /// <param name="plot">Starts with 0</param>
     /// <param name="isApartment"></param>
     /// <param name="isApartmentSubdivision"></param>
-    public static void Enqueue(string world, ResidentialAetheryte residentialArtheryte, int ward, int plot, bool isApartment, bool isApartmentSubdivision)
+    public static void Enqueue(string world, ResidentialAetheryteKind residentialArtheryte, int ward, int plot, bool isApartment, bool isApartmentSubdivision)
     {
         var gateway = DetermineGatewayAetheryte(residentialArtheryte);
         if (Player.CurrentWorld != world)
@@ -55,51 +55,71 @@ public static class TaskTpAndGoToWard
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
-        if (isApartment)
-        {
-            var target = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory());
-            if(target != null && target.Aetherytes.TryGetFirst(x => (isApartmentSubdivision ? ResidentialAethernet.ApartmentSubdivisionAetherytes : ResidentialAethernet.ApartmentAetherytes).Contains(x.ID), out var aetheryte))
-            {
-                TaskApproachHousingAetheryte.Enqueue();
-                TaskAethernetTeleport.Enqueue(aetheryte.Name);
-                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                P.TaskManager.Enqueue(Utils.WaitForScreen);
-                P.TaskManager.Enqueue(TargetApartmentEntrance);
-                P.TaskManager.Enqueue(WorldChange.LockOn);
-                P.TaskManager.Enqueue(WorldChange.EnableAutomove);
-                P.TaskManager.Enqueue(() => Vector3.Distance(Player.Object.Position, Svc.Targets.Target.Position) < 3.5f, "ReachApartment");
-                P.TaskManager.Enqueue(WorldChange.DisableAutomove);
-                P.TaskManager.Enqueue(InteractWithApartmentEntrance);
-                P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
-                P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
-                if(!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
-            }
-        }
-        else
-        {
-            if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
-            {
-                var info = plotInfos.SafeSelect(plot);
-                if (info != null)
-                {
-                    if (!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
+        EnqueueFromResidentialAetheryte(residentialArtheryte, plot, isApartment, isApartmentSubdivision, true);
+
+		}
+
+    public static void EnqueueFromResidentialAetheryte(ResidentialAetheryteKind residentialArtheryte, int plot, bool isApartment, bool isApartmentSubdivision, bool fromStart)
+    {
+				if (isApartment)
+				{
+						var target = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory());
+						if (target != null && target.Aetherytes.TryGetFirst(x => (isApartmentSubdivision ? ResidentialAethernet.ApartmentSubdivisionAetherytes : ResidentialAethernet.ApartmentAetherytes).Contains(x.ID), out var aetheryte))
+						{
+								TaskApproachHousingAetheryte.Enqueue();
+								TaskAethernetTeleport.Enqueue(aetheryte.Name);
+								P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+								P.TaskManager.Enqueue(Utils.WaitForScreen);
+								P.TaskManager.Enqueue(TargetApartmentEntrance);
+								P.TaskManager.Enqueue(WorldChange.LockOn);
+								P.TaskManager.Enqueue(WorldChange.EnableAutomove);
+								P.TaskManager.Enqueue(() => Vector3.Distance(Player.Object.Position, Svc.Targets.Target.Position) < 3.5f, "ReachApartment");
+								P.TaskManager.Enqueue(WorldChange.DisableAutomove);
+								P.TaskManager.Enqueue(InteractWithApartmentEntrance);
+								P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
+								P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
+								if (!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
+						}
+				}
+				else
+				{
+						if (P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
+						{
+								var info = plotInfos.SafeSelect(plot);
+								if (info != null)
+								{
+										var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
+                    if (fromStart)
                     {
-                        TaskApproachHousingAetheryte.Enqueue();
-                        var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
-                        if (aetheryte != null)
+                        if (!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
                         {
-                            TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
-                            P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                            P.TaskManager.Enqueue(Utils.WaitForScreen);
-                            //P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-                            //P.TaskManager.Enqueue(() => P.VnavmeshManager.PathfindAndMoveTo(info.Front, false));
-                        }
-                    }
-                    if(!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info);
-                }
-            }
-        }
-    }
+                            TaskApproachHousingAetheryte.Enqueue();
+                            if (aetheryte != null)
+                            {
+                                TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                                P.TaskManager.Enqueue(Utils.WaitForScreen);
+                            }
+												}
+												if (!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info, ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID));
+										}
+                    else
+                    {
+												if (info.AethernetID != P.ResidentialAethernet.ActiveAetheryte.Value.ID)
+												{
+														if (aetheryte != null)
+														{
+																TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+																P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+																P.TaskManager.Enqueue(Utils.WaitForScreen);
+														}
+												}
+												if (!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info, false);
+										}
+								}
+						}
+				}
+		}
 
     public static unsafe bool InteractWithApartmentEntrance()
     {
@@ -210,11 +230,11 @@ public static class TaskTpAndGoToWard
         return false;
     }
 
-    public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryte targetZone)
+    public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryteKind targetZone)
     {
-        if (targetZone == ResidentialAetheryte.Uldah) return WorldChangeAetheryte.Uldah;
-        if (targetZone == ResidentialAetheryte.Gridania) return WorldChangeAetheryte.Gridania;
-        if (targetZone == ResidentialAetheryte.Limsa) return WorldChangeAetheryte.Limsa;
+        if (targetZone == ResidentialAetheryteKind.Uldah) return WorldChangeAetheryte.Uldah;
+        if (targetZone == ResidentialAetheryteKind.Gridania) return WorldChangeAetheryte.Gridania;
+        if (targetZone == ResidentialAetheryteKind.Limsa) return WorldChangeAetheryte.Limsa;
         return null;
     }
 }

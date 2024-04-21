@@ -1,6 +1,6 @@
 ﻿namespace Lifestream.Enums;
 
-public enum ResidentialAetheryte
+public enum ResidentialAetheryteKind
 {
     Uldah = 9,
     Gridania = 2,

@@ -67,14 +67,29 @@ internal static unsafe class Utils
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;
         }
-				if (entry.PropertyType == PropertyType.House)
-				{
-						TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
-				}
-				else if (entry.PropertyType == PropertyType.Apartment)
-				{
-						TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
-				}
+        var h = HousingManager.Instance();
+        if (h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.Id)
+        {
+            if (entry.PropertyType == PropertyType.House)
+            {
+                TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(entry.City, entry.Plot - 1, false, default, false);
+            }
+            else if (entry.PropertyType == PropertyType.Apartment)
+            {
+                TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(entry.City, entry.Apartment - 1, true, entry.ApartmentSubdivision, false);
+            }
+        }
+        else
+        {
+            if (entry.PropertyType == PropertyType.House)
+            {
+                TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
+            }
+            else if (entry.PropertyType == PropertyType.Apartment)
+            {
+                TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
+            }
+        }
 		}
 
 		public static void DrawWorldSelector(ref int worldConfig)
@@ -195,13 +210,13 @@ internal static unsafe class Utils
 
     public static bool? WaitForScreen() => IsScreenReady();
 
-		public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryte refConfigField)
+		public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryteKind refConfigField)
 		{
 				var ret = false;
         var names = TabAddressBook.ResidentialNames;
 				if (ImGui.BeginCombo(name, names.SafeSelect(refConfigField) ?? $"{refConfigField}"))
 				{
-						var values = Enum.GetValues<ResidentialAetheryte>();
+						var values = Enum.GetValues<ResidentialAetheryteKind>();
 						foreach (var x in values)
 						{
                 var equals = x == refConfigField;
@@ -243,15 +258,15 @@ internal static unsafe class Utils
         return builder.ToString();
     }
 
-    public static bool RenderIcon(this ResidentialAetheryte residentialAetheryte, float? size = null)
+    public static bool RenderIcon(this ResidentialAetheryteKind residentialAetheryte, float? size = null)
     {
         var id = residentialAetheryte switch
         {
-            ResidentialAetheryte.Limsa => (new Vector2(0.3651f, 0.0000f), new Vector2(0.4444f, 0.1408f)),
-            ResidentialAetheryte.Gridania => (new Vector2(0.4444f, 0.0000f), new Vector2(0.5238f, 0.1408f)),
-            ResidentialAetheryte.Uldah => (new Vector2(0.3651f, 0.1408f), new Vector2(0.4444f, 0.2817f)),
-            ResidentialAetheryte.Foundation => (new Vector2(0.5238f, 0.0000f), new Vector2(0.6032f, 0.1408f)),
-            ResidentialAetheryte.Kugane => (new Vector2(0.7619f, 0.0000f), new Vector2(0.8413f, 0.1408f)),
+            ResidentialAetheryteKind.Limsa => (new Vector2(0.3651f, 0.0000f), new Vector2(0.4444f, 0.1408f)),
+            ResidentialAetheryteKind.Gridania => (new Vector2(0.4444f, 0.0000f), new Vector2(0.5238f, 0.1408f)),
+            ResidentialAetheryteKind.Uldah => (new Vector2(0.3651f, 0.1408f), new Vector2(0.4444f, 0.2817f)),
+            ResidentialAetheryteKind.Foundation => (new Vector2(0.5238f, 0.0000f), new Vector2(0.6032f, 0.1408f)),
+            ResidentialAetheryteKind.Kugane => (new Vector2(0.7619f, 0.0000f), new Vector2(0.8413f, 0.1408f)),
             _ => (new Vector2(0.5238f, 0.1408f), new Vector2(0.6032f, 0.2817f))
         };
         if(ThreadLoadImageHandler.TryGetTextureWrap("ui/uld/Teleport_hr1.tex", out var tex))
@@ -442,22 +457,22 @@ internal static unsafe class Utils
         return t.ID.EqualsAny<uint>(2, 8, 9, 70, 111);
     }
 
-    static Dictionary<ResidentialAetheryte, uint> TerritoryForResidentialAetheryte = new()
+    static Dictionary<ResidentialAetheryteKind, uint> TerritoryForResidentialAetheryte = new()
     {
-        [ResidentialAetheryte.Uldah] = MainCities.Uldah_Steps_of_Nald,
-        [ResidentialAetheryte.Gridania] = MainCities.New_Gridania,
-        [ResidentialAetheryte.Limsa] = MainCities.Limsa_Lominsa_Lower_Decks,
-        [ResidentialAetheryte.Kugane] = MainCities.Kugane,
-        [ResidentialAetheryte.Foundation] = MainCities.Foundation,
+        [ResidentialAetheryteKind.Uldah] = MainCities.Uldah_Steps_of_Nald,
+        [ResidentialAetheryteKind.Gridania] = MainCities.New_Gridania,
+        [ResidentialAetheryteKind.Limsa] = MainCities.Limsa_Lominsa_Lower_Decks,
+        [ResidentialAetheryteKind.Kugane] = MainCities.Kugane,
+        [ResidentialAetheryteKind.Foundation] = MainCities.Foundation,
     };
 
-    static Dictionary<ResidentialAetheryte, uint> ResidentialTerritoryForResidentialAetheryte = new()
+    static Dictionary<ResidentialAetheryteKind, uint> ResidentialTerritoryForResidentialAetheryte = new()
     {
-        [ResidentialAetheryte.Uldah] = ResidentalAreas.The_Goblet,
-        [ResidentialAetheryte.Gridania] = ResidentalAreas.The_Lavender_Beds,
-        [ResidentialAetheryte.Limsa] = ResidentalAreas.Mist,
-        [ResidentialAetheryte.Kugane] = ResidentalAreas.Shirogane,
-        [ResidentialAetheryte.Foundation] = ResidentalAreas.Empyreum,
+        [ResidentialAetheryteKind.Uldah] = ResidentalAreas.The_Goblet,
+        [ResidentialAetheryteKind.Gridania] = ResidentalAreas.The_Lavender_Beds,
+        [ResidentialAetheryteKind.Limsa] = ResidentalAreas.Mist,
+        [ResidentialAetheryteKind.Kugane] = ResidentalAreas.Shirogane,
+        [ResidentialAetheryteKind.Foundation] = ResidentalAreas.Empyreum,
     };
 
     static Dictionary<WorldChangeAetheryte, uint> TerritoryForWorldChangeAetheryte = new()
@@ -467,11 +482,11 @@ internal static unsafe class Utils
         [WorldChangeAetheryte.Limsa] = MainCities.Limsa_Lominsa_Lower_Decks,
     };
 
-    internal static uint GetTerritory(this ResidentialAetheryte r)
+    internal static uint GetTerritory(this ResidentialAetheryteKind r)
     {
         return TerritoryForResidentialAetheryte[r];
     }
-    internal static uint GetResidentialTerritory(this ResidentialAetheryte r)
+    internal static uint GetResidentialTerritory(this ResidentialAetheryteKind r)
     {
         return ResidentialTerritoryForResidentialAetheryte[r];
     }
@@ -481,15 +496,15 @@ internal static unsafe class Utils
         return TerritoryForWorldChangeAetheryte[r];
     }
 
-    internal static ResidentialAetheryte? GetResidentialAetheryteByTerritoryType(uint territoryType)
+    internal static ResidentialAetheryteKind? GetResidentialAetheryteByTerritoryType(uint territoryType)
     {
         var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(territoryType);
         if (t == null) return null;
-				if (t.PlaceNameRegion.Row == 2402) return ResidentialAetheryte.Kugane;
-				if (t.PlaceNameRegion.Row == 25) return ResidentialAetheryte.Foundation;
-				if (t.PlaceNameRegion.Row == 23) return ResidentialAetheryte.Gridania;
-				if (t.PlaceNameRegion.Row == 24) return ResidentialAetheryte.Uldah;
-				if (t.PlaceNameRegion.Row == 22) return ResidentialAetheryte.Limsa;
+				if (t.PlaceNameRegion.Row == 2402) return ResidentialAetheryteKind.Kugane;
+				if (t.PlaceNameRegion.Row == 25) return ResidentialAetheryteKind.Foundation;
+				if (t.PlaceNameRegion.Row == 23) return ResidentialAetheryteKind.Gridania;
+				if (t.PlaceNameRegion.Row == 24) return ResidentialAetheryteKind.Uldah;
+				if (t.PlaceNameRegion.Row == 22) return ResidentialAetheryteKind.Limsa;
         return null;
 		}
 

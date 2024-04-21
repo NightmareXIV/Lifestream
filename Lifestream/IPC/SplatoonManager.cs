@@ -28,7 +28,7 @@ public class SplatoonManager
         }
     }
 
-    public void RenderPath(List<Vector3> path)
+    public void RenderPath(IReadOnlyList<Vector3> path)
     {
         Vector3? prev = null;
         if (path != null && path.Count > 0)
