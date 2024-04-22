@@ -14,10 +14,12 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks.CrossDC;
 using Lumina.Excel.GeneratedSheets;
 using OtterGui;
+using System.Text.RegularExpressions;
 using Action = System.Action;
 using CharaData = (string Name, ushort World);
 
@@ -31,6 +33,58 @@ internal static unsafe class Utils
 
     static string WorldFilter = "";
     static bool WorldFilterActive = false;
+
+    public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry)
+    {
+        entry = null;
+				var regex = @"([a-z]+)[\s,]+([a-z]+)[\s,]+w[\s\.]?([0-9]{1,2})[\s,]+p[\s\.]?([0-9]{1,2})";
+        var result = Regex.Match(s, regex);
+        if (result.Success)
+        {
+            var world = ExcelWorldHelper.Get(result.Groups[1].Value, true);
+            if (world == null) return false;
+            var city = ParseResidentialAetheryteKind(result.Groups[2].Value);
+            if (city == null) return false;
+            if (int.TryParse(result.Groups[3].Value, out var ward) && int.TryParse(result.Groups[3].Value, out var plot))
+            {
+                entry = new AddressBookEntry()
+                {
+                    City = city.Value,
+                    World = (int)world.RowId,
+                    PropertyType = PropertyType.House,
+                    Ward = ward,
+                    Plot = plot,
+                };
+                return true;
+            }
+        }
+        return false;
+		}
+
+    public static ResidentialAetheryteKind? ParseResidentialAetheryteKind(string s)
+		{
+				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "mist"))
+				{
+						return ResidentialAetheryteKind.Limsa;
+				}
+				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "goblet"))
+				{
+						return ResidentialAetheryteKind.Uldah;
+				}
+				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "empy"))
+				{
+						return ResidentialAetheryteKind.Foundation;
+				}
+				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "shiro"))
+				{
+						return ResidentialAetheryteKind.Kugane;
+				}
+				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "lavender", "beds", "lb"))
+				{
+						return ResidentialAetheryteKind.Gridania;
+				}
+        return null;
+		}
 
     public static bool IsTeleporterInstalled()
     {
@@ -55,6 +109,13 @@ internal static unsafe class Utils
         return false;
     }
 
+    public static bool IsQuickTravelAvailable(this AddressBookEntry entry)
+    {
+        if (P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward-1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
+				var h = HousingManager.Instance();
+        return h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.Id;
+		}
+
     public static void GoTo(this AddressBookEntry entry)
     {
         if(!Player.Available)
@@ -62,13 +123,12 @@ internal static unsafe class Utils
             Notify.Error($"Can not travel while character is not available");
             return;
         }
-        if (!P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        if (Player.Object?.CurrentWorld.GameData.DataCenter.Row != ExcelWorldHelper.Get((uint)entry.World).DataCenter.Row && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
         {
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;
         }
-        var h = HousingManager.Instance();
-        if (h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.Id)
+        if (entry.IsQuickTravelAvailable())
         {
             if (entry.PropertyType == PropertyType.House)
             {

@@ -145,6 +145,12 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy?1:0)} tasks");
             TaskManager.Abort();
+            followPath?.Stop();
+        }
+        else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
+        {
+            Notify.Success($"Housing address parsed: {entry.GetAddressString()}");
+            entry.GoTo();
         }
         else
         {
@@ -268,7 +274,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                 TaskWaitUntilInWorld.Enqueue(w);
 
-                if (gateway != null) TaskReturnToGateway.Enqueue(gateway.Value);
+                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
                 if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 EnqueueSecondary();
             }
@@ -289,7 +295,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 {
                     TaskWaitUntilInWorld.Enqueue(w);
                 }
-                if (gateway != null) TaskReturnToGateway.Enqueue(gateway.Value);
+                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
                 if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 EnqueueSecondary();
             }
@@ -300,7 +306,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                 TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                 TaskWaitUntilInWorld.Enqueue(w);
-                if (P.Config.DCReturnToGateway) TaskReturnToGateway.Enqueue(gateway.Value);
+                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
                 TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 EnqueueSecondary();
             }

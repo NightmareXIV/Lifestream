@@ -261,7 +261,16 @@ public static unsafe class TabAddressBook
 										CurrentDrag = Guid.Empty;
 								}
 
-								if (entry.AliasEnabled)
+								if (entry.IsQuickTravelAvailable())
+								{
+										ImGui.PushFont(UiBuilder.IconFont);
+										var size = ImGui.CalcTextSize(FontAwesomeIcon.BoltLightning.ToIconString());
+										ImGui.SameLine(0, 0);
+										ImGui.SetCursorPosX(ImGui.GetCursorPosX() - size.X - ImGui.GetStyle().FramePadding.X);
+										ImGuiEx.Text(ImGuiColors.DalamudYellow, FontAwesomeIcon.BoltLightning.ToIconString());
+										ImGui.PopFont();
+								}
+								else if (entry.AliasEnabled)
 								{
 										var size = ImGui.CalcTextSize(entry.Alias);
 										ImGui.SameLine(0,0);
@@ -291,7 +300,18 @@ public static unsafe class TabAddressBook
 
 								ImGui.TableNextColumn();
 
-								ImGuiEx.TextV(ImGuiColors.DalamudGrey2, ExcelWorldHelper.GetName(entry.World));
+								var wcol = ImGuiColors.DalamudGrey;
+								if (Player.Available && Player.Object.CurrentWorld.GameData.DataCenter.Row == ExcelWorldHelper.Get((uint)entry.World).DataCenter.Row)
+								{
+										wcol = ImGuiColors.DalamudGrey;
+								}
+								else
+								{
+										if (!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World))) wcol = ImGuiColors.DalamudGrey3;
+								}
+								if (Player.Available && Player.Object.CurrentWorld.Id == entry.World) wcol = new Vector4(0.9f, 0.9f, 0.9f, 1f);
+
+								ImGuiEx.TextV(wcol, ExcelWorldHelper.GetName(entry.World));
 
 								ImGui.TableNextColumn();
 								if(entry.City.RenderIcon())
