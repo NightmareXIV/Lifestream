@@ -39,7 +39,7 @@ public class AddressBookEntry
         }
 				if (PropertyType == PropertyType.Apartment)
 				{
-						return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}{(ApartmentSubdivision ? " subdivision" : "")}, Apartment {Plot}";
+						return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}{(ApartmentSubdivision ? " subdivision" : "")}, Apartment {Apartment}";
 				}
         return "";
 		}

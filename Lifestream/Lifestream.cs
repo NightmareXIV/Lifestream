@@ -1,6 +1,7 @@
 ﻿using AutoRetainerAPI;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Automation.NeoTaskManager.Tasks;
+using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.ExcelServices;
@@ -149,7 +150,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {
-            Notify.Success($"Housing address parsed: {entry.GetAddressString()}");
+            ChatPrinter.Green($"[Lifestream] Address parsed: {entry.GetAddressString()}");
             entry.GoTo();
         }
         else

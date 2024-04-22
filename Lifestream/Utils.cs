@@ -19,6 +19,7 @@ using Lifestream.Systems.Legacy;
 using Lifestream.Tasks.CrossDC;
 using Lumina.Excel.GeneratedSheets;
 using OtterGui;
+using SharpDX;
 using System.Text.RegularExpressions;
 using Action = System.Action;
 using CharaData = (string Name, ushort World);
@@ -34,31 +35,96 @@ internal static unsafe class Utils
     static string WorldFilter = "";
     static bool WorldFilterActive = false;
 
-    public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry)
+    public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry, bool retry = false)
     {
         entry = null;
-				var regex = @"([a-z]+)[\s,]+([a-z]+)[\s,]+w[\s\.]?([0-9]{1,2})[\s,]+p[\s\.]?([0-9]{1,2})";
-        var result = Regex.Match(s, regex);
-        if (result.Success)
+				{
+						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(P|plot)%shortDelimiter%numeric");
+						PluginLog.Debug($"Testing vs: {regex}");
+						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+						if (result.Success)
+						{
+								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, false, false);
+								if(entry != null) return true;
+						}
+				}
+				{
+						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)%delimiter(A|apartment)%shortDelimiter%numeric");
+						PluginLog.Debug($"Testing vs: {regex}");
+						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+						if (result.Success)
+						{
+								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[7].Value, true, true);
+								if (entry != null) return true;
+						}
+				}
+				{
+						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)");
+            PluginLog.Debug($"Testing vs: {regex}");
+						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+						if (result.Success)
+						{
+								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, true);
+								if (entry != null) return true;
+						}
+				}
+				{
+						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric");
+						PluginLog.Debug($"Testing vs: {regex}");
+						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+						if (result.Success)
+						{
+								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, false);
+								if (entry != null) return true;
+						}
+				}
+        if (!retry)
         {
-            var world = ExcelWorldHelper.Get(result.Groups[1].Value, true);
-            if (world == null) return false;
-            var city = ParseResidentialAetheryteKind(result.Groups[2].Value);
-            if (city == null) return false;
-            if (int.TryParse(result.Groups[3].Value, out var ward) && int.TryParse(result.Groups[3].Value, out var plot))
+            if(TryParseAddressBookEntry(Player.CurrentWorld + ", " + s, out entry, true))
             {
-                entry = new AddressBookEntry()
-                {
-                    City = city.Value,
-                    World = (int)world.RowId,
-                    PropertyType = PropertyType.House,
-                    Ward = ward,
-                    Plot = plot,
-                };
-                return true;
+                return entry != null;
             }
         }
-        return false;
+				return entry != null;
+		}
+
+    public static string ReplaceAddressBookRegex(string str)
+		{
+				var cities = "goblet|the goblet|lavender beds|the lavender beds|lb|empy|empyreum|shiro|shirogane|mist";
+				var worlds = ExcelWorldHelper.GetPublicWorlds().Select(x => x.Name.ToString()).Join("|");
+				return str.Replace("%worlds", worlds)
+						.Replace("%delimiter", @"[\s\.\,\-\(\)\t]{1,10}")
+						.Replace("%optDelimiter", @"[\s\.\,\-\(\)\t]{0,10}")
+						.Replace("%city", cities)
+						.Replace("%shortDelimiter", @"[\s\.\-\t]{0,3}")
+						.Replace("%numeric", "([0-9]{1,2})");
+		}
+
+    public static AddressBookEntry BuildAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision)
+    {
+				var world = ExcelWorldHelper.Get(worldStr, true);
+				if (world == null) return null;
+				var city = ParseResidentialAetheryteKind(cityStr);
+				if (city == null) return null;
+				if (int.TryParse(wardNum, out var ward) && int.TryParse(plotApartmentNum, out var plot))
+				{
+						var entry = new AddressBookEntry()
+						{
+								City = city.Value,
+								World = (int)world.RowId,
+								PropertyType = isApartment?PropertyType.Apartment:PropertyType.House,
+								Ward = ward,
+								Apartment = plot,
+								Plot = plot,
+								ApartmentSubdivision = isSubdivision,
+						};
+						return entry;
+				}
+        return null;
 		}
 
     public static ResidentialAetheryteKind? ParseResidentialAetheryteKind(string s)
@@ -123,7 +189,7 @@ internal static unsafe class Utils
             Notify.Error($"Can not travel while character is not available");
             return;
         }
-        if (Player.Object?.CurrentWorld.GameData.DataCenter.Row != ExcelWorldHelper.Get((uint)entry.World).DataCenter.Row && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        if (!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
         {
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;

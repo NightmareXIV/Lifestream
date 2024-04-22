@@ -139,7 +139,14 @@ public static unsafe class TabAddressBook
 								}
 								catch (Exception e)
 								{
-										Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+										if (Utils.TryParseAddressBookEntry(Paste(), out var entry))
+										{
+												book.Entries.Add(entry);
+										}
+										else
+										{
+												Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+										}
 								}
 						}
 						ImGui.SameLine();
