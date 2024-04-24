@@ -1,4 +1,5 @@
-﻿using Lifestream.IPC;
+﻿using ECommons.GameHelpers;
+using Lifestream.IPC;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -29,10 +30,12 @@ public class FollowPath : IDisposable
         _movement.Dispose();
     }
 
-    public unsafe void Update()
+    public void UpdateTimeout(int seconds) => TimeoutAt = Environment.TickCount64 + seconds * 1000;
+
+
+		public unsafe void Update()
     {
-        var player = Svc.ClientState.LocalPlayer;
-        if (player == null)
+        if (!Player.Available)
             return;
 
         while (waypointsInternal.Count > 0)
@@ -51,7 +54,7 @@ public class FollowPath : IDisposable
                 DuoLog.Error($"Lifestream movement has timed out.");
                 break;
             }
-            var toNext = waypointsInternal[0] - player.Position;
+            var toNext = waypointsInternal[0] - Player.Object.Position;
             if (IgnoreDeltaY)
                 toNext.Y = 0;
             if (toNext.LengthSquared() > Tolerance * Tolerance)
@@ -64,7 +67,7 @@ public class FollowPath : IDisposable
         {
             _movement.Enabled = _camera.Enabled = false;
             _camera.SpeedH = _camera.SpeedV = default;
-            _movement.DesiredPosition = player.Position;
+            _movement.DesiredPosition = Player.Object.Position;
             MaxWaypoints = 0;
         }
         else
@@ -74,7 +77,7 @@ public class FollowPath : IDisposable
             _movement.DesiredPosition = waypointsInternal[0];
             _camera.Enabled = AlignCamera;
             _camera.SpeedH = _camera.SpeedV = 360.Degrees();
-            _camera.DesiredAzimuth = Angle.FromDirectionXZ(_movement.DesiredPosition - player.Position) + 180.Degrees();
+            _camera.DesiredAzimuth = Angle.FromDirectionXZ(_movement.DesiredPosition - Player.Object.Position) + 180.Degrees();
             _camera.DesiredAltitude = -30.Degrees();
         }
     }
@@ -86,7 +89,7 @@ public class FollowPath : IDisposable
     public void Move(List<Vector3> waypoints, bool ignoreDeltaY)
     {
         TimeoutAt = 0;
-				waypointsInternal = waypoints;
+				waypointsInternal = [.. waypoints];
         IgnoreDeltaY = ignoreDeltaY;
     }
 }

@@ -33,7 +33,8 @@ internal static unsafe class UIDebug
             ("Data editor", Editor, null, true),
             ("Housing data", Housing, null, true),
             ("AtkReader", Reader, null, true),
-            ("Debug", Debug, null, true)
+            ("Debug", Debug, null, true),
+            ("Multipath", TabMultipath.Draw, null, true)
             );
     }
 

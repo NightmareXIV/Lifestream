@@ -268,7 +268,7 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             if(type == DCVType.HomeToGuest)
             {
-                if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value);
+                if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value, false);
                 TaskWaitUntilInHomeWorld.Enqueue();
                 TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                 TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
@@ -289,7 +289,7 @@ public unsafe class Lifestream : IDalamudPlugin
                     TaskManager.EnqueueMulti([
                         new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
                         new DelayTask(1000),
-                        new(() => TaskTPAndChangeWorld.Enqueue(w, gateway.Value)),
+                        new(() => TaskTPAndChangeWorld.Enqueue(w, gateway.Value, true), $"TpAndChangeWorld {w} at {gateway.Value}"),
                         ]);
                 }
                 else
@@ -320,7 +320,7 @@ public unsafe class Lifestream : IDalamudPlugin
         else
         {
             TaskRemoveAfkStatus.Enqueue();
-            TaskTPAndChangeWorld.Enqueue(w, gateway.Value);
+            TaskTPAndChangeWorld.Enqueue(w, gateway.Value, false);
             if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
             EnqueueSecondary();
         }

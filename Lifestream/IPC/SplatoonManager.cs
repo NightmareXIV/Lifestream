@@ -28,7 +28,7 @@ public class SplatoonManager
         }
     }
 
-    public void RenderPath(IReadOnlyList<Vector3> path)
+    public void RenderPath(IReadOnlyList<Vector3> path, bool addPlayer = true)
     {
         Vector3? prev = null;
         if (path != null && path.Count > 0)
@@ -41,9 +41,12 @@ public class SplatoonManager
                 line.SetRefCoord(path[i]);
                 line.SetOffCoord(prev ?? Player.Object.Position);
                 line.color = (prev != null ? ImGuiColors.DalamudYellow : ImGuiColors.HealerGreen).ToUint();
+                if (prev != null || addPlayer)
+                {
+                    Splatoon.DisplayOnce(point);
+                    Splatoon.DisplayOnce(line);
+                }
                 prev = path[i];
-                Splatoon.DisplayOnce(point);
-                Splatoon.DisplayOnce(line);
             }
         }
     }
