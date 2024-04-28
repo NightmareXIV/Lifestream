@@ -1,6 +1,7 @@
 ﻿using ECommons.Configuration;
 using ECommons.ExcelServices;
 using Lifestream.Data;
+using NightmareUI.ImGuiElements;
 using OtterGui;
 using System;
 using System.Collections.Generic;
@@ -59,11 +60,7 @@ public static class InputWardDetailDialog
 										ImGuiEx.TextV($"World:");
 										ImGui.TableNextColumn();
 										ImGuiEx.SetNextItemFullWidth();
-										if(ImGui.BeginCombo($"##world", ExcelWorldHelper.GetName(Entry.World), ImGuiComboFlags.HeightLarge))
-										{
-												Utils.DrawWorldSelector(ref Entry.World);
-												ImGui.EndCombo();
-										}
+										WorldSelector.Instance.Draw(ref Entry.World);
 
 										ImGui.TableNextColumn();
 										ImGuiEx.TextV($"Residential District:");
