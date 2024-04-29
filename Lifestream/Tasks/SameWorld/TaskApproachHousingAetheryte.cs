@@ -22,7 +22,6 @@ public static class TaskApproachHousingAetheryte
     {
         P.TaskManager.EnqueueMulti(
             P.Config.WaitForScreenReady?new(Utils.WaitForScreen):null,
-            new(FaceIMP),
             new(MoveIMP),
             new(WaitUntilArrivesAtIMP),
             new(TargetNearestShard),
@@ -33,36 +32,11 @@ public static class TaskApproachHousingAetheryte
             );
     }
 
-    /*public static void MoveToIMP()
-    {
-        P.FollowPath.Stop();
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
-        {
-            P.FollowPath.Waypoints.Add(EmpyreumIMP.Pos);
-        }
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.The_Lavender_Beds)
-        {
-            P.FollowPath.Waypoints.Add(LavenderIMP.Pos);
-        }
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.Shirogane)
-        {
-            P.FollowPath.Waypoints.Add(ShiroIMP.Pos);
-        }
-    }*/
-
-    public unsafe static void FaceIMP()
-    {
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
-        {
-            P.Memory.FaceTarget(EmpyreumIMP.Pos);
-        }
-    }
-
     public static void MoveIMP()
     {
         if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Empyreum, ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
         {
-            WorldChange.EnableAutomove();
+            P.FollowPath.Move([EmpyreumIMP.Pos], true);
         }
     }
 
@@ -70,7 +44,7 @@ public static class TaskApproachHousingAetheryte
     {
         if (Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
         {
-            return Svc.Objects.Any(x => Utils.AethernetShards.Contains(x.DataId) && Vector3.Distance(Player.Object.Position, x.Position) < EmpyreumIMP.Distance);
+            return !P.FollowPath.Waypoints.Any();
         }
         if (Svc.ClientState.TerritoryType == ResidentalAreas.The_Lavender_Beds)
         {

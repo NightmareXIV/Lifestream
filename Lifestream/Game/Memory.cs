@@ -27,26 +27,6 @@ internal unsafe class Memory : IDisposable
     [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour))]
     internal Hook<AtkComponentTreeList_vf31> AtkComponentTreeList_vf31Hook;
 
-    private delegate void ActionManager_FaceTargetDelegate(ActionManager* actionManager, Vector3* position, ulong a3);
-    private ActionManager_FaceTargetDelegate ActionManager_FaceTarget = EzDelegate.Get<ActionManager_FaceTargetDelegate>("E8 ?? ?? ?? ?? 81 FE ?? ?? ?? ?? 74 2E");
-
-		public void FaceTarget(Vector3 position)
-		{
-        if (Svc.GameConfig.UiControl.TryGetUInt("AutoFaceTargetOnAction", out var value))
-        {
-            if (value == 0)
-            {
-                Svc.GameConfig.UiControl.Set("AutoFaceTargetOnAction", 1);
-                ActionManager_FaceTarget(ActionManager.Instance(), &position, 0xE0000000);
-                Svc.GameConfig.UiControl.Set("AutoFaceTargetOnAction", 0);
-            }
-            else
-            {
-								ActionManager_FaceTarget(ActionManager.Instance(), &position, 0xE0000000);
-						}
-				}
-		}
-
 		void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
     {
         PluginLog.Debug($"AtkComponentTreeList_vf31Detour: {a1:X16}, {a2}, {a3}");
