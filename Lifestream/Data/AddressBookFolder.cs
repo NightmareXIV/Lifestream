@@ -1,6 +1,7 @@
 ﻿using ECommons.GameHelpers;
 using Newtonsoft.Json;
 using NightmareUI.OtterGuiWrapper.FileSystems;
+using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

@@ -9,6 +9,7 @@ using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;
 using NightmareUI.OtterGuiWrapper.FileSystems;
+using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using OtterGui.Filesystem;
 using System.Collections.Frozen;
 using System.Windows.Forms;

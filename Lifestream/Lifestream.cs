@@ -26,6 +26,7 @@ using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.GeneratedSheets;
 using NightmareUI.OtterGuiWrapper.FileSystems;
+using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using NotificationMasterAPI;
 
 namespace Lifestream;
