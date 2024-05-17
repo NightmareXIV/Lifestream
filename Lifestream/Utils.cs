@@ -18,6 +18,7 @@ using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks.CrossDC;
 using Lumina.Excel.GeneratedSheets;
+using NightmareUI;
 using OtterGui;
 using SharpDX;
 using System.Text.RegularExpressions;
@@ -287,23 +288,8 @@ internal static unsafe class Utils
 
     public static bool RenderIcon(this ResidentialAetheryteKind residentialAetheryte, float? size = null)
     {
-        var id = residentialAetheryte switch
-        {
-            ResidentialAetheryteKind.Limsa => (new Vector2(0.3651f, 0.0000f), new Vector2(0.4444f, 0.1408f)),
-            ResidentialAetheryteKind.Gridania => (new Vector2(0.4444f, 0.0000f), new Vector2(0.5238f, 0.1408f)),
-            ResidentialAetheryteKind.Uldah => (new Vector2(0.3651f, 0.1408f), new Vector2(0.4444f, 0.2817f)),
-            ResidentialAetheryteKind.Foundation => (new Vector2(0.5238f, 0.0000f), new Vector2(0.6032f, 0.1408f)),
-            ResidentialAetheryteKind.Kugane => (new Vector2(0.7619f, 0.0000f), new Vector2(0.8413f, 0.1408f)),
-            _ => (new Vector2(0.5238f, 0.1408f), new Vector2(0.6032f, 0.2817f))
-        };
-        if(ThreadLoadImageHandler.TryGetTextureWrap("ui/uld/Teleport_hr1.tex", out var tex))
-        {
-            size ??= ImGuiHelpers.GetButtonSize("A").Y;
-            ImGui.Image(tex.ImGuiHandle, new(size.Value), id.Item1, id.Item2);
-            return true;
-        }
-        return false;
-    }
+        return NuiTools.RenderResidentialIcon(residentialAetheryte.GetResidentialTerritory(), size);
+		}
 
     internal static void TryNotify(string s)
     {

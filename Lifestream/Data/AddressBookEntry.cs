@@ -1,4 +1,6 @@
-﻿using ECommons.ExcelServices;
+﻿global using AddressBookEntryTuple = (string Name, int World, int City, int Ward, int PropertyType, int Plot, int Apartment, bool ApartmentSubdivision, bool AliasEnabled, string Alias);
+using ECommons.ExcelServices;
+using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
 using Newtonsoft.Json;
@@ -26,6 +28,28 @@ public class AddressBookEntry
     public bool ApartmentSubdivision = false;
     [DefaultValue(false)] public bool AliasEnabled = false;
 		[DefaultValue("")] public string Alias = "";
+
+    public AddressBookEntryTuple AsTuple()
+    {
+        return (Name, World, (int)City, Ward, (int)PropertyType, Plot, Apartment, ApartmentSubdivision,  AliasEnabled, Alias);
+    }
+
+    public static AddressBookEntry FromTuple(AddressBookEntryTuple tuple)
+    {
+        return new()
+        {
+            Name = tuple.Name,
+            World = tuple.World,
+            City = (ResidentialAetheryteKind)tuple.City,
+            Alias = tuple.Alias,
+            AliasEnabled = tuple.AliasEnabled,
+            Apartment = tuple.Apartment,
+            ApartmentSubdivision = tuple.ApartmentSubdivision,
+            Plot = tuple.Plot,
+            PropertyType = (PropertyType)tuple.PropertyType,
+            Ward = tuple.Ward,
+        };
+    }
 
 		public bool ShouldSerializeApartment() => PropertyType == PropertyType.Apartment;
 		public bool ShouldSerializeApartmentSubdivision() => PropertyType == PropertyType.Apartment;

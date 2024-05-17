@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Utility;
+using ECommons.Automation;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
@@ -34,9 +35,13 @@ public static class TaskApproachHousingAetheryte
 
     public static void MoveIMP()
     {
-        if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Empyreum, ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
+        if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Empyreum))
         {
             P.FollowPath.Move([EmpyreumIMP.Pos], true);
+        }
+        else if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
+        {
+            Chat.Instance.ExecuteCommand("/automove on");
         }
     }
 

@@ -48,6 +48,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     public ResidentialAethernet ResidentialAethernet;
     internal FollowPath followPath = null;
+    public Provider IPCProvider;
     public FollowPath FollowPath
     {
         get
@@ -91,6 +92,7 @@ public unsafe class Lifestream : IDalamudPlugin
 						AddressBookFileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
 						AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
 						AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
+            IPCProvider = new();
 				});
     }
 
@@ -140,7 +142,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
     }
 
-    private void ProcessCommand(string command, string arguments)
+    internal void ProcessCommand(string command, string arguments)
     {
         if (arguments == "stop")
         {
@@ -192,149 +194,156 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void TPAndChangeWorld(string w, bool isDcTransfer = false, string secondaryTeleport = null, bool noSecondaryTeleport = false, WorldChangeAetheryte? gateway = null, bool? doNotify = null, bool? returnToGateway = null)
     {
-        returnToGateway ??= P.Config.DCReturnToGateway;
-        gateway ??= P.Config.WorldChangeAetheryte;
-        doNotify ??= true;
-        if (secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
+        try
         {
-            secondaryTeleport = P.Config.WorldVisitTPTarget;
-        }
-        if(isDcTransfer && !P.Config.AllowDcTransfer)
-        {
-            Notify.Error($"Data center transfers are not enabled in the configuration.");
-            return;
-        }
-        if (TaskManager.IsBusy)
-        {
-            Notify.Error("Another task is in progress");
-            return;
-        }
-        if (!Player.Available)
-        {
-            Notify.Error("No player");
-            return;
-        }
-        if(w == Player.CurrentWorld)
-        {
-            Notify.Error("Already in this world");
-            return;
-        }
-        /*if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
-        {
-            Notify.Error("You are unable to teleport at this time");
-            return;
-        }*/
-        if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
-        {
-            Notify.Warning("You must disband party in order to switch worlds");
-        }
-        if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
-        {
-            Notify.Warning("Teleporter plugin is not installed");
-        }
-        Notify.Info($"Destination: {w}");
-        if (isDcTransfer)
-        {
-            var type = DCVType.Unknown;
-            var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
-            var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
-            var targetDC = Utils.GetDataCenter(w);
-            if(currentDC == homeDC)
+            returnToGateway ??= P.Config.DCReturnToGateway;
+            gateway ??= P.Config.WorldChangeAetheryte;
+            doNotify ??= true;
+            if (secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
             {
-                type = DCVType.HomeToGuest;
+                secondaryTeleport = P.Config.WorldVisitTPTarget;
             }
-            else
+            if (isDcTransfer && !P.Config.AllowDcTransfer)
             {
-                if(targetDC == homeDC)
+                Notify.Error($"Data center transfers are not enabled in the configuration.");
+                return;
+            }
+            if (TaskManager.IsBusy)
+            {
+                Notify.Error("Another task is in progress");
+                return;
+            }
+            if (!Player.Available)
+            {
+                Notify.Error("No player");
+                return;
+            }
+            if (w == Player.CurrentWorld)
+            {
+                Notify.Error("Already in this world");
+                return;
+            }
+            /*if(ActionManager.Instance()->GetActionStatus(ActionType.Spell, 5) != 0)
+            {
+                Notify.Error("You are unable to teleport at this time");
+                return;
+            }*/
+            if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
+            {
+                Notify.Warning("You must disband party in order to switch worlds");
+            }
+            if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
+            {
+                Notify.Warning("Teleporter plugin is not installed");
+            }
+            Notify.Info($"Destination: {w}");
+            if (isDcTransfer)
+            {
+                var type = DCVType.Unknown;
+                var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
+                var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
+                var targetDC = Utils.GetDataCenter(w);
+                if (currentDC == homeDC)
                 {
-                    type = DCVType.GuestToHome;
+                    type = DCVType.HomeToGuest;
                 }
                 else
                 {
-                    type = DCVType.GuestToGuest;
+                    if (targetDC == homeDC)
+                    {
+                        type = DCVType.GuestToHome;
+                    }
+                    else
+                    {
+                        type = DCVType.GuestToGuest;
+                    }
                 }
-            }
-            TaskRemoveAfkStatus.Enqueue();
-            if(type != DCVType.Unknown)
-            {
-                if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                TaskRemoveAfkStatus.Enqueue();
+                if (type != DCVType.Unknown)
                 {
-                    TaskTpToAethernetDestination.Enqueue(gateway.Value);
+                    if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->IsInSanctuary() || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                    {
+                        TaskTpToAethernetDestination.Enqueue(gateway.Value);
+                    }
+                    if (Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                    {
+                        TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
+                    }
                 }
-                if(Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                if (type == DCVType.HomeToGuest)
                 {
-                    TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
-                }
-            }
-            if(type == DCVType.HomeToGuest)
-            {
-                if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value, false);
-                TaskWaitUntilInHomeWorld.Enqueue();
-                TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
-                TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                TaskWaitUntilInWorld.Enqueue(w);
+                    if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value, false);
+                    TaskWaitUntilInHomeWorld.Enqueue();
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
+                    TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskWaitUntilInWorld.Enqueue(w);
 
-                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
-                if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
-                EnqueueSecondary();
-            }
-            else if(type == DCVType.GuestToHome)
-            {
-                TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                if (Player.HomeWorld != w)
+                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
+                }
+                else if (type == DCVType.GuestToHome)
                 {
-                    TaskManager.EnqueueMulti([
-                        new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
+                    TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    if (Player.HomeWorld != w)
+                    {
+                        TaskManager.EnqueueMulti([
+                            new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
                         new DelayTask(1000),
                         new(() => TaskTPAndChangeWorld.Enqueue(w, gateway.Value, true), $"TpAndChangeWorld {w} at {gateway.Value}"),
                         ]);
+                    }
+                    else
+                    {
+                        TaskWaitUntilInWorld.Enqueue(w);
+                    }
+                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
+                }
+                else if (type == DCVType.GuestToGuest)
+                {
+                    TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
+                    TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
+                    TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
+                    TaskWaitUntilInWorld.Enqueue(w);
+                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    EnqueueSecondary();
                 }
                 else
                 {
-                    TaskWaitUntilInWorld.Enqueue(w);
+                    DuoLog.Error($"Error - unknown data center visit type");
                 }
-                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
-                if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
-                EnqueueSecondary();
-            }
-            else if(type == DCVType.GuestToGuest)
-            {
-                TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
-                TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                TaskWaitUntilInWorld.Enqueue(w);
-                if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
-                TaskDesktopNotification.Enqueue($"Arrived to {w}");
-                EnqueueSecondary();
+                Notify.Info($"Data center visit: {type}");
             }
             else
             {
-                DuoLog.Error($"Error - unknown data center visit type");
+                TaskRemoveAfkStatus.Enqueue();
+                TaskTPAndChangeWorld.Enqueue(w, gateway.Value, false);
+                if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                EnqueueSecondary();
             }
-            Notify.Info($"Data center visit: {type}");
-        }
-        else
-        {
-            TaskRemoveAfkStatus.Enqueue();
-            TaskTPAndChangeWorld.Enqueue(w, gateway.Value, false);
-            if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
-            EnqueueSecondary();
-        }
 
-        void EnqueueSecondary()
-        {
-            if (noSecondaryTeleport) return;
-            if (!secondaryTeleport.IsNullOrEmpty())
+            void EnqueueSecondary()
             {
-                TaskManager.EnqueueMulti([
-                    new(() => Player.Interactable),
+                if (noSecondaryTeleport) return;
+                if (!secondaryTeleport.IsNullOrEmpty())
+                {
+                    TaskManager.EnqueueMulti([
+                        new(() => Player.Interactable),
                     new(() => TaskTryTpToAethernetDestination.Enqueue(secondaryTeleport))
-                    ]);
+                        ]);
+                }
             }
+        }
+        catch(Exception e)
+        {
+            e.Log();
         }
     }
 
