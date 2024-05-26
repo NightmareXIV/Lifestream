@@ -1,6 +1,7 @@
 ﻿using ECommons.EzIpcManager;
 using Lifestream.Data;
 using Lifestream.Enums;
+using Lifestream.Tasks.SameWorld;
 
 namespace Lifestream.IPC;
 public class Provider
@@ -47,6 +48,13 @@ public class Provider
 		}
 
 		[EzIPC]
+		public void Abort()
+		{
+				P.TaskManager.Abort();
+				P.followPath?.Stop();
+		}
+
+		[EzIPC]
 		public bool CanVisitSameDC(string world)
 		{
 				return P.DataStore.Worlds.Contains(world);
@@ -69,4 +77,29 @@ public class Provider
 		{
 				return (int)Utils.GetWorldChangeAetheryteByTerritoryType(territoryType);
 		}
+
+		[EzIPC]
+		public bool ChangeWorld(string world)
+		{
+        if (IsBusy()) return false;
+        if (CanVisitCrossDC(world))
+				{
+						P.TPAndChangeWorld(world, true);
+						return true;
+				}
+				else if (CanVisitSameDC(world))
+				{
+            P.TPAndChangeWorld(world, false);
+						return true;
+        }
+				return false;
+		}
+
+		[EzIPC]
+		public bool AethernetTeleport(string destination)
+		{
+				if (IsBusy()) return false;
+				TaskTryTpToAethernetDestination.Enqueue(destination);
+				return true;
+    }
 }

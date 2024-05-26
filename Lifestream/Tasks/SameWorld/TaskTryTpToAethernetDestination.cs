@@ -12,6 +12,17 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(Process);
         }
+        else if (P.ResidentialAethernet.ActiveAetheryte != null)
+        {
+            foreach(var x in P.ResidentialAethernet.ZoneInfo[P.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes)
+            {
+                if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
+                {
+                    TaskAethernetTeleport.Enqueue(x.Name);
+                    break;
+                }
+            }
+        }
         else
         {
             P.TaskManager.Enqueue(() =>
