@@ -77,7 +77,7 @@ internal class Overlay : Window
         {
             if (P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
-            if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType)) actions.Add(DrawHousingWards);
+            if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
         }
         ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
 

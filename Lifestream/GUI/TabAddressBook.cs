@@ -44,6 +44,7 @@ public static unsafe class TabAddressBook
 
     public static void Draw()
     {
+				ImGuiEx.Text(ImGuiColors.DalamudOrange, "Beta feature, please report issues.");
 				InputWardDetailDialog.Draw();
 				var selector = P.AddressBookFileSystem.Selector;
 				selector.Draw(150f);
