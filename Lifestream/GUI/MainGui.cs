@@ -1,4 +1,5 @@
-﻿using ECommons.Reflection;
+﻿using ECommons.Funding;
+using ECommons.Reflection;
 
 namespace Lifestream.GUI;
 
@@ -27,8 +28,8 @@ internal unsafe static class MainGui
                 ImGui.EndTable();
             }
         }
-        KoFiButton.DrawRight();
-        ImGuiEx.EzTabBar("LifestreamTabs",
+        PatreonBanner.DrawRight();
+        ImGuiEx.EzTabBar("LifestreamTabs", PatreonBanner.Text,
             ("Address Book", TabAddressBook.Draw, null, true),
             ("Settings", UISettings.Draw, null, true),
             ("Service accounts", UIServiceAccount.Draw, null, true),

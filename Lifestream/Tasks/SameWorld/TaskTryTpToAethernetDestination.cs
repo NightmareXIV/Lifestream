@@ -53,8 +53,10 @@ internal static class TaskTryTpToAethernetDestination
                     var name = master.Name;
                     if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
+                        P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
                         TaskAethernetTeleport.Enqueue(master);
+                        P.TaskManager.InsertStack();
                         return;
                     }
                 }
@@ -67,8 +69,10 @@ internal static class TaskTryTpToAethernetDestination
                     var name = x.Name;
                     if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
+                        P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
                         TaskAethernetTeleport.Enqueue(x);
+                        P.TaskManager.InsertStack();
                         return;
                     }
                 }
@@ -79,8 +83,10 @@ internal static class TaskTryTpToAethernetDestination
                 var name = "Firmament";
                 if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                 {
+                    P.TaskManager.BeginStack();
                     TaskRemoveAfkStatus.Enqueue();
                     TaskFirmanentTeleport.Enqueue();
+                    P.TaskManager.InsertStack();
                     return;
                 }
             }

@@ -40,6 +40,7 @@ internal unsafe static class WorldChange
     internal static bool? InteractWithTargetedAetheryte()
     {
         if (!Player.Available) return false;
+        if (Player.IsAnimationLocked) return false;
         if (IsOccupied()) return false;
         var a = Utils.GetValidAetheryte();
         if (a != null && Svc.Targets.Target?.Address == a.Address)
@@ -183,12 +184,12 @@ internal unsafe static class WorldChange
         return false;
     }
 
-    internal static bool? ExecuteTPToAethernetDestination(uint destination)
+    internal static bool? ExecuteTPToAethernetDestination(uint destination, uint subIndex = 0)
     {
         if (!Player.Available) return false;
         if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
-            return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, 0);
+            return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, (byte)subIndex);
         }
         return false;
     }

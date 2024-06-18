@@ -1,10 +1,12 @@
 ﻿using ClickLib.Clicks;
 using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons;
 using ECommons.Automation;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -14,11 +16,13 @@ using Lifestream.Schedulers;
 using Lifestream.Systems;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
+using Lumina.Excel.GeneratedSheets;
 using System.Linq;
+using Action = Lumina.Excel.GeneratedSheets.Action;
 using ResidentialAetheryteKind = Lifestream.Enums.ResidentialAetheryteKind;
 
 namespace Lifestream.Tasks.CrossDC;
-public static class TaskTpAndGoToWard
+public unsafe static class TaskTpAndGoToWard
 {
     /// <summary>
     /// 
@@ -68,14 +72,7 @@ public static class TaskTpAndGoToWard
 						{
 								TaskApproachHousingAetheryte.Enqueue();
 								TaskAethernetTeleport.Enqueue(aetheryte.Name);
-								P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-								P.TaskManager.Enqueue(Utils.WaitForScreen);
-								P.TaskManager.Enqueue(TargetApartmentEntrance);
-								P.TaskManager.Enqueue(WorldChange.LockOn);
-								P.TaskManager.Enqueue(WorldChange.EnableAutomove);
-								P.TaskManager.Enqueue(() => Vector3.Distance(Player.Object.Position, Svc.Targets.Target.Position) < 3.5f, "ReachApartment");
-								P.TaskManager.Enqueue(WorldChange.DisableAutomove);
-								P.TaskManager.Enqueue(InteractWithApartmentEntrance);
+                TaskApproachAndInteractWithApartmentEntrance.Enqueue();
 								P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
 								P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
 								if (!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
@@ -114,29 +111,19 @@ public static class TaskTpAndGoToWard
 																P.TaskManager.Enqueue(Utils.WaitForScreen);
 														}
 												}
-												if (!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info, false);
+                        if (!P.Config.AddressNoPathing)
+                        {
+                            TaskMoveToHouse.Enqueue(info, false);
+                        }
 										}
 								}
 						}
 				}
 		}
-
-    public static unsafe bool InteractWithApartmentEntrance()
-    {
-        if(Svc.Targets.Target?.ObjectKind == ObjectKind.EventObj && Svc.Targets.Target?.DataId == 2007402)
-        {
-            if(EzThrottler.Throttle("InteractWithApartment", 5000))
-            {
-                TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
-                return true;
-            }
-        }
-        return false;
-    }
-
+    
     public static unsafe bool SelectGoToSpecifiedApartment()
     {
-        return Utils.TrySelectSpecificEntry(Lang.GoToApartment, () => EzThrottler.Throttle("SelectStringApartment"));
+        return Utils.TrySelectSpecificEntry(Lang.GoToSpecifiedApartment, () => EzThrottler.Throttle("SelectStringApartment"));
     }
 
     /// <summary>
@@ -206,29 +193,7 @@ public static class TaskTpAndGoToWard
         return false;
     }
 
-    public static bool TargetApartmentEntrance()
-    {
-        //2007402	apartment building entrance	0	apartment building entrances	0	1	1	0	0
-        foreach(var x in Svc.Objects.OrderBy(x => Vector3.Distance(x.Position, Player.Object.Position)))
-        {
-            if (x.DataId == 2007402)
-            {
-                if (!x.IsTarget())
-                {
-                    if (EzThrottler.Throttle("TargetApartment"))
-                    {
-                        Svc.Targets.SetTarget(x);
-                    }
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    
 
     public static WorldChangeAetheryte? DetermineGatewayAetheryte(ResidentialAetheryteKind targetZone)
     {

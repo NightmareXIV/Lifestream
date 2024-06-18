@@ -24,10 +24,12 @@ using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
+using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
 using NightmareUI.OtterGuiWrapper.FileSystems;
 using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using NotificationMasterAPI;
+using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream;
 
@@ -76,7 +78,20 @@ public unsafe class Lifestream : IDalamudPlugin
             EzConfigGui.WindowSystem.AddWindow(Overlay);
             EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
             EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
-            EzCmd.Add("/li", ProcessCommand, "automatically switch world to specified (matched by first letters) or return to home world if none specified, or teleport to aethernet destination if near aetheryte. Aethernet destination may be specified next to target world as well.");
+            EzCmd.Add("/li", ProcessCommand, """
+                return to your home world
+                /li <worldname> - go to specified world
+                /li <address> - go to specified plot in current world, where address - plot adddress formatted in "residential district, ward, plot" format (without quotes)
+                /li <worldname> <address> - go to specified plot in specified world
+                /li gc - go to your grand company
+                /li gc <company name> - go to specified grand company
+                /li gcc - go to your grand company's fc chest
+                /li gcc <company name> - go to specified grand company's fc chest
+                /li auto - go to your private estate, free company estate or apartment, whatever is found in this order
+                /li home|house|private - go to your private estate
+                /li fc|free|company|free company - go to your free company estate
+                /li apartment|apt - go to your apartment
+                """);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() => DataStore.BuildWorlds());
             Svc.Framework.Update += Framework_Update;
@@ -150,6 +165,54 @@ public unsafe class Lifestream : IDalamudPlugin
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy?1:0)} tasks");
             TaskManager.Abort();
             followPath?.Stop();
+        }
+        else if (arguments == "auto")
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Auto);
+        }
+        else if (arguments.EqualsIgnoreCaseAny("home", "house", "private"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Home);
+        }
+        else if (arguments.EqualsIgnoreCaseAny("fc", "free", "company", "company", "free company"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC);
+        }
+        else if (arguments.EqualsIgnoreCaseAny("apartment", "apt"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
+        }
+        else if(arguments.EqualsAny("gc", "gcc") || arguments.StartsWithAny("gc ", "gcc "))
+        {
+            var arglist = arguments.Split(" ");
+            var isChest = arguments.StartsWith("gcc");
+            if (arglist.Length == 1)
+            {
+                TaskGCShortcut.Enqueue(null, isChest);
+            }
+            else
+            {
+                if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.TwinAdder.ToString(), "Twin Adder", "Twin", "Adder", "TA", "A", "serpent"))
+                {
+                    TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest);
+                }
+                else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.Maelstrom.ToString(), "Mael", "S", "M", "storm", "strom"))
+                {
+                    TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest);
+                }
+                else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.ImmortalFlames.ToString(), "Immortal Flames", "Immortal", "Flames", "IF", "F", "flame"))
+                {
+                    TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest);
+                }
+                else if (Enum.TryParse<GrandCompany>(arglist[1], out var result))
+                {
+                    TaskGCShortcut.Enqueue(result, isChest);
+                }
+                else
+                {
+                    DuoLog.Error($"Could not parse input: {arglist[1]}");
+                }
+            }
         }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {

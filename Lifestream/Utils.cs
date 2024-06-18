@@ -33,12 +33,6 @@ internal static unsafe class Utils
 
     public static uint[] HousingAethernet = [MainCities.Limsa_Lominsa_Lower_Decks, MainCities.Uldah_Steps_of_Nald, MainCities.New_Gridania, MainCities.Foundation, MainCities.Kugane];
 
-    public static bool IsPublic(this World w)
-    {
-        if (w.IsPublic) return true;
-        return w.RowId.EqualsAny<uint>(408, 409, 410, 411, 415);
-    }
-
     public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry, bool retry = false)
     {
         entry = null;

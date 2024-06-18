@@ -6,6 +6,7 @@ using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using Lifestream.Schedulers;
+using Lifestream.Tasks.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ public static class TaskApproachHousingAetheryte
     {
         P.TaskManager.EnqueueMulti(
             P.Config.WaitForScreenReady?new(Utils.WaitForScreen):null,
+            new(TaskMoveToHouse.UseSprint),
             new(MoveIMP),
             new(WaitUntilArrivesAtIMP),
             new(TargetNearestShard),

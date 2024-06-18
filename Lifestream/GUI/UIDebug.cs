@@ -17,6 +17,8 @@ using Path = System.IO.Path;
 using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using Lifestream.Tasks.Utility;
 using Lifestream.Tasks;
+using ECommons.Reflection;
+using ECommons.EzSharedDataManager;
 
 namespace Lifestream.GUI;
 
@@ -237,6 +239,11 @@ internal static unsafe class UIDebug
 		static string addr = "";
 		static void Debug()
     {
+        if(ImGui.Button("Refresh color"))
+        {
+            DalamudReflector.GetService("Dalamud.Plugin.Ipc.Internal.DataShare").GetFoP<System.Collections.IDictionary>("caches").Remove("ECommonsPatreonBannerRandomColor");
+            ((System.Collections.IDictionary)typeof(EzSharedData).GetFieldPropertyUnion("Cache", ReflectionHelper.AllFlags).GetValue(null)).Remove("ECommonsPatreonBannerRandomColor");
+        }
         if (ImGui.CollapsingHeader("Render"))
         {
             

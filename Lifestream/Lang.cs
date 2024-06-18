@@ -67,6 +67,7 @@ internal static class Lang
     //6355	Vous allez vous rendre à “<Sheet(PlaceName,IntegerParameter(1),0)/>” dans le secteur <Value>IntegerParameter(2)</Value>. Confirmer<Indent/>?
     public static readonly string[] TravelTo = ["Travel to", "よろしいですか？", "Zu Wohnbezirk", "Vous allez vous rendre à"];
 
-    public static readonly string[] GoToApartment = ["Go to specified apartment", "Go to speciz`fied apartment", "部屋番号を指定して移動（ハウスアピール確認）", "Eine bestimmte Wohnung betreten (Zweck der Unterkunft einsehen)"];
+    public static readonly string[] GoToSpecifiedApartment = ["Go to specified apartment", "Go to speciz`fied apartment", "部屋番号を指定して移動（ハウスアピール確認）", "Eine bestimmte Wohnung betreten (Zweck der Unterkunft einsehen)"];
     public static readonly string[] EnterApartmenr = ["Enter", "よろしいですか？", "betreten?", "Aller dans l'appartement"];
+    public static readonly string[] GoToMyApartment = ["Go to your apartment"];
 }

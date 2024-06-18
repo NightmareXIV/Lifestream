@@ -19,6 +19,11 @@
         "resolved": "2.0.18",
         "contentHash": "sR5Aj3JLDbA8JwESfWYfigSz5k1oNSHPN434W1LX8sboWJYEOSQP/KkvZGmJKPgajzSUKkl2jDar3LPZiMFU4Q=="
       },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2023.3.0",
+        "contentHash": "PHfnvdBUdGaTVG9bR/GEfxgTwWM0Z97Y6X3710wiljELBISipSfF5okn/vz+C2gfO+ihoEyVPjaJwn8ZalVukA=="
+      },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
         "resolved": "8.0.0",
@@ -70,6 +75,7 @@
       "ottergui": {
         "type": "Project",
         "dependencies": {
+          "JetBrains.Annotations": "[2023.3.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )"
         }
       }
