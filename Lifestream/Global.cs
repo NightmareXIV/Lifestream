@@ -22,3 +22,4 @@ global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Fram
 global using ECommons.DalamudServices.Legacy;
 global using Dalamud.Interface.Utility;
 global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
+global using S = Lifestream.Services.Service;

@@ -20,6 +20,7 @@ using Lifestream.Tasks.CrossDC;
 using Lumina.Excel.GeneratedSheets;
 using NightmareUI;
 using OtterGui;
+using OtterGui.Filesystem;
 using SharpDX;
 using System.Text.RegularExpressions;
 using Action = System.Action;
@@ -32,6 +33,35 @@ internal static unsafe class Utils
     public static uint[] AethernetShards = [2000151, 2000153, 2000154, 2000155, 2000156, 2000157, 2003395, 2003396, 2003397, 2003398, 2003399, 2003400, 2003401, 2003402, 2003403, 2003404, 2003405, 2003406, 2003407, 2003408, 2003409, 2003995, 2003996, 2003997, 2003998, 2003999, 2004000, 2004968, 2004969, 2004970, 2004971, 2004972, 2004973, 2004974, 2004976, 2004977, 2004978, 2004979, 2004980, 2004981, 2004982, 2004983, 2004984, 2004985, 2004986, 2004987, 2004988, 2004989, 2007434, 2007435, 2007436, 2007437, 2007438, 2007439, 2007855, 2007856, 2007857, 2007858, 2007859, 2007860, 2007861, 2007862, 2007863, 2007864, 2007865, 2007866, 2007867, 2007868, 2007869, 2007870, 2009421, 2009432, 2009433, 2009562, 2009563, 2009564, 2009565, 2009615, 2009616, 2009617, 2009618, 2009713, 2009714, 2009715, 2009981, 2010135, 2011142, 2011162, 2011163, 2011241, 2011243, 2011373, 2011374, 2011384, 2011385, 2011386, 2011387, 2011388, 2011389, 2011573, 2011574, 2011575, 2011677, 2011678, 2011679, 2011680, 2011681, 2011682, 2011683, 2011684, 2011685, 2011686, 2011687, 2011688, 2011689, 2011690, 2011691, 2011692, 2012252, 2012253,];
 
     public static uint[] HousingAethernet = [MainCities.Limsa_Lominsa_Lower_Decks, MainCities.Uldah_Steps_of_Nald, MainCities.New_Gridania, MainCities.Foundation, MainCities.Kugane];
+
+    public static bool IsBusy()
+    {
+        return P.TaskManager.IsBusy || P.followPath?.waypointsInternal.Count > 0;
+    }
+
+    public static bool TryGetWorldFromDataCenter(string s, out string world, out uint dataCenter)
+    {
+        foreach(var x in Svc.Data.GetExcelSheet<WorldDCGroupType>())
+        {
+            if (x.RowId == 0 || x.Name == "") continue;
+            if (x.Name.ExtractText().StartsWith(s, StringComparison.OrdinalIgnoreCase))
+            {
+                var worlds = ExcelWorldHelper.GetPublicWorlds(x.RowId);
+                if(worlds.Length > 0)
+                {
+                    world = worlds[Random.Shared.Next(worlds.Length)].Name;
+                    dataCenter = x.RowId;
+                    if (P.DataStore.Worlds.Contains(world) || P.DataStore.DCWorlds.Contains(world))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        dataCenter = default;
+        world = default;
+        return false;
+    }
 
     public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry, bool retry = false)
     {

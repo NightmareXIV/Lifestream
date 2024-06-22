@@ -9,6 +9,7 @@ using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Reflection;
 using ECommons.SimpleGui;
+using ECommons.Singletons;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Data;
@@ -18,6 +19,7 @@ using Lifestream.GUI;
 using Lifestream.IPC;
 using Lifestream.Movement;
 using Lifestream.Schedulers;
+using Lifestream.Services;
 using Lifestream.Systems;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
@@ -29,6 +31,7 @@ using Lumina.Excel.GeneratedSheets;
 using NightmareUI.OtterGuiWrapper.FileSystems;
 using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using NotificationMasterAPI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream;
@@ -91,6 +94,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li home|house|private - go to your private estate
                 /li fc|free|company|free company - go to your free company estate
                 /li apartment|apt - go to your apartment
+                /li w|world|open|select - open world travel window
                 """);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() => DataStore.BuildWorlds());
@@ -109,6 +113,7 @@ public unsafe class Lifestream : IDalamudPlugin
 						AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
 						AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
             IPCProvider = new();
+            SingletonServiceManager.Initialize(typeof(Service));
 				});
     }
 
@@ -165,6 +170,10 @@ public unsafe class Lifestream : IDalamudPlugin
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy?1:0)} tasks");
             TaskManager.Abort();
             followPath?.Stop();
+        }
+        else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w"))
+        {
+            S.SelectWorldWindow.IsOpen = true;
         }
         else if (arguments == "auto")
         {
@@ -247,6 +256,11 @@ public unsafe class Lifestream : IDalamudPlugin
                 else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
                 {
                     TPAndChangeWorld(dcw, true, secondary);
+                }
+                else if(Utils.TryGetWorldFromDataCenter(primary, out var world, out var dc))
+                {
+                    Notify.Info($"Random world from {Svc.Data.GetExcelSheet<WorldDCGroupType>().GetRow(dc).Name}: {world}");
+                    TPAndChangeWorld(world, Player.Object.CurrentWorld.GameData.DataCenter.Row != dc, secondary);
                 }
                 else
                 {
