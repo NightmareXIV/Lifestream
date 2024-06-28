@@ -58,11 +58,16 @@ public unsafe static class TaskGCShortcut
         [GrandCompany.TwinAdder] = 21070,
     };
 
-    public static void Enqueue(GrandCompany? companyNullable = null, bool isChest = false)
+    public static void Enqueue(GrandCompany? companyNullable = null, bool isChest = false, bool returnHome = false)
     {
         if (P.TaskManager.IsBusy)
         {
             DuoLog.Error($"Lifestream is busy, could not process request");
+            return;
+        }
+        if (!Player.Available)
+        {
+            DuoLog.Error("Player not available");
             return;
         }
         companyNullable ??= Player.GrandCompany;
@@ -71,32 +76,43 @@ public unsafe static class TaskGCShortcut
             DuoLog.Error($"Grand company not specified and player is unemployed");
             return;
         }
+        if (returnHome)
+        {
+            if (!Player.IsInHomeWorld)
+            {
+                P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
+            }
+            P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
+        }
         var company = companyNullable.Value;
         var point = (isChest ? CompanyChestPoints : CompanyNPCPoints)[company];
-        if(Player.Territory == CompanyTerritory[company])
+        P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-            var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
-            P.TaskManager.Enqueue(() =>
+            if (Player.Territory == CompanyTerritory[company])
             {
-                if (!task.IsCompleted) return false;
-                var path = task.Result;
-                if (Utils.CalculatePathDistance([.. path]) > 150f)
+                P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
+                P.TaskManager.Enqueue(() =>
                 {
-                    EnqueueFromStart();
-                }
-                else
-                {
-                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                    P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                }
-                return true;
-            }, "Build path and check");
-        }
-        else
-        {
-            EnqueueFromStart();
-        }
+                    if (!task.IsCompleted) return false;
+                    var path = task.Result;
+                    if (Utils.CalculatePathDistance([.. path]) > 150f)
+                    {
+                        EnqueueFromStart();
+                    }
+                    else
+                    {
+                        P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+                        P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
+                    }
+                    return true;
+                }, "Build path and check");
+            }
+            else
+            {
+                EnqueueFromStart();
+            }
+        });
 
         void EnqueueFromStart()
         {

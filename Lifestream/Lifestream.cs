@@ -84,16 +84,23 @@ public unsafe class Lifestream : IDalamudPlugin
             EzCmd.Add("/li", ProcessCommand, """
                 return to your home world
                 /li <worldname> - go to specified world
+                /li <dataCenterName> - go to random world in specified Data Center
+                /li <aethernetName> - go to specified aethernet destination if you are next to any supported aetheryte
+
                 /li <address> - go to specified plot in current world, where address - plot adddress formatted in "residential district, ward, plot" format (without quotes)
                 /li <worldname> <address> - go to specified plot in specified world
-                /li gc - go to your grand company
-                /li gc <company name> - go to specified grand company
-                /li gcc - go to your grand company's fc chest
-                /li gcc <company name> - go to specified grand company's fc chest
+
+                /li gc|hc - go to your grand company
+                /li gc|hc <company name> - go to specified grand company
+                /li gcc|hcc - go to your grand company's fc chest
+                /li gcc|hcc <company name> - go to specified grand company's fc chest
+                ...where "gc" or "gcc" will move you to grand company in current world while "hc" or "hcc" will return you to home world first
+
                 /li auto - go to your private estate, free company estate or apartment, whatever is found in this order
                 /li home|house|private - go to your private estate
                 /li fc|free|company|free company - go to your free company estate
                 /li apartment|apt - go to your apartment
+
                 /li w|world|open|select - open world travel window
                 """);
             DataStore = new();
@@ -171,7 +178,7 @@ public unsafe class Lifestream : IDalamudPlugin
             TaskManager.Abort();
             followPath?.Stop();
         }
-        else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w"))
+        else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w", "world", "travel"))
         {
             S.SelectWorldWindow.IsOpen = true;
         }
@@ -191,31 +198,32 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
-        else if(arguments.EqualsAny("gc", "gcc") || arguments.StartsWithAny("gc ", "gcc "))
+        else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc "))
         {
             var arglist = arguments.Split(" ");
-            var isChest = arguments.StartsWith("gcc");
+            var isChest = arguments.StartsWithAny("gcc", "hcc");
+            var returnHome = arguments[0] == 'h';
             if (arglist.Length == 1)
             {
-                TaskGCShortcut.Enqueue(null, isChest);
+                TaskGCShortcut.Enqueue(null, isChest, returnHome);
             }
             else
             {
                 if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.TwinAdder.ToString(), "Twin Adder", "Twin", "Adder", "TA", "A", "serpent"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest);
+                    TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest, returnHome);
                 }
                 else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.Maelstrom.ToString(), "Mael", "S", "M", "storm", "strom"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest);
+                    TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest, returnHome);
                 }
                 else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.ImmortalFlames.ToString(), "Immortal Flames", "Immortal", "Flames", "IF", "F", "flame"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest);
+                    TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest, returnHome);
                 }
                 else if (Enum.TryParse<GrandCompany>(arglist[1], out var result))
                 {
-                    TaskGCShortcut.Enqueue(result, isChest);
+                    TaskGCShortcut.Enqueue(result, isChest, returnHome);
                 }
                 else
                 {
