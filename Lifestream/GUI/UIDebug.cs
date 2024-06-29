@@ -14,11 +14,11 @@ using Lifestream.Enums;
 using Lumina.Excel.GeneratedSheets;
 using Lifestream.Data;
 using Path = System.IO.Path;
-using FFXIVClientStructs.FFXIV.Client.Game.Housing;
 using Lifestream.Tasks.Utility;
 using Lifestream.Tasks;
 using ECommons.Reflection;
 using ECommons.EzSharedDataManager;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace Lifestream.GUI;
 

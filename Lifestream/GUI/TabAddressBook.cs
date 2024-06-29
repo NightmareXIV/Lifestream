@@ -4,7 +4,7 @@ using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Client.Game.Housing;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;

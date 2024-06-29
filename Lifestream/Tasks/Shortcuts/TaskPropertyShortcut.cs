@@ -95,7 +95,7 @@ public static class TaskPropertyShortcut
     {
         foreach (var x in Svc.AetheryteList)
         {
-            if (!x.IsAppartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
+            if (!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
             {
                 return x.AetheryteId;
             }
@@ -107,7 +107,7 @@ public static class TaskPropertyShortcut
     {
         foreach (var x in Svc.AetheryteList)
         {
-            if (x.IsAppartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
+            if (x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
             {
                 return (x.AetheryteId, x.SubIndex);
             }
@@ -119,7 +119,7 @@ public static class TaskPropertyShortcut
     {
         foreach (var x in Svc.AetheryteList)
         {
-            if (!x.IsAppartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(56, 57, 58, 96, 164))
+            if (!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(56, 57, 58, 96, 164))
             {
                 return x.AetheryteId;
             }

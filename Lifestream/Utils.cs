@@ -7,7 +7,7 @@ using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
-using FFXIVClientStructs.FFXIV.Client.Game.Housing;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -386,11 +386,11 @@ internal static unsafe class Utils
         var agent = AgentLobby.Instance();
         if (agent->AgentInterface.IsAgentActive())
         {
-            var charaSpan = agent->LobbyData.CharaSelectEntries.Span;
+            var charaSpan = agent->LobbyData.CharaSelectEntries.AsSpan();
             for (int i = 0; i < charaSpan.Length; i++)
             {
                 var s = charaSpan[i];
-                ret.Add(($"{MemoryHelper.ReadStringNullTerminated((nint)s.Value->Name)}", s.Value->HomeWorldId));
+                ret.Add(($"{Encoding.UTF8.GetString(s.Value->Name)}", s.Value->HomeWorldId));
             }
         }
         return ret;
