@@ -1,9 +1,10 @@
-﻿using ClickLib.Clicks;
+﻿
 using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -57,7 +58,7 @@ internal static unsafe class DCChange
             if (DCThrottle)
             {
                 PluginLog.Debug($"[DCChange] Confirming login");
-                ClickSelectYesNo.Using((nint)addon).Yes();
+                new SelectYesnoMaster(addon).Yes();
                 return false;
             }
             else
@@ -97,15 +98,20 @@ internal static unsafe class DCChange
         {
             // Select Character
             var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("_CharaSelectListMenu", 1);
+            PluginLog.Debug($"Select1");
             if (addon == null) return false;
-            if (!AgentLobby.Instance()->AgentInterface.IsAgentActive()) return false;
+            PluginLog.Debug($"Select1-1");
+            //if (!AgentLobby.Instance()->AgentInterface.IsAgentActive()) return false;
+            PluginLog.Debug($"Select2");
             if (AgentLobby.Instance()->TemporaryLocked) return false;
+            PluginLog.Debug($"Select3");
             if (Utils.TryGetCharacterIndex(name, world, out var index))
             {
+                PluginLog.Debug($"Select4/{index}");
                 if (DCThrottle && EzThrottler.Check("CharaSelectListMenuError"))
                 {
                     PluginLog.Debug($"[DCChange] Selecting character index {index}");
-                    Callback.Fire(addon, false, (int)18, (int)0, (int)index);
+                    Callback.Fire(addon, false, (int)29, (int)0, (int)index);
                 }
                 var nextAddon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", 1);
                 return nextAddon != null;
@@ -133,7 +139,7 @@ internal static unsafe class DCChange
         if(Utils.CanAutoLogin() && TryGetAddonByName<AtkUnitBase>("_TitleMenu", out var title) && IsAddonReady(title) && DCThrottle && EzThrottler.Throttle("TitleScreenClickStart"))
         {
             PluginLog.Debug($"[DCChange] Clicking start");
-            Callback.Fire(title, true, (int)1);
+            Callback.Fire(title, true, (int)4);
             DCRethrottle();
             return false;
         }
@@ -156,7 +162,7 @@ internal static unsafe class DCChange
             if (Utils.TryGetCharacterIndex(name, world, out var index) && DCThrottle && EzThrottler.Throttle("OpenContextMenuForChara"))
             {
                 PluginLog.Debug($"[DCChange] Opening context menu index {index}");
-                Callback.Fire(addon, true, (int)18, (int)1, (int)index);
+                Callback.Fire(addon, true, (int)29, (int)1, (int)index);
                 DCRethrottle();
                 return false;
             }
@@ -411,7 +417,7 @@ internal static unsafe class DCChange
             if (text == compareTo)
             {
                 PluginLog.Information($"Selecting service account");
-                ClickSelectString.Using((nint)addon).SelectItem((ushort)account);
+                new SelectStringMaster(addon).Entries[account].Select();
                 return true;
             }
             else

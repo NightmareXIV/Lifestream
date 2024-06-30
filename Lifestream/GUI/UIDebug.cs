@@ -19,6 +19,11 @@ using Lifestream.Tasks;
 using ECommons.Reflection;
 using ECommons.EzSharedDataManager;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using Dalamud.Memory;
+using ECommons.UIHelpers.AddonMasterImplementations;
+using NightmareUI.ImGuiElements;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace Lifestream.GUI;
 
@@ -237,8 +242,46 @@ internal static unsafe class UIDebug
 		static Vector2 uv1;
 		static Vector2 size;
 		static string addr = "";
+    static string CharaName = "";
+    static int WorldSel;
 		static void Debug()
     {
+        if(ImGui.CollapsingHeader("Lobby test"))
+        {
+            ImGui.InputText("Chara name", ref CharaName, 100);
+            WorldSelector.Instance.Draw(ref WorldSel);
+            if (ImGui.Button("Select"))
+            {
+                DCChange.SelectCharacter(CharaName, (uint)WorldSel);
+            }
+            if (ImGui.Button("Context"))
+            {
+                DCChange.OpenContextMenuForChara(CharaName, (uint)WorldSel);
+            }
+            var agent = AgentLobby.Instance();
+            ImGuiEx.Text($"Active: {agent->IsAgentActive()}");
+            for (int i = 0; i < agent->LobbyData.CharaSelectEntries.Count; i++)
+            {
+                var c = agent->LobbyData.CharaSelectEntries[i].Value;
+                ImGuiEx.Text($"Locked: {agent->TemporaryLocked}");
+                ImGuiEx.Text($"{i}: {c->Name.Read()}/{c->HomeWorldName.Read()}");
+            }
+        }
+        if(ImGui.CollapsingHeader("Addon test"))
+        {
+            if(TryGetAddonByName<AddonSelectString>("SelectString", out var addon))
+            {
+                ImGuiEx.Text($"Entries: {addon->PopupMenu.PopupMenu.EntryCount}");
+                foreach (var entry in new SelectStringMaster(addon).Entries)
+                {
+                    ImGuiEx.Text($"{entry.Text}");
+                    if (ImGuiEx.HoveredAndClicked())
+                    {
+                        entry.Select();
+                    }
+                }
+            }
+        }
         if(ImGui.Button("Refresh color"))
         {
             DalamudReflector.GetService("Dalamud.Plugin.Ipc.Internal.DataShare").GetFoP<System.Collections.IDictionary>("caches").Remove("ECommonsPatreonBannerRandomColor");

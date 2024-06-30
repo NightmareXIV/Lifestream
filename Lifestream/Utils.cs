@@ -1,4 +1,4 @@
-﻿using ClickLib.Clicks;
+﻿
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
@@ -7,6 +7,7 @@ using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -384,13 +385,13 @@ internal static unsafe class Utils
             }
         }*/
         var agent = AgentLobby.Instance();
-        if (agent->AgentInterface.IsAgentActive())
+        //if (agent->AgentInterface.IsAgentActive())
         {
             var charaSpan = agent->LobbyData.CharaSelectEntries.AsSpan();
             for (int i = 0; i < charaSpan.Length; i++)
             {
                 var s = charaSpan[i];
-                ret.Add(($"{Encoding.UTF8.GetString(s.Value->Name)}", s.Value->HomeWorldId));
+                ret.Add(($"{s.Value->Name.Read()}", s.Value->HomeWorldId));
             }
         }
         return ret;
@@ -728,7 +729,7 @@ internal static unsafe class Utils
                 var index = GetEntries(addon).IndexOf(entry);
                 if (index >= 0 && IsSelectItemEnabled(addon, index) && Throttle())
                 {
-                    ClickSelectString.Using((nint)addon).SelectItem((ushort)index);
+                    new SelectStringMaster(addon).Entries[index].Select();
                     PluginLog.Debug($"TrySelectSpecificEntry: selecting {entry}/{index} as requested by {text.Print()}");
                     return true;
                 }

@@ -317,10 +317,6 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
-            if (!Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "TeleporterPlugin" && x.IsLoaded))
-            {
-                Notify.Warning("Teleporter plugin is not installed");
-            }
             Notify.Info($"Destination: {w}");
             if (isDcTransfer)
             {

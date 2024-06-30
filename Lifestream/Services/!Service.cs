@@ -9,4 +9,5 @@ namespace Lifestream.Services;
 public static class Service
 {
     public static SelectWorldWindow SelectWorldWindow { get; private set; }
+    public static TeleportService TeleportService { get; private set; }
 }

@@ -7,7 +7,7 @@ internal unsafe static class MainGui
 {
     internal static void Draw()
     {
-        if(!Utils.IsTeleporterInstalled())
+        /*if(!Utils.IsTeleporterInstalled())
         {
             if(ImGui.BeginTable("Notify", 1, ImGuiTableFlags.Borders))
             {
@@ -22,7 +22,7 @@ internal unsafe static class MainGui
                 }
                 ImGui.EndTable();
             }
-        }
+        }*/
         PatreonBanner.DrawRight();
         ImGuiEx.EzTabBar("LifestreamTabs", PatreonBanner.Text,
             ("Address Book", TabAddressBook.Draw, null, true),

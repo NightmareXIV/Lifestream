@@ -35,7 +35,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AutoRetainerAPI\AutoRetainerAPI\AutoRetainerAPI.csproj" />
-      <ProjectReference Include="..\ClickLib\ClickLib\ClickLib.csproj" />
       <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
       <ProjectReference Include="..\NightmareUI.OtterGuiWrapper\NightmareUI.OtterGuiWrapper\NightmareUI.OtterGuiWrapper.csproj" />
       <ProjectReference Include="..\NightmareUI\NightmareUI\NightmareUI.csproj" />

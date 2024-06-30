@@ -1,4 +1,4 @@
-﻿using ClickLib.Clicks;
+﻿
 using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons;
 using ECommons.Automation;
@@ -6,6 +6,7 @@ using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -186,7 +187,7 @@ public unsafe static class TaskTpAndGoToWard
         {
             if(EzThrottler.Throttle($"ConfirmApartmentEnter", 5000))
             {
-                ClickSelectYesNo.Using((nint)addon).Yes();
+                new SelectYesnoMaster(addon).Yes();
                 return true;
             }
         }

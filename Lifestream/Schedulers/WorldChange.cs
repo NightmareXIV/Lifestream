@@ -1,8 +1,9 @@
-﻿using ClickLib.Clicks;
+﻿
 using ECommons.Automation;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -74,7 +75,7 @@ internal unsafe static class WorldChange
         {
             if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
             {
-                ClickSelectYesNo.Using((nint)x).Yes();
+                new SelectYesnoMaster(x).Yes();
                 return true;
             }
         }
@@ -189,7 +190,8 @@ internal unsafe static class WorldChange
         if (!Player.Available) return false;
         if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
-            return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, (byte)subIndex);
+            return S.TeleportService.TeleportToAetheryte(destination, subIndex);
+            //return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, (byte)subIndex);
         }
         return false;
     }
@@ -288,7 +290,7 @@ internal unsafe static class WorldChange
         {
             if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmLeaveParty"))
             {
-                ClickSelectYesNo.Using((nint)x).Yes();
+                new SelectYesnoMaster(x).Yes();
                 return true;
             }
         }
