@@ -396,11 +396,11 @@ internal static unsafe class Utils
         return ret;
     }
 
-    internal static GameObject GetReachableWorldChangeAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true, littleDistance);
+    internal static IGameObject GetReachableWorldChangeAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true, littleDistance);
 
-    internal static GameObject GetReachableResidentialAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromGameObject(x, out var ae) && ae?.IsResidentialAetheryte() == true, littleDistance);
+    internal static IGameObject GetReachableResidentialAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae?.IsResidentialAetheryte() == true, littleDistance);
 
-    internal static GameObject GetReachableAetheryte(Predicate<GameObject> predicate, bool littleDistance = false)
+    internal static IGameObject GetReachableAetheryte(Predicate<IGameObject> predicate, bool littleDistance = false)
     {
         if (!Player.Available) return null;
         var a = Svc.Objects.OrderBy(x => Vector3.DistanceSquared(Player.Object.Position, x.Position)).FirstOrDefault(x => predicate(x));
@@ -557,7 +557,7 @@ internal static unsafe class Utils
 				return c.Any() ? c.First() : null;
 		}
 
-    internal static bool TryGetTinyAetheryteFromGameObject(GameObject a, out TinyAetheryte? t, uint? TerritoryType = null)
+    internal static bool TryGetTinyAetheryteFromIGameObject(IGameObject a, out TinyAetheryte? t, uint? TerritoryType = null)
     {
         TerritoryType ??= Svc.ClientState.TerritoryType;
         if(a == null)
@@ -676,7 +676,7 @@ internal static unsafe class Utils
         return Array.Empty<string>();
     }
 
-    internal static GameObject GetValidAetheryte()
+    internal static IGameObject GetValidAetheryte()
     {
         foreach(var x in Svc.Objects)
         {
@@ -698,13 +698,13 @@ internal static unsafe class Utils
         return null;
     }
 
-    public static bool IsAetheryte(this GameObject obj)
+    public static bool IsAetheryte(this IGameObject obj)
     {
         if (obj.ObjectKind == ObjectKind.Aetheryte) return true;
         return Utils.AethernetShards.Contains(obj.DataId);
     }
 
-    internal static bool IsVPosValid(this GameObject x)
+    internal static bool IsVPosValid(this IGameObject x)
     {
         /*if(x.Name.ToString() == Lang.AethernetShard)
         {

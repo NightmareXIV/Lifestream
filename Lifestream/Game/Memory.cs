@@ -15,7 +15,7 @@ namespace Lifestream.Game;
 internal unsafe class Memory : IDisposable
 {
     delegate long AddonAreaMap_ReceiveEvent(long a1, ushort a2, uint a3, long a4, long a5);
-    [Signature("48 89 5C 24 ?? 57 48 83 EC 20 0F B7 C2 49 8B F9 83 C0 FD 48 8B D9 83 F8 20", DetourName = nameof(AddonAreaMap_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
+    [Signature("40 55 56 57 48 8B EC 48 83 EC 70 0F B7 C2", DetourName = nameof(AddonAreaMap_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
     Hook<AddonAreaMap_ReceiveEvent> AddonAreaMap_ReceiveEventHook = null!;
     bool IsLeftMouseHeld = false;
 

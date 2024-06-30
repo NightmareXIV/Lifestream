@@ -5,6 +5,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
+using ECommons.Automation.UIInput;
 
 namespace Lifestream.Tasks.SameWorld;
 public unsafe static class TaskGoToResidentialDistrict

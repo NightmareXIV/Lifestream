@@ -90,7 +90,7 @@ public sealed class ResidentialAethernet : IDisposable
         var a = Utils.GetValidAetheryte();
         if (a != null)
         {
-            var aetheryte = GetFromGameObject(a);
+            var aetheryte = GetFromIGameObject(a);
             if(aetheryte != null)
             {
                 if (ActiveAetheryte == null)
@@ -106,7 +106,7 @@ public sealed class ResidentialAethernet : IDisposable
         }
     }
 
-    public ResidentialAetheryte? GetFromGameObject(GameObject obj)
+    public ResidentialAetheryte? GetFromIGameObject(IGameObject obj)
     {
         if(obj == null) return null;
         var pos2 = obj.Position.ToVector2();

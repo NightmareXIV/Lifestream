@@ -1,4 +1,5 @@
 ﻿using AutoRetainerAPI;
+using Dalamud.Hooking;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ChatMethods;
@@ -7,10 +8,10 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
-using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -28,10 +29,8 @@ using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
-using NightmareUI.OtterGuiWrapper.FileSystems;
 using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using NotificationMasterAPI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream;
@@ -67,7 +66,7 @@ public unsafe class Lifestream : IDalamudPlugin
     public SplatoonManager SplatoonManager;
     public GenericFileSystem<AddressBookFolder> AddressBookFileSystem;
 
-    public Lifestream(DalamudPluginInterface pluginInterface)
+    public Lifestream(IDalamudPluginInterface pluginInterface)
     {
         P = this;
         ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);

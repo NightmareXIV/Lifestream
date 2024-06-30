@@ -62,7 +62,7 @@ internal static unsafe class UIDebug
             ImGui.Checkbox("Show first point", ref ShowFirstPoint);
             if (ShowPathes)
             {
-                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromGameObject(Svc.Targets.Target);
+                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
                 if(aetheryte != null)
                 {
                     foreach(var x in plots)
@@ -88,7 +88,7 @@ internal static unsafe class UIDebug
             if(ImGui.Button("Begin path calculation"))
             {
                 Chat.Instance.ExecuteCommand("/clearlog");
-                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromGameObject(Svc.Targets.Target);
+                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
                 if(aetheryte != null)
                 {
                     P.TaskManager.Enqueue(() => P.VnavmeshManager.Rebuild());
@@ -136,14 +136,14 @@ internal static unsafe class UIDebug
                             Chat.Instance.ExecuteCommand("/clearlog");
                             DuoLog.Information($"For plot {index + 1}");
                             plot.Front = Player.Object.Position;
-                            var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && P.ResidentialAethernet.GetFromGameObject(x) != null);
+                            var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && P.ResidentialAethernet.GetFromIGameObject(x) != null);
                             Task.Run(() =>
                             {
                                 var currentDistance = float.MaxValue;
                                 int currentAetheryte = -1;
                                 foreach (var x in candidates)
                                 {
-                                    DuoLog.Information($"Candidate: {P.ResidentialAethernet.GetFromGameObject(x).Value.Name}");
+                                    DuoLog.Information($"Candidate: {P.ResidentialAethernet.GetFromIGameObject(x).Value.Name}");
                                     var path = P.VnavmeshManager.Pathfind(plot.Front, x.Position, false);
                                     path.Wait();
                                     if(path.Result != null)
@@ -153,7 +153,7 @@ internal static unsafe class UIDebug
                                         if(distance < currentDistance)
                                         {
                                             currentDistance = distance;
-                                            currentAetheryte = (int)P.ResidentialAethernet.GetFromGameObject(x).Value.ID;
+                                            currentAetheryte = (int)P.ResidentialAethernet.GetFromIGameObject(x).Value.ID;
                                         }
                                     }
                                     else

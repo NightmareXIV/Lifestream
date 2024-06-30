@@ -18,12 +18,7 @@ internal unsafe static class MainGui
                 ImGuiEx.TextWrapped(EColor.White, $"You do not have \"Teleporter\" plugin installed or enabled. For correct Lifestream plugin operation, you need to install \"Teleporter\" plugin from official Dalamud repo. Click here to open plugin installer.");
                 if (ImGuiEx.HoveredAndClicked())
                 {
-                    Svc.PluginInterface.OpenPluginInstaller();
-                    try
-                    {
-                        DalamudReflector.GetService("Dalamud.Interface.Internal.DalamudInterface").Call("SetPluginInstallerSearchText", ["TeleporterPlugin"]);
-                    }
-                    catch(Exception e) { e.LogInternal(); }
+                    Svc.PluginInterface.OpenPluginInstallerTo(PluginInstallerOpenKind.AllPlugins, "TeleporterPlugin");
                 }
                 ImGui.EndTable();
             }
