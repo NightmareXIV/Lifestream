@@ -246,6 +246,38 @@ internal static unsafe class UIDebug
     static int WorldSel;
 		static void Debug()
     {
+        ImGuiEx.Text($"Player interactable: {Player.Interactable}");
+        ImGuiEx.Text($"Is moving: {AgentMap.Instance()->IsPlayerMoving}");
+        ImGuiEx.Text($"IsOccupied: {IsOccupied()}");
+        ImGuiEx.Text($"Casting: {Player.Object?.IsCasting}");
+        if (ImGui.CollapsingHeader("Data test"))
+        {
+            foreach(var x in P.DataStore.Aetherytes)
+            {
+                ImGuiEx.Text($"""
+                    Key:
+                        Name: {x.Key.Name}
+                        ID: {x.Key.ID}
+                        Pos: {x.Key.Position}
+                        Group: {x.Key.Group}
+                        Territory: {ExcelTerritoryHelper.GetName(x.Key.TerritoryType, true)}
+                    Value:
+                        Cnt: {x.Value.Count}
+                    """);
+                foreach(var z in x.Value)
+                {
+                    ImGui.Indent();
+                    ImGuiEx.Text($"""
+                        Name: {z.Name}
+                        ID: {z.ID}
+                        Pos: {z.Position}
+                        Group: {z.Group}
+                        Territory: {ExcelTerritoryHelper.GetName(z.TerritoryType, true)}
+                        """);
+                    ImGui.Unindent();
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("Lobby test"))
         {
             ImGui.InputText("Chara name", ref CharaName, 100);
@@ -421,17 +453,6 @@ internal static unsafe class UIDebug
                 DebugAetheryte = x.Key;
             }
             {
-
-                {
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosX(300);
-                    var d = (int)P.DataStore.StaticData.Callback[x.Key.ID];
-                    ImGui.SetNextItemWidth(100f);
-                    if (ImGui.InputInt($"##{x.Key.Name}{x.Key.ID}data", ref d))
-                    {
-                        P.DataStore.StaticData.Callback[x.Key.ID] = (uint)d;
-                    }
-                }
                 {
                     ImGui.SameLine();
                     if (!P.DataStore.StaticData.SortOrder.ContainsKey(x.Key.ID)) P.DataStore.StaticData.SortOrder[x.Key.ID] = 0;
@@ -461,16 +482,6 @@ internal static unsafe class UIDebug
             {
                 if (ImGui.Button($"    {l.Name}", bsize)) DebugAetheryte = l;
                 {
-                    {
-                        ImGui.SameLine();
-                        ImGui.SetCursorPosX(300);
-                        var d = (int)P.DataStore.StaticData.Callback[l.ID];
-                        ImGui.SetNextItemWidth(100f);
-                        if (ImGui.InputInt($"##{l.Name}{l.ID}data", ref d))
-                        {
-                            P.DataStore.StaticData.Callback[l.ID] = (uint)d;
-                        }
-                    }
                     {
                         ImGui.SameLine();
                         if (!P.DataStore.StaticData.SortOrder.ContainsKey(l.ID)) P.DataStore.StaticData.SortOrder[l.ID] = 0;

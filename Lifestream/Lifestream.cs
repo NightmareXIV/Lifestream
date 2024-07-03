@@ -230,6 +230,13 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
             }
         }
+        else if(arguments.EqualsIgnoreCaseAny("mb", "market"))
+        {
+            if(!P.TaskManager.IsBusy && Player.Interactable)
+            {
+                TaskMBShortcut.Enqueue();
+            }
+        }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {
             ChatPrinter.Green($"[Lifestream] Address parsed: {entry.GetAddressString()}");

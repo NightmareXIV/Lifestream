@@ -19,7 +19,7 @@ public unsafe class TeleportService
             InternalLog.Warning("Can't teleport - no player");
             return false;
         }
-        if(ActionManager.Instance()->GetActionStatus(ActionType.Action, 3) != 0)
+        if(ActionManager.Instance()->GetActionStatus(ActionType.Action, 5) != 0)
         {
             InternalLog.Warning("Can't execute teleport action");
             return false;

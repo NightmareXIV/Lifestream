@@ -2,6 +2,7 @@
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.SameWorld;
+using Lifestream.Tasks.Shortcuts;
 
 namespace Lifestream.IPC;
 public class Provider
@@ -101,5 +102,44 @@ public class Provider
 				if (IsBusy()) return false;
 				TaskTryTpToAethernetDestination.Enqueue(destination);
 				return true;
+    }
+
+		[EzIPC]
+		public bool Teleport(uint destination, byte subIndex)
+		{
+				return S.TeleportService.TeleportToAetheryte(destination, subIndex);
+    }
+
+    [EzIPC]
+    public bool TeleportToFC()
+    {
+        if (!P.TaskManager.IsBusy)
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC);
+            return true;
+        }
+        return false;
+    }
+
+    [EzIPC]
+    public bool TeleportToHome()
+    {
+        if (!P.TaskManager.IsBusy)
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Home);
+            return true;
+        }
+        return false;
+    }
+
+    [EzIPC]
+    public bool TeleportToApartment()
+    {
+        if (!P.TaskManager.IsBusy)
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
+            return true;
+        }
+        return false;
     }
 }

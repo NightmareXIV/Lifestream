@@ -101,7 +101,7 @@ internal unsafe static class WorldChange
         return false;
     }
 
-    internal static bool? TeleportToAethernetDestination(TinyAetheryte t)
+    /*internal static bool? TeleportToAethernetDestination(TinyAetheryte t)
     {
         if (!Player.Available) return false;
         if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
@@ -154,7 +154,7 @@ internal unsafe static class WorldChange
             }
         }
         return false;
-    }
+    }*/
 
     internal static bool? TeleportToAethernetDestination(string name)
     {

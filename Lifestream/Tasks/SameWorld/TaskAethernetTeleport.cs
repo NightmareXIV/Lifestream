@@ -12,7 +12,7 @@ internal static class TaskAethernetTeleport
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         if (P.DataStore.Aetherytes.ContainsKey(P.ActiveAetheryte.Value)) P.TaskManager.Enqueue(WorldChange.SelectAethernet);
         P.TaskManager.EnqueueDelay(P.Config.SlowTeleport ? P.Config.SlowTeleportThrottle : 0);
-        P.TaskManager.Enqueue(() => WorldChange.TeleportToAethernetDestination(a), nameof(WorldChange.TeleportToAethernetDestination));
+        P.TaskManager.Enqueue(() => WorldChange.TeleportToAethernetDestination(a.Name), nameof(WorldChange.TeleportToAethernetDestination));
     }
 
     internal static void Enqueue(string destination)

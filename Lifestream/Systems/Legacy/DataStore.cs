@@ -39,10 +39,6 @@ internal class DataStore
                 {
                     Aetherytes[GetTinyAetheryte(x)] = [];
                     terr.Add(x.Territory.Value.RowId);
-                    if (!StaticData.Callback.ContainsKey(x.RowId))
-                    {
-                        StaticData.Callback[x.RowId] = 0;
-                    }
                 }
             }
         });
@@ -55,10 +51,6 @@ internal class DataStore
                     var a = GetTinyAetheryte(x);
                     Aetherytes[GetMaster(a)].Add(a);
                     terr.Add(x.Territory.Value.RowId);
-                    if (!StaticData.Callback.ContainsKey(x.RowId))
-                    {
-                        StaticData.Callback[x.RowId] = 0;
-                    }
                 }
             }
         });

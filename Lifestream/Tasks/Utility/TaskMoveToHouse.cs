@@ -33,8 +33,11 @@ public unsafe static class TaskMoveToHouse
         {
             if (ActionManager.Instance()->GetActionStatus(ActionType.Action, ability) == 0)
             {
-                if (EzThrottler.Throttle("ExecSpritAction")) Chat.Instance.ExecuteCommand($"/action \"{Svc.Data.GetExcelSheet<Action>().GetRow(ability).Name.ExtractText()}\"");
-                return true;
+                if (EzThrottler.Throttle("ExecSpritAction"))
+                {
+                    Chat.Instance.ExecuteCommand($"/action \"{Svc.Data.GetExcelSheet<Action>().GetRow(ability).Name.ExtractText()}\"");
+                    return true;
+                }
             }
         }
         return true;

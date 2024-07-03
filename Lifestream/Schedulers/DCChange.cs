@@ -4,6 +4,7 @@ using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -417,7 +418,7 @@ internal static unsafe class DCChange
             if (text == compareTo)
             {
                 PluginLog.Information($"Selecting service account");
-                new SelectStringMaster(addon).Entries[account].Select();
+                new AddonMaster.SelectString(addon).Entries[account].Select();
                 return true;
             }
             else
