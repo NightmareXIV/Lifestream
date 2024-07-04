@@ -20,7 +20,7 @@ public static class TabMultipath
 
 		public static void Draw()
 		{
-				if (IsKeyPressed(System.Windows.Forms.Keys.LButton)) Cursor = -1;
+				if (IsKeyPressed((int)System.Windows.Forms.Keys.LButton)) Cursor = -1;
 				if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add"))
 				{
 						var x = new MultiPath();
