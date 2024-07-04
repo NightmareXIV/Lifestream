@@ -27,7 +27,10 @@ internal unsafe class Memory : IDisposable
     [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour))]
     internal Hook<AtkComponentTreeList_vf31> AtkComponentTreeList_vf31Hook;
 
-		void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
+    [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress)]
+    internal int* MaxInstances;
+
+    void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
     {
         PluginLog.Debug($"AtkComponentTreeList_vf31Detour: {a1:X16}, {a2}, {a3}");
         AtkComponentTreeList_vf31Hook.Original(a1, a2, a3);
@@ -88,6 +91,7 @@ internal unsafe class Memory : IDisposable
     internal Memory()
     {
         SignatureHelper.Initialise(this);
+        EzSignatureHelper.Initialize(this);
         AddonAreaMap_ReceiveEventHook.Enable();
         //AddonDKTWorldList_ReceiveEventHook.Enable();
     }

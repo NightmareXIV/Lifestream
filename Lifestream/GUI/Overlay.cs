@@ -1,4 +1,5 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.EzEventManager;
+using ECommons.GameHelpers;
 using Lifestream.Enums;
 using Lifestream.Systems;
 using Lifestream.Tasks;
@@ -14,11 +15,13 @@ internal class Overlay : Window
     public Overlay() : base("Lifestream Overlay", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing, true)
     {
         IsOpen = true;
+        new EzTerritoryChanged((x) => IsOpen = true);
     }
 
     Vector2 bWidth = new(10, 10);
     Vector2 ButtonSizeAetheryte => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.ButtonHeightAetheryte);
     Vector2 ButtonSizeWorld => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.ButtonHeightWorld);
+    Vector2 ButtonSizeInstance => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.InstanceButtonHeight);
     Vector2 WSize = new(200, 200);
 
     public override void PreDraw()
@@ -73,11 +76,15 @@ internal class Overlay : Window
                 actions.Add(() => DrawResidentialAethernet(true));
             }
         }
-        else
+        else if(P.ActiveAetheryte != null)
         {
             if (P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
             if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
+        }
+        if(S.InstanceHandler.GetInstance() != 0)
+        {
+            actions.Add(DrawInstances);
         }
         ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
 
@@ -193,6 +200,34 @@ internal class Overlay : Window
         }
     }
 
+    private void DrawInstances()
+    {
+        if (S.InstanceHandler.InstancesInitizliaed(out var maxInstances))
+        {
+            for (int i = 1; i <= Math.Min(maxInstances, 9); i++)
+            {
+                var name = $"Instance {TaskChangeInstance.InstanceNumbers[i]}";
+                ResizeButton(name);
+                var d = S.InstanceHandler.GetInstance() == i;
+                if (ImGuiEx.Button(name, ButtonSizeInstance, !d))
+                {
+                    TaskRemoveAfkStatus.Enqueue();
+                    TaskChangeInstance.Enqueue(i);
+                }
+            }
+        }
+        else
+        {
+            ImGuiEx.Text($"""
+                Instances available, 
+                but not initialized.
+
+                To initialize instances, 
+                access aetheryte once.
+                """);
+        }
+    }
+
     private void Popup(IAetheryte x)
     {
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
@@ -294,6 +329,10 @@ internal class Overlay : Window
         if (canUse == AetheryteUseState.None)
         {
             bWidth = new(10, 10);
+        }
+        if(S.InstanceHandler.CanChangeInstance())
+        {
+            ret = true;
         }
         return ret && !(P.Config.HideAddon && Utils.IsAddonsVisible(Utils.Addons));
     }

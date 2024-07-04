@@ -70,4 +70,10 @@ internal static class Lang
     public static readonly string[] GoToSpecifiedApartment = ["Go to specified apartment", "Go to speciz`fied apartment", "部屋番号を指定して移動（ハウスアピール確認）", "Eine bestimmte Wohnung betreten (Zweck der Unterkunft einsehen)"];
     public static readonly string[] EnterApartmenr = ["Enter", "よろしいですか？", "betreten?", "Aller dans l'appartement"];
     public static readonly string[] GoToMyApartment = ["Go to your apartment"];
+
+    //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> Travel to Instanced Area.
+    //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> インスタンスエリアへ移動
+    //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> In ein instanziiertes Areal wechseln
+    //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> Changer d'instance
+    public static readonly string[] TravelToInstancedArea = ["Travel to Instanced Area.", "インスタンスエリアへ移動", "In ein instanziiertes Areal wechseln", "Changer d'instance"];
 }

@@ -246,6 +246,17 @@ internal static unsafe class UIDebug
     static int WorldSel;
 		static void Debug()
     {
+        if (ImGui.CollapsingHeader("Instance"))
+        {
+            ImGuiEx.Text($"""
+                Max instances: {*P.Memory.MaxInstances}
+                Initialized: {S.InstanceHandler.InstancesInitizliaed(out var maxInstances)} {maxInstances}
+                GetInstance: {S.InstanceHandler.GetInstance()}
+                DrawConditions: {P.Overlay.DrawConditions()}
+                """);
+            if (ImGui.Button("instance data reset")) P.Config.PublicInstances.Clear();
+            if (ImGui.Button("game version reset")) P.Config.GameVersion = "";
+        }
         ImGuiEx.Text($"Player interactable: {Player.Interactable}");
         ImGuiEx.Text($"Is moving: {AgentMap.Instance()->IsPlayerMoving}");
         ImGuiEx.Text($"IsOccupied: {IsOccupied()}");

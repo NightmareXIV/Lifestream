@@ -49,11 +49,12 @@ public unsafe static class TaskMBShortcut
         {
             if (!Player.IsAnimationLocked)
             {
-                if (GetMarketBoard().IsTarget())
+                var board = GetMarketBoard();
+                if (board.IsTarget() && board.IsTargetable)
                 {
                     if (EzThrottler.Throttle("InteractWithMB"))
                     {
-                        TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
+                        TargetSystem.Instance()->InteractWithObject(board.Struct(), false);
                         return true;
                     }
                 }
