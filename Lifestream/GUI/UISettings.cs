@@ -1,4 +1,6 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using ECommons.Configuration;
+using Lumina.Excel.GeneratedSheets;
+using NightmareUI.PrimaryUI;
 
 namespace Lifestream.GUI;
 
@@ -6,7 +8,9 @@ internal static class UISettings
 {
     internal static void Draw()
     {
-        UtilsUI.DrawSection("Overlay Settings", null, () =>
+        new NuiBuilder()
+        .Section("Overlay Settings")
+        .Widget(() =>
         {
             ImGui.Checkbox("Enable Overlay", ref P.Config.Enable);
             if (P.Config.Enable)
@@ -46,16 +50,17 @@ internal static class UISettings
                 }
                 ImGui.Unindent();
             }
-        });
+        })
 
-        UtilsUI.DrawSection("Map Integration", null, () =>
+        .Section("Map Integration")
+        .Widget(() =>
         {
             ImGui.Checkbox("Click Aethernet Shard on map for quick teleport", ref P.Config.UseMapTeleport);
-        });
+        })
 
-        UtilsUI.DrawSection("Teleport Configuration", null, () =>
+        .Section("Teleport Configuration")
+        .Widget(() =>
         {
-
             ImGui.SetNextItemWidth(200f);
             ImGuiEx.EnumCombo($"Teleport world change gateway", ref P.Config.WorldChangeAetheryte, Lang.WorldChangeAetherytes);
             ImGuiEx.HelpMarker($"Where would you like to teleport for world changes");
@@ -70,25 +75,41 @@ internal static class UISettings
             }
             ImGui.Checkbox($"Add firmament location into Foundation aetheryte", ref P.Config.Firmament);
             ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
-        });
+        })
 
-        UtilsUI.DrawSection("Cross-Datacenter", null, () =>
+        .Section("Cross-Datacenter")
+        .Widget(() =>
         {
             ImGui.Checkbox($"Allow travelling to another data center", ref P.Config.AllowDcTransfer);
             ImGui.Checkbox($"Leave party before switching data center", ref P.Config.LeavePartyBeforeLogout);
             ImGui.Checkbox($"Teleport to gateway aetheryte before switching data center if not in sanctuary", ref P.Config.TeleportToGatewayBeforeLogout);
             ImGui.Checkbox($"Teleport to gateway aetheryte after completing data center travel", ref P.Config.DCReturnToGateway);
-        });
+        })
 
-        UtilsUI.DrawSection("Address Book", null, () =>
-				{
-						ImGui.Checkbox($"Disable pathing to a plot", ref P.Config.AddressNoPathing);
-						ImGuiEx.HelpMarker($"You will be left at a closest aetheryte to the ward");
-						ImGui.Checkbox($"Disable entering an apartment", ref P.Config.AddressApartmentNoEntry);
-						ImGuiEx.HelpMarker($"You will be left at an entry confirmation dialogue");
-				});
+        .Section("Address Book")
+        .Widget(() =>
+        {
+            ImGui.Checkbox($"Disable pathing to a plot", ref P.Config.AddressNoPathing);
+            ImGuiEx.HelpMarker($"You will be left at a closest aetheryte to the ward");
+            ImGui.Checkbox($"Disable entering an apartment", ref P.Config.AddressApartmentNoEntry);
+            ImGuiEx.HelpMarker($"You will be left at an entry confirmation dialogue");
+        })
 
-        UtilsUI.DrawSection("Expert Settings", null, () =>
+        .Section("Instance changer")
+        .Checkbox("Enabled", () => ref P.Config.ShowInstanceSwitcher)
+        .Checkbox("Retry on failure", () => ref P.Config.InstanceSwitcherRepeat)
+        .SliderInt(150f, "Extra button height", () => ref P.Config.InstanceButtonHeight, 0, 50)
+        .Widget("Reset Instance Data", (x) =>
+        {
+            if (ImGuiEx.Button(x, P.Config.PublicInstances.Count > 0))
+            {
+                P.Config.PublicInstances.Clear();
+                EzConfig.Save();
+            }
+        })
+
+        .Section("Expert Settings")
+        .Widget(() =>
         {
             ImGui.Checkbox($"Slow down aetheryte teleporting", ref P.Config.SlowTeleport);
             ImGuiEx.HelpMarker($"Slows down aethernet teleportation by specified amount.");
@@ -104,24 +125,31 @@ internal static class UISettings
             ImGui.Checkbox($"Hide progress bar", ref P.Config.NoProgressBar);
             ImGuiEx.HelpMarker($"Hiding progress bar leaves you with no way to stop Lifestream from executing it's tasks.");
             ImGuiEx.CheckboxInverted($"Don't walk to nearby aetheryte on world change command from greater distance", ref P.Config.WalkToAetheryte);
-        });
+        })
+        .Draw();
 
-        if(P.Config.Hidden.Count > 0) UtilsUI.DrawSection("Hidden Aetherytes", null, () =>
+        if(P.Config.Hidden.Count > 0)
         {
-            uint toRem = 0;
-            foreach (var x in P.Config.Hidden)
+            new NuiBuilder()
+            .Section("Hidden Aetherytes")
+            .Widget(() =>
             {
-                ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRow(x)?.AethernetName.Value?.Name.ToString() ?? x.ToString()}");
-                ImGui.SameLine();
-                if (ImGui.SmallButton($"Delete##{x}"))
+                uint toRem = 0;
+                foreach (var x in P.Config.Hidden)
                 {
-                    toRem = x;
+                    ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRow(x)?.AethernetName.Value?.Name.ToString() ?? x.ToString()}");
+                    ImGui.SameLine();
+                    if (ImGui.SmallButton($"Delete##{x}"))
+                    {
+                        toRem = x;
+                    }
                 }
-            }
-            if (toRem > 0)
-            {
-                P.Config.Hidden.Remove(toRem);
-            }
-        });
+                if (toRem > 0)
+                {
+                    P.Config.Hidden.Remove(toRem);
+                }
+            })
+            .Draw();
+        }
     }
 }

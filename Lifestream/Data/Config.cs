@@ -45,4 +45,9 @@ public class Config : IEzConfig
     public bool AddressApartmentNoEntry = false;
     public bool SingleBookMode = false;
     public List<MultiPath> MultiPathes = [];
+    public string GameVersion = "";
+    public Dictionary<uint, int> PublicInstances = [];
+    public bool ShowInstanceSwitcher = true;
+    public bool InstanceSwitcherRepeat = true;
+    public int InstanceButtonHeight = 10;
 }

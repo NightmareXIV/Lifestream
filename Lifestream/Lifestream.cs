@@ -177,6 +177,21 @@ public unsafe class Lifestream : IDalamudPlugin
             TaskManager.Abort();
             followPath?.Stop();
         }
+        else if(arguments.Length == 1 && int.TryParse(arguments, out var val) && val.InRange(1, 9))
+        {
+            if(S.InstanceHandler.GetInstance() == val)
+            {
+                DuoLog.Warning($"Already in instance {val}");
+            }
+            else if (S.InstanceHandler.CanChangeInstance())
+            {
+                TaskChangeInstance.Enqueue(val);
+            }
+            else
+            {
+                DuoLog.Error($"Can't change instance now");
+            }
+        }
         else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w", "world", "travel"))
         {
             S.SelectWorldWindow.IsOpen = true;
@@ -494,6 +509,13 @@ public unsafe class Lifestream : IDalamudPlugin
         else
         {
             ActiveAetheryte = null;
+        }
+        if (!Overlay.IsOpen)
+        {
+            if(P.Config.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
+            {
+                Overlay.IsOpen = true;
+            }
         }
     }
 }
