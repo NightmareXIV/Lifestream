@@ -26,6 +26,7 @@ public unsafe static class TaskMoveToHouse
 
     public static bool? UseSprint()
     {
+        if (!P.Config.UseSprintPeloton) return true;
         if (Player.IsAnimationLocked) return false;
         if (Player.Object.StatusList.Any(x => x.StatusId.EqualsAny<uint>(50, 1199))) return true;
         uint[] abilities = [3, 7557];

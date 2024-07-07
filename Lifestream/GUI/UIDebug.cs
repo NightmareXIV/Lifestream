@@ -37,6 +37,7 @@ internal static unsafe class UIDebug
     internal static void Draw()
     {
         ImGuiEx.EzTabBar("debug",
+            InternalLog.ImGuiTab(),
             ("Data editor", Editor, null, true),
             ("Housing data", Housing, null, true),
             ("AtkReader", Reader, null, true),

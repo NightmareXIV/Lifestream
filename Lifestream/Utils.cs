@@ -427,8 +427,7 @@ internal static unsafe class Utils
         return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld] || Svc.Condition[ConditionFlag.Jumping];
     }
 
-    internal static string[] Addons =
-    [
+    internal static string[] DefaultAddons = [
         "Inventory",
         "InventoryLarge",
         "AreaMap",
@@ -459,9 +458,9 @@ internal static unsafe class Utils
         "ContentsInfo",
         "PartyMemberList",
         "ContentsFinderConfirm",
-        "SelectString",
+        "SelectString"
     ];
-    internal static bool IsAddonsVisible(string[] addons)
+    internal static bool IsAddonsVisible(IEnumerable<string> addons)
     {
         foreach(var x in addons)
         {

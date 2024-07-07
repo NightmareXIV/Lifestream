@@ -76,4 +76,5 @@ internal static class Lang
     //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> In ein instanziiertes Areal wechseln
     //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> Changer d'instance
     public static readonly string[] TravelToInstancedArea = ["Travel to Instanced Area.", "インスタンスエリアへ移動", "In ein instanziiertes Areal wechseln", "Changer d'instance"];
+    public static string ToReduceCongestion => Svc.Data.GetExcelSheet<Addon>().GetRow(2090).Text.ExtractText();
 }

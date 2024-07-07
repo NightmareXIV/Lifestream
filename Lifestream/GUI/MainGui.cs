@@ -28,7 +28,6 @@ internal unsafe static class MainGui
             ("Address Book", TabAddressBook.Draw, null, true),
             ("Settings", UISettings.Draw, null, true),
             ("Service accounts", UIServiceAccount.Draw, null, true),
-            InternalLog.ImGuiTab(),
             ("Debug", UIDebug.Draw, ImGuiColors.DalamudGrey3, true)
             );
     }

@@ -82,7 +82,7 @@ internal class Overlay : Window
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
             if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
         }
-        if(S.InstanceHandler.GetInstance() != 0)
+        if(S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher)
         {
             actions.Add(DrawInstances);
         }
@@ -334,6 +334,6 @@ internal class Overlay : Window
         {
             ret = true;
         }
-        return ret && !(P.Config.HideAddon && Utils.IsAddonsVisible(Utils.Addons));
+        return ret && !(P.Config.HideAddon && Utils.IsAddonsVisible(P.Config.HideAddonList));
     }
 }

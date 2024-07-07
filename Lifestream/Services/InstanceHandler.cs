@@ -19,7 +19,6 @@ public unsafe class InstanceHandler : IDisposable
     private InstanceHandler()
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
-        Svc.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "SelectString", OnPostUpdate);
         var gv = CSFramework.Instance()->GameVersionString;
         if (gv != null && gv != P.Config.GameVersion)
         {
@@ -42,7 +41,7 @@ public unsafe class InstanceHandler : IDisposable
             && Svc.Condition[ConditionFlag.OccupiedInQuestEvent]
             && TryGetAddonMaster<AddonMaster.SelectString>(out var m)
             && m.IsAddonReady
-            && m.Entries.Any(x => x.Text.ContainsAny(Lang.TravelToInstancedArea))
+            && (m.Entries.Any(x => x.Text.ContainsAny(Lang.TravelToInstancedArea)) || m.Text == Lang.ToReduceCongestion)
             )
         {
             var inst = *P.Memory.MaxInstances;
@@ -78,6 +77,5 @@ public unsafe class InstanceHandler : IDisposable
     public void Dispose()
     {
         Svc.AddonLifecycle.UnregisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
-        Svc.AddonLifecycle.UnregisterListener(AddonEvent.PostSetup, "SelectString", OnPostUpdate);
     }
 }
