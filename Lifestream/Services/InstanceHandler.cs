@@ -19,6 +19,7 @@ public unsafe class InstanceHandler : IDisposable
     private InstanceHandler()
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
+        Svc.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "SelectString", OnPostUpdate);
         var gv = CSFramework.Instance()->GameVersionString;
         if (gv != null && gv != P.Config.GameVersion)
         {
@@ -77,5 +78,6 @@ public unsafe class InstanceHandler : IDisposable
     public void Dispose()
     {
         Svc.AddonLifecycle.UnregisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
+        Svc.AddonLifecycle.UnregisterListener(AddonEvent.PostSetup, "SelectString", OnPostUpdate);
     }
 }
