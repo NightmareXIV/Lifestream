@@ -24,6 +24,7 @@ using Dalamud.Memory;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using NightmareUI.ImGuiElements;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using ECommons.Automation.UIInput;
 
 namespace Lifestream.GUI;
 
@@ -247,6 +248,28 @@ internal static unsafe class UIDebug
     static int WorldSel;
 		static void Debug()
     {
+        if (ImGui.CollapsingHeader("Misc"))
+        {
+            if (ImGui.Button("Switch"))
+            {
+                bool Do()
+                {
+                    if (TryGetAddonByName<AddonRepair>("Repair", out var addon) && addon->AtkUnitBase.IsVisible)
+                    {
+                        var fwdBtn = addon->AtkUnitBase.GetNodeById(14)->GetAsAtkComponentButton();
+                        fwdBtn->ClickAddonButton((AtkComponentBase*)addon, 2, EventType.CHANGE);
+
+                        return true;
+
+                    }
+                    return false;
+                }
+                for (int i = 0; i < 10000; i++)
+                {
+                    P.TaskManager.Enqueue(Do);
+                }
+            }
+        }
         if (ImGui.CollapsingHeader("Instance"))
         {
             ImGuiEx.Text($"""

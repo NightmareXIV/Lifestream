@@ -82,7 +82,8 @@ internal class Overlay : Window
             if (P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
             if (P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
         }
-        if(S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher)
+        if(S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher
+            && (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.IsAetheryte))
         {
             actions.Add(DrawInstances);
         }
