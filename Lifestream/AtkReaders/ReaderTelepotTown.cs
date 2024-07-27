@@ -12,7 +12,7 @@ internal unsafe class ReaderTelepotTown(AtkUnitBase* UnitBase, int BeginOffset =
 
     internal unsafe class Names(nint UnitBasePtr, int BeginOffset = 0) : AtkReader(UnitBasePtr, BeginOffset)
     {
-        internal string Name => ReadString(0);
+        internal string Name => ReadSeString(0).ExtractText();
     }
 
     internal unsafe class Data(nint UnitBasePtr, int BeginOffset = 0) : AtkReader(UnitBasePtr, BeginOffset)

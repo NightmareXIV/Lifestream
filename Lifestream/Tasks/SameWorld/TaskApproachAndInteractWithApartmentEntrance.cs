@@ -9,6 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons.GameFunctions;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 
 namespace Lifestream.Tasks.SameWorld;
 public static class TaskApproachAndInteractWithApartmentEntrance

@@ -25,6 +25,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using NightmareUI.ImGuiElements;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ECommons.Automation.UIInput;
+using Dalamud.Utility;
 
 namespace Lifestream.GUI;
 
@@ -248,6 +249,33 @@ internal static unsafe class UIDebug
     static int WorldSel;
 		static void Debug()
     {
+        var data = Svc.Data.GetExcelSheet<Addon>().GetRow(195);
+        var text = data.Text.ExtractText();
+        if(ImGui.Button("Lumina"))
+        {
+            foreach(var x in data.Text.Payloads)
+            {
+                PluginLog.Information($"Payload {x.PayloadType}, text: {x.ToString()}");
+            }
+        }
+        if(ImGui.Button("Dalamud"))
+        {
+            foreach(var x in data.Text.ToDalamudString().Payloads)
+            {
+                PluginLog.Information($"Payload {x.Type}, text: {x.ToString()}");
+            }
+        }
+        if(ImGui.Button("YesNo"))
+        {
+            if(TryGetAddonByName<AddonSelectYesno>("SelectYesno", out var addon))
+            {
+                foreach(var x in addon->PromptText->NodeText.Read().Payloads)
+                {
+                    PluginLog.Information($"Payload {x.Type}, text: {x.ToString()}");
+                }
+            }
+        }
+        ImGui.InputText("##copyaddon", ref text, 300);
         if (ImGui.CollapsingHeader("Misc"))
         {
             if (ImGui.Button("Switch"))
