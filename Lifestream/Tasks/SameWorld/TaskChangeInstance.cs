@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Ipc.Exceptions;
+using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
@@ -8,6 +9,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +37,21 @@ public unsafe static class TaskChangeInstance
                 }
             })
         };
+        if(P.Config.EnableFlydownInstance)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(!Svc.Condition[ConditionFlag.InFlight])
+                {
+                    return true;
+                }
+                if(EzThrottler.Throttle("DropFlight", 1000))
+                {
+                    Chat.Instance.ExecuteCommand($"/generalaction {Svc.Data.GetExcelSheet<GeneralAction>().GetRow(23).Name}");
+                }
+                return false;
+            });
+        }
         P.TaskManager.EnqueueMulti(tasks);
     }
 

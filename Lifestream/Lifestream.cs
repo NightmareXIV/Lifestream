@@ -288,7 +288,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 else if(Utils.TryGetWorldFromDataCenter(primary, out var world, out var dc))
                 {
-                    Notify.Info($"Random world from {Svc.Data.GetExcelSheet<WorldDCGroupType>().GetRow(dc).Name}: {world}");
+                    Utils.DisplayInfo($"Random world from {Svc.Data.GetExcelSheet<WorldDCGroupType>().GetRow(dc).Name}: {world}");
                     TPAndChangeWorld(world, Player.Object.CurrentWorld.GameData.DataCenter.Row != dc, secondary);
                 }
                 else
@@ -339,7 +339,7 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
-            Notify.Info($"Destination: {w}");
+            Utils.DisplayInfo($"Destination: {w}");
             if (isDcTransfer)
             {
                 var type = DCVType.Unknown;
@@ -422,7 +422,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 {
                     DuoLog.Error($"Error - unknown data center visit type");
                 }
-                Notify.Info($"Data center visit: {type}");
+                PluginLog.Information($"Data center visit: {type}");
             }
             else
             {

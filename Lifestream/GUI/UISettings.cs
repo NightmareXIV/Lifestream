@@ -42,6 +42,8 @@ internal unsafe static class UISettings
             }
             ImGui.Checkbox($"Add firmament location into Foundation aetheryte", ref P.Config.Firmament);
             ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
+            ImGui.Checkbox($"Show teleport destination in chat", ref P.Config.DisplayChatTeleport);
+            ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
         })
 
         .Section("Map Integration")
@@ -81,7 +83,7 @@ internal unsafe static class UISettings
         .Widget(() =>
         {
             ImGui.Checkbox("Enable Overlay", ref P.Config.Enable);
-            if (P.Config.Enable)
+            if(P.Config.Enable)
             {
                 ImGui.Indent();
                 ImGui.Checkbox($"Display Aethernet menu", ref P.Config.ShowAethernet);
@@ -91,7 +93,7 @@ internal unsafe static class UISettings
                 UtilsUI.NextSection();
 
                 ImGui.Checkbox("Fixed Lifestream Overlay position", ref P.Config.FixedPosition);
-                if (P.Config.FixedPosition)
+                if(P.Config.FixedPosition)
                 {
                     ImGui.Indent();
                     ImGui.SetNextItemWidth(200f);
@@ -119,6 +121,7 @@ internal unsafe static class UISettings
         .Section("Instance changer")
         .Checkbox("Enabled", () => ref P.Config.ShowInstanceSwitcher)
         .Checkbox("Retry on failure", () => ref P.Config.InstanceSwitcherRepeat)
+        .Checkbox("Return to the ground when flying before changing instance", () => ref P.Config.EnableFlydownInstance)
         .SliderInt(150f, "Extra button height", () => ref P.Config.InstanceButtonHeight, 0, 50)
         .Widget("Reset Instance Data", (x) =>
         {
