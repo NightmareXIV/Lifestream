@@ -1,3 +1,4 @@
+# Lifestream
 - Visit another world with one command, even if on another data center
 - One-click to travel between aetherytes
 - Quickly switch between area instances
