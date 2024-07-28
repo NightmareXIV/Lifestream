@@ -1,0 +1,11 @@
+on:
+  push:
+    paths:
+      - meta/**
+  workflow_dispatch:
+
+jobs:
+  TriggerUpdateMetadata:
+    uses:
+      NightmareXIV/MyDalamudPlugins/.github/workflows/Update_Metadata.yml@main
+    secrets: inherit
