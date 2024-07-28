@@ -8,7 +8,7 @@ If you like Lifestream, please consider becoming a supporter on Patreon or via o
 ### Also:
 - [Explore other plugins I maintain or contributed to](https://explore.nightmarexiv.com/)
 - [Join NightmareXIV Discord server to receive fast support and pings about plugin updates](https://discord.gg/m8NRt4X8Gf)
-# Lifestream
+## Key features
 - Visit another world with one command, even if on another data center
 - One-click to travel between aetherytes
 - Quickly switch between area instances
