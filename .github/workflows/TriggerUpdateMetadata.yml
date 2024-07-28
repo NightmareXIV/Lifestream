@@ -1,3 +1,4 @@
+name: Trigger Update Metadata
 on:
   push:
     paths:
