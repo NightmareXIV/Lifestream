@@ -1,7 +1,7 @@
 ﻿# Lifestream
 Lifestream is a plugin that helps with navigation between data centers, worlds, instances, residential areas. Visit another world, data center or house with just a single command.
 ## Become a Supporter!
-If you like Lifestream, please consider becoming a supporter on Patreon or via other means! This will help me to continue updating the plugin and implement new features and you will receive benefits such as priority support, prioritized feature request, early testing builds and private plugins as well - number of which will only grow with Dawntrail. 
+If you like Lifestream, please consider becoming a supporter on Patreon or via other means! This will help me to continue updating Lifestream and work on new plugins and features and you will receive benefits such as early progress updates, priority support, prioritized feature requests, early testing builds and private tools. 
 - [Subscribe on Patreon](https://subscribe.nightmarexiv.com/) - eligible for Discord role
 - [Donate Litecoin, Bitcoin, Tether or other crypto](https://crypto.nightmarexiv.com/) - eligible for Discord role
 
