@@ -9,8 +9,8 @@ internal static class YesAlreadyManager
 
     internal static void GetData()
     {
-        if (Data != null) return;
-        if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var data))
+        if(Data != null) return;
+        if(EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var data))
         {
             Data = data;
         }
@@ -19,7 +19,7 @@ internal static class YesAlreadyManager
     internal static void DisableIfNeeded()
     {
         GetData();
-        if (Data != null)
+        if(Data != null)
         {
             PluginLog.Information("Disabling Yes Already (new)");
             Data.Add(Svc.PluginInterface.InternalName);
@@ -29,10 +29,10 @@ internal static class YesAlreadyManager
 
     internal static void EnableIfNeeded()
     {
-        if (Reenable)
+        if(Reenable)
         {
             GetData();
-            if (Data != null)
+            if(Data != null)
             {
                 PluginLog.Information("Enabling Yes Already (new)");
                 Data.Remove(Svc.PluginInterface.InternalName);
@@ -44,7 +44,7 @@ internal static class YesAlreadyManager
     internal static bool IsEnabled()
     {
         GetData();
-        if (Data != null)
+        if(Data != null)
         {
             return !Data.Contains(Svc.PluginInterface.InternalName);
         }
@@ -53,16 +53,16 @@ internal static class YesAlreadyManager
 
     internal static void Tick()
     {
-        if (P.TaskManager.IsBusy)
+        if(P.TaskManager.IsBusy)
         {
-            if (IsEnabled())
+            if(IsEnabled())
             {
                 DisableIfNeeded();
             }
         }
         else
         {
-            if (Reenable)
+            if(Reenable)
             {
                 EnableIfNeeded();
             }

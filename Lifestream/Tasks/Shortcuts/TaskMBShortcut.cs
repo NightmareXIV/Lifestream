@@ -14,11 +14,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.Shortcuts;
-public unsafe static class TaskMBShortcut
+public static unsafe class TaskMBShortcut
 {
     public static void Enqueue()
     {
-        if (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != 9)
+        if(P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != 9)
         {
             TaskReturnToGateway.Enqueue(Enums.WorldChangeAetheryte.Uldah);
         }
@@ -27,14 +27,14 @@ public unsafe static class TaskMBShortcut
         P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
         P.TaskManager.Enqueue(() =>
         {
-            if (!GetMarketBoard().IsTarget())
+            if(!GetMarketBoard().IsTarget())
             {
-                if (EzThrottler.Throttle("TargetMB")) Svc.Targets.Target = GetMarketBoard();
+                if(EzThrottler.Throttle("TargetMB")) Svc.Targets.Target = GetMarketBoard();
                 return false;
             }
             else
             {
-                if (EzThrottler.Throttle("LockOnMb"))
+                if(EzThrottler.Throttle("LockOnMb"))
                 {
                     Chat.Instance.ExecuteCommand("/lockon");
                     return true;
@@ -47,12 +47,12 @@ public unsafe static class TaskMBShortcut
         P.TaskManager.Enqueue(WorldChange.DisableAutomove);
         P.TaskManager.Enqueue(() =>
         {
-            if (!Player.IsAnimationLocked)
+            if(!Player.IsAnimationLocked)
             {
                 var board = GetMarketBoard();
-                if (board.IsTarget() && board.IsTargetable)
+                if(board.IsTarget() && board.IsTargetable)
                 {
-                    if (EzThrottler.Throttle("InteractWithMB"))
+                    if(EzThrottler.Throttle("InteractWithMB"))
                     {
                         TargetSystem.Instance()->InteractWithObject(board.Struct(), false);
                         return true;
@@ -63,7 +63,7 @@ public unsafe static class TaskMBShortcut
         });
     }
 
-    static IGameObject GetMarketBoard()
+    private static IGameObject GetMarketBoard()
     {
         return Svc.Objects.OrderBy(x => Vector3.Distance(Player.Position, x.Position)).FirstOrDefault(x => x.DataId == 2000442);
     }

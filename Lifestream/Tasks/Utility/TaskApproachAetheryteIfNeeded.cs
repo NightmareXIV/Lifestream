@@ -11,7 +11,7 @@ public static class TaskApproachAetheryteIfNeeded
     {
         P.TaskManager.Enqueue(() =>
         {
-            if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null)
+            if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null)
             {
                 P.TaskManager.InsertMulti(
                     P.Config.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
@@ -28,18 +28,18 @@ public static class TaskApproachAetheryteIfNeeded
 
     public static bool WaitUntilAetheryteExists()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsAetheryte;
     }
 
 
     public static bool TargetReachableAetheryte()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         var a = Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte);
-        if (a != null)
+        if(a != null)
         {
-            if (!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
+            if(!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
             {
                 Svc.Targets.SetTarget(a);
                 return true;

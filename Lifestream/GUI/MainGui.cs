@@ -3,7 +3,7 @@ using ECommons.Reflection;
 
 namespace Lifestream.GUI;
 
-internal unsafe static class MainGui
+internal static unsafe class MainGui
 {
     internal static void Draw()
     {

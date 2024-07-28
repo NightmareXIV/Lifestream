@@ -51,15 +51,15 @@ internal static unsafe class Utils
     {
         foreach(var x in Svc.Data.GetExcelSheet<WorldDCGroupType>())
         {
-            if (x.RowId == 0 || x.Name == "") continue;
-            if (x.Name.ExtractText().StartsWith(s, StringComparison.OrdinalIgnoreCase))
+            if(x.RowId == 0 || x.Name == "") continue;
+            if(x.Name.ExtractText().StartsWith(s, StringComparison.OrdinalIgnoreCase))
             {
                 var worlds = ExcelWorldHelper.GetPublicWorlds(x.RowId);
                 if(worlds.Length > 0)
                 {
                     world = worlds[Random.Shared.Next(worlds.Length)].Name;
                     dataCenter = x.RowId;
-                    if (P.DataStore.Worlds.Contains(world) || P.DataStore.DCWorlds.Contains(world))
+                    if(P.DataStore.Worlds.Contains(world) || P.DataStore.DCWorlds.Contains(world))
                     {
                         return true;
                     }
@@ -74,119 +74,119 @@ internal static unsafe class Utils
     public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry, bool retry = false)
     {
         entry = null;
-				{
-						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(P|plot)%shortDelimiter%numeric");
-						PluginLog.Debug($"Testing vs: {regex}");
-						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
-						if (result.Success)
-						{
-								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
-								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, false, false);
-								if(entry != null) return true;
-						}
-				}
-				{
-						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)%delimiter(A|apartment)%shortDelimiter%numeric");
-						PluginLog.Debug($"Testing vs: {regex}");
-						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
-						if (result.Success)
-						{
-								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
-								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[7].Value, true, true);
-								if (entry != null) return true;
-						}
-				}
-				{
-						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)");
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(P|plot)%shortDelimiter%numeric");
             PluginLog.Debug($"Testing vs: {regex}");
-						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
-						if (result.Success)
-						{
-								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
-								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, true);
-								if (entry != null) return true;
-						}
-				}
-				{
-						var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric");
-						PluginLog.Debug($"Testing vs: {regex}");
-						var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
-						if (result.Success)
-						{
-								PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
-								entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, false);
-								if (entry != null) return true;
-						}
-				}
-        if (!retry)
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, false, false);
+                if(entry != null) return true;
+            }
+        }
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)%delimiter(A|apartment)%shortDelimiter%numeric");
+            PluginLog.Debug($"Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[7].Value, true, true);
+                if(entry != null) return true;
+            }
+        }
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric%optDelimiter(s|sub|subdivision)");
+            PluginLog.Debug($"Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, true);
+                if(entry != null) return true;
+            }
+        }
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%delimiter(A|apartment)%shortDelimiter%numeric");
+            PluginLog.Debug($"Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, true, false);
+                if(entry != null) return true;
+            }
+        }
+        if(!retry)
         {
             if(TryParseAddressBookEntry(Player.CurrentWorld + ", " + s, out entry, true))
             {
                 return entry != null;
             }
         }
-				return entry != null;
-		}
+        return entry != null;
+    }
 
     public static string ReplaceAddressBookRegex(string str)
-		{
-				var cities = "goblet|the goblet|lavender beds|the lavender beds|lb|empy|empyreum|shiro|shirogane|mist";
-				var worlds = ExcelWorldHelper.GetPublicWorlds().Select(x => x.Name.ToString()).Join("|");
-				return str.Replace("%worlds", worlds)
-						.Replace("%delimiter", @"[\s\.\,\-\(\)\t]{1,10}")
-						.Replace("%optDelimiter", @"[\s\.\,\-\(\)\t]{0,10}")
-						.Replace("%city", cities)
-						.Replace("%shortDelimiter", @"[\s\.\-\t]{0,3}")
-						.Replace("%numeric", "([0-9]{1,2})");
-		}
+    {
+        var cities = "goblet|the goblet|lavender beds|the lavender beds|lb|empy|empyreum|shiro|shirogane|mist";
+        var worlds = ExcelWorldHelper.GetPublicWorlds().Select(x => x.Name.ToString()).Join("|");
+        return str.Replace("%worlds", worlds)
+            .Replace("%delimiter", @"[\s\.\,\-\(\)\t]{1,10}")
+            .Replace("%optDelimiter", @"[\s\.\,\-\(\)\t]{0,10}")
+            .Replace("%city", cities)
+            .Replace("%shortDelimiter", @"[\s\.\-\t]{0,3}")
+            .Replace("%numeric", "([0-9]{1,2})");
+    }
 
     public static AddressBookEntry BuildAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision)
     {
-				var world = ExcelWorldHelper.Get(worldStr, true);
-				if (world == null) return null;
-				var city = ParseResidentialAetheryteKind(cityStr);
-				if (city == null) return null;
-				if (int.TryParse(wardNum, out var ward) && int.TryParse(plotApartmentNum, out var plot))
-				{
-						var entry = new AddressBookEntry()
-						{
-								City = city.Value,
-								World = (int)world.RowId,
-								PropertyType = isApartment?PropertyType.Apartment:PropertyType.House,
-								Ward = ward,
-								Apartment = plot,
-								Plot = plot,
-								ApartmentSubdivision = isSubdivision,
-						};
-						return entry;
-				}
+        var world = ExcelWorldHelper.Get(worldStr, true);
+        if(world == null) return null;
+        var city = ParseResidentialAetheryteKind(cityStr);
+        if(city == null) return null;
+        if(int.TryParse(wardNum, out var ward) && int.TryParse(plotApartmentNum, out var plot))
+        {
+            var entry = new AddressBookEntry()
+            {
+                City = city.Value,
+                World = (int)world.RowId,
+                PropertyType = isApartment ? PropertyType.Apartment : PropertyType.House,
+                Ward = ward,
+                Apartment = plot,
+                Plot = plot,
+                ApartmentSubdivision = isSubdivision,
+            };
+            return entry;
+        }
         return null;
-		}
+    }
 
     public static ResidentialAetheryteKind? ParseResidentialAetheryteKind(string s)
-		{
-				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "mist"))
-				{
-						return ResidentialAetheryteKind.Limsa;
-				}
-				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "goblet"))
-				{
-						return ResidentialAetheryteKind.Uldah;
-				}
-				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "empy"))
-				{
-						return ResidentialAetheryteKind.Foundation;
-				}
-				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "shiro"))
-				{
-						return ResidentialAetheryteKind.Kugane;
-				}
-				if (s.ContainsAny(StringComparison.OrdinalIgnoreCase, "lavender", "beds", "lb"))
-				{
-						return ResidentialAetheryteKind.Gridania;
-				}
+    {
+        if(s.ContainsAny(StringComparison.OrdinalIgnoreCase, "mist"))
+        {
+            return ResidentialAetheryteKind.Limsa;
+        }
+        if(s.ContainsAny(StringComparison.OrdinalIgnoreCase, "goblet"))
+        {
+            return ResidentialAetheryteKind.Uldah;
+        }
+        if(s.ContainsAny(StringComparison.OrdinalIgnoreCase, "empy"))
+        {
+            return ResidentialAetheryteKind.Foundation;
+        }
+        if(s.ContainsAny(StringComparison.OrdinalIgnoreCase, "shiro"))
+        {
+            return ResidentialAetheryteKind.Kugane;
+        }
+        if(s.ContainsAny(StringComparison.OrdinalIgnoreCase, "lavender", "beds", "lb"))
+        {
+            return ResidentialAetheryteKind.Gridania;
+        }
         return null;
-		}
+    }
 
     public static bool IsTeleporterInstalled()
     {
@@ -196,16 +196,16 @@ internal static unsafe class Utils
     public static bool IsHere(this AddressBookEntry entry)
     {
         var h = HousingManager.Instance();
-        if (h == null) return false;
-        if(h->GetCurrentWard() != entry.Ward-1) return false;
-        if (Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) != entry.City) return false;
+        if(h == null) return false;
+        if(h->GetCurrentWard() != entry.Ward - 1) return false;
+        if(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) != entry.City) return false;
         if(entry.PropertyType == PropertyType.House)
         {
-            return h->GetCurrentPlot() == entry.Plot-1;
+            return h->GetCurrentPlot() == entry.Plot - 1;
         }
         if(entry.PropertyType == PropertyType.Apartment)
         {
-            if (entry.ApartmentSubdivision && h->GetCurrentDivision() != 2) return false;
+            if(entry.ApartmentSubdivision && h->GetCurrentDivision() != 2) return false;
             return entry.Apartment == h->GetCurrentRoom();
         }
         return false;
@@ -213,10 +213,10 @@ internal static unsafe class Utils
 
     public static bool IsQuickTravelAvailable(this AddressBookEntry entry)
     {
-        if (P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward-1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
-				var h = HousingManager.Instance();
+        if(P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward - 1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
+        var h = HousingManager.Instance();
         return h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.Id;
-		}
+    }
 
     public static void GoTo(this AddressBookEntry entry)
     {
@@ -225,41 +225,41 @@ internal static unsafe class Utils
             Notify.Error($"Can not travel while character is not available");
             return;
         }
-        if (!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        if(!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
         {
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;
         }
-        if (entry.IsQuickTravelAvailable())
+        if(entry.IsQuickTravelAvailable())
         {
-            if (entry.PropertyType == PropertyType.House)
+            if(entry.PropertyType == PropertyType.House)
             {
                 TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(entry.City, entry.Plot - 1, false, default, false);
             }
-            else if (entry.PropertyType == PropertyType.Apartment)
+            else if(entry.PropertyType == PropertyType.Apartment)
             {
                 TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(entry.City, entry.Apartment - 1, true, entry.ApartmentSubdivision, false);
             }
         }
         else
         {
-            if (entry.PropertyType == PropertyType.House)
+            if(entry.PropertyType == PropertyType.House)
             {
                 TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Plot - 1, false, default);
             }
-            else if (entry.PropertyType == PropertyType.Apartment)
+            else if(entry.PropertyType == PropertyType.Apartment)
             {
                 TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
             }
         }
-		}
+    }
 
-		public static string FancyDigits(this int n)
-		{
-				return n.ToString().ReplaceByChar(Lang.Digits.Normal, Lang.Digits.GameFont);
-		}
+    public static string FancyDigits(this int n)
+    {
+        return n.ToString().ReplaceByChar(Lang.Digits.Normal, Lang.Digits.GameFont);
+    }
 
-		public static void SaveGeneratedHousingData()
+    public static void SaveGeneratedHousingData()
     {
         EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", false);
     }
@@ -267,7 +267,7 @@ internal static unsafe class Utils
     public static float CalculatePathDistance(Vector3[] vectors)
     {
         var distance = 0f;
-        for (int i = 0; i < vectors.Length - 1; i++)
+        for(var i = 0; i < vectors.Length - 1; i++)
         {
             distance += Vector3.Distance(vectors[i], vectors[i + 1]);
         }
@@ -276,58 +276,58 @@ internal static unsafe class Utils
 
     public static bool? WaitForScreen() => IsScreenReady();
 
-		public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryteKind refConfigField)
-		{
-				var ret = false;
-        var names = TabAddressBook.ResidentialNames;
-				if (ImGui.BeginCombo(name, names.SafeSelect(refConfigField) ?? $"{refConfigField}"))
-				{
-						var values = Enum.GetValues<ResidentialAetheryteKind>();
-						foreach (var x in values)
-						{
-                var equals = x == refConfigField;
-                if (x.RenderIcon(ImGui.CalcTextSize("A").Y)) ImGui.SameLine(0, 1);
-								if (ImGui.Selectable(names.SafeSelect(x) ?? $"{x}", equals))
-								{
-										ret = true;
-										refConfigField = x;
-								}
-								if (ImGui.IsWindowAppearing() && equals) ImGui.SetScrollHereY();
-						}
-						ImGui.EndCombo();
-				}
-				return ret;
-		}
-
-		public static string GetAutoName(this AddressBookEntry entry)
+    public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryteKind refConfigField)
     {
-				var builder = new StringBuilder();
+        var ret = false;
+        var names = TabAddressBook.ResidentialNames;
+        if(ImGui.BeginCombo(name, names.SafeSelect(refConfigField) ?? $"{refConfigField}"))
+        {
+            var values = Enum.GetValues<ResidentialAetheryteKind>();
+            foreach(var x in values)
+            {
+                var equals = x == refConfigField;
+                if(x.RenderIcon(ImGui.CalcTextSize("A").Y)) ImGui.SameLine(0, 1);
+                if(ImGui.Selectable(names.SafeSelect(x) ?? $"{x}", equals))
+                {
+                    ret = true;
+                    refConfigField = x;
+                }
+                if(ImGui.IsWindowAppearing() && equals) ImGui.SetScrollHereY();
+            }
+            ImGui.EndCombo();
+        }
+        return ret;
+    }
+
+    public static string GetAutoName(this AddressBookEntry entry)
+    {
+        var builder = new StringBuilder();
         builder.Append(ExcelWorldHelper.GetName(entry.World));
         builder.Append(", ");
         builder.Append(TabAddressBook.ResidentialNames.SafeSelect(entry.City) ?? "???");
-				builder.Append(", Ward ");
+        builder.Append(", Ward ");
         builder.Append(entry.Ward);
-				if (entry.PropertyType == PropertyType.House)
+        if(entry.PropertyType == PropertyType.House)
         {
-						builder.Append(", Plot ");
+            builder.Append(", Plot ");
             builder.Append(entry.Plot);
-				}
+        }
         if(entry.PropertyType == PropertyType.Apartment)
         {
-						builder.Append(", Apartment ");
-						builder.Append(entry.Apartment);
-            if (entry.ApartmentSubdivision)
+            builder.Append(", Apartment ");
+            builder.Append(entry.Apartment);
+            if(entry.ApartmentSubdivision)
             {
                 builder.Append(" (subdivision)");
             }
-				}
+        }
         return builder.ToString();
     }
 
     public static bool RenderIcon(this ResidentialAetheryteKind residentialAetheryte, float? size = null)
     {
         return NuiTools.RenderResidentialIcon(residentialAetheryte.GetResidentialTerritory(), size);
-		}
+    }
 
     internal static void TryNotify(string s)
     {
@@ -395,7 +395,7 @@ internal static unsafe class Utils
         //if (agent->AgentInterface.IsAgentActive())
         {
             var charaSpan = agent->LobbyData.CharaSelectEntries.AsSpan();
-            for (int i = 0; i < charaSpan.Length; i++)
+            for(var i = 0; i < charaSpan.Length; i++)
             {
                 var s = charaSpan[i];
                 ret.Add(($"{s.Value->Name.Read()}", s.Value->HomeWorldId));
@@ -410,9 +410,9 @@ internal static unsafe class Utils
 
     internal static IGameObject GetReachableAetheryte(Predicate<IGameObject> predicate, bool littleDistance = false)
     {
-        if (!Player.Available) return null;
+        if(!Player.Available) return null;
         var a = Svc.Objects.OrderBy(x => Vector3.DistanceSquared(Player.Object.Position, x.Position)).FirstOrDefault(x => predicate(x));
-        if(a != null && a.IsTargetable && Vector3.Distance(a.Position, Player.Object.Position) < (littleDistance?13f:30f))
+        if(a != null && a.IsTargetable && Vector3.Distance(a.Position, Player.Object.Position) < (littleDistance ? 13f : 30f))
         {
             return a;
         }
@@ -471,7 +471,7 @@ internal static unsafe class Utils
     {
         foreach(var x in addons)
         {
-            if (TryGetAddonByName<AtkUnitBase>(x, out var a) && a->IsVisible) return true;
+            if(TryGetAddonByName<AtkUnitBase>(x, out var a) && a->IsVisible) return true;
         }
         return false;
     }
@@ -479,16 +479,16 @@ internal static unsafe class Utils
     {
         if(TryGetAddonByName<AtkUnitBase>("AreaMap", out var map) && IsAddonReady(map) && map->IsVisible)
         {
-             return true;
+            return true;
         }
         return false;
     }
 
     internal static AetheryteUseState CanUseAetheryte()
     {
-        if (P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
-        if (P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
-        if (P.ResidentialAethernet.IsInResidentialZone() && P.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
+        if(P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
+        if(P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
+        if(P.ResidentialAethernet.IsInResidentialZone() && P.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
         return AetheryteUseState.None;
     }
 
@@ -507,7 +507,7 @@ internal static unsafe class Utils
         return t.ID.EqualsAny<uint>(2, 8, 9, 70, 111);
     }
 
-    static Dictionary<ResidentialAetheryteKind, uint> TerritoryForResidentialAetheryte = new()
+    private static Dictionary<ResidentialAetheryteKind, uint> TerritoryForResidentialAetheryte = new()
     {
         [ResidentialAetheryteKind.Uldah] = MainCities.Uldah_Steps_of_Nald,
         [ResidentialAetheryteKind.Gridania] = MainCities.New_Gridania,
@@ -515,8 +515,7 @@ internal static unsafe class Utils
         [ResidentialAetheryteKind.Kugane] = MainCities.Kugane,
         [ResidentialAetheryteKind.Foundation] = MainCities.Foundation,
     };
-
-    static Dictionary<ResidentialAetheryteKind, uint> ResidentialTerritoryForResidentialAetheryte = new()
+    private static Dictionary<ResidentialAetheryteKind, uint> ResidentialTerritoryForResidentialAetheryte = new()
     {
         [ResidentialAetheryteKind.Uldah] = ResidentalAreas.The_Goblet,
         [ResidentialAetheryteKind.Gridania] = ResidentalAreas.The_Lavender_Beds,
@@ -524,8 +523,7 @@ internal static unsafe class Utils
         [ResidentialAetheryteKind.Kugane] = ResidentalAreas.Shirogane,
         [ResidentialAetheryteKind.Foundation] = ResidentalAreas.Empyreum,
     };
-
-    static Dictionary<WorldChangeAetheryte, uint> TerritoryForWorldChangeAetheryte = new()
+    private static Dictionary<WorldChangeAetheryte, uint> TerritoryForWorldChangeAetheryte = new()
     {
         [WorldChangeAetheryte.Uldah] = MainCities.Uldah_Steps_of_Nald,
         [WorldChangeAetheryte.Gridania] = MainCities.New_Gridania,
@@ -549,20 +547,20 @@ internal static unsafe class Utils
     internal static ResidentialAetheryteKind? GetResidentialAetheryteByTerritoryType(uint territoryType)
     {
         var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(territoryType);
-        if (t == null) return null;
-				if (t.PlaceNameRegion.Row == 2402) return ResidentialAetheryteKind.Kugane;
-				if (t.PlaceNameRegion.Row == 25) return ResidentialAetheryteKind.Foundation;
-				if (t.PlaceNameRegion.Row == 23) return ResidentialAetheryteKind.Gridania;
-				if (t.PlaceNameRegion.Row == 24) return ResidentialAetheryteKind.Uldah;
-				if (t.PlaceNameRegion.Row == 22) return ResidentialAetheryteKind.Limsa;
+        if(t == null) return null;
+        if(t.PlaceNameRegion.Row == 2402) return ResidentialAetheryteKind.Kugane;
+        if(t.PlaceNameRegion.Row == 25) return ResidentialAetheryteKind.Foundation;
+        if(t.PlaceNameRegion.Row == 23) return ResidentialAetheryteKind.Gridania;
+        if(t.PlaceNameRegion.Row == 24) return ResidentialAetheryteKind.Uldah;
+        if(t.PlaceNameRegion.Row == 22) return ResidentialAetheryteKind.Limsa;
         return null;
-		}
+    }
 
     internal static WorldChangeAetheryte? GetWorldChangeAetheryteByTerritoryType(uint territoryType)
     {
         var c = TerritoryForWorldChangeAetheryte.FindKeysByValue(territoryType);
-				return c.Any() ? c.First() : null;
-		}
+        return c.Any() ? c.First() : null;
+    }
 
     internal static bool TryGetTinyAetheryteFromIGameObject(IGameObject a, out TinyAetheryte? t, uint? TerritoryType = null)
     {
@@ -572,19 +570,19 @@ internal static unsafe class Utils
             t = default;
             return false;
         }
-        if (a.ObjectKind == ObjectKind.Aetheryte)
+        if(a.ObjectKind == ObjectKind.Aetheryte)
         {
             var pos2 = a.Position.ToVector2();
-            foreach (var x in P.DataStore.Aetherytes)
+            foreach(var x in P.DataStore.Aetherytes)
             {
-                if (x.Key.TerritoryType == TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
+                if(x.Key.TerritoryType == TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
                 {
                     t = x.Key;
                     return true;
                 }
-                foreach (var l in x.Value)
+                foreach(var l in x.Value)
                 {
-                    if (l.TerritoryType == TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
+                    if(l.TerritoryType == TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
                     {
                         t = l;
                         return true;
@@ -598,21 +596,21 @@ internal static unsafe class Utils
 
     internal static float ConvertMapMarkerToMapCoordinate(int pos, float scale)
     {
-        float num = scale / 100f;
+        var num = scale / 100f;
         var rawPosition = (int)((float)(pos - 1024.0) / num * 1000f);
         return ConvertRawPositionToMapCoordinate(rawPosition, scale);
     }
 
     internal static float ConvertMapMarkerToRawPosition(int pos, float scale)
     {
-        float num = scale / 100f;
+        var num = scale / 100f;
         var rawPosition = ((float)(pos - 1024.0) / num);
         return rawPosition;
     }
 
     internal static float ConvertRawPositionToMapCoordinate(int pos, float scale)
     {
-        float num = scale / 100f;
+        var num = scale / 100f;
         return (float)((pos / 1000f * num + 1024.0) / 2048.0 * 41.0 / num + 1.0);
     }
 
@@ -620,19 +618,19 @@ internal static unsafe class Utils
 
     internal static AtkUnitBase* GetSpecificYesno(bool contains, params string[] s)
     {
-        for (int i = 1; i < 100; i++)
+        for(var i = 1; i < 100; i++)
         {
             try
             {
                 var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i);
-                if (addon == null) return null;
-                if (IsAddonReady(addon))
+                if(addon == null) return null;
+                if(IsAddonReady(addon))
                 {
                     var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
                     var text = MemoryHelper.ReadSeString(&textNode->NodeText).ExtractText().Replace(" ", "");
-                    if (contains? 
+                    if(contains ?
                         text.ContainsAny(s.Select(x => x.Replace(" ", "")))
-                        :text.EqualsAny(s.Select(x => x.Replace(" ", "")))
+                        : text.EqualsAny(s.Select(x => x.Replace(" ", "")))
                         )
                     {
                         PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
@@ -640,7 +638,7 @@ internal static unsafe class Utils
                     }
                 }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 e.Log();
                 return null;
@@ -651,14 +649,14 @@ internal static unsafe class Utils
 
     internal static string[] GetAvailableWorldDestinations()
     {
-        if (TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+        if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
         {
             List<string> arr = [];
-            for (int i = 3; i <= 9; i++)
+            for(var i = 3; i <= 9; i++)
             {
                 var item = addon->UldManager.NodeList[4]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
                 var text = MemoryHelper.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[4]->GetAsAtkTextNode()->NodeText).ExtractText();
-                if (text == "") break;
+                if(text == "") break;
                 arr.Add(text);
             }
             return [.. arr];
@@ -668,14 +666,14 @@ internal static unsafe class Utils
 
     internal static string[] GetAvailableAethernetDestinations()
     {
-        if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
+        if(TryGetAddonByName<AtkUnitBase>("TelepotTown", out var addon) && IsAddonReady(addon))
         {
             List<string> arr = [];
-            for (int i = 1; i <= 52; i++)
+            for(var i = 1; i <= 52; i++)
             {
                 var item = addon->UldManager.NodeList[16]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
                 var text = MemoryHelper.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText().Trim();
-                if (text == "") break;
+                if(text == "") break;
                 arr.Add(text);
             }
             return [.. arr];
@@ -691,11 +689,11 @@ internal static unsafe class Utils
             {
                 var d2d = Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2());
                 var d3d = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
-                if (P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
+                if(P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
 
-                if (d2d < 11f 
-                    && d3d < 15f 
-                    && x.IsVPosValid() 
+                if(d2d < 11f
+                    && d3d < 15f
+                    && x.IsVPosValid()
                     && x.IsTargetable)
                 {
                     return x;
@@ -707,7 +705,7 @@ internal static unsafe class Utils
 
     public static bool IsAetheryte(this IGameObject obj)
     {
-        if (obj.ObjectKind == ObjectKind.Aetheryte) return true;
+        if(obj.ObjectKind == ObjectKind.Aetheryte) return true;
         return Utils.AethernetShards.Contains(obj.DataId);
     }
 
@@ -722,18 +720,18 @@ internal static unsafe class Utils
 
     internal static bool TrySelectSpecificEntry(string text, Func<bool> Throttle)
     {
-        return TrySelectSpecificEntry(new string[] {text }, Throttle);  
+        return TrySelectSpecificEntry(new string[] { text }, Throttle);
     }
 
     internal static bool TrySelectSpecificEntry(IEnumerable<string> text, Func<bool> Throttle)
     {
-        if (TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase))
+        if(TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase))
         {
             var entry = GetEntries(addon).FirstOrDefault(x => x.EqualsAny(text));
-            if (entry != null)
+            if(entry != null)
             {
                 var index = GetEntries(addon).IndexOf(entry);
-                if (index >= 0 && IsSelectItemEnabled(addon, index) && Throttle())
+                if(index >= 0 && IsSelectItemEnabled(addon, index) && Throttle())
                 {
                     new SelectStringMaster(addon).Entries[index].Select();
                     PluginLog.Debug($"TrySelectSpecificEntry: selecting {entry}/{index} as requested by {text.Print()}");
@@ -756,7 +754,7 @@ internal static unsafe class Utils
     internal static List<string> GetEntries(AddonSelectString* addon)
     {
         var list = new List<string>();
-        for (int i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
+        for(var i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
         {
             list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).ExtractText().Trim());
         }
@@ -768,13 +766,13 @@ internal static unsafe class Utils
 
     internal static int GetServiceAccount(string nameWithWorld)
     {
-        if (P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
+        if(P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
         {
             var chars = P.AutoRetainerApi.GetRegisteredCharacters();
-            foreach (var c in chars)
+            foreach(var c in chars)
             {
                 var data = P.AutoRetainerApi.GetOfflineCharacterData(c);
-                if (data != null)
+                if(data != null)
                 {
                     var name = $"{data.Name}@{data.World}";
                     if(nameWithWorld == name && data.ServiceAccount > -1)
@@ -786,7 +784,7 @@ internal static unsafe class Utils
         }
         if(P.Config.ServiceAccounts.TryGetValue(nameWithWorld, out var ret))
         {
-            if (ret > -1) return ret;
+            if(ret > -1) return ret;
         }
         return 0;
     }

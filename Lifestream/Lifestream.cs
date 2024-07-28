@@ -114,17 +114,17 @@ public unsafe class Lifestream : IDalamudPlugin
             VnavmeshManager = new();
             SplatoonManager = new();
             AddressBookFileSystem = new(Config.AddressBookFolders, "AddressBook");
-						AddressBookFileSystem.Selector.OnAfterDrawLeafName += TabAddressBook.Selector_OnAfterDrawLeafName;
-						AddressBookFileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
-						AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
-						AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
+            AddressBookFileSystem.Selector.OnAfterDrawLeafName += TabAddressBook.Selector_OnAfterDrawLeafName;
+            AddressBookFileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
+            AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
+            AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
             IPCProvider = new();
             SingletonServiceManager.Initialize(typeof(Service));
-				});
+        });
     }
 
-		private void Selector_OnImportPopupOpen(string clipboardText, ref string newName)
-		{
+    private void Selector_OnImportPopupOpen(string clipboardText, ref string newName)
+    {
         try
         {
             var item = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookFolder>(clipboardText);
@@ -134,34 +134,34 @@ public unsafe class Lifestream : IDalamudPlugin
             }
         }
         catch(Exception e) { }
-		}
+    }
 
-		private void Selector_OnBeforeCopy(AddressBookFolder original, ref AddressBookFolder copy)
-		{
-				copy.IsCopy = true;
+    private void Selector_OnBeforeCopy(AddressBookFolder original, ref AddressBookFolder copy)
+    {
+        copy.IsCopy = true;
         if(AddressBookFileSystem.FindLeaf(original, out var leaf))
         {
             copy.ExportedName = leaf.Name;
         }
-		}
+    }
 
-		private void Selector_OnBeforeItemCreation(ref AddressBookFolder item)
-		{
-        if (item.Entries == null)
+    private void Selector_OnBeforeItemCreation(ref AddressBookFolder item)
+    {
+        if(item.Entries == null)
         {
             item = null;
             Notify.Error($"Item contains invalid data");
         }
         item.IsDefault = false;
         item.GUID = Guid.NewGuid();
-		}
+    }
 
-		private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
+    private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
     {
-        if (!Svc.ClientState.IsLoggedIn)
+        if(!Svc.ClientState.IsLoggedIn)
         {
             //430	60	8	0	False	Please wait and try logging in later.
-            if (message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ExtractText().Trim())
+            if(message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ExtractText().Trim())
             {
                 PluginLog.Warning($"CharaSelectListMenuError encountered");
                 EzThrottler.Throttle("CharaSelectListMenuError", 2.Minutes(), true);
@@ -171,9 +171,9 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
-        if (arguments == "stop")
+        if(arguments == "stop")
         {
-            Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy?1:0)} tasks");
+            Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy ? 1 : 0)} tasks");
             TaskManager.Abort();
             followPath?.Stop();
         }
@@ -183,7 +183,7 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 DuoLog.Warning($"Already in instance {val}");
             }
-            else if (S.InstanceHandler.CanChangeInstance())
+            else if(S.InstanceHandler.CanChangeInstance())
             {
                 TaskChangeInstance.Enqueue(val);
             }
@@ -196,19 +196,19 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             S.SelectWorldWindow.IsOpen = true;
         }
-        else if (arguments == "auto")
+        else if(arguments == "auto")
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Auto);
         }
-        else if (arguments.EqualsIgnoreCaseAny("home", "house", "private"))
+        else if(arguments.EqualsIgnoreCaseAny("home", "house", "private"))
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Home);
         }
-        else if (arguments.EqualsIgnoreCaseAny("fc", "free", "company", "company", "free company"))
+        else if(arguments.EqualsIgnoreCaseAny("fc", "free", "company", "company", "free company"))
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC);
         }
-        else if (arguments.EqualsIgnoreCaseAny("apartment", "apt"))
+        else if(arguments.EqualsIgnoreCaseAny("apartment", "apt"))
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
@@ -217,25 +217,25 @@ public unsafe class Lifestream : IDalamudPlugin
             var arglist = arguments.Split(" ");
             var isChest = arguments.StartsWithAny("gcc", "hcc");
             var returnHome = arguments[0] == 'h';
-            if (arglist.Length == 1)
+            if(arglist.Length == 1)
             {
                 TaskGCShortcut.Enqueue(null, isChest, returnHome);
             }
             else
             {
-                if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.TwinAdder.ToString(), "Twin Adder", "Twin", "Adder", "TA", "A", "serpent"))
+                if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.TwinAdder.ToString(), "Twin Adder", "Twin", "Adder", "TA", "A", "serpent"))
                 {
                     TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest, returnHome);
                 }
-                else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.Maelstrom.ToString(), "Mael", "S", "M", "storm", "strom"))
+                else if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.Maelstrom.ToString(), "Mael", "S", "M", "storm", "strom"))
                 {
                     TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest, returnHome);
                 }
-                else if (arglist[1].EqualsIgnoreCaseAny(GrandCompany.ImmortalFlames.ToString(), "Immortal Flames", "Immortal", "Flames", "IF", "F", "flame"))
+                else if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.ImmortalFlames.ToString(), "Immortal Flames", "Immortal", "Flames", "IF", "F", "flame"))
                 {
                     TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest, returnHome);
                 }
-                else if (Enum.TryParse<GrandCompany>(arglist[1], out var result))
+                else if(Enum.TryParse<GrandCompany>(arglist[1], out var result))
                 {
                     TaskGCShortcut.Enqueue(result, isChest, returnHome);
                 }
@@ -259,7 +259,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else
         {
-            if (command.EqualsIgnoreCase("/lifestream") && arguments == "")
+            if(command.EqualsIgnoreCase("/lifestream") && arguments == "")
             {
                 EzConfigGui.Open();
             }
@@ -278,7 +278,7 @@ public unsafe class Lifestream : IDalamudPlugin
                         }
                     }
                 }
-                if (DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
+                if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
                     TPAndChangeWorld(w, false, secondary);
                 }
@@ -306,26 +306,26 @@ public unsafe class Lifestream : IDalamudPlugin
             returnToGateway ??= P.Config.DCReturnToGateway;
             gateway ??= P.Config.WorldChangeAetheryte;
             doNotify ??= true;
-            if (secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
+            if(secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
             {
                 secondaryTeleport = P.Config.WorldVisitTPTarget;
             }
-            if (isDcTransfer && !P.Config.AllowDcTransfer)
+            if(isDcTransfer && !P.Config.AllowDcTransfer)
             {
                 Notify.Error($"Data center transfers are not enabled in the configuration.");
                 return;
             }
-            if (TaskManager.IsBusy)
+            if(TaskManager.IsBusy)
             {
                 Notify.Error("Another task is in progress");
                 return;
             }
-            if (!Player.Available)
+            if(!Player.Available)
             {
                 Notify.Error("No player");
                 return;
             }
-            if (w == Player.CurrentWorld)
+            if(w == Player.CurrentWorld)
             {
                 Notify.Error("Already in this world");
                 return;
@@ -335,24 +335,24 @@ public unsafe class Lifestream : IDalamudPlugin
                 Notify.Error("You are unable to teleport at this time");
                 return;
             }*/
-            if (Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
+            if(Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
             Utils.DisplayInfo($"Destination: {w}");
-            if (isDcTransfer)
+            if(isDcTransfer)
             {
                 var type = DCVType.Unknown;
                 var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
                 var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
                 var targetDC = Utils.GetDataCenter(w);
-                if (currentDC == homeDC)
+                if(currentDC == homeDC)
                 {
                     type = DCVType.HomeToGuest;
                 }
                 else
                 {
-                    if (targetDC == homeDC)
+                    if(targetDC == homeDC)
                     {
                         type = DCVType.GuestToHome;
                     }
@@ -362,36 +362,36 @@ public unsafe class Lifestream : IDalamudPlugin
                     }
                 }
                 TaskRemoveAfkStatus.Enqueue();
-                if (type != DCVType.Unknown)
+                if(type != DCVType.Unknown)
                 {
-                    if (Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                     {
                         TaskTpToAethernetDestination.Enqueue(gateway.Value);
                     }
-                    if (Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                    if(Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
                     {
                         TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
                     }
                 }
-                if (type == DCVType.HomeToGuest)
+                if(type == DCVType.HomeToGuest)
                 {
-                    if (!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value, false);
+                    if(!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value, false);
                     TaskWaitUntilInHomeWorld.Enqueue();
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
 
-                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
-                    if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
                     EnqueueSecondary();
                 }
-                else if (type == DCVType.GuestToHome)
+                else if(type == DCVType.GuestToHome)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
-                    if (Player.HomeWorld != w)
+                    if(Player.HomeWorld != w)
                     {
                         TaskManager.EnqueueMulti([
                             new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
@@ -403,18 +403,18 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         TaskWaitUntilInWorld.Enqueue(w);
                     }
-                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
-                    if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                    if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
                     EnqueueSecondary();
                 }
-                else if (type == DCVType.GuestToGuest)
+                else if(type == DCVType.GuestToGuest)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
                     TaskReturnToHomeDC.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskChangeDatacenter.Enqueue(w, Player.Name, Player.Object.HomeWorld.Id);
                     TaskSelectChara.Enqueue(Player.Name, Player.Object.HomeWorld.Id);
                     TaskWaitUntilInWorld.Enqueue(w);
-                    if (gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
+                    if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
                     TaskDesktopNotification.Enqueue($"Arrived to {w}");
                     EnqueueSecondary();
                 }
@@ -428,14 +428,14 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskTPAndChangeWorld.Enqueue(w, gateway.Value, false);
-                if (doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
+                if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {w}");
                 EnqueueSecondary();
             }
 
             void EnqueueSecondary()
             {
-                if (noSecondaryTeleport) return;
-                if (!secondaryTeleport.IsNullOrEmpty())
+                if(noSecondaryTeleport) return;
+                if(!secondaryTeleport.IsNullOrEmpty())
                 {
                     TaskManager.EnqueueMulti([
                         new(() => Player.Interactable),
@@ -475,28 +475,28 @@ public unsafe class Lifestream : IDalamudPlugin
         P = null;
     }
 
-    void UpdateActiveAetheryte()
+    private void UpdateActiveAetheryte()
     {
         var a = Utils.GetValidAetheryte();
-        if (a != null)
+        if(a != null)
         {
             var pos2 = a.Position.ToVector2();
-            foreach (var x in DataStore.Aetherytes)
+            foreach(var x in DataStore.Aetherytes)
             {
-                if (x.Key.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
+                if(x.Key.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
                 {
-                    if (ActiveAetheryte == null)
+                    if(ActiveAetheryte == null)
                     {
                         Overlay.IsOpen = true;
                     }
                     ActiveAetheryte = x.Key;
                     return;
                 }
-                foreach (var l in x.Value)
+                foreach(var l in x.Value)
                 {
-                    if (l.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
+                    if(l.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
                     {
-                        if (ActiveAetheryte == null)
+                        if(ActiveAetheryte == null)
                         {
                             Overlay.IsOpen = true;
                         }
@@ -510,7 +510,7 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             ActiveAetheryte = null;
         }
-        if (!Overlay.IsOpen)
+        if(!Overlay.IsOpen)
         {
             if(P.Config.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
             {

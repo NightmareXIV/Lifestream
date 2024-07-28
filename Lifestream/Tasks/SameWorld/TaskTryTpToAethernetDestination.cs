@@ -7,12 +7,12 @@ internal static class TaskTryTpToAethernetDestination
 {
     public static void Enqueue(string targetName)
     {
-        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
-        if (P.ActiveAetheryte != null)
+        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(P.ActiveAetheryte != null)
         {
             P.TaskManager.Enqueue(Process);
         }
-        else if (P.ResidentialAethernet.ActiveAetheryte != null)
+        else if(P.ResidentialAethernet.ActiveAetheryte != null)
         {
             foreach(var x in P.ResidentialAethernet.ZoneInfo[P.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes)
             {
@@ -27,7 +27,7 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(() =>
             {
-                if (P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
+                if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
                     P.TaskManager.InsertMulti(
                         new FrameDelayTask(10),
@@ -48,10 +48,10 @@ internal static class TaskTryTpToAethernetDestination
         {
             var master = Utils.GetMaster();
             {
-                if (P.ActiveAetheryte != master)
+                if(P.ActiveAetheryte != master)
                 {
                     var name = master.Name;
-                    if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
                         P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
@@ -62,12 +62,12 @@ internal static class TaskTryTpToAethernetDestination
                 }
             }
 
-            foreach (var x in P.DataStore.Aetherytes[master])
+            foreach(var x in P.DataStore.Aetherytes[master])
             {
-                if (P.ActiveAetheryte != x)
+                if(P.ActiveAetheryte != x)
                 {
                     var name = x.Name;
-                    if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
                         P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
@@ -78,10 +78,10 @@ internal static class TaskTryTpToAethernetDestination
                 }
             }
 
-            if (P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
+            if(P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
             {
                 var name = "Firmament";
-                if (name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                 {
                     P.TaskManager.BeginStack();
                     TaskRemoveAfkStatus.Enqueue();

@@ -14,7 +14,7 @@ public class Config : IEzConfig
     public Vector2 Offset = Vector2.Zero;
     public bool UseMapTeleport = true;
     public bool HideAddon = true;
-    public HashSet<string> HideAddonList = [..Utils.DefaultAddons];
+    public HashSet<string> HideAddonList = [.. Utils.DefaultAddons];
     public BasePositionHorizontal PosHorizontal = BasePositionHorizontal.Middle;
     public BasePositionVertical PosVertical = BasePositionVertical.Middle;
     public bool ShowAethernet = true;

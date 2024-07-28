@@ -14,7 +14,7 @@ internal unsafe struct InputData
     {
         get
         {
-            fixed (byte* ptr = RawDump)
+            fixed(byte* ptr = RawDump)
             {
                 return new Span<byte>(ptr, sizeof(InputData));
             }

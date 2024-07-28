@@ -10,7 +10,7 @@ public class SplatoonManager
     public SplatoonManager()
     {
         Splatoon.SetOnConnect(Reset);
-        if (Splatoon.IsConnected()) Reset();
+        if(Splatoon.IsConnected()) Reset();
     }
 
     private void Reset()
@@ -21,7 +21,7 @@ public class SplatoonManager
     private unsafe void ResetOnFrameChange()
     {
         var frame = CSFramework.Instance()->FrameCounter;
-        if (frame != Frame)
+        if(frame != Frame)
         {
             Frame = frame;
             Reset();
@@ -31,9 +31,9 @@ public class SplatoonManager
     public void RenderPath(IReadOnlyList<Vector3> path, bool addPlayer = true)
     {
         Vector3? prev = null;
-        if (path != null && path.Count > 0)
+        if(path != null && path.Count > 0)
         {
-            for (int i = 0; i < path.Count; i++)
+            for(var i = 0; i < path.Count; i++)
             {
                 var point = GetNextPoint();
                 point.SetRefCoord(path[i]);
@@ -41,7 +41,7 @@ public class SplatoonManager
                 line.SetRefCoord(path[i]);
                 line.SetOffCoord(prev ?? Player.Object.Position);
                 line.color = (prev != null ? ImGuiColors.DalamudYellow : ImGuiColors.HealerGreen).ToUint();
-                if (prev != null || addPlayer)
+                if(prev != null || addPlayer)
                 {
                     Splatoon.DisplayOnce(point);
                     Splatoon.DisplayOnce(line);
@@ -55,7 +55,7 @@ public class SplatoonManager
     {
         ResetOnFrameChange();
         Element ret;
-        if (Cache.WaymarkLineCache.Count < Cache.WaymarkLinePos)
+        if(Cache.WaymarkLineCache.Count < Cache.WaymarkLinePos)
         {
             ret = Cache.WaymarkLineCache[Cache.WaymarkLinePos];
         }
@@ -76,7 +76,7 @@ public class SplatoonManager
     {
         ResetOnFrameChange();
         Element ret;
-        if (Cache.WaymarkPointCache.Count < Cache.WaymarkPointPos)
+        if(Cache.WaymarkPointCache.Count < Cache.WaymarkPointPos)
         {
             ret = Cache.WaymarkPointCache[Cache.WaymarkPointPos];
         }

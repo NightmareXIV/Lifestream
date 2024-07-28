@@ -13,18 +13,18 @@ using Lifestream.Systems.Legacy;
 
 namespace Lifestream.Schedulers;
 
-internal unsafe static class WorldChange
+internal static unsafe class WorldChange
 {
     internal static bool? TargetValidAetheryte()
     {
-        if (!Player.Available) return false;
-        if (IsOccupied()) return false;
+        if(!Player.Available) return false;
+        if(IsOccupied()) return false;
         var a = Utils.GetValidAetheryte();
-        if (a != null)
+        if(a != null)
         {
-            if (a.Address != Svc.Targets.Target?.Address)
+            if(a.Address != Svc.Targets.Target?.Address)
             {
-                if (EzThrottler.Throttle("TargetValidAetheryte", 500))
+                if(EzThrottler.Throttle("TargetValidAetheryte", 500))
                 {
                     Svc.Targets.SetTarget(a);
                     return true;
@@ -40,13 +40,13 @@ internal unsafe static class WorldChange
 
     internal static bool? InteractWithTargetedAetheryte()
     {
-        if (!Player.Available) return false;
-        if (Player.IsAnimationLocked) return false;
-        if (IsOccupied()) return false;
+        if(!Player.Available) return false;
+        if(Player.IsAnimationLocked) return false;
+        if(IsOccupied()) return false;
         var a = Utils.GetValidAetheryte();
-        if (a != null && Svc.Targets.Target?.Address == a.Address)
+        if(a != null && Svc.Targets.Target?.Address == a.Address)
         {
-            if (EzThrottler.Throttle("InteractWithTargetedAetheryte", 500))
+            if(EzThrottler.Throttle("InteractWithTargetedAetheryte", 500))
             {
                 TargetSystem.Instance()->InteractWithObject(a.Struct(), false);
                 return true;
@@ -57,23 +57,23 @@ internal unsafe static class WorldChange
 
     internal static bool? SelectAethernet()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         return Utils.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? SelectVisitAnotherWorld()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         return Utils.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? ConfirmWorldVisit(string s)
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
-        if (x != null)
+        if(x != null)
         {
-            if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
+            if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
             {
                 new SelectYesnoMaster(x).Yes();
                 return true;
@@ -84,14 +84,14 @@ internal unsafe static class WorldChange
 
     internal static bool? SelectWorldToVisit(string world)
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         var worlds = Utils.GetAvailableWorldDestinations();
         var index = Array.IndexOf(worlds, world);
-        if (index != -1)
+        if(index != -1)
         {
-            if (TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+            if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
             {
-                if (EzThrottler.Throttle("SelectWorldToVisit", 5000))
+                if(EzThrottler.Throttle("SelectWorldToVisit", 5000))
                 {
                     Callback.Fire(addon, true, index + 2);
                     return true;
@@ -158,18 +158,18 @@ internal unsafe static class WorldChange
 
     internal static bool? TeleportToAethernetDestination(string name)
     {
-        if (!Player.Available) return false;
-        if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
+        if(!Player.Available) return false;
+        if(TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
         {
             var reader = new ReaderTelepotTown(telep);
-            for (int i = 0; i < reader.DestinationName.Count; i++)
+            for(var i = 0; i < reader.DestinationName.Count; i++)
             {
-                if (reader.DestinationName[i].Name == name)
+                if(reader.DestinationName[i].Name == name)
                 {
                     var data = reader.DestinationData.SafeSelect(i);
                     if(data != null)
                     {
-                        if (EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
+                        if(EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                         {
                             var callback = data.CallbackData;
                             P.TaskManager.InsertMulti(
@@ -187,8 +187,8 @@ internal unsafe static class WorldChange
 
     internal static bool? ExecuteTPToAethernetDestination(uint destination, uint subIndex = 0)
     {
-        if (!Player.Available) return false;
-        if (AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
+        if(!Player.Available) return false;
+        if(AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
             return S.TeleportService.TeleportToAetheryte(destination, subIndex);
             //return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, (byte)subIndex);
@@ -198,18 +198,18 @@ internal unsafe static class WorldChange
 
     internal static bool? WaitUntilNotBusy()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable;
     }
 
 
     internal static bool? TargetReachableAetheryte()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         var a = Utils.GetReachableWorldChangeAetheryte();
-        if (a != null)
+        if(a != null)
         {
-            if (!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
+            if(!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
             {
                 Svc.Targets.SetTarget(a);
                 return true;
@@ -220,8 +220,8 @@ internal unsafe static class WorldChange
 
     internal static bool? LockOn()
     {
-        if (!Player.Available) return false;
-        if (Svc.Targets.Target != null && EzThrottler.Throttle("LockOn", 200))
+        if(!Player.Available) return false;
+        if(Svc.Targets.Target != null && EzThrottler.Throttle("LockOn", 200))
         {
             Chat.Instance.SendMessage("/lockon");
             return true;
@@ -231,8 +231,8 @@ internal unsafe static class WorldChange
 
     internal static bool? EnableAutomove()
     {
-        if (!Player.Available) return false;
-        if (EzThrottler.Throttle("EnableAutomove", 200))
+        if(!Player.Available) return false;
+        if(EzThrottler.Throttle("EnableAutomove", 200))
         {
             Chat.Instance.SendMessage("/automove on");
             return true;
@@ -242,14 +242,14 @@ internal unsafe static class WorldChange
 
     internal static bool? WaitUntilWorldChangeAetheryteExists()
     {
-        if (!Player.Available) return false;
+        if(!Player.Available) return false;
         return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte();
     }
 
     internal static bool? DisableAutomove()
     {
-        if (!Player.Available) return false;
-        if (EzThrottler.Throttle("DisableAutomove", 200))
+        if(!Player.Available) return false;
+        if(EzThrottler.Throttle("DisableAutomove", 200))
         {
             Chat.Instance.SendMessage("/automove off");
             return true;
@@ -259,9 +259,9 @@ internal unsafe static class WorldChange
 
     internal static bool? LeaveParty()
     {
-        if (!Player.Available) return false;
-        if (Svc.Party.Length < 2) return true;
-        if (EzThrottler.Throttle("LeaveParty", 200))
+        if(!Player.Available) return false;
+        if(Svc.Party.Length < 2) return true;
+        if(EzThrottler.Throttle("LeaveParty", 200))
         {
             Chat.Instance.SendMessage("/leave");
             return true;
@@ -271,9 +271,9 @@ internal unsafe static class WorldChange
 
     internal static bool? LeaveAnyParty()
     {
-        if (!Player.Available) return false;
-        if (Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]) return true;
-        if (EzThrottler.Throttle("LeaveParty", 200))
+        if(!Player.Available) return false;
+        if(Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]) return true;
+        if(EzThrottler.Throttle("LeaveParty", 200))
         {
             Chat.Instance.SendMessage("/leave");
             return true;
@@ -283,12 +283,12 @@ internal unsafe static class WorldChange
 
     internal static bool? ConfirmLeaveParty()
     {
-        if (!Player.Available) return false;
-        if (Svc.Party.Length < 2) return true;
+        if(!Player.Available) return false;
+        if(Svc.Party.Length < 2) return true;
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno();
-        if (x != null)
+        if(x != null)
         {
-            if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmLeaveParty"))
+            if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmLeaveParty"))
             {
                 new SelectYesnoMaster(x).Yes();
                 return true;

@@ -1,20 +1,20 @@
 ﻿
 using ECommons.Automation;
+using ECommons.Automation.UIInput;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
-using ECommons.Automation.UIInput;
-using ECommons.UIHelpers.AddonMasterImplementations;
 
 namespace Lifestream.Tasks.SameWorld;
-public unsafe static class TaskGoToResidentialDistrict
+public static unsafe class TaskGoToResidentialDistrict
 {
     public static void Enqueue(int ward)
     {
-        if (ward < 1 || ward > 30) throw new ArgumentOutOfRangeException(nameof(ward));
-        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(ward < 1 || ward > 30) throw new ArgumentOutOfRangeException(nameof(ward));
+        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         P.TaskManager.Enqueue(() => Utils.TrySelectSpecificEntry(Lang.ResidentialDistrict, () => EzThrottler.Throttle("SelectResidentialDistrict")), $"TaskGoToResidentialDistrictSelect {Lang.ResidentialDistrict}");
@@ -28,9 +28,9 @@ public unsafe static class TaskGoToResidentialDistrict
     public static bool ConfirmYesNoGoToWard()
     {
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.TravelTo);
-        if (x != null)
+        if(x != null)
         {
-            if (x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmTravelTo"))
+            if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmTravelTo"))
             {
                 new SelectYesnoMaster(x).Yes();
                 return true;
@@ -43,13 +43,13 @@ public unsafe static class TaskGoToResidentialDistrict
     {
         if(TryGetAddonByName<AtkUnitBase>("HousingSelectBlock", out var addon) && IsAddonReady(addon))
         {
-            if (ward == 1)
+            if(ward == 1)
             {
                 return true;
             }
             else
             {
-                if (EzThrottler.Throttle("HousingSelectBlockSelectWard"))
+                if(EzThrottler.Throttle("HousingSelectBlockSelectWard"))
                 {
                     Callback.Fire(addon, true, 1, ward - 1);
                     return true;
@@ -61,12 +61,12 @@ public unsafe static class TaskGoToResidentialDistrict
 
     public static bool? GoToWard()
     {
-        if (TryGetAddonByName<AtkUnitBase>("HousingSelectBlock", out var addon) && IsAddonReady(addon))
+        if(TryGetAddonByName<AtkUnitBase>("HousingSelectBlock", out var addon) && IsAddonReady(addon))
         {
             var button = addon->GetButtonNodeById(34);
-            if (button->IsEnabled)
+            if(button->IsEnabled)
             {
-                if (EzThrottler.Throttle("HousingSelectBlockConfirm"))
+                if(EzThrottler.Throttle("HousingSelectBlockConfirm"))
                 {
                     button->ClickAddonButton(addon);
                     return true;

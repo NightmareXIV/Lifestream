@@ -8,11 +8,11 @@ public static class TaskReturnToGateway
 {
     public static void Enqueue(WorldChangeAetheryte gateway)
     {
-        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WaitUntilInteractable);
         P.TaskManager.Enqueue(() =>
         {
-            if (Svc.ClientState.TerritoryType != gateway.GetTerritory())
+            if(Svc.ClientState.TerritoryType != gateway.GetTerritory())
             {
                 P.TaskManager.InsertMulti(
                     new(() => WorldChange.ExecuteTPToAethernetDestination((uint)gateway), $"ExecuteTPToAethernetDestination({gateway})"),

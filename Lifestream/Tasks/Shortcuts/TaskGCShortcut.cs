@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream.Tasks.Shortcuts;
-public unsafe static class TaskGCShortcut
+public static unsafe class TaskGCShortcut
 {
     public static readonly Dictionary<GrandCompany, Vector3> CompanyNPCPoints = new()
     {
@@ -60,12 +60,12 @@ public unsafe static class TaskGCShortcut
 
     public static void Enqueue(GrandCompany? companyNullable = null, bool isChest = false, bool returnHome = false)
     {
-        if (P.TaskManager.IsBusy)
+        if(P.TaskManager.IsBusy)
         {
             DuoLog.Error($"Lifestream is busy, could not process request");
             return;
         }
-        if (!Player.Available)
+        if(!Player.Available)
         {
             DuoLog.Error("Player not available");
             return;
@@ -76,9 +76,9 @@ public unsafe static class TaskGCShortcut
             DuoLog.Error($"Grand company not specified and player is unemployed");
             return;
         }
-        if (returnHome)
+        if(returnHome)
         {
-            if (!Player.IsInHomeWorld)
+            if(!Player.IsInHomeWorld)
             {
                 P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
             }
@@ -88,15 +88,15 @@ public unsafe static class TaskGCShortcut
         var point = (isChest ? CompanyChestPoints : CompanyNPCPoints)[company];
         P.TaskManager.Enqueue(() =>
         {
-            if (Player.Territory == CompanyTerritory[company])
+            if(Player.Territory == CompanyTerritory[company])
             {
                 P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
                 var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
                 P.TaskManager.Enqueue(() =>
                 {
-                    if (!task.IsCompleted) return false;
+                    if(!task.IsCompleted) return false;
                     var path = task.Result;
-                    if (Utils.CalculatePathDistance([.. path]) > 150f)
+                    if(Utils.CalculatePathDistance([.. path]) > 150f)
                     {
                         EnqueueFromStart();
                     }
@@ -116,16 +116,16 @@ public unsafe static class TaskGCShortcut
 
         void EnqueueFromStart()
         {
-            if (Player.GrandCompany == company && InventoryManager.Instance()->GetInventoryItemCount(CompanyItem[company]) > 0)
+            if(Player.GrandCompany == company && InventoryManager.Instance()->GetInventoryItemCount(CompanyItem[company]) > 0)
             {
                 P.TaskManager.Enqueue(() =>
                 {
-                    if (Player.IsAnimationLocked) return false;
-                    if (EzThrottler.Throttle("GCUseTicket", 1000))
+                    if(Player.IsAnimationLocked) return false;
+                    if(EzThrottler.Throttle("GCUseTicket", 1000))
                     {
                         AgentInventoryContext.Instance()->UseItem(CompanyItem[company]);
                     }
-                    if (Svc.Condition[ConditionFlag.Casting] || Player.Object.IsCasting) return true;
+                    if(Svc.Condition[ConditionFlag.Casting] || Player.Object.IsCasting) return true;
                     return false;
                 });
                 P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
@@ -134,9 +134,9 @@ public unsafe static class TaskGCShortcut
             }
             else
             {
-                if (company == GrandCompany.Maelstrom)
+                if(company == GrandCompany.Maelstrom)
                 {
-                    if (Utils.GetReachableWorldChangeAetheryte() == null || Player.Territory != MainCities.Limsa_Lominsa_Lower_Decks)
+                    if(Utils.GetReachableWorldChangeAetheryte() == null || Player.Territory != MainCities.Limsa_Lominsa_Lower_Decks)
                     {
                         TaskTpAndWaitForArrival.Enqueue(CompanyAetheryte[company]);
                     }
@@ -161,7 +161,7 @@ public unsafe static class TaskGCShortcut
                 var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
                 P.TaskManager.Enqueue(() =>
                 {
-                    if (!task.IsCompleted) return false;
+                    if(!task.IsCompleted) return false;
                     var path = task.Result;
                     P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
                     P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));

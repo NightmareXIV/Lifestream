@@ -19,7 +19,7 @@ public class SelectWorldWindow : Window
     public override void Draw()
     {
         var worlds = P.DataStore.DCWorlds.Concat(P.DataStore.Worlds).Select(x => ExcelWorldHelper.Get(x)).OrderBy(x => x.Name.ToString());
-        if (!worlds.Any())
+        if(!worlds.Any())
         {
             ImGuiEx.Text($"No available destinations");
             return;
@@ -30,8 +30,8 @@ public class SelectWorldWindow : Window
             foreach(var dc in datacenters)
             {
                 var modifier = "";
-                if (Player.Object?.HomeWorld.GameData.DataCenter.Row == dc.Row) modifier += "";
-                if (Player.Object?.CurrentWorld.GameData.DataCenter.Row != dc.Row) modifier += "";
+                if(Player.Object?.HomeWorld.GameData.DataCenter.Row == dc.Row) modifier += "";
+                if(Player.Object?.CurrentWorld.GameData.DataCenter.Row != dc.Row) modifier += "";
                 ImGui.TableSetupColumn($"{modifier}{dc.Value.Name}");
             }
             ImGui.TableHeadersRow();
@@ -40,10 +40,10 @@ public class SelectWorldWindow : Window
             foreach(var w in worlds)
             {
                 var newSize = ImGuiHelpers.GetButtonSize("" + w.Name);
-                if (newSize.X > buttonSize.X) buttonSize = newSize;
+                if(newSize.X > buttonSize.X) buttonSize = newSize;
             }
             buttonSize += new Vector2(0, P.Config.ButtonHeightWorld);
-            foreach (var dc in datacenters)
+            foreach(var dc in datacenters)
             {
                 ImGui.TableNextColumn();
                 foreach(var world in worlds)
@@ -51,8 +51,8 @@ public class SelectWorldWindow : Window
                     if(world.DataCenter.Row == dc.Row)
                     {
                         var modifier = "";
-                        if (Player.Object?.HomeWorld.Id == world.RowId) modifier += "";
-                        if(ImGuiEx.Button(modifier+world.Name, buttonSize, !Utils.IsBusy() && Player.Interactable && Player.Object?.CurrentWorld.Id != world.RowId))
+                        if(Player.Object?.HomeWorld.Id == world.RowId) modifier += "";
+                        if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy() && Player.Interactable && Player.Object?.CurrentWorld.Id != world.RowId))
                         {
                             P.ProcessCommand("/li", world.Name);
                         }

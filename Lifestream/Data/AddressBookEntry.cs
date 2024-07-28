@@ -17,7 +17,7 @@ public class AddressBookEntry
         DefaultValueHandling = DefaultValueHandling.Ignore,
     };
 
-		internal Guid GUID = Guid.NewGuid();
+    internal Guid GUID = Guid.NewGuid();
     [DefaultValue("")] public string Name = "";
     public int World = 21;
     public ResidentialAetheryteKind City = ResidentialAetheryteKind.Uldah;
@@ -27,11 +27,11 @@ public class AddressBookEntry
     public int Apartment = 1;
     public bool ApartmentSubdivision = false;
     [DefaultValue(false)] public bool AliasEnabled = false;
-		[DefaultValue("")] public string Alias = "";
+    [DefaultValue("")] public string Alias = "";
 
     public AddressBookEntryTuple AsTuple()
     {
-        return (Name, World, (int)City, Ward, (int)PropertyType, Plot, Apartment, ApartmentSubdivision,  AliasEnabled, Alias);
+        return (Name, World, (int)City, Ward, (int)PropertyType, Plot, Apartment, ApartmentSubdivision, AliasEnabled, Alias);
     }
 
     public static AddressBookEntry FromTuple(AddressBookEntryTuple tuple)
@@ -51,9 +51,9 @@ public class AddressBookEntry
         };
     }
 
-		public bool ShouldSerializeApartment() => PropertyType == PropertyType.Apartment;
-		public bool ShouldSerializeApartmentSubdivision() => PropertyType == PropertyType.Apartment;
-		public bool ShouldSerializePlot() => PropertyType == PropertyType.House;
+    public bool ShouldSerializeApartment() => PropertyType == PropertyType.Apartment;
+    public bool ShouldSerializeApartmentSubdivision() => PropertyType == PropertyType.Apartment;
+    public bool ShouldSerializePlot() => PropertyType == PropertyType.House;
 
     public string GetAddressString()
     {
@@ -61,20 +61,20 @@ public class AddressBookEntry
         {
             return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}, P{Plot}";
         }
-				if (PropertyType == PropertyType.Apartment)
-				{
-						return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}{(ApartmentSubdivision ? " subdivision" : "")}, Apartment {Apartment}";
-				}
+        if(PropertyType == PropertyType.Apartment)
+        {
+            return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}{(ApartmentSubdivision ? " subdivision" : "")}, Apartment {Apartment}";
+        }
         return "";
-		}
+    }
 
-    public bool IsValid([NotNullWhen(false)]out string error)
+    public bool IsValid([NotNullWhen(false)] out string error)
     {
-        if (Name == null)
+        if(Name == null)
         {
             error = "Name is not a valid string";
-						return false;
-				}
+            return false;
+        }
         if(!ExcelWorldHelper.GetPublicWorlds().Any(x => x.RowId == World))
         {
             error = "World identifier is not valid";
@@ -85,7 +85,7 @@ public class AddressBookEntry
             error = "Residential aetheryte is not valid";
             return false;
         }
-        if (Ward < 1 || Ward > 30)
+        if(Ward < 1 || Ward > 30)
         {
             error = "Ward number is out of range";
             return false;
@@ -100,12 +100,12 @@ public class AddressBookEntry
             error = "Apartment number is out of range";
             return false;
         }
-				if (Name == null)
-				{
-						error = "Alias is not a valid string";
-						return false;
-				}
+        if(Name == null)
+        {
+            error = "Alias is not a valid string";
+            return false;
+        }
         error = null;
         return true;
-		}
+    }
 }

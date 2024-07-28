@@ -13,9 +13,9 @@ public static class UtilsUI
         if(ImGui.BeginTable(name, 1, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn(name, ImGuiTableColumnFlags.WidthStretch);
-            if (color != null) ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, color.Value);
+            if(color != null) ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, color.Value);
             ImGui.TableHeadersRow();
-            if (color != null) ImGui.PopStyleColor();
+            if(color != null) ImGui.PopStyleColor();
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             Safe(drawAction);

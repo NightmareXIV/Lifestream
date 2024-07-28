@@ -20,7 +20,7 @@ public unsafe class InstanceHandler : IDisposable
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
         var gv = CSFramework.Instance()->GameVersionString;
-        if (gv != null && gv != P.Config.GameVersion)
+        if(gv != null && gv != P.Config.GameVersion)
         {
             PluginLog.Information($"New game version detected, new {gv}, old {P.Config.GameVersion}");
             P.Config.GameVersion = gv;
@@ -35,7 +35,7 @@ public unsafe class InstanceHandler : IDisposable
 
     private void OnPostUpdate(AddonEvent type, AddonArgs args)
     {
-        if (
+        if(
             UIState.Instance()->PublicInstance.IsInstancedArea()
             && Svc.Targets.Target?.ObjectKind == ObjectKind.Aetheryte
             && Svc.Condition[ConditionFlag.OccupiedInQuestEvent]
@@ -45,9 +45,9 @@ public unsafe class InstanceHandler : IDisposable
             )
         {
             var inst = *P.Memory.MaxInstances;
-            if (inst < 2 || inst > 9)
+            if(inst < 2 || inst > 9)
             {
-                if (EzThrottler.Throttle("InstanceWarning", 5000)) PluginLog.Warning($"Instance count is wrong, received {inst}, please report to developer");
+                if(EzThrottler.Throttle("InstanceWarning", 5000)) PluginLog.Warning($"Instance count is wrong, received {inst}, please report to developer");
             }
             else
             {

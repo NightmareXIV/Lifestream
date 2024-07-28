@@ -14,7 +14,7 @@ internal static class TaskRemoveAfkStatus
         {
             if(Player.Object.OnlineStatus.Id == 17)
             {
-                if (EzThrottler.Throttle("RemoveAfk"))
+                if(EzThrottler.Throttle("RemoveAfk"))
                 {
                     Chat.Instance.SendMessage("/afk off");
                     P.TaskManager.InsertTask(new(() => Player.Object.OnlineStatus.Id != 17, "WaitUntilNotAfk"));
@@ -26,7 +26,7 @@ internal static class TaskRemoveAfkStatus
                     new(() => Chat.Instance.ExecuteCommand("/automove on"), "Enable automove (AntiEmote)"),
                     new(() => Chat.Instance.ExecuteCommand("/automove off"), "Disable automove (AntiEmote)"),
                     new(() => !MoveCancelConditions.Select(x => Svc.Condition[x]).Any(x => x), "WaitUntilNotEmoting")
-										);
+                    );
             }
             return true;
         }, "Remove afk/busy status");

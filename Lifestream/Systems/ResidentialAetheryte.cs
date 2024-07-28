@@ -18,25 +18,25 @@ public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryt
         ID = data.RowId;
         IsSubdivision = isSubdivision;
         Position = GetCoordinates();
-        if (isSubdivision) Position += subdivisionPositionModifier;
+        if(isSubdivision) Position += subdivisionPositionModifier;
     }
 
     public override bool Equals(object obj)
     {
-        return obj is ResidentialAetheryte aetheryte && this.Equals(aetheryte);
+        return obj is ResidentialAetheryte aetheryte && Equals(aetheryte);
     }
 
     public bool Equals(ResidentialAetheryte other)
     {
-        return this.Position.Equals(other.Position) &&
-               this.TerritoryType == other.TerritoryType &&
-               this.Name == other.Name &&
-               this.ID == other.ID;
+        return Position.Equals(other.Position) &&
+               TerritoryType == other.TerritoryType &&
+               Name == other.Name &&
+               ID == other.ID;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(this.Position, this.TerritoryType, this.Name, this.ID);
+        return HashCode.Combine(Position, TerritoryType, Name, ID);
     }
 
     private readonly Vector2 GetCoordinates()
@@ -48,7 +48,7 @@ public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryt
             var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == reference.Ref.TerritoryType.Row);
             var scale = map.SizeFactor;
             var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => m.DataType == 4 && m.DataKey == reference.Ref.PlaceName.Row);
-            if (mapMarker != null)
+            if(mapMarker != null)
             {
                 AethersX = Utils.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
                 AethersY = Utils.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);

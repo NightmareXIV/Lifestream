@@ -8,21 +8,21 @@ using Action = System.Action;
 
 namespace Lifestream.GUI;
 
-internal unsafe static class UISettings
+internal static unsafe class UISettings
 {
-    static string AddNew = "";
+    private static string AddNew = "";
     internal static void Draw()
     {
         NuiTools.ButtonTabs([[new("General", () => Wrapper(DrawGeneral)), new("Overlay", () => Wrapper(DrawOverlay)), new("Expert", () => Wrapper(DrawExpert))]]);
     }
 
-    static void Wrapper(Action action)
+    private static void Wrapper(Action action)
     {
         ImGui.Dummy(new(5f));
         action();
     }
 
-    static void DrawGeneral()
+    private static void DrawGeneral()
     {
         new NuiBuilder()
         .Section("Teleport Configuration")
@@ -32,7 +32,7 @@ internal unsafe static class UISettings
             ImGuiEx.EnumCombo($"Teleport world change gateway", ref P.Config.WorldChangeAetheryte, Lang.WorldChangeAetherytes);
             ImGuiEx.HelpMarker($"Where would you like to teleport for world changes");
             ImGui.Checkbox($"Teleport to specific aethernet destination after world/dc visit", ref P.Config.WorldVisitTPToAethernet);
-            if (P.Config.WorldVisitTPToAethernet)
+            if(P.Config.WorldVisitTPToAethernet)
             {
                 ImGui.Indent();
                 ImGui.SetNextItemWidth(250f);
@@ -76,7 +76,7 @@ internal unsafe static class UISettings
         .Draw();
     }
 
-    static void DrawOverlay()
+    private static void DrawOverlay()
     {
         new NuiBuilder()
         .Section("General Overlay Settings")
@@ -125,7 +125,7 @@ internal unsafe static class UISettings
         .SliderInt(150f, "Extra button height", () => ref P.Config.InstanceButtonHeight, 0, 50)
         .Widget("Reset Instance Data", (x) =>
         {
-            if (ImGuiEx.Button(x, P.Config.PublicInstances.Count > 0))
+            if(ImGuiEx.Button(x, P.Config.PublicInstances.Count > 0))
             {
                 P.Config.PublicInstances.Clear();
                 EzConfig.Save();
@@ -137,7 +137,7 @@ internal unsafe static class UISettings
         .If(() => P.Config.HideAddon)
         .Widget(() =>
         {
-            if(ImGui.BeginTable("HideAddonTable", 2, ImGuiTableFlags.BordersInnerH| ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+            if(ImGui.BeginTable("HideAddonTable", 2, ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             {
                 ImGui.TableSetupColumn("col1", ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn("col2");
@@ -147,7 +147,7 @@ internal unsafe static class UISettings
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputTextWithHint("##addnew", "Window name... /xldata ai - to find it", ref AddNew, 100);
                 ImGui.TableNextColumn();
-                if (ImGuiEx.IconButton(FontAwesomeIcon.Plus))
+                if(ImGuiEx.IconButton(FontAwesomeIcon.Plus))
                 {
                     P.Config.HideAddonList.Add(AddNew);
                     AddNew = "";
@@ -158,24 +158,24 @@ internal unsafe static class UISettings
                 {
                     foreach(var x in RaptureAtkUnitManager.Instance()->FocusedUnitsList.Entries)
                     {
-                        if (x.Value == null) continue;
+                        if(x.Value == null) continue;
                         focused.Add(x.Value->NameString);
                     }
                 }
                 catch(Exception e) { e.Log(); }
 
-                if (focused != null)
+                if(focused != null)
                 {
-                    foreach (var name in focused)
+                    foreach(var name in focused)
                     {
-                        if (name == null) continue;
-                        if (P.Config.HideAddonList.Contains(name)) continue;
+                        if(name == null) continue;
+                        if(P.Config.HideAddonList.Contains(name)) continue;
                         ImGui.TableNextRow();
                         ImGui.TableNextColumn();
                         ImGuiEx.TextV(EColor.Green, $"Focused: {name}");
                         ImGui.TableNextColumn();
                         ImGui.PushID(name);
-                        if (ImGuiEx.IconButton(FontAwesomeIcon.Plus))
+                        if(ImGuiEx.IconButton(FontAwesomeIcon.Plus))
                         {
                             P.Config.HideAddonList.Add(name);
                         }
@@ -189,14 +189,14 @@ internal unsafe static class UISettings
                 ImGui.TableNextColumn();
                 ImGui.Dummy(new Vector2(5f));
 
-                foreach (var s in P.Config.HideAddonList)
+                foreach(var s in P.Config.HideAddonList)
                 {
                     ImGui.PushID(s);
                     ImGui.TableNextRow();
                     ImGui.TableNextColumn();
-                    ImGuiEx.TextV(focused.Contains(s)?EColor.Green:null, s);
+                    ImGuiEx.TextV(focused.Contains(s) ? EColor.Green : null, s);
                     ImGui.TableNextColumn();
-                    if (ImGuiEx.IconButton(FontAwesomeIcon.Trash))
+                    if(ImGuiEx.IconButton(FontAwesomeIcon.Trash))
                     {
                         new TickScheduler(() => P.Config.HideAddonList.Remove(s));
                     }
@@ -209,23 +209,23 @@ internal unsafe static class UISettings
         .EndIf()
         .Draw();
 
-        if (P.Config.Hidden.Count > 0)
+        if(P.Config.Hidden.Count > 0)
         {
             new NuiBuilder()
             .Section("Hidden Aetherytes")
             .Widget(() =>
             {
                 uint toRem = 0;
-                foreach (var x in P.Config.Hidden)
+                foreach(var x in P.Config.Hidden)
                 {
                     ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRow(x)?.AethernetName.Value?.Name.ToString() ?? x.ToString()}");
                     ImGui.SameLine();
-                    if (ImGui.SmallButton($"Delete##{x}"))
+                    if(ImGui.SmallButton($"Delete##{x}"))
                     {
                         toRem = x;
                     }
                 }
-                if (toRem > 0)
+                if(toRem > 0)
                 {
                     P.Config.Hidden.Remove(toRem);
                 }
@@ -234,7 +234,7 @@ internal unsafe static class UISettings
         }
     }
 
-    static void DrawExpert()
+    private static void DrawExpert()
     {
         new NuiBuilder()
         .Section("Expert Settings")
@@ -242,7 +242,7 @@ internal unsafe static class UISettings
         {
             ImGui.Checkbox($"Slow down aetheryte teleporting", ref P.Config.SlowTeleport);
             ImGuiEx.HelpMarker($"Slows down aethernet teleportation by specified amount.");
-            if (P.Config.SlowTeleport)
+            if(P.Config.SlowTeleport)
             {
                 ImGui.Indent();
                 ImGui.SetNextItemWidth(200f);

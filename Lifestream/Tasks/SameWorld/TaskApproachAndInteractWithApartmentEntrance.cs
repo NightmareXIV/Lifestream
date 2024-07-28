@@ -1,17 +1,17 @@
-﻿using Dalamud.Game.ClientState.Objects.Enums;
+﻿using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Lifestream.Schedulers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ECommons.GameFunctions;
-using FFXIVClientStructs.FFXIV.Client.UI;
-using Dalamud.Game.Addon.Lifecycle;
-using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 
 namespace Lifestream.Tasks.SameWorld;
 public static class TaskApproachAndInteractWithApartmentEntrance
@@ -31,13 +31,13 @@ public static class TaskApproachAndInteractWithApartmentEntrance
     public static bool TargetApartmentEntrance()
     {
         //2007402	apartment building entrance	0	apartment building entrances	0	1	1	0	0
-        foreach (var x in Svc.Objects.OrderBy(x => Vector3.Distance(x.Position, Player.Object.Position)))
+        foreach(var x in Svc.Objects.OrderBy(x => Vector3.Distance(x.Position, Player.Object.Position)))
         {
-            if (x.DataId == 2007402)
+            if(x.DataId == 2007402)
             {
-                if (!x.IsTarget())
+                if(!x.IsTarget())
                 {
-                    if (EzThrottler.Throttle("TargetApartment"))
+                    if(EzThrottler.Throttle("TargetApartment"))
                     {
                         Svc.Targets.SetTarget(x);
                     }
@@ -54,10 +54,10 @@ public static class TaskApproachAndInteractWithApartmentEntrance
 
     public static unsafe bool InteractWithApartmentEntrance()
     {
-        if (Player.IsAnimationLocked) return false;
-        if (Svc.Targets.Target?.ObjectKind == ObjectKind.EventObj && Svc.Targets.Target?.DataId == 2007402)
+        if(Player.IsAnimationLocked) return false;
+        if(Svc.Targets.Target?.ObjectKind == ObjectKind.EventObj && Svc.Targets.Target?.DataId == 2007402)
         {
-            if (EzThrottler.Throttle("InteractWithApartment", 5000))
+            if(EzThrottler.Throttle("InteractWithApartment", 5000))
             {
                 TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
                 return true;

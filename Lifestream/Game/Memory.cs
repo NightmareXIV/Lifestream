@@ -1,23 +1,23 @@
 ﻿using Dalamud.Hooking;
-using Dalamud.Utility.Signatures;
-using ECommons.MathHelpers;
-using PInvoke;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using Dalamud.Memory;
-using System.Windows.Forms;
-using Lifestream.Tasks.SameWorld;
-using Lifestream.Enums;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Utility.Signatures;
 using ECommons.EzHookManager;
+using ECommons.MathHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.Enums;
+using Lifestream.Tasks.SameWorld;
+using PInvoke;
+using System.Windows.Forms;
 
 namespace Lifestream.Game;
 
 internal unsafe class Memory : IDisposable
 {
-    delegate long AddonAreaMap_ReceiveEvent(long a1, ushort a2, uint a3, long a4, long a5);
+    private delegate long AddonAreaMap_ReceiveEvent(long a1, ushort a2, uint a3, long a4, long a5);
     [Signature("40 55 56 57 48 8B EC 48 83 EC 70 0F B7 C2", DetourName = nameof(AddonAreaMap_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
-    Hook<AddonAreaMap_ReceiveEvent> AddonAreaMap_ReceiveEventHook = null!;
-    bool IsLeftMouseHeld = false;
+    private Hook<AddonAreaMap_ReceiveEvent> AddonAreaMap_ReceiveEventHook = null!;
+    private bool IsLeftMouseHeld = false;
 
     internal delegate void AddonDKTWorldList_ReceiveEventDelegate(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5);
     [Signature("40 53 48 83 EC 20 F6 81 ?? ?? ?? ?? ?? 49 8B D9 41 8B C0", DetourName = nameof(AddonDKTWorldList_ReceiveEventDetour))]
@@ -30,13 +30,13 @@ internal unsafe class Memory : IDisposable
     [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress)]
     internal int* MaxInstances;
 
-    void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
+    private void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
     {
         PluginLog.Debug($"AtkComponentTreeList_vf31Detour: {a1:X16}, {a2}, {a3}");
         AtkComponentTreeList_vf31Hook.Original(a1, a2, a3);
     }
 
-    void AddonDKTWorldList_ReceiveEventDetour(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5)
+    private void AddonDKTWorldList_ReceiveEventDetour(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5)
     {
         PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
         PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->Type}, {a4->Unk29}, {a4->Flags}");
@@ -48,7 +48,7 @@ internal unsafe class Memory : IDisposable
 
     internal void ConstructEvent(AtkUnitBase* addon, int category, int which, int nodeIndex, int itemToSelect, int itemToHighlight)
     {
-        if (itemToSelect == 0) throw new Exception("Enumeration starts with 1");
+        if(itemToSelect == 0) throw new Exception("Enumeration starts with 1");
         var Event = stackalloc AtkEvent[1]
         {
             new AtkEvent()
@@ -96,44 +96,44 @@ internal unsafe class Memory : IDisposable
         //AddonDKTWorldList_ReceiveEventHook.Enable();
     }
 
-    long AddonAreaMap_ReceiveEventDetour(long a1, ushort a2, uint a3, long a4, long a5)
+    private long AddonAreaMap_ReceiveEventDetour(long a1, ushort a2, uint a3, long a4, long a5)
     {
         //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
         try
         {
-            if ((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
+            if((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
             {
-                if (a2 == 3)
+                if(a2 == 3)
                 {
                     IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
                 }
-                if (a2 == 4 && IsLeftMouseHeld)
+                if(a2 == 4 && IsLeftMouseHeld)
                 {
                     IsLeftMouseHeld = false;
-                    if (!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))
+                    if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))
                     {
-                        if (TryGetAddonByName<AtkUnitBase>("Tooltip", out var addon) && IsAddonReady(addon) && addon->IsVisible)
+                        if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addon) && IsAddonReady(addon) && addon->IsVisible)
                         {
                             var node = addon->UldManager.NodeList[2]->GetAsAtkTextNode();
                             var text = MemoryHelper.ReadSeString(&node->NodeText).ExtractText();
-                            if (P.ActiveAetheryte != null)
+                            if(P.ActiveAetheryte != null)
                             {
                                 var master = Utils.GetMaster();
-                                foreach (var x in P.DataStore.Aetherytes[master])
+                                foreach(var x in P.DataStore.Aetherytes[master])
                                 {
-                                    if (x.Name == text)
+                                    if(x.Name == text)
                                     {
                                         TaskAethernetTeleport.Enqueue(x);
                                         break;
                                     }
                                 }
                             }
-                            if (P.ResidentialAethernet.ActiveAetheryte != null)
+                            if(P.ResidentialAethernet.ActiveAetheryte != null)
                             {
                                 var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(Svc.ClientState.TerritoryType);
-                                if (zone != null) 
+                                if(zone != null)
                                 {
-                                    foreach (var x in zone.Aetherytes)
+                                    foreach(var x in zone.Aetherytes)
                                     {
                                         if(x.Name == text)
                                         {
@@ -148,7 +148,7 @@ internal unsafe class Memory : IDisposable
                 }
             }
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             e.Log();
         }

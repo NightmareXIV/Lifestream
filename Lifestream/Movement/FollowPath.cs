@@ -12,7 +12,7 @@ public class FollowPath : IDisposable
     public bool AlignCamera = false;
     public bool IgnoreDeltaY = true;
     public float Tolerance = 0.25f;
-    public List<Vector3> waypointsInternal = new();
+    public List<Vector3> waypointsInternal = [];
     public IReadOnlyList<Vector3> Waypoints => waypointsInternal;
     public int MaxWaypoints = 0;
 
@@ -33,37 +33,37 @@ public class FollowPath : IDisposable
     public void UpdateTimeout(int seconds) => TimeoutAt = Environment.TickCount64 + seconds * 1000;
 
 
-		public unsafe void Update()
+    public unsafe void Update()
     {
-        if (!Player.Available)
+        if(!Player.Available)
             return;
 
-        while (waypointsInternal.Count > 0)
+        while(waypointsInternal.Count > 0)
         {
             if(waypointsInternal.Count > MaxWaypoints) MaxWaypoints = waypointsInternal.Count;
-            if (TimeoutAt == 0) TimeoutAt = Environment.TickCount64 + 30000;
-            if (P.VnavmeshManager.IsRunning())
+            if(TimeoutAt == 0) TimeoutAt = Environment.TickCount64 + 30000;
+            if(P.VnavmeshManager.IsRunning())
             {
-								waypointsInternal.Clear();
+                waypointsInternal.Clear();
                 DuoLog.Error($"Detected vnavmesh movement, Lifestream will abort all tasks now.");
                 break;
             }
             if(Environment.TickCount64 > TimeoutAt)
             {
-								waypointsInternal.Clear();
+                waypointsInternal.Clear();
                 DuoLog.Error($"Lifestream movement has timed out.");
                 break;
             }
             var toNext = waypointsInternal[0] - Player.Object.Position;
-            if (IgnoreDeltaY)
+            if(IgnoreDeltaY)
                 toNext.Y = 0;
-            if (toNext.LengthSquared() > Tolerance * Tolerance)
+            if(toNext.LengthSquared() > Tolerance * Tolerance)
                 break;
-						waypointsInternal.RemoveAt(0);
+            waypointsInternal.RemoveAt(0);
             TimeoutAt = 0;
         }
 
-        if (waypointsInternal.Count == 0)
+        if(waypointsInternal.Count == 0)
         {
             _movement.Enabled = _camera.Enabled = false;
             _camera.SpeedH = _camera.SpeedV = default;
@@ -89,7 +89,7 @@ public class FollowPath : IDisposable
     public void Move(List<Vector3> waypoints, bool ignoreDeltaY)
     {
         TimeoutAt = 0;
-				waypointsInternal = [.. waypoints];
+        waypointsInternal = [.. waypoints];
         IgnoreDeltaY = ignoreDeltaY;
     }
 }

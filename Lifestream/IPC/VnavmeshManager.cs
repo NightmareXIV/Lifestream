@@ -16,7 +16,7 @@ public class VnavmeshManager
         {
             return IsReadyNoWrapper();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             DuoLog.Error($"Vnavmesh not found, navigation failed");
             e.LogInternal();

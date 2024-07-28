@@ -11,7 +11,7 @@ public unsafe class ReaderLobbyDKTWorldList(AtkUnitBase* UnitBase, int BeginOffs
 
     public unsafe class RegionInfo(nint UnitBasePtr, int BeginOffset = 0) : AtkReader(UnitBasePtr, BeginOffset)
     {
-        int DcInfoOffset = BeginOffset + 1;
+        private int DcInfoOffset = BeginOffset + 1;
         public string RegionTitle => ReadString(0);
         public List<DataCenterInfo> DataCenters => Loop<DataCenterInfo>(DcInfoOffset, 8, 4);
 

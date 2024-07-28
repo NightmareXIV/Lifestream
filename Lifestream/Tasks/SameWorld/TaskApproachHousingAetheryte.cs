@@ -23,7 +23,7 @@ public static class TaskApproachHousingAetheryte
     public static void Enqueue()
     {
         P.TaskManager.EnqueueMulti(
-            P.Config.WaitForScreenReady?new(Utils.WaitForScreen):null,
+            P.Config.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
             new(TaskMoveToHouse.UseSprint),
             new(MoveIMP),
             new(WaitUntilArrivesAtIMP),
@@ -49,15 +49,15 @@ public static class TaskApproachHousingAetheryte
 
     public static bool WaitUntilArrivesAtIMP()
     {
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
+        if(Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
         {
             return !P.FollowPath.Waypoints.Any();
         }
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.The_Lavender_Beds)
+        if(Svc.ClientState.TerritoryType == ResidentalAreas.The_Lavender_Beds)
         {
             return Svc.Objects.Any(x => Utils.AethernetShards.Contains(x.DataId) && Vector3.Distance(Player.Object.Position, x.Position) < LavenderIMP.Distance);
         }
-        if (Svc.ClientState.TerritoryType == ResidentalAreas.Shirogane)
+        if(Svc.ClientState.TerritoryType == ResidentalAreas.Shirogane)
         {
             return Player.Object.Position.Z < 128f;
         }
@@ -68,12 +68,12 @@ public static class TaskApproachHousingAetheryte
 
     public static bool TargetNearestShard()
     {
-        if (!Player.Interactable) return false;
+        if(!Player.Interactable) return false;
         foreach(var x in Svc.Objects.OrderBy(z => Vector3.Distance(Player.Object.Position, z.Position)))
         {
             if(Utils.AethernetShards.Contains(x.DataId) && x.IsTargetable && x.ObjectKind == ObjectKind.EventObj)
             {
-                if (EzThrottler.Throttle("TargetNearestShard"))
+                if(EzThrottler.Throttle("TargetNearestShard"))
                 {
                     Svc.Targets.SetTarget(x);
                     return true;

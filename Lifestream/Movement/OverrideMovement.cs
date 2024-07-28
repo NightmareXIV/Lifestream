@@ -27,7 +27,7 @@ public unsafe class OverrideMovement : IDisposable
         get => _rmiWalkHook.IsEnabled;
         set
         {
-            if (value)
+            if(value)
             {
                 _rmiWalkHook.Enable();
                 _rmiFlyHook.Enable();
@@ -74,8 +74,8 @@ public unsafe class OverrideMovement : IDisposable
     {
         _rmiWalkHook.Original(self, sumLeft, sumForward, sumTurnLeft, haveBackwardOrStrafe, a6, bAdditiveUnk);
         // TODO: we really need to introduce some extra checks that PlayerMoveController::readInput does - sometimes it skips reading input, and returning something non-zero breaks stuff...
-        bool movementAllowed = bAdditiveUnk == 0 && !Svc.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BeingMoved];
-        if (movementAllowed && (IgnoreUserInput || *sumLeft == 0 && *sumForward == 0) && DirectionToDestination(false) is var relDir && relDir != null)
+        var movementAllowed = bAdditiveUnk == 0 && !Svc.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.BeingMoved];
+        if(movementAllowed && (IgnoreUserInput || *sumLeft == 0 && *sumForward == 0) && DirectionToDestination(false) is var relDir && relDir != null)
         {
             var dir = relDir.Value.h.ToDirection();
             *sumLeft = dir.X;
@@ -87,7 +87,7 @@ public unsafe class OverrideMovement : IDisposable
     {
         _rmiFlyHook.Original(self, result);
         // TODO: we really need to introduce some extra checks that PlayerMoveController::readInput does - sometimes it skips reading input, and returning something non-zero breaks stuff...
-        if ((IgnoreUserInput || result->Forward == 0 && result->Left == 0 && result->Up == 0) && DirectionToDestination(true) is var relDir && relDir != null)
+        if((IgnoreUserInput || result->Forward == 0 && result->Left == 0 && result->Up == 0) && DirectionToDestination(true) is var relDir && relDir != null)
         {
             var dir = relDir.Value.h.ToDirection();
             result->Forward = dir.Y;
@@ -99,11 +99,11 @@ public unsafe class OverrideMovement : IDisposable
     private (Angle h, Angle v)? DirectionToDestination(bool allowVertical)
     {
         var player = Svc.ClientState.LocalPlayer;
-        if (player == null)
+        if(player == null)
             return null;
 
         var dist = DesiredPosition - player.Position;
-        if (dist.LengthSquared() <= Precision * Precision)
+        if(dist.LengthSquared() <= Precision * Precision)
             return null;
 
         var dirH = Angle.FromDirectionXZ(dist);

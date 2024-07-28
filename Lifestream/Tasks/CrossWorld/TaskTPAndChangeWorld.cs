@@ -10,20 +10,20 @@ internal static class TaskTPAndChangeWorld
     internal static void Enqueue(string world, WorldChangeAetheryte gateway, bool insert)
     {
         P.TaskManager.BeginStack();
-        if (P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
-        if (P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
+        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
         {
             TaskChangeWorld.Enqueue(world);
         }
         else
         {
-            if (Utils.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
+            if(Utils.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
             {
                 TaskTpToAethernetDestination.Enqueue(gateway);
             }
             P.TaskManager.EnqueueTask(new(() =>
             {
-                if ((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
+                if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
                     P.TaskManager.InsertMulti(
                         new FrameDelayTask(10),
@@ -39,7 +39,7 @@ internal static class TaskTPAndChangeWorld
             P.TaskManager.EnqueueDelay(10, true);
             TaskChangeWorld.Enqueue(world);
         }
-        if (insert)
+        if(insert)
         {
             P.TaskManager.InsertStack();
         }

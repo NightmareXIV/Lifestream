@@ -8,7 +8,7 @@ internal static class TaskWaitUntilInWorld
     {
         P.TaskManager.Enqueue(() =>
         {
-            if (Player.Available && Player.CurrentWorld == world)
+            if(Player.Available && Player.CurrentWorld == world)
             {
                 return true;
             }

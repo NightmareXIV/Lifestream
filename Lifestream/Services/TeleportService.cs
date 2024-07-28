@@ -14,7 +14,7 @@ public unsafe class TeleportService
 
     public bool TeleportToAetheryte(uint id, uint sub = 0)
     {
-        if (!Player.Interactable)
+        if(!Player.Interactable)
         {
             InternalLog.Warning("Can't teleport - no player");
             return false;
@@ -24,14 +24,14 @@ public unsafe class TeleportService
             InternalLog.Warning("Can't execute teleport action");
             return false;
         }
-        if (Player.IsAnimationLocked)
+        if(Player.IsAnimationLocked)
         {
             InternalLog.Warning("Can't teleport - animation locked");
             return false;
         }
-        foreach (var x in Svc.AetheryteList)
+        foreach(var x in Svc.AetheryteList)
         {
-            if (x.AetheryteId == id && x.SubIndex == sub)
+            if(x.AetheryteId == id && x.SubIndex == sub)
             {
                 Telepo.Instance()->Teleport(id, (byte)sub);
                 return true;

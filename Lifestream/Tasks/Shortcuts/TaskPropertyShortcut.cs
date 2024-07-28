@@ -13,30 +13,30 @@ public static class TaskPropertyShortcut
 {
     public static void Enqueue(PropertyType propertyType = PropertyType.Auto)
     {
-        if (P.TaskManager.IsBusy)
+        if(P.TaskManager.IsBusy)
         {
             DuoLog.Error($"Lifestream is busy");
             return;
         }
-        if (!Player.Available) return;
-        if (!Player.IsInHomeWorld)
+        if(!Player.Available) return;
+        if(!Player.IsInHomeWorld)
         {
             P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
         }
         P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
         P.TaskManager.Enqueue(() =>
         {
-            if (propertyType == PropertyType.Auto)
+            if(propertyType == PropertyType.Auto)
             {
-                if (GetPrivateHouseAetheryteID() != 0)
+                if(GetPrivateHouseAetheryteID() != 0)
                 {
                     P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetPrivateHouseAetheryteID()));
                 }
-                else if (GetFreeCompanyAetheryteID() != 0)
+                else if(GetFreeCompanyAetheryteID() != 0)
                 {
                     P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetFreeCompanyAetheryteID()));
                 }
-                else if (GetApartmentAetheryteID().ID != 0)
+                else if(GetApartmentAetheryteID().ID != 0)
                 {
                     EnqueueGoToMyApartment();
                 }
@@ -45,9 +45,9 @@ public static class TaskPropertyShortcut
                     DuoLog.Error($"Could not find private or free company house or apartment");
                 }
             }
-            else if (propertyType == PropertyType.Home)
+            else if(propertyType == PropertyType.Home)
             {
-                if (GetPrivateHouseAetheryteID() != 0)
+                if(GetPrivateHouseAetheryteID() != 0)
                 {
                     P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetPrivateHouseAetheryteID()));
                 }
@@ -56,9 +56,9 @@ public static class TaskPropertyShortcut
                     DuoLog.Error("Could not find private house");
                 }
             }
-            else if (propertyType == PropertyType.FC)
+            else if(propertyType == PropertyType.FC)
             {
-                if (GetFreeCompanyAetheryteID() != 0)
+                if(GetFreeCompanyAetheryteID() != 0)
                 {
                     P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetFreeCompanyAetheryteID()));
                 }
@@ -67,9 +67,9 @@ public static class TaskPropertyShortcut
                     DuoLog.Error("Could not find free company house");
                 }
             }
-            else if (propertyType == PropertyType.Apartment)
+            else if(propertyType == PropertyType.Apartment)
             {
-                if (GetApartmentAetheryteID().ID != 0)
+                if(GetApartmentAetheryteID().ID != 0)
                 {
                     EnqueueGoToMyApartment();
                 }
@@ -93,9 +93,9 @@ public static class TaskPropertyShortcut
 
     private static uint GetPrivateHouseAetheryteID()
     {
-        foreach (var x in Svc.AetheryteList)
+        foreach(var x in Svc.AetheryteList)
         {
-            if (!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
+            if(!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
             {
                 return x.AetheryteId;
             }
@@ -105,9 +105,9 @@ public static class TaskPropertyShortcut
 
     private static (uint ID, uint Sub) GetApartmentAetheryteID()
     {
-        foreach (var x in Svc.AetheryteList)
+        foreach(var x in Svc.AetheryteList)
         {
-            if (x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
+            if(x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
             {
                 return (x.AetheryteId, x.SubIndex);
             }
@@ -117,9 +117,9 @@ public static class TaskPropertyShortcut
 
     private static uint GetFreeCompanyAetheryteID()
     {
-        foreach (var x in Svc.AetheryteList)
+        foreach(var x in Svc.AetheryteList)
         {
-            if (!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(56, 57, 58, 96, 164))
+            if(!x.IsApartment && !x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(56, 57, 58, 96, 164))
             {
                 return x.AetheryteId;
             }

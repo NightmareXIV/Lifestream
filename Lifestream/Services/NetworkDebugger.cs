@@ -26,8 +26,8 @@ public unsafe class NetworkDebugger : IDisposable
         if(direction == NetworkMessageDirection.ZoneDown && opCode == 0x18a)
         {
             var mem = MemoryHelper.ReadRaw(dataPtr, 40);
-            var mem2 = MemoryHelper.ReadRaw(dataPtr+40, 40);
-            PluginLog.Information(mem.ToHexString()+"\n"+mem2.ToHexString());
+            var mem2 = MemoryHelper.ReadRaw(dataPtr + 40, 40);
+            PluginLog.Information(mem.ToHexString() + "\n" + mem2.ToHexString());
         }
     }
 

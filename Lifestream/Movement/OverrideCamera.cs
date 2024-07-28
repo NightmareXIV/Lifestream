@@ -26,7 +26,7 @@ public unsafe class OverrideCamera : IDisposable
         get => _rmiCameraHook.IsEnabled;
         set
         {
-            if (value)
+            if(value)
                 _rmiCameraHook.Enable();
             else
                 _rmiCameraHook.Disable();
@@ -57,7 +57,7 @@ public unsafe class OverrideCamera : IDisposable
     private void RMICameraDetour(CameraEx* self, int inputMode, float speedH, float speedV)
     {
         _rmiCameraHook.Original(self, inputMode, speedH, speedV);
-        if (IgnoreUserInput || inputMode == 0) // let user override...
+        if(IgnoreUserInput || inputMode == 0) // let user override...
         {
             var dt = Framework.Instance()->FrameDeltaTime;
             var deltaH = (DesiredAzimuth - self->DirH.Radians()).Normalized();
