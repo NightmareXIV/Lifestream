@@ -55,4 +55,5 @@ public class Config : IEzConfig
     public bool EnableFlydownInstance = true;
     public bool DisplayChatTeleport = false;
     public bool DisplayPopupNotifications = true;
+    public List<HousePathData> HousePathDatas = [];
 }

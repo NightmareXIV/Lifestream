@@ -28,22 +28,22 @@ public class SplatoonManager
         }
     }
 
-    public void RenderPath(IReadOnlyList<Vector3> path, bool addPlayer = true)
+    public void RenderPath(IReadOnlyList<Vector3> path, bool addPlayer = true, bool addNumbers = false)
     {
         Vector3? prev = null;
         if(path != null && path.Count > 0)
         {
             for(var i = 0; i < path.Count; i++)
             {
-                var point = GetNextPoint();
+                var point = GetNextPoint(addNumbers?(i+1).ToString():"");
                 point.SetRefCoord(path[i]);
                 var line = GetNextLine();
                 line.SetRefCoord(path[i]);
                 line.SetOffCoord(prev ?? Player.Object.Position);
                 line.color = (prev != null ? ImGuiColors.DalamudYellow : ImGuiColors.HealerGreen).ToUint();
+                Splatoon.DisplayOnce(point);
                 if(prev != null || addPlayer)
                 {
-                    Splatoon.DisplayOnce(point);
                     Splatoon.DisplayOnce(line);
                 }
                 prev = path[i];
@@ -72,7 +72,7 @@ public class SplatoonManager
         return ret;
     }
 
-    public Element GetNextPoint()
+    public Element GetNextPoint(string overlay = "")
     {
         ResetOnFrameChange();
         Element ret;
@@ -86,7 +86,9 @@ public class SplatoonManager
             {
                 radius = 0f,
                 thicc = 3f,
-                color = ImGuiColors.DalamudRed.ToUint()
+                color = ImGuiColors.DalamudRed.ToUint(),
+                overlayVOffset = 1f,
+                overlayText = overlay,
             };
             Cache.WaymarkPointCache.Add(ret);
         }

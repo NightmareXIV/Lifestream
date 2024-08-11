@@ -538,6 +538,10 @@ internal static unsafe class Utils
     {
         return ResidentialTerritoryForResidentialAetheryte[r];
     }
+    internal static string GetName(this ResidentialAetheryteKind r)
+    {
+        return ExcelTerritoryHelper.Get(r.GetResidentialTerritory()).PlaceName.Value?.Name;
+    }
 
     internal static uint GetTerritory(this WorldChangeAetheryte r)
     {
