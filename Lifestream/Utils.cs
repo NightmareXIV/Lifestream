@@ -36,10 +36,51 @@ internal static unsafe class Utils
 
     public static uint[] HousingAethernet = [MainCities.Limsa_Lominsa_Lower_Decks, MainCities.Uldah_Steps_of_Nald, MainCities.New_Gridania, MainCities.Foundation, MainCities.Kugane];
 
+    public static HousePathData GetFCPathData() => P.Config.HousePathDatas.FirstOrDefault(x => x.CID == Player.CID && !x.IsPrivate);
+    public static HousePathData GetPrivatePathData() => P.Config.HousePathDatas.FirstOrDefault(x => x.CID == Player.CID && x.IsPrivate);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="territory"></param>
+    /// <param name="plot">Start with 0</param>
+    /// <returns></returns>
+    public static Vector3? GetPlotEntrance(uint territory, int plot)
+    {
+        if(P.ResidentialAethernet.HousingData.Data.TryGetValue(territory, out var data) && data.Count > plot && data[plot].Path.Count > 0) return data[plot].Path[^1];
+        return null;
+    }
+
+    public static IGameObject GetNearestEntrance(out float Distance)
+    {
+        var currentDistance = float.MaxValue;
+        IGameObject currentObject = null;
+
+        foreach(var x in Svc.Objects)
+        {
+            if(x.IsTargetable && x.Name.ToString().EqualsIgnoreCaseAny([.. Lang.Entrance]))
+            {
+                var distance = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
+                if(distance < currentDistance)
+                {
+                    currentDistance = distance;
+                    currentObject = x;
+                }
+            }
+        }
+        Distance = currentDistance;
+        return currentObject;
+    }
+
     public static void DisplayInfo(string s, bool? displayChat = null, bool? displayPopup = null)
     {
         if(displayChat ?? P.Config.DisplayChatTeleport) ChatPrinter.Green($"[Lifestream] {s}");
         if(displayPopup ?? P.Config.DisplayPopupNotifications) Notify.Info(s);
+    }
+
+    public static HouseEnterMode GetHouseEnterMode(this HousePathData data)
+    {
+        return data?.EnterModeOverride ?? P.Config.HouseEnterMode;
     }
 
     public static bool IsBusy()
@@ -530,10 +571,21 @@ internal static unsafe class Utils
         [WorldChangeAetheryte.Limsa] = MainCities.Limsa_Lominsa_Lower_Decks,
     };
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="r"></param>
+    /// <returns>Aetheryte city (Limsa, Uldah, etc)</returns>
     internal static uint GetTerritory(this ResidentialAetheryteKind r)
     {
         return TerritoryForResidentialAetheryte[r];
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="r"></param>
+    /// <returns>Residential TerritoryType id (mist, goblet, etc)</returns>
     internal static uint GetResidentialTerritory(this ResidentialAetheryteKind r)
     {
         return ResidentialTerritoryForResidentialAetheryte[r];

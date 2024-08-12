@@ -56,4 +56,7 @@ public class Config : IEzConfig
     public bool DisplayChatTeleport = false;
     public bool DisplayPopupNotifications = true;
     public List<HousePathData> HousePathDatas = [];
+    public bool EnterMyApartment = true;
+    public HouseEnterMode HouseEnterMode = HouseEnterMode.None;
+    public bool UseReturn = false;
 }

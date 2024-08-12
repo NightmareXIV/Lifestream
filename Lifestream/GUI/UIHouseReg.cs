@@ -31,13 +31,13 @@ public unsafe static class UIHouseReg
 
     private static void DrawFC()
     {
-        var data = P.Config.HousePathDatas.FirstOrDefault(x => x.CID == Player.CID && !x.IsPrivate);
+        var data = Utils.GetFCPathData();
         DrawHousingData(data, false);
     }
 
     private static void DrawPrivate()
     {
-        var data = P.Config.HousePathDatas.FirstOrDefault(x => x.CID == Player.CID && x.IsPrivate);
+        var data = Utils.GetPrivatePathData();
         DrawHousingData(data, true);
     }
 
@@ -70,26 +70,40 @@ public unsafe static class UIHouseReg
         else
         {
             ImGuiEx.TextWrapped(ImGuiColors.ParsedGreen, $"{data.ResidentialDistrict.GetName()}, Ward {data.Ward + 1}, Plot {data.Plot + 1} is registered as {(data.IsPrivate ? "private" : "free company")} house.");
-            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Delete this data", ImGuiEx.Ctrl))
+            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Cancel registration", ImGuiEx.Ctrl))
             {
                 P.Config.HousePathDatas.Remove(data);
             }
-            var path = data.PathToWorkshop;
-            new NuiBuilder()
-                .Section("Path to house")
-                .Widget(() =>
-                {
-                    ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
+            ImGui.Checkbox("Override teleport behavior", ref data.EnableHouseEnterModeOverride);
+            if(data.EnableHouseEnterModeOverride)
+            {
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(150f);
+                ImGuiEx.EnumCombo("##override", ref data.EnterModeOverride);
+            }
+            if(data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
+            {
+                var path = data.PathToEntrance;
+                new NuiBuilder()
+                    .Section("Path to house")
+                    .Widget(() =>
+                    {
+                        ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
 
-                    ImGui.PushID($"path{isPrivate}");
-                    DrawPathEditor(path);
-                    ImGui.PopID();
-                    
-                }).Draw();
+                        ImGui.PushID($"path{isPrivate}");
+                        DrawPathEditor(path, data);
+                        ImGui.PopID();
+
+                    }).Draw();
+            }
+            else
+            {
+                ImGuiEx.TextWrapped("Go to registered plot to edit path");
+            }
         }
     }
 
-    static void DrawPathEditor(List<Vector3> path)
+    static void DrawPathEditor(List<Vector3> path, HousePathData? data = null)
     {
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the end of the list"))
         {
@@ -99,6 +113,26 @@ public unsafe static class UIHouseReg
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the beginning of the list"))
         {
             path.Insert(0, Player.Position);
+        }
+        if(data != null) 
+        {
+            var entryPoint = Utils.GetPlotEntrance(data.ResidentialDistrict.GetResidentialTerritory(), data.Plot);
+            if(entryPoint != null)
+            {
+                ImGui.SameLine();
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test", data.ResidentialDistrict.GetResidentialTerritory() == Player.Territory && Vector3.Distance(Player.Position, entryPoint.Value) < 10f))
+                {
+                    P.FollowPath.Move(data.PathToEntrance, true);
+                }
+                if(ImGui.IsItemHovered())
+                {
+                    ImGuiEx.Tooltip($"""
+                        ResidentialDistrict territory: {data.ResidentialDistrict.GetResidentialTerritory()}
+                        Player territory: {Player.Territory}
+                        Distance to entry point: {Vector3.Distance(Player.Position, entryPoint.Value)}
+                        """);
+                }
+            }
         }
         if(ImGui.BeginTable($"pathtable", 4, ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
@@ -194,7 +228,7 @@ public unsafe static class UIHouseReg
             );
     }
 
-    static bool TryGetCurrentPlotInfo(out ResidentialAetheryteKind kind, out int ward, out int plot)
+    public static bool TryGetCurrentPlotInfo(out ResidentialAetheryteKind kind, out int ward, out int plot)
     {
         var h = HousingManager.Instance();
         if(h != null)

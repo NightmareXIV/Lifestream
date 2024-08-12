@@ -1,4 +1,10 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.GameFunctions;
+using ECommons.GameHelpers;
+using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using Lifestream.Data;
 using Lifestream.Schedulers;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.SameWorld;
@@ -9,9 +15,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.Shortcuts;
-public static class TaskPropertyShortcut
+public unsafe static class TaskPropertyShortcut
 {
-    public static void Enqueue(PropertyType propertyType = PropertyType.Auto)
+    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -30,7 +36,7 @@ public static class TaskPropertyShortcut
             {
                 if(GetPrivateHouseAetheryteID() != 0)
                 {
-                    P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetPrivateHouseAetheryteID()));
+                    ExecuteTpAndPathfind(GetPrivateHouseAetheryteID(), Utils.GetPrivatePathData(), mode);
                 }
                 else if(GetFreeCompanyAetheryteID() != 0)
                 {
@@ -38,7 +44,7 @@ public static class TaskPropertyShortcut
                 }
                 else if(GetApartmentAetheryteID().ID != 0)
                 {
-                    EnqueueGoToMyApartment();
+                    ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode);
                 }
                 else
                 {
@@ -49,7 +55,7 @@ public static class TaskPropertyShortcut
             {
                 if(GetPrivateHouseAetheryteID() != 0)
                 {
-                    P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetPrivateHouseAetheryteID()));
+                    ExecuteTpAndPathfind(GetPrivateHouseAetheryteID(), Utils.GetPrivatePathData(), mode);
                 }
                 else
                 {
@@ -60,7 +66,7 @@ public static class TaskPropertyShortcut
             {
                 if(GetFreeCompanyAetheryteID() != 0)
                 {
-                    P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetFreeCompanyAetheryteID()));
+                    ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode);
                 }
                 else
                 {
@@ -81,13 +87,66 @@ public static class TaskPropertyShortcut
         }, "ReturnToHomeTask");
     }
 
+    private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null)
+    {
+        mode ??= data?.GetHouseEnterMode() ?? HouseEnterMode.None;
+        PluginLog.Information($"id={id}, data={data}, mode={mode}, cnt={data?.PathToEntrance.Count}");
+        P.TaskManager.BeginStack();
+        P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id));
+        P.TaskManager.Enqueue(() => !IsScreenReady());
+        P.TaskManager.Enqueue(() => IsScreenReady()  && Player.Interactable);
+        if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house))
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(Vector3.Distance(Player.Position, Utils.GetPlotEntrance(data.ResidentialDistrict.GetResidentialTerritory(), data.Plot).Value) > 10f)
+                {
+                    P.IPCProvider.OnHouseEnterError();
+                    throw new InvalidOperationException("Could not validate your position. Check if your house registration is correct and if it is, please report this error to developer");
+                }
+            });
+            P.TaskManager.Enqueue(() => P.FollowPath.Move(data.PathToEntrance, true));
+            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+            if(mode == HouseEnterMode.Enter_house)
+            {
+                P.TaskManager.Enqueue(() =>
+                {
+                    var e = Utils.GetNearestEntrance(out var dist);
+                    if(e != null && dist < 10f)
+                    {
+                        if(e.IsTarget())
+                        {
+                            if(EzThrottler.Throttle("InteractWithEntrance", 2000))
+                            {
+                                TargetSystem.Instance()->InteractWithObject(e.Struct(), false);
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            Svc.Targets.Target = e;
+                            EzThrottler.Throttle("InteractWithEntrance", 200, true);
+                            return false;
+                        }
+                    }
+                    return false;
+                });
+                P.TaskManager.Enqueue(ConfirmHouseEntrance);
+            }
+        }
+        P.TaskManager.InsertStack();
+    }
+
     private static void EnqueueGoToMyApartment()
     {
         var a = GetApartmentAetheryteID();
         P.TaskManager.BeginStack();
         P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(a.ID, a.Sub));
-        TaskApproachAndInteractWithApartmentEntrance.Enqueue();
-        P.TaskManager.Enqueue(TaskApproachAndInteractWithApartmentEntrance.GoToMyApartment);
+        if(P.Config.EnterMyApartment)
+        {
+            TaskApproachAndInteractWithApartmentEntrance.Enqueue();
+            P.TaskManager.Enqueue(TaskApproachAndInteractWithApartmentEntrance.GoToMyApartment);
+        }
         P.TaskManager.InsertStack();
     }
 
@@ -125,6 +184,20 @@ public static class TaskPropertyShortcut
             }
         }
         return 0;
+    }
+
+    private static bool ConfirmHouseEntrance()
+    {
+        var addon = Utils.GetSpecificYesno(Lang.ConfirmHouseEntrance);
+        if(addon != null)
+        {
+            if(IsAddonReady(addon) && EzThrottler.Throttle("SelectYesno"))
+            {
+                new AddonMaster.SelectYesno((nint)addon).Yes();
+                return true;
+            }
+        }
+        return false;
     }
 
     public enum PropertyType

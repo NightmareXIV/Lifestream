@@ -1,8 +1,10 @@
 ﻿using ECommons.EzIpcManager;
 using Lifestream.Data;
 using Lifestream.Enums;
+using Lifestream.GUI;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
+using System.Linq;
 
 namespace Lifestream.IPC;
 public class Provider
@@ -142,4 +144,40 @@ public class Provider
         }
         return false;
     }
+
+    [EzIPC]
+    public (HousePathData Private, HousePathData FC) GetHousePathData(ulong CID)
+    {
+        return (P.Config.HousePathDatas.FirstOrDefault(x => x.CID == CID && x.IsPrivate), P.Config.HousePathDatas.FirstOrDefault(x => x.CID == CID && !x.IsPrivate));
+    }
+
+    [EzIPC]
+    public uint GetResidentialTerritory(ResidentialAetheryteKind r)
+    {
+        return r.GetResidentialTerritory();
+    }
+
+    [EzIPC]
+    public Vector3? GetPlotEntrance(uint territory, int plot)
+    {
+        return Utils.GetPlotEntrance(territory, plot);
+    }
+
+    [EzIPC] 
+    public void EnqueuePropertyShortcut(TaskPropertyShortcut.PropertyType type, HouseEnterMode? mode)
+    {
+        TaskPropertyShortcut.Enqueue(type, mode);
+    }
+
+    [EzIPC]
+    public (ResidentialAetheryteKind Kind, int Ward, int Plot)? GetCurrentPlotInfo()
+    {
+        if(UIHouseReg.TryGetCurrentPlotInfo(out var kind, out var ward, out var plot))
+        {
+            return (kind, ward, plot);
+        }
+        return null;
+    }
+
+    [EzIPCEvent] public Action OnHouseEnterError;
 }

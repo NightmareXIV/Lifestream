@@ -17,4 +17,6 @@ public class HousePathData
     public List<Vector3> PathToWorkshop = [];
     public bool IsPrivate;
     public ulong CID;
+    public bool EnableHouseEnterModeOverride = false;
+    public HouseEnterMode EnterModeOverride = HouseEnterMode.None;
 }

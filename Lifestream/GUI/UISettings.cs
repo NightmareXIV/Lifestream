@@ -44,6 +44,9 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
             ImGui.Checkbox($"Show teleport destination in chat", ref P.Config.DisplayChatTeleport);
             ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
+            ImGui.Checkbox("When teleporting to your own apartment, enter inside", ref P.Config.EnterMyApartment);
+            ImGui.SetNextItemWidth(100f);
+            ImGuiEx.EnumCombo("When teleporting to your/fc house, perform this action", ref P.Config.HouseEnterMode);
         })
 
         .Section("Map Integration")

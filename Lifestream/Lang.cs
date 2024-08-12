@@ -77,4 +77,22 @@ internal static class Lang
     //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> Changer d'instance
     public static readonly string[] TravelToInstancedArea = ["Travel to Instanced Area.", "インスタンスエリアへ移動", "In ein instanziiertes Areal wechseln", "Changer d'instance"];
     public static string ToReduceCongestion => Svc.Data.GetExcelSheet<Addon>().GetRow(2090).Text.ExtractText();
+    public static readonly string[] Entrance =
+    [
+        "ハウスへ入る",
+        "进入房屋",
+        "進入房屋",
+        "Eingang",
+        "Entrée",
+        "Entrance"
+    ];
+    public static readonly string[] ConfirmHouseEntrance =
+    [
+        "「ハウス」へ入りますか？",
+        "要进入这间房屋吗？",
+        "要進入這間房屋嗎？",
+        "Das Gebäude betreten?",
+        "Entrer dans la maison ?",
+        "Enter the estate hall?"
+    ];
 }
