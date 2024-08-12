@@ -80,7 +80,8 @@ internal static unsafe class Utils
 
     public static HouseEnterMode GetHouseEnterMode(this HousePathData data)
     {
-        return data?.EnterModeOverride ?? P.Config.HouseEnterMode;
+        if(data != null && data.EnableHouseEnterModeOverride) return data.EnterModeOverride;
+        return P.Config.HouseEnterMode;
     }
 
     public static bool IsBusy()
