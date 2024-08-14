@@ -2,6 +2,7 @@
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.Tasks;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using System.Linq;
@@ -177,6 +178,31 @@ public class Provider
             return (kind, ward, plot);
         }
         return null;
+    }
+
+    [EzIPC] 
+    public bool CanChangeInstance()
+    {
+        return S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher && (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.IsAetheryte);
+    }
+
+    [EzIPC]
+    public int GetNumberOfInstances()
+    {
+        return S.InstanceHandler.InstancesInitizliaed(out var ret) ? ret : 0;
+    }
+
+    [EzIPC]
+    public void ChangeInstance(int number)
+    {
+        TaskRemoveAfkStatus.Enqueue();
+        TaskChangeInstance.Enqueue(number);
+    }
+
+    [EzIPC]
+    public int GetCurrentInstance()
+    {
+        return S.InstanceHandler.GetInstance();
     }
 
     [EzIPCEvent] public Action OnHouseEnterError;

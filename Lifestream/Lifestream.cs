@@ -1,5 +1,4 @@
 ﻿using AutoRetainerAPI;
-using Dalamud.Hooking;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ChatMethods;
@@ -11,7 +10,6 @@ using ECommons.MathHelpers;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Data;
 using Lifestream.Enums;
