@@ -183,7 +183,7 @@ public class Provider
     [EzIPC] 
     public bool CanChangeInstance()
     {
-        return S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher && (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.IsAetheryte);
+        return S.InstanceHandler.CanChangeInstance();
     }
 
     [EzIPC]
