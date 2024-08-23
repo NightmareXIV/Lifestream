@@ -34,12 +34,12 @@ internal static class TaskTryTpToAethernetDestination
                         new(WorldChange.TargetReachableAetheryte),
                         new(WorldChange.LockOn),
                         new(WorldChange.EnableAutomove),
-                        new(WorldChange.WaitUntilWorldChangeAetheryteExists),
+                        new(WorldChange.WaitUntilMasterAetheryteExists),
                         new(WorldChange.DisableAutomove)
                         );
                 }
             }, "ConditionalLockonTask");
-            P.TaskManager.Enqueue(WorldChange.WaitUntilWorldChangeAetheryteExists);
+            P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
             P.TaskManager.EnqueueDelay(10, true);
             P.TaskManager.Enqueue(Process);
         }

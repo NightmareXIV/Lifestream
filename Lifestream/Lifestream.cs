@@ -210,6 +210,10 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
+        else if(arguments.EqualsIgnoreCaseAny("inn"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn);
+        }
         else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc "))
         {
             var arglist = arguments.Split(" ");

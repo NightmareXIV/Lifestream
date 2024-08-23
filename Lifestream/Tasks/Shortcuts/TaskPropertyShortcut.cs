@@ -1,22 +1,35 @@
-﻿using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using ImGuizmoNET;
 using Lifestream.Data;
 using Lifestream.Schedulers;
-using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.SameWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Lifestream.Tasks.Utility;
+using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream.Tasks.Shortcuts;
 public unsafe static class TaskPropertyShortcut
 {
+    public static readonly Dictionary<uint, (uint Aethernet, Vector3[] Path)> InnData = new()
+    {
+        [1185] = (220, [new(-161.9f, -15.0f, 205.0f)]), //tul
+        [MainCities.Old_Sharlayan] = (185, [new(-89.6f, 1.3f, 25.7f), new(-99.5f, 3.9f, 5.2f)]),
+        [MainCities.The_Crystarium] = (152, [new(36.4f, 0.0f, 219.9f), new(47.1f, 1.7f, 223.5f), new(62.1f, 1.7f, 245.5f)]),
+        [MainCities.Kugane] = (116, [new(-79.3f, 18.0f, -171.9f), new(-86.3f, 18.1f, -182.9f), new(-86.3f, 19.0f, -196.9f)]),
+        [MainCities.Foundation] = (80, [new(84.2f, 24.0f, 20.0f), new(84.3f, 24.0f, 27.3f), new(78.4f, 24.0f, 30.4f), new(79.6f, 19.5f, 42.3f), new(92.0f, 15.0f, 41.9f), new(87.3f, 15.0f, 35.0f)]),
+        [MainCities.New_Gridania] = (94, [new(40.0f, -18.8f, 102.8f), new(40.1f, -10.4f, 122.5f), new(35.0f, -8.2f, 128.3f), new(27.3f, -8.2f, 125.2f), new(27.9f, -8.0f, 100.4f)]),
+        [MainCities.Uldah_Steps_of_Nald] = (33, [new(53.7f, 4.0f, -126.0f), new(44.3f, 8.0f, -122.3f), new(33.7f, 8.0f, -122.1f), new(30.4f, 8.0f, -114.4f), new(42.7f, 8.0f, -98.8f), new(31.5f, 7.0f, -82.0f),]),
+        [MainCities.Limsa_Lominsa_Lower_Decks] = (41, [new(0.6f, 40.0f, 72.1f), new(1.6f, 39.5f, 16.5f), new(11.0f, 40.0f, 13.8f)])
+    };
+
+    public static uint[] InnNpc = [1000102, 1000974, 1001976, 1011193, 1018981, 1048375, 1037293, 1027231];
+
     public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null)
     {
         if(P.TaskManager.IsBusy)
@@ -34,21 +47,12 @@ public unsafe static class TaskPropertyShortcut
         {
             if(propertyType == PropertyType.Auto)
             {
-                if(GetPrivateHouseAetheryteID() != 0)
+                foreach(var x in P.Config.PropertyPrio)
                 {
-                    ExecuteTpAndPathfind(GetPrivateHouseAetheryteID(), Utils.GetPrivatePathData(), mode);
-                }
-                else if(GetFreeCompanyAetheryteID() != 0)
-                {
-                    P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination(GetFreeCompanyAetheryteID()));
-                }
-                else if(GetApartmentAetheryteID().ID != 0)
-                {
-                    ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode);
-                }
-                else
-                {
-                    DuoLog.Error($"Could not find private or free company house or apartment");
+                    if(x.Enabled)
+                    {
+                        if(ExecuteByPropertyType(x.Type, mode)) break;
+                    }
                 }
             }
             else if(propertyType == PropertyType.Home)
@@ -84,7 +88,36 @@ public unsafe static class TaskPropertyShortcut
                     DuoLog.Error("Could not find apartment");
                 }
             }
+            else if(propertyType == PropertyType.Inn)
+            {
+                EnqueueGoToInn();
+            }
         }, "ReturnToHomeTask");
+    }
+
+    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode)
+    {
+        if(type == PropertyType.Home && GetPrivateHouseAetheryteID() != 0)
+        {
+            ExecuteTpAndPathfind(GetPrivateHouseAetheryteID(), Utils.GetPrivatePathData(), mode);
+            return true;
+        }
+        else if(type == PropertyType.FC && GetFreeCompanyAetheryteID() != 0)
+        {
+            ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode);
+            return true;
+        }
+        else if(type == PropertyType.Apartment && GetApartmentAetheryteID().ID != 0)
+        {
+            EnqueueGoToMyApartment();
+            return true;
+        }
+        else if(type == PropertyType.Inn)
+        {
+            EnqueueGoToInn();
+            return true;
+        }
+        return false;
     }
 
     private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null)
@@ -135,6 +168,77 @@ public unsafe static class TaskPropertyShortcut
             }
         }
         P.TaskManager.InsertStack();
+    }
+
+    public static void EnqueueGoToInn()
+    {
+        P.TaskManager.BeginStack();
+        var id = GetInnTerritoryId();
+        var data = InnData[id];
+        var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.Row == id);
+        if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && Utils.GetReachableMasterAetheryte() == null)
+        {
+            P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(aetheryte.RowId, 0));
+            P.TaskManager.Enqueue(() => !IsScreenReady());
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+        }
+        TaskApproachAetheryteIfNeeded.Enqueue();
+        TaskTryTpToAethernetDestination.Enqueue(Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.ExtractText());
+        P.TaskManager.Enqueue(() => !IsScreenReady());
+        P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+        P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+        P.TaskManager.Enqueue(() => P.FollowPath.Move([.. data.Path], true));
+        P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+        P.TaskManager.Enqueue(() =>
+        {
+            var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
+            if(obj == null) return false;
+            if(obj.IsTarget())
+            {
+                if(EzThrottler.Throttle("InteractInnNpc", 1000))
+                {
+                    TargetSystem.Instance()->InteractWithObject(obj.Struct(), false);
+                    return true;
+                }
+            }
+            else
+            {
+                if(EzThrottler.Throttle("Settarget"))
+                {
+                    Svc.Targets.Target = obj;
+                }
+            }
+            return false;
+        });
+        P.TaskManager.Enqueue(() =>
+        {
+            if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+            {
+                talk.Click();
+            }
+            var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
+            if(obj == null) return false;
+            if(obj.IsTarget() && TryGetAddonMaster<AddonMaster.SelectString>(out var m))
+            {
+                if(m.Entries.Length > 2 && EzThrottler.Throttle("SelectRetireInn", 5000))
+                {
+                    m.Entries[0].Select();
+                    return true;
+                }
+            }
+            return false;
+        });
+        P.TaskManager.Enqueue(() =>
+        {
+            if(!IsScreenReady()) return true;
+            if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+            {
+                talk.Click();
+            }
+            return false;
+        });
+
+        P.TaskManager.EnqueueStack();
     }
 
     private static void EnqueueGoToMyApartment()
@@ -200,8 +304,21 @@ public unsafe static class TaskPropertyShortcut
         return false;
     }
 
+    static uint GetInnTerritoryId()
+    {
+        if(P.Config.PreferredInn != 0)
+        {
+            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().FirstOrDefault(x => x.IsAetheryte && x.Territory.Row == P.Config.PreferredInn);
+            if(aetheryte != null && Svc.AetheryteList.Any(a => a.AetheryteId == aetheryte.RowId))
+            {
+                return aetheryte.Territory.Row;
+            }
+        }
+        return P.Config.WorldChangeAetheryte.GetTerritory();
+    }
+
     public enum PropertyType
     {
-        Auto, Home, FC, Apartment
+        Auto, Home, FC, Apartment, Inn
     }
 }

@@ -446,6 +446,23 @@ internal static unsafe class Utils
         return ret;
     }
 
+    internal static string GetInnNameFromTerritory(uint tt)
+    {
+        if(tt == 0) return "Autodetect";
+        var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(tt);
+        if(t != null)
+        {
+            var inn = Svc.Data.GetExcelSheet<TerritoryType>().FirstOrDefault(x => x.PlaceNameRegion.Value?.RowId == t.PlaceNameRegion.Value.RowId && x.TerritoryIntendedUse == (int)TerritoryIntendedUseEnum.Inn);
+            if(inn != null)
+            {
+                return inn.PlaceNameZone.Value.Name;
+            }
+        }
+        return "???";
+    }
+
+    internal static IGameObject GetReachableMasterAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.Value.IsAetheryte, littleDistance);
+
     internal static IGameObject GetReachableWorldChangeAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae?.IsWorldChangeAetheryte() == true, littleDistance);
 
     internal static IGameObject GetReachableResidentialAetheryte(bool littleDistance = false) => GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae?.IsResidentialAetheryte() == true, littleDistance);

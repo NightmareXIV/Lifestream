@@ -1,5 +1,6 @@
 ﻿using ECommons.Configuration;
 using Lifestream.Enums;
+using Lifestream.Tasks.Shortcuts;
 
 namespace Lifestream.Data;
 
@@ -58,5 +59,7 @@ public class Config : IEzConfig
     public List<HousePathData> HousePathDatas = [];
     public bool EnterMyApartment = true;
     public HouseEnterMode HouseEnterMode = HouseEnterMode.None;
-    public bool UseReturn = false;
+    public bool UseReturn = true;
+    public uint PreferredInn = 0;
+    public List<AutoPropertyData> PropertyPrio = [new(true, TaskPropertyShortcut.PropertyType.Home), new(true, TaskPropertyShortcut.PropertyType.FC), new(true, TaskPropertyShortcut.PropertyType.Apartment), new(true, TaskPropertyShortcut.PropertyType.Inn)];
 }

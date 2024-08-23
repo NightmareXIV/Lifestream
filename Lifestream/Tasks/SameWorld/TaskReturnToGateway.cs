@@ -6,13 +6,13 @@ namespace Lifestream.Tasks.SameWorld;
 
 public static class TaskReturnToGateway
 {
-    public static void Enqueue(WorldChangeAetheryte gateway)
+    public static void Enqueue(WorldChangeAetheryte gateway, bool force = false)
     {
         if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WaitUntilInteractable);
         P.TaskManager.Enqueue(() =>
         {
-            if(Svc.ClientState.TerritoryType != gateway.GetTerritory())
+            if(force || Svc.ClientState.TerritoryType != gateway.GetTerritory())
             {
                 P.TaskManager.InsertMulti(
                     new(() => WorldChange.ExecuteTPToAethernetDestination((uint)gateway), $"ExecuteTPToAethernetDestination({gateway})"),

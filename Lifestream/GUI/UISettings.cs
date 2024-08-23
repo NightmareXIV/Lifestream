@@ -1,9 +1,11 @@
 ﻿using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
+using System;
 using Action = System.Action;
 
 namespace Lifestream.GUI;
@@ -44,9 +46,60 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
             ImGui.Checkbox($"Show teleport destination in chat", ref P.Config.DisplayChatTeleport);
             ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
+            
+            //ImGui.Checkbox("Use Return instead of Teleport when possible", ref P.Config.UseReturn);
+            //ImGuiEx.HelpMarker("This includes any IPC calls");
+        })
+
+        .Section("Shortcuts")
+        .Widget(() =>
+        {
             ImGui.Checkbox("When teleporting to your own apartment, enter inside", ref P.Config.EnterMyApartment);
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(150f);
             ImGuiEx.EnumCombo("When teleporting to your/fc house, perform this action", ref P.Config.HouseEnterMode);
+            ImGui.SetNextItemWidth(150f);
+            if(ImGui.BeginCombo("Preferred Inn", Utils.GetInnNameFromTerritory(P.Config.PreferredInn), ImGuiComboFlags.HeightLarge))
+            {
+                foreach(var x in (uint[])[0, .. TaskPropertyShortcut.InnData.Keys])
+                {
+                    if(ImGui.Selectable(Utils.GetInnNameFromTerritory(x), x == P.Config.PreferredInn)) P.Config.PreferredInn = x;
+                }
+                ImGui.EndCombo();
+            }
+            ImGui.Separator();
+            ImGuiEx.Text("\"/li auto\" command priority:");
+            for(int i = 0; i < P.Config.PropertyPrio.Count; i++)
+            {
+                var d = P.Config.PropertyPrio[i];
+                ImGui.PushID($"c{i}");
+                if(ImGui.ArrowButton("##up", ImGuiDir.Up) && i > 0)
+                {
+                    try
+                    {
+                        (P.Config.PropertyPrio[i - 1], P.Config.PropertyPrio[i]) = (P.Config.PropertyPrio[i], P.Config.PropertyPrio[i - 1]);
+                    }
+                    catch(Exception e)
+                    {
+                        e.Log();
+                    }
+                }
+                ImGui.SameLine();
+                if(ImGui.ArrowButton("##down", ImGuiDir.Down) && i < P.Config.PropertyPrio.Count - 1)
+                {
+                    try
+                    {
+                        (P.Config.PropertyPrio[i + 1], P.Config.PropertyPrio[i]) = (P.Config.PropertyPrio[i], P.Config.PropertyPrio[i + 1]);
+                    }
+                    catch(Exception e)
+                    {
+                        e.Log();
+                    }
+                }
+                ImGui.SameLine();
+                ImGui.Checkbox($"{d.Type}", ref d.Enabled);
+                ImGui.PopID();
+            }
+            ImGui.Separator();
         })
 
         .Section("Map Integration")

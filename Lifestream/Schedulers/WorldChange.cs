@@ -240,10 +240,10 @@ internal static unsafe class WorldChange
         return false;
     }
 
-    internal static bool? WaitUntilWorldChangeAetheryteExists()
+    internal static bool? WaitUntilMasterAetheryteExists()
     {
         if(!Player.Available) return false;
-        return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte();
+        return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsAetheryte;
     }
 
     internal static bool? DisableAutomove()
