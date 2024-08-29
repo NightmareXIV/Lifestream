@@ -2,6 +2,7 @@
 using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
+using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.EzSharedDataManager;
@@ -20,11 +21,13 @@ using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
+using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
 using System.IO;
+using static FFXIVClientStructs.FFXIV.Client.Game.Control.InputManager.Delegates;
 using Path = System.IO.Path;
 
 namespace Lifestream.GUI;
@@ -55,77 +58,157 @@ internal static unsafe class UIDebug
     private static bool ShowFirstPoint = true;
     private static int u;
     private static int v;
+    private static List<Vector3> CurrentPath = null;
+    private static bool DoAutotest = false;
+    private static int AutotestPlot = 0;
+    private static int AutotestWard = 30;
+    private static ResidentialAetheryteKind AutotestKind = ResidentialAetheryteKind.Gridania;
+    private static List<long> StuckRecords = [];
+    private static Vector3? LastPosition = null;
 
     private static void Housing()
     {
+        if(CurrentPath != null)
+        {
+            if(ImGui.Begin($"Lifestream Edit Path"))
+            {
+                if(ImGui.Button("Finish"))
+                {
+                    Svc.Framework.RunOnFrameworkThread(() =>
+                    {
+                        Utils.SaveGeneratedHousingData();
+                    });
+                    CurrentPath = null;
+                }
+                if(CurrentPath != null)
+                {
+                    UIHouseReg.DrawPathEditor(CurrentPath);
+                }
+            }
+            ImGui.End();
+        }
         if(ImGui.Button("Load from config folder"))
         {
             var d = EzConfig.LoadConfiguration<HousingData>("GeneratedHousingData.json", true);
             if(d != null) P.ResidentialAethernet.HousingData = d;
         }
         var data = P.ResidentialAethernet.HousingData.Data;
+        if(ImGui.CollapsingHeader("Autotest"))
+        {
+            if(DoAutotest)
+            {
+                if(Utils.IsBusy())
+                {
+                    EzThrottler.Throttle("Autotest", 500, true);
+                }
+                else
+                {
+                    if(AutotestPlot >= 60)
+                    {
+                        DuoLog.Information("Autotest complete");
+                        DoAutotest = false;
+                    }
+                    else if(EzThrottler.Throttle("Autotest"))
+                    {
+                        AutotestPlot++;
+                        DuoLog.Information($"Now going to plot {AutotestPlot}");
+                        TaskTpAndGoToWard.Enqueue(Player.CurrentWorld, AutotestKind, AutotestWard, AutotestPlot-1, false, false);
+                    }
+                }
+            }
+            ImGui.Checkbox("Autotest active", ref DoAutotest);
+            ImGuiEx.EnumCombo("Autotest aetheryte", ref AutotestKind);
+            ImGui.InputInt("Autotest ward", ref AutotestWard);
+            ImGui.InputInt("Autotest current plot", ref AutotestPlot);
+            if(DoAutotest && EzThrottler.Throttle("StuckAutocheck", 1000))
+            {
+                if(P.FollowPath.Waypoints.Count > 0)
+                {
+                    if(LastPosition != null && Vector3.DistanceSquared(LastPosition.Value, Player.Position) < 1)
+                    {
+                        StuckRecords.Add(Environment.TickCount64);
+                        StuckRecords.RemoveAll(x => Environment.TickCount64 - x > 10000);
+                        if(StuckRecords.Count > 1)
+                        {
+                            DuoLog.Information($"Stuck at {AutotestPlot} - {AutotestKind}");
+                            DoAutotest = false;
+                            P.FollowPath.Stop();
+                            Utils.TryNotify("Stuck");
+                        }
+                    }
+                    LastPosition = Player.Position;
+                }
+                else
+                {
+                    LastPosition = null;
+                }
+            }
+        }
         if(data.TryGetValue(Svc.ClientState.TerritoryType, out var plots))
         {
-            ImGui.Checkbox($"Show pathes", ref ShowPathes);
-            ImGui.SameLine();
-            ImGui.Checkbox("Show first point", ref ShowFirstPoint);
-            if(ShowPathes)
+            if(ImGui.CollapsingHeader("Control"))
             {
-                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
-                if(aetheryte != null)
+                ImGui.Checkbox($"Show pathes", ref ShowPathes);
+                ImGui.SameLine();
+                ImGui.Checkbox("Show first point", ref ShowFirstPoint);
+                if(ShowPathes)
                 {
-                    foreach(var x in plots)
+                    var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
+                    if(aetheryte != null)
                     {
-                        if(x.AethernetID == aetheryte.Value.ID && x.Path.Count > 0)
+                        foreach(var x in plots)
                         {
-                            P.SplatoonManager.RenderPath(ShowFirstPoint ? x.Path : x.Path[1..]);
+                            if(x.AethernetID == aetheryte.Value.ID && x.Path.Count > 0)
+                            {
+                                P.SplatoonManager.RenderPath(ShowFirstPoint ? x.Path : x.Path[1..]);
+                            }
                         }
                     }
                 }
-            }
-            var curPlot = HousingManager.Instance()->GetCurrentPlot();
-            if(curPlot != -1) LastPlot = curPlot;
-            ImGuiEx.Text($"Plot: {curPlot + 1}");
-            ImGui.SetNextItemWidth(150f);
-            ImGui.InputInt($"Resize", ref Resize);
-            ImGui.SameLine();
-            if(ImGui.Button("Resize arrays"))
-            {
-                while(plots.Count > Resize) plots.RemoveAt(plots.Count - 1);
-                while(plots.Count < Resize) plots.Add(new());
-            }
-            if(ImGui.Button("Begin path calculation"))
-            {
-                Chat.Instance.ExecuteCommand("/clearlog");
-                var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
-                if(aetheryte != null)
+                var curPlot = HousingManager.Instance()->GetCurrentPlot();
+                if(curPlot != -1) LastPlot = curPlot;
+                ImGuiEx.Text($"Plot: {curPlot + 1}");
+                ImGui.SetNextItemWidth(150f);
+                ImGui.InputInt($"Resize", ref Resize);
+                ImGui.SameLine();
+                if(ImGui.Button("Resize arrays"))
                 {
-                    P.TaskManager.Enqueue(() => P.VnavmeshManager.Rebuild());
-                    P.TaskManager.Enqueue(() => P.VnavmeshManager.IsReady(), TaskSettings.TimeoutInfinite);
-                    for(var i = 0; i < plots.Count; i++)
-                    {
-                        var x = plots[i];
-                        if(x.AethernetID == aetheryte.Value.ID)
-                        {
-                            var index = i;
-                            TaskGeneratePath.Enqueue(i, x);
-                        }
-                    }
-                    for(var i = 0; i < plots.Count; i++)
-                    {
-                        var x = plots[i];
-                        if(x.AethernetID != aetheryte.Value.ID && x.Path.Count > 0)
-                        {
-                            var index = i;
-                            TaskGeneratePath.EnqueueValidate(i, x, aetheryte.Value);
-                        }
-                    }
-                    P.TaskManager.Enqueue(() => P.NotificationMasterApi.DisplayTrayNotification("Path Completed"));
+                    while(plots.Count > Resize) plots.RemoveAt(plots.Count - 1);
+                    while(plots.Count < Resize) plots.Add(new());
                 }
-            }
-            if(ImGui.Button($"For plot {LastPlot + 1}"))
-            {
-                doCurPlot = true;
+                if(ImGui.Button("Begin path calculation"))
+                {
+                    Chat.Instance.ExecuteCommand("/clearlog");
+                    var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
+                    if(aetheryte != null)
+                    {
+                        P.TaskManager.Enqueue(() => P.VnavmeshManager.Rebuild());
+                        P.TaskManager.Enqueue(() => P.VnavmeshManager.IsReady(), TaskSettings.TimeoutInfinite);
+                        for(var i = 0; i < plots.Count; i++)
+                        {
+                            var x = plots[i];
+                            if(x.AethernetID == aetheryte.Value.ID)
+                            {
+                                var index = i;
+                                TaskGeneratePath.Enqueue(i, x);
+                            }
+                        }
+                        for(var i = 0; i < plots.Count; i++)
+                        {
+                            var x = plots[i];
+                            if(x.AethernetID != aetheryte.Value.ID && x.Path.Count > 0)
+                            {
+                                var index = i;
+                                TaskGeneratePath.EnqueueValidate(i, x, aetheryte.Value);
+                            }
+                        }
+                        P.TaskManager.Enqueue(() => P.NotificationMasterApi.DisplayTrayNotification("Path Completed"));
+                    }
+                }
+                if(ImGui.Button($"For plot {LastPlot + 1}"))
+                {
+                    doCurPlot = true;
+                }
             }
             List<ImGuiEx.EzTableEntry> entries = [];
             for(var i = 0; i < plots.Count; i++)
@@ -136,6 +219,13 @@ internal static unsafe class UIDebug
                     new("Num", () => ImGuiEx.Text($"{index + 1}")),
                     new("Front", () => ImGuiEx.Text($"{plot.Front}")),
                     new("Aethernet", () => ImGuiEx.Text($"{Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(plot.AethernetID)?.PlaceName?.Value?.Name ?? plot.AethernetID.ToString()}")),
+                    new("Edit", () =>
+                    {
+                        if(ImGui.Button($"Edit{index + 1}"))
+                        {
+                            CurrentPath = plots[index].Path;
+                        }
+                    }),
                     new("Action", () =>
                     {
                         if(ImGui.Button($"Set{index + 1}") || (doCurPlot && index == LastPlot))

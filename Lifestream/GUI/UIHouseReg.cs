@@ -103,7 +103,7 @@ public unsafe static class UIHouseReg
         }
     }
 
-    static void DrawPathEditor(List<Vector3> path, HousePathData? data = null)
+    public static void DrawPathEditor(List<Vector3> path, HousePathData? data = null)
     {
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the end of the list"))
         {
