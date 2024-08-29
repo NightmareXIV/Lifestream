@@ -91,7 +91,7 @@ internal static unsafe class WorldChange
         {
             if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
             {
-                if(EzThrottler.Throttle("SelectWorldToVisit", 5000))
+                if(EzThrottler.Throttle("SelectWorldToVisit", 1000))
                 {
                     Callback.Fire(addon, true, index + 2);
                     return true;

@@ -46,7 +46,11 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Automatically leave non cross-world party upon changing world", ref P.Config.LeavePartyBeforeWorldChange);
             ImGui.Checkbox($"Show teleport destination in chat", ref P.Config.DisplayChatTeleport);
             ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
-            
+            ImGui.Checkbox("Retry same-world failed world visits", ref P.Config.RetryWorldVisit);
+            ImGui.Indent();
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt("Interval between retries, seconds##2", ref P.Config.RetryWorldVisitInterval.ValidateRange(1, 120));
+            ImGui.Unindent();
             //ImGui.Checkbox("Use Return instead of Teleport when possible", ref P.Config.UseReturn);
             //ImGuiEx.HelpMarker("This includes any IPC calls");
         })
@@ -115,6 +119,15 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Leave party before switching data center", ref P.Config.LeavePartyBeforeLogout);
             ImGui.Checkbox($"Teleport to gateway aetheryte before switching data center if not in sanctuary", ref P.Config.TeleportToGatewayBeforeLogout);
             ImGui.Checkbox($"Teleport to gateway aetheryte after completing data center travel", ref P.Config.DCReturnToGateway);
+            ImGui.Checkbox($"Allow alternative world during DC transfer", ref P.Config.DcvUseAlternativeWorld);
+            ImGuiEx.HelpMarker("If destination world isn't available but some other world on targeted data center is, it will be selected instead. Normal world visit will be enqueued after logging in.");
+            ImGui.Checkbox($"Retry data center transfer if destination world is not available", ref P.Config.EnableDvcRetry);
+            ImGui.Indent();
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt("Max retries", ref P.Config.MaxDcvRetries.ValidateRange(1, int.MaxValue));
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt("Interval between retries, seconds", ref P.Config.DcvRetryInterval.ValidateRange(10, 1000));
+            ImGui.Unindent();
         })
 
         .Section("Address Book")

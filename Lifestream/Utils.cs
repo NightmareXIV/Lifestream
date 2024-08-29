@@ -376,9 +376,14 @@ internal static unsafe class Utils
         P.NotificationMasterApi.DisplayTrayNotification(P.Name, s);
     }
 
-    internal static string GetDataCenter(string world)
+    internal static string GetDataCenterName(string world)
     {
-        return Svc.Data.GetExcelSheet<World>().First(x => x.Name == world).DataCenter.Value.Name.ToString();
+        return GetDataCenter(world).Name.ToString();
+    }
+
+    internal static WorldDCGroupType GetDataCenter(string world)
+    {
+        return Svc.Data.GetExcelSheet<World>().First(x => x.Name == world).DataCenter.Value;
     }
 
     internal static int Minutes(this int min)

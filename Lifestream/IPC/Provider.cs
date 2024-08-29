@@ -164,10 +164,16 @@ public class Provider
         return Utils.GetPlotEntrance(territory, plot);
     }
 
-    [EzIPC] 
+    [EzIPC]
     public void EnqueuePropertyShortcut(TaskPropertyShortcut.PropertyType type, HouseEnterMode? mode)
     {
         TaskPropertyShortcut.Enqueue(type, mode);
+    }
+
+    [EzIPC]
+    public void EnqueueInnShortcut(int? innIndex)
+    {
+        TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innIndex);
     }
 
     [EzIPC]

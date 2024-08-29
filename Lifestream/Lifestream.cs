@@ -210,9 +210,19 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
-        else if(arguments.EqualsIgnoreCaseAny("inn"))
+        else if(arguments.EqualsIgnoreCaseAny("inn") || arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "inn "))
         {
-            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn);
+            var x = arguments.Split(" ");
+            int? innNum = x.Length == 1 ? null : int.Parse(x[1]) - 1;
+            if(innNum < 1 || innNum > TaskPropertyShortcut.InnData.Count)
+            {
+                var num = 1;
+                DuoLog.Warning($"Invalid inn index. Valid inns are: \n{TaskPropertyShortcut.InnData.Select(s => $"{num++} - {Utils.GetInnNameFromTerritory(s.Key)}").Print("\n")}");
+            }
+            else
+            {
+                TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innNum);
+            }
         }
         else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc "))
         {
@@ -347,7 +357,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 var type = DCVType.Unknown;
                 var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
                 var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
-                var targetDC = Utils.GetDataCenter(w);
+                var targetDC = Utils.GetDataCenterName(w);
                 if(currentDC == homeDC)
                 {
                     type = DCVType.HomeToGuest;

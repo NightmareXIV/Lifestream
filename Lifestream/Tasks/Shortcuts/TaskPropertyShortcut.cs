@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
@@ -16,7 +17,7 @@ using Lumina.Excel.GeneratedSheets;
 namespace Lifestream.Tasks.Shortcuts;
 public unsafe static class TaskPropertyShortcut
 {
-    public static readonly Dictionary<uint, (uint Aethernet, Vector3[] Path)> InnData = new()
+    public static readonly SortedDictionary<uint, (uint Aethernet, Vector3[] Path)> InnData = new()
     {
         [1185] = (220, [new(-161.9f, -15.0f, 205.0f)]), //tul
         [MainCities.Old_Sharlayan] = (185, [new(-89.6f, 1.3f, 25.7f), new(-99.5f, 3.9f, 5.2f)]),
@@ -30,7 +31,7 @@ public unsafe static class TaskPropertyShortcut
 
     public static uint[] InnNpc = [1000102, 1000974, 1001976, 1011193, 1018981, 1048375, 1037293, 1027231];
 
-    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null)
+    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -51,7 +52,7 @@ public unsafe static class TaskPropertyShortcut
                 {
                     if(x.Enabled)
                     {
-                        if(ExecuteByPropertyType(x.Type, mode)) break;
+                        if(ExecuteByPropertyType(x.Type, mode, innIndex)) break;
                     }
                 }
             }
@@ -90,12 +91,12 @@ public unsafe static class TaskPropertyShortcut
             }
             else if(propertyType == PropertyType.Inn)
             {
-                EnqueueGoToInn();
+                EnqueueGoToInn(innIndex);
             }
         }, "ReturnToHomeTask");
     }
 
-    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode)
+    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode, int? innIndex)
     {
         if(type == PropertyType.Home && GetPrivateHouseAetheryteID() != 0)
         {
@@ -114,7 +115,7 @@ public unsafe static class TaskPropertyShortcut
         }
         else if(type == PropertyType.Inn)
         {
-            EnqueueGoToInn();
+            EnqueueGoToInn(innIndex);
             return true;
         }
         return false;
@@ -170,75 +171,86 @@ public unsafe static class TaskPropertyShortcut
         P.TaskManager.InsertStack();
     }
 
-    public static void EnqueueGoToInn()
+    public static void EnqueueGoToInn(int? innIndex)
     {
         P.TaskManager.BeginStack();
-        var id = GetInnTerritoryId();
-        var data = InnData[id];
-        var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.Row == id);
-        if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && Utils.GetReachableMasterAetheryte() == null)
+        try
         {
-            P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(aetheryte.RowId, 0));
+            var id = innIndex == null ? GetInnTerritoryId() : InnData.Keys.ElementAt(innIndex.Value);
+            PluginLog.Debug($"Inn territory: {ExcelTerritoryHelper.GetName(id)}");
+            var data = InnData[id];
+            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.Row == id);
+            if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && (Utils.GetReachableMasterAetheryte() == null || id != Player.Territory))
+            {
+                P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(aetheryte.RowId, 0));
+                P.TaskManager.Enqueue(() => !IsScreenReady());
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            }
+            TaskApproachAetheryteIfNeeded.Enqueue();
+            var aethernetDest = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.ExtractText();
+            PluginLog.Debug($"Inn aethernet destination: {aethernetDest} at {aetheryte.AethernetName.Value.Name}");
+            TaskTryTpToAethernetDestination.Enqueue(aethernetDest);
             P.TaskManager.Enqueue(() => !IsScreenReady());
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-        }
-        TaskApproachAetheryteIfNeeded.Enqueue();
-        TaskTryTpToAethernetDestination.Enqueue(Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.ExtractText());
-        P.TaskManager.Enqueue(() => !IsScreenReady());
-        P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-        P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-        P.TaskManager.Enqueue(() => P.FollowPath.Move([.. data.Path], true));
-        P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
-        P.TaskManager.Enqueue(() =>
-        {
-            var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
-            if(obj == null) return false;
-            if(obj.IsTarget())
+            P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+            P.TaskManager.Enqueue(() => P.FollowPath.Move([.. data.Path], true));
+            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+            P.TaskManager.Enqueue(() =>
             {
-                if(EzThrottler.Throttle("InteractInnNpc", 1000))
+                var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
+                if(obj == null) return false;
+                if(obj.IsTarget())
                 {
-                    TargetSystem.Instance()->InteractWithObject(obj.Struct(), false);
-                    return true;
+                    if(EzThrottler.Throttle("InteractInnNpc", 1000))
+                    {
+                        TargetSystem.Instance()->InteractWithObject(obj.Struct(), false);
+                        return true;
+                    }
                 }
-            }
-            else
-            {
-                if(EzThrottler.Throttle("Settarget"))
+                else
                 {
-                    Svc.Targets.Target = obj;
+                    if(EzThrottler.Throttle("Settarget"))
+                    {
+                        Svc.Targets.Target = obj;
+                    }
                 }
-            }
-            return false;
-        });
-        P.TaskManager.Enqueue(() =>
-        {
-            if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+                return false;
+            });
+            P.TaskManager.Enqueue(() =>
             {
-                talk.Click();
-            }
-            var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
-            if(obj == null) return false;
-            if(obj.IsTarget() && TryGetAddonMaster<AddonMaster.SelectString>(out var m))
-            {
-                if(m.Entries.Length > 2 && EzThrottler.Throttle("SelectRetireInn", 5000))
+                if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
                 {
-                    m.Entries[0].Select();
-                    return true;
+                    talk.Click();
                 }
-            }
-            return false;
-        });
-        P.TaskManager.Enqueue(() =>
-        {
-            if(!IsScreenReady()) return true;
-            if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+                var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
+                if(obj == null) return false;
+                if(obj.IsTarget() && TryGetAddonMaster<AddonMaster.SelectString>(out var m))
+                {
+                    if(m.Entries.Length > 2 && EzThrottler.Throttle("SelectRetireInn", 5000))
+                    {
+                        m.Entries[0].Select();
+                        return true;
+                    }
+                }
+                return false;
+            });
+            P.TaskManager.Enqueue(() =>
             {
-                talk.Click();
-            }
-            return false;
-        });
+                if(!IsScreenReady()) return true;
+                if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+                {
+                    talk.Click();
+                }
+                return false;
+            });
 
-        P.TaskManager.EnqueueStack();
+            P.TaskManager.EnqueueStack();
+        }
+        catch(Exception ex)
+        {
+            ex.Log();
+            P.TaskManager.DiscardStack();
+        }
     }
 
     private static void EnqueueGoToMyApartment()

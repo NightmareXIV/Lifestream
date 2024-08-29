@@ -2,6 +2,8 @@
 using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons.Automation;
+using ECommons.Automation.UIInput;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers;
@@ -11,6 +13,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
 using Lumina.Excel.GeneratedSheets;
+using Action = System.Action;
 
 namespace Lifestream.Schedulers;
 
@@ -59,7 +62,7 @@ internal static unsafe class DCChange
             if(DCThrottle)
             {
                 PluginLog.Debug($"[DCChange] Confirming login");
-                new SelectYesnoMaster(addon).Yes();
+                new AddonMaster.SelectYesno(addon).Yes();
                 return false;
             }
             else
@@ -298,12 +301,12 @@ internal static unsafe class DCChange
         return false;
     }
 
-    internal static bool? SelectTargetWorld(string name)
+    internal static bool? SelectTargetWorld(string name, Func<bool> noAvailableWorldsAction)
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
             var cw = MemoryHelper.ReadSeString(&addon->UldManager.NodeList[10]->GetAsAtkTextNode()->NodeText).ExtractText();
-            if(cw == name)
+            if(cw == name || (P.Config.DcvUseAlternativeWorld && cw.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString()))))
             {
                 return true;
             }
@@ -325,7 +328,59 @@ internal static unsafe class DCChange
                     }
                 }
             }
-            if(num == 0) DCRethrottle();
+            if(P.Config.DcvUseAlternativeWorld)
+            {
+                for(var i = 3; i < 3 + 8; i++)
+                {
+                    var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                    if(t->AtkResNode.Alpha_2 == 255)
+                    {
+                        var text = MemoryHelper.ReadSeString(&t->NodeText).ExtractText();
+                        if(text != "") num++;
+                        if(text.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString())) && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
+                        {
+                            PluginLog.Debug($"[DCChange] Selecting alternative target world {name} index {i}");
+                            P.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i - 2);
+                            DCRethrottle();
+                            return false;
+                        }
+                    }
+                }
+            }
+            if(num == 0)
+            {
+                DCRethrottle();
+            }
+            if(noAvailableWorldsAction != null && TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon2) && IsAddonReady(addon2) && addon2->UldManager.NodeList[4]->GetAsAtkComponentButton()->IsEnabled)
+            {
+                var result = noAvailableWorldsAction();
+                if(result) return true;
+            }
+        }
+        else
+        {
+            DCRethrottle();
+        }
+        return false;
+    }
+
+    internal static bool? CancelDcVisit()
+    {
+        if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
+        {
+            if(addon->UldManager.NodeList[4]->GetAsAtkComponentButton()->IsEnabled)
+            {
+                if(DCThrottle && EzThrottler.Throttle("CancelDcVisit", 5000))
+                {
+                    PluginLog.Debug($"[DCChange] Confirming DC visit");
+                    addon->UldManager.NodeList[4]->GetAsAtkComponentButton()->ClickAddonButton(addon);
+                    return true;
+                }
+            }
+            else
+            {
+                DCRethrottle();
+            }
         }
         else
         {
