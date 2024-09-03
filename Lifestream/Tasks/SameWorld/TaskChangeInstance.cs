@@ -102,7 +102,7 @@ public static unsafe class TaskChangeInstance
         {
             if(EzThrottler.Throttle("InteractWithAetheryte"))
             {
-                TargetSystem.Instance()->InteractWithObject(aetheryte.Struct());
+                TargetSystem.Instance()->InteractWithObject(aetheryte.Struct(), false);
                 return false;
             }
         }

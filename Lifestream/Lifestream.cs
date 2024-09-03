@@ -214,7 +214,7 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             var x = arguments.Split(" ");
             int? innNum = x.Length == 1 ? null : int.Parse(x[1]) - 1;
-            if(innNum < 1 || innNum > TaskPropertyShortcut.InnData.Count)
+            if(innNum != null && !innNum.Value.InRange(0, TaskPropertyShortcut.InnData.Count))
             {
                 var num = 1;
                 DuoLog.Warning($"Invalid inn index. Valid inns are: \n{TaskPropertyShortcut.InnData.Select(s => $"{num++} - {Utils.GetInnNameFromTerritory(s.Key)}").Print("\n")}");
