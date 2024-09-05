@@ -4,6 +4,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 
@@ -95,8 +96,12 @@ public static unsafe class TaskISShortcut
 
         void TravelToIsland()
         {
-            P.TaskManager.Enqueue(EnqueueBaldinNavigation);
+            if (Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) > 3f)
+            {
+                P.TaskManager.Enqueue(EnqueueBaldinNavigation);
+            }
             P.TaskManager.Enqueue(InteractWithBaldin);
+            P.TaskManager.Enqueue(BaldinTalkSkip);
             P.TaskManager.Enqueue(SelectStringIsland);
             P.TaskManager.Enqueue(ConfirmIslandTravel);
             P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Island, "WaitUntilPlayerInteractableOnIsland", TaskSettings.Timeout2M);
@@ -104,28 +109,15 @@ public static unsafe class TaskISShortcut
 
         bool EnqueueBaldinNavigation()
         {
-            P.TaskManager.Enqueue(Utils.WaitForScreen);
-            P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-            P.TaskManager.Enqueue(() =>
-            {
-                var task = P.VnavmeshManager.Pathfind(Player.Position, NPCPoints[IslandNPC.Baldin], false);
-                P.TaskManager.Enqueue(() =>
-                {
-                    if (!task.IsCompleted) return false;
-                    var path = task.Result;
-                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                    P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                    return true;
-                }, "Build path and check");
-            }, "Master navmesh task");
-            return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f;
+            if (!P.VnavmeshManager.IsReady() ?? false || P.VnavmeshManager.IsRunning()) return false;
+            P.VnavmeshManager.PathfindAndMoveTo(NPCPoints[IslandNPC.Baldin], false);
+            return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f && !P.VnavmeshManager.IsRunning();
         }
 
         bool InteractWithBaldin()
         {
             if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent]) return true;
             var baldin = Svc.Objects.FirstOrDefault(x => x.DataId == (uint)IslandNPC.Baldin);
-            if (Vector3.Distance(Player.Position, baldin.Position) < 3f) return false;
             if (baldin.IsTarget())
             {
                 if (EzThrottler.Throttle(nameof(InteractWithBaldin)))
@@ -140,6 +132,19 @@ public static unsafe class TaskISShortcut
                 {
                     Svc.Targets.Target = baldin;
                     return false;
+                }
+            }
+            return false;
+        }
+
+        bool BaldinTalkSkip()
+        {
+            if (TryGetAddonByName<AtkUnitBase>("Talk", out var addon) && IsAddonReady(addon) && Svc.Targets.Target?.DataId == (uint)IslandNPC.Baldin)
+            {
+                if (EzThrottler.Throttle(nameof(BaldinTalkSkip)))
+                {
+                    new AddonMaster.Talk((nint)addon).Click();
+                    return true;
                 }
             }
             return false;
@@ -160,23 +165,5 @@ public static unsafe class TaskISShortcut
             }
             return false;
         }
-    }
-
-    internal static void EnqueueNavToNPC(Vector3 npc)
-    {
-        P.TaskManager.Enqueue(Utils.WaitForScreen);
-        P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-        P.TaskManager.Enqueue(() =>
-        {
-            var task = P.VnavmeshManager.Pathfind(Player.Position, npc, false);
-            P.TaskManager.Enqueue(() =>
-            {
-                if (!task.IsCompleted) return false;
-                var path = task.Result;
-                P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                return true;
-            }, "Build path and check");
-        }, "Master navmesh task");
     }
 }
