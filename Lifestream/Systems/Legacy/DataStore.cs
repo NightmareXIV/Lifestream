@@ -3,6 +3,7 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using Lifestream.Data;
+using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
 using System.IO;
 using Path = System.IO.Path;
@@ -16,6 +17,7 @@ internal class DataStore
     internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = [];
     internal string[] Worlds = Array.Empty<string>();
     internal string[] DCWorlds = Array.Empty<string>();
+    internal Dictionary<TaskISShortcut.IslandNPC, string> IslandNPCs = [];
     internal StaticData StaticData;
 
     internal TinyAetheryte GetMaster(TinyAetheryte aetheryte)
@@ -63,6 +65,9 @@ internal class DataStore
         {
             BuildWorlds();
         }
+
+        foreach (TaskISShortcut.IslandNPC npc in Enum.GetValues(typeof(TaskISShortcut.IslandNPC)))
+            IslandNPCs.Add(npc, Svc.Data.GetExcelSheet<ENpcResident>().GetRow((uint)npc).Singular);
     }
 
     internal uint GetAetheryteSortOrder(uint id)

@@ -264,6 +264,18 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskMBShortcut.Enqueue();
             }
         }
+        else if (arguments.EqualsIgnoreCaseAny("island", "is", "sanctuary"))
+        {
+            var arglist = arguments.Split(" ");
+            if (arglist.Length == 1)
+                TaskISShortcut.Enqueue();
+            else
+            {
+                var name = arglist[1];
+                if (DataStore.IslandNPCs.TryGetFirst(x => x.Value.Contains(name, StringComparison.OrdinalIgnoreCase), out var npc))
+                    TaskISShortcut.Enqueue(npc.Key);
+            }
+        }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {
             ChatPrinter.Green($"[Lifestream] Address parsed: {entry.GetAddressString()}");
