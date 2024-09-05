@@ -4,7 +4,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 
@@ -65,9 +65,7 @@ public static unsafe class TaskISShortcut
         P.TaskManager.Enqueue(() =>
         {
             if (Player.Territory == IslandTerritories.Island)
-            {
                 EnqueueNavToNPC(point);
-            }
             else if (Player.Territory == IslandTerritories.Moraby)
                 TravelToIsland();
             else
@@ -97,7 +95,7 @@ public static unsafe class TaskISShortcut
 
         bool EnqueueBaldinNavigation()
         {
-            if (!P.VnavmeshManager.IsReady() ?? false || P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning()) return false;
+            if (P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning() || AgentMap.Instance()->IsPlayerMoving == 1) return false;
             P.VnavmeshManager.PathfindAndMoveTo(NPCPoints[IslandNPC.Baldin], false);
             return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f && !P.VnavmeshManager.IsRunning();
         }
