@@ -4,6 +4,7 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lifestream.Enums;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.SameWorld;
@@ -58,7 +59,7 @@ public static unsafe class TaskGCShortcut
         [GrandCompany.TwinAdder] = 21070,
     };
 
-    public static void Enqueue(GrandCompany? companyNullable = null, bool isChest = false, bool returnHome = false)
+    public static void Enqueue(GrandCompany? companyNullable = null, bool isChest = false, bool returnHome = false, bool fcgc = false)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -70,7 +71,7 @@ public static unsafe class TaskGCShortcut
             DuoLog.Error("Player not available");
             return;
         }
-        companyNullable ??= Player.GrandCompany;
+        companyNullable ??= fcgc ? (GrandCompany)InfoProxyFreeCompany.Instance()->GrandCompany : Player.GrandCompany;
         if(companyNullable == GrandCompany.Unemployed)
         {
             DuoLog.Error($"Grand company not specified and player is unemployed");
