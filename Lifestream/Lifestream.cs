@@ -224,32 +224,33 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innNum);
             }
         }
-        else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc "))
+        else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc", "fcgc", "gcfc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc ", "fcgc ", "gcfc "))
         {
             var arglist = arguments.Split(" ");
             var isChest = arguments.StartsWithAny("gcc", "hcc");
+            var fcgc = arguments.StartsWithAny("fcgc", "gcfc");
             var returnHome = arguments[0] == 'h';
             if(arglist.Length == 1)
             {
-                TaskGCShortcut.Enqueue(null, isChest, returnHome);
+                TaskGCShortcut.Enqueue(null, isChest, returnHome, fcgc);
             }
             else
             {
                 if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.TwinAdder.ToString(), "Twin Adder", "Twin", "Adder", "TA", "A", "serpent"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest, returnHome);
+                    TaskGCShortcut.Enqueue(GrandCompany.TwinAdder, isChest, returnHome, fcgc);
                 }
                 else if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.Maelstrom.ToString(), "Mael", "S", "M", "storm", "strom"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest, returnHome);
+                    TaskGCShortcut.Enqueue(GrandCompany.Maelstrom, isChest, returnHome, fcgc);
                 }
                 else if(arglist[1].EqualsIgnoreCaseAny(GrandCompany.ImmortalFlames.ToString(), "Immortal Flames", "Immortal", "Flames", "IF", "F", "flame"))
                 {
-                    TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest, returnHome);
+                    TaskGCShortcut.Enqueue(GrandCompany.ImmortalFlames, isChest, returnHome, fcgc);
                 }
                 else if(Enum.TryParse<GrandCompany>(arglist[1], out var result))
                 {
-                    TaskGCShortcut.Enqueue(result, isChest, returnHome);
+                    TaskGCShortcut.Enqueue(result, isChest, returnHome, fcgc);
                 }
                 else
                 {
