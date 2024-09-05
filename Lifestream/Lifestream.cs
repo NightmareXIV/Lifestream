@@ -272,7 +272,7 @@ public unsafe class Lifestream : IDalamudPlugin
             else
             {
                 var name = arglist[1];
-                if (DataStore.IslandNPCs.TryGetFirst(x => x.Value.Contains(name, StringComparison.OrdinalIgnoreCase), out var npc))
+                if (DataStore.IslandNPCs.TryGetFirst(x => x.Value.Any(y => y.Contains(name, StringComparison.OrdinalIgnoreCase)), out var npc))
                     TaskISShortcut.Enqueue(npc.Key);
             }
         }

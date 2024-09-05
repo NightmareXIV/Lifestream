@@ -17,7 +17,7 @@ internal class DataStore
     internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = [];
     internal string[] Worlds = Array.Empty<string>();
     internal string[] DCWorlds = Array.Empty<string>();
-    internal Dictionary<TaskISShortcut.IslandNPC, string> IslandNPCs = [];
+    internal Dictionary<TaskISShortcut.IslandNPC, string[]> IslandNPCs = [];
     internal StaticData StaticData;
 
     internal TinyAetheryte GetMaster(TinyAetheryte aetheryte)
@@ -67,7 +67,10 @@ internal class DataStore
         }
 
         foreach (TaskISShortcut.IslandNPC npc in Enum.GetValues(typeof(TaskISShortcut.IslandNPC)))
-            IslandNPCs.Add(npc, Svc.Data.GetExcelSheet<ENpcResident>().GetRow((uint)npc).Singular);
+        {
+            var row = Svc.Data.GetExcelSheet<ENpcResident>().GetRow((uint)npc);
+            IslandNPCs.Add(npc, [row.Singular, row.Title]);
+        }
     }
 
     internal uint GetAetheryteSortOrder(uint id)

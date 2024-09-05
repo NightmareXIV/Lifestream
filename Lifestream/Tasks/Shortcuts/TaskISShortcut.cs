@@ -66,16 +66,7 @@ public static unsafe class TaskISShortcut
         {
             if (Player.Territory == IslandTerritories.Island)
             {
-                P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
-                P.TaskManager.Enqueue(() =>
-                {
-                    if (!task.IsCompleted) return false;
-                    var path = task.Result;
-                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                    P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                    return true;
-                }, "Build path and check");
+                EnqueueNavToNPC(point);
             }
             else if (Player.Territory == IslandTerritories.Moraby)
                 TravelToIsland();
@@ -88,7 +79,6 @@ public static unsafe class TaskISShortcut
             if (Player.Territory != IslandTerritories.Moraby)
             {
                 TaskTpAndWaitForArrival.Enqueue(10);
-                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
                 P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Moraby, "WaitUntilPlayerInteractableInMoraby", TaskSettings.Timeout2M);
             }
             TravelToIsland();
@@ -97,19 +87,17 @@ public static unsafe class TaskISShortcut
         void TravelToIsland()
         {
             if (Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) > 3f)
-            {
                 P.TaskManager.Enqueue(EnqueueBaldinNavigation);
-            }
             P.TaskManager.Enqueue(InteractWithBaldin);
-            P.TaskManager.Enqueue(BaldinTalkSkip);
-            P.TaskManager.Enqueue(SelectStringIsland);
+            P.TaskManager.Enqueue(TalkWithBaldin);
             P.TaskManager.Enqueue(ConfirmIslandTravel);
             P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Island, "WaitUntilPlayerInteractableOnIsland", TaskSettings.Timeout2M);
+            P.TaskManager.Enqueue(() => EnqueueNavToNPC(point));
         }
 
         bool EnqueueBaldinNavigation()
         {
-            if (!P.VnavmeshManager.IsReady() ?? false || P.VnavmeshManager.IsRunning()) return false;
+            if (!P.VnavmeshManager.IsReady() ?? false || P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning()) return false;
             P.VnavmeshManager.PathfindAndMoveTo(NPCPoints[IslandNPC.Baldin], false);
             return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f && !P.VnavmeshManager.IsRunning();
         }
@@ -137,20 +125,12 @@ public static unsafe class TaskISShortcut
             return false;
         }
 
-        bool BaldinTalkSkip()
+        bool TalkWithBaldin()
         {
-            if (TryGetAddonByName<AtkUnitBase>("Talk", out var addon) && IsAddonReady(addon) && Svc.Targets.Target?.DataId == (uint)IslandNPC.Baldin)
-            {
-                if (EzThrottler.Throttle(nameof(BaldinTalkSkip)))
-                {
-                    new AddonMaster.Talk((nint)addon).Click();
-                    return true;
-                }
-            }
-            return false;
+            if (TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+                talk.Click();
+            return Utils.TrySelectSpecificEntry(Lang.TravelToMyIsland, () => EzThrottler.Throttle(nameof(TalkWithBaldin)));
         }
-
-        bool SelectStringIsland() => Utils.TrySelectSpecificEntry(Lang.TravelToMyIsland, () => EzThrottler.Throttle(nameof(SelectStringIsland)));
 
         bool ConfirmIslandTravel()
         {
@@ -164,6 +144,24 @@ public static unsafe class TaskISShortcut
                 }
             }
             return false;
+        }
+
+        void EnqueueNavToNPC(Vector3 point)
+        {
+            P.TaskManager.Enqueue(Utils.WaitForScreen);
+            P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+            P.TaskManager.Enqueue(() =>
+            {
+                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
+                P.TaskManager.Enqueue(() =>
+                {
+                    if (!task.IsCompleted) return false;
+                    var path = task.Result;
+                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+                    P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
+                    return true;
+                }, "Build path");
+            }, "Master navmesh task");
         }
     }
 }
