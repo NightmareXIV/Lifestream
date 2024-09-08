@@ -1,4 +1,5 @@
 ﻿using ECommons.EzIpcManager;
+using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
@@ -169,7 +170,7 @@ public class Provider
     {
         TaskPropertyShortcut.Enqueue(type, mode);
     }
-
+    
     [EzIPC]
     public void EnqueueInnShortcut(int? innIndex)
     {
@@ -209,6 +210,13 @@ public class Provider
     public int GetCurrentInstance()
     {
         return S.InstanceHandler.GetInstance();
+    }
+
+    [EzIPC]
+    public bool? HasApartment()
+    {
+        if(Player.Object.HomeWorld.Id != Player.Object.CurrentWorld.Id) return null;
+        return TaskPropertyShortcut.GetApartmentAetheryteID().ID != 0;
     }
 
     [EzIPCEvent] public Action OnHouseEnterError;

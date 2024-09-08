@@ -7,6 +7,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ImGuizmoNET;
 using Lifestream.Data;
 using Lifestream.Schedulers;
@@ -256,11 +257,15 @@ public unsafe static class TaskPropertyShortcut
     private static void EnqueueGoToMyApartment()
     {
         var a = GetApartmentAetheryteID();
+        var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId == 60790 && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
         P.TaskManager.BeginStack();
-        P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(a.ID, a.Sub));
+        if(!nextToMyApt)
+        {
+            P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(a.ID, a.Sub));
+        }
         if(P.Config.EnterMyApartment)
         {
-            TaskApproachAndInteractWithApartmentEntrance.Enqueue();
+            TaskApproachAndInteractWithApartmentEntrance.Enqueue(!nextToMyApt);
             P.TaskManager.Enqueue(TaskApproachAndInteractWithApartmentEntrance.GoToMyApartment);
         }
         P.TaskManager.InsertStack();
@@ -278,7 +283,7 @@ public unsafe static class TaskPropertyShortcut
         return 0;
     }
 
-    private static (uint ID, uint Sub) GetApartmentAetheryteID()
+    public static (uint ID, uint Sub) GetApartmentAetheryteID()
     {
         foreach(var x in Svc.AetheryteList)
         {

@@ -16,9 +16,9 @@ using System.Threading.Tasks;
 namespace Lifestream.Tasks.SameWorld;
 public static class TaskApproachAndInteractWithApartmentEntrance
 {
-    public static void Enqueue()
+    public static void Enqueue(bool betweenAreas)
     {
-        P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+        if(betweenAreas) P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
         P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(TargetApartmentEntrance);
         P.TaskManager.Enqueue(WorldChange.LockOn);

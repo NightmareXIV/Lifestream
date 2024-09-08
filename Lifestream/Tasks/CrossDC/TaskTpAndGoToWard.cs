@@ -73,7 +73,7 @@ public static unsafe class TaskTpAndGoToWard
             {
                 TaskApproachHousingAetheryte.Enqueue();
                 TaskAethernetTeleport.Enqueue(aetheryte.Name);
-                TaskApproachAndInteractWithApartmentEntrance.Enqueue();
+                TaskApproachAndInteractWithApartmentEntrance.Enqueue(true);
                 P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
                 P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
                 if(!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);

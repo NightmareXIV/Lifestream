@@ -341,6 +341,21 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("HUD"))
+        {
+            var hud = AgentHUD.Instance();
+            for(int i = 0; i < hud->MapMarkers.Count; i++)
+            {
+                var marker = hud->MapMarkers[i];
+                var pos = new Vector3(marker.X, marker.Y, marker.Z);
+                ImGuiEx.Text($"Marker {marker.IconId}, pos: {pos:F1}, distance: {Vector3.Distance(Player.Position, pos):f1}");
+                if(ThreadLoadImageHandler.TryGetIconTextureWrap(marker.IconId, false, out var w))
+                {
+                    ImGui.SameLine();
+                    ImGui.Image(w.ImGuiHandle, new(30f));
+                }
+            }
+        }
         var data = Svc.Data.GetExcelSheet<Addon>().GetRow(195);
         var text = data.Text.ExtractText();
         if(ImGui.Button("Lumina"))
