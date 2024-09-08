@@ -170,6 +170,12 @@ public class Provider
     {
         TaskPropertyShortcut.Enqueue(type, mode);
     }
+
+    [EzIPC]
+    public void EnterApartment(bool enter)
+    {
+        TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment, null, null, enter);
+    }
     
     [EzIPC]
     public void EnqueueInnShortcut(int? innIndex)

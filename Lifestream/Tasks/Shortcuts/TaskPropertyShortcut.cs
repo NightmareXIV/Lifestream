@@ -32,7 +32,7 @@ public unsafe static class TaskPropertyShortcut
 
     public static uint[] InnNpc = [1000102, 1000974, 1001976, 1011193, 1018981, 1048375, 1037293, 1027231];
 
-    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null)
+    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null, bool? enterApartment = null)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -53,7 +53,7 @@ public unsafe static class TaskPropertyShortcut
                 {
                     if(x.Enabled)
                     {
-                        if(ExecuteByPropertyType(x.Type, mode, innIndex)) break;
+                        if(ExecuteByPropertyType(x.Type, mode, innIndex, enterApartment)) break;
                     }
                 }
             }
@@ -83,7 +83,7 @@ public unsafe static class TaskPropertyShortcut
             {
                 if(GetApartmentAetheryteID().ID != 0)
                 {
-                    EnqueueGoToMyApartment();
+                    EnqueueGoToMyApartment(enterApartment);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ public unsafe static class TaskPropertyShortcut
         }, "ReturnToHomeTask");
     }
 
-    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode, int? innIndex)
+    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode, int? innIndex, bool? enterApartment)
     {
         if(type == PropertyType.Home && GetPrivateHouseAetheryteID() != 0)
         {
@@ -111,7 +111,7 @@ public unsafe static class TaskPropertyShortcut
         }
         else if(type == PropertyType.Apartment && GetApartmentAetheryteID().ID != 0)
         {
-            EnqueueGoToMyApartment();
+            EnqueueGoToMyApartment(enterApartment);
             return true;
         }
         else if(type == PropertyType.Inn)
@@ -254,8 +254,9 @@ public unsafe static class TaskPropertyShortcut
         }
     }
 
-    private static void EnqueueGoToMyApartment()
+    private static void EnqueueGoToMyApartment(bool? enterApartment)
     {
+        enterApartment ??= P.Config.EnterMyApartment;
         var a = GetApartmentAetheryteID();
         var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId == 60790 && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
         P.TaskManager.BeginStack();
@@ -263,7 +264,7 @@ public unsafe static class TaskPropertyShortcut
         {
             P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(a.ID, a.Sub));
         }
-        if(P.Config.EnterMyApartment)
+        if(enterApartment == true)
         {
             TaskApproachAndInteractWithApartmentEntrance.Enqueue(!nextToMyApt);
             P.TaskManager.Enqueue(TaskApproachAndInteractWithApartmentEntrance.GoToMyApartment);
