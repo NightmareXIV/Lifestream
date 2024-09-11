@@ -225,5 +225,19 @@ public class Provider
         return TaskPropertyShortcut.GetApartmentAetheryteID().ID != 0;
     }
 
+    [EzIPC]
+    public bool? HasPrivateHouse()
+    {
+        if(Player.Object.HomeWorld.Id != Player.Object.CurrentWorld.Id) return null;
+        return TaskPropertyShortcut.GetPrivateHouseAetheryteID() != 0;
+    }
+
+    [EzIPC]
+    public bool? HasFreeCompanyHouse()
+    {
+        if(Player.Object.HomeWorld.Id != Player.Object.CurrentWorld.Id) return null;
+        return TaskPropertyShortcut.GetFreeCompanyAetheryteID() != 0;
+    }
+
     [EzIPCEvent] public Action OnHouseEnterError;
 }

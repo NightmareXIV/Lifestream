@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
+using ECommons;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
@@ -258,7 +259,7 @@ public unsafe static class TaskPropertyShortcut
     {
         enterApartment ??= P.Config.EnterMyApartment;
         var a = GetApartmentAetheryteID();
-        var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId == 60790 && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
+        var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId.EqualsAny(60790u, 60792u) && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
         P.TaskManager.BeginStack();
         if(!nextToMyApt)
         {
@@ -272,7 +273,7 @@ public unsafe static class TaskPropertyShortcut
         P.TaskManager.InsertStack();
     }
 
-    private static uint GetPrivateHouseAetheryteID()
+    public static uint GetPrivateHouseAetheryteID()
     {
         foreach(var x in Svc.AetheryteList)
         {
@@ -296,7 +297,7 @@ public unsafe static class TaskPropertyShortcut
         return (0, 0);
     }
 
-    private static uint GetFreeCompanyAetheryteID()
+    public static uint GetFreeCompanyAetheryteID()
     {
         foreach(var x in Svc.AetheryteList)
         {
