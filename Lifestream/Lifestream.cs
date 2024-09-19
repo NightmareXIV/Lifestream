@@ -15,6 +15,7 @@ using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Game;
 using Lifestream.GUI;
+using Lifestream.GUI.Windows;
 using Lifestream.IPC;
 using Lifestream.Movement;
 using Lifestream.Schedulers;
@@ -63,6 +64,8 @@ public unsafe class Lifestream : IDalamudPlugin
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
     public GenericFileSystem<AddressBookFolder> AddressBookFileSystem;
+    public bool DisableHousePathData = false;
+    public CharaSelectOverlay CharaSelectOverlay;
 
     public Lifestream(IDalamudPluginInterface pluginInterface)
     {
@@ -77,6 +80,8 @@ public unsafe class Lifestream : IDalamudPlugin
             TaskManager.DefaultConfiguration.ShowDebug = true;
             EzConfigGui.WindowSystem.AddWindow(Overlay);
             EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
+            CharaSelectOverlay = new();
+            EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
             EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
             EzCmd.Add("/li", ProcessCommand, """
                 return to your home world

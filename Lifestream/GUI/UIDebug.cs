@@ -341,6 +341,18 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("CharaSelectListMenu"))
+        {
+            var list = RaptureAtkUnitManager.Instance()->FocusedUnitsList;
+            foreach(var x in list.Entries)
+            {
+                if(x.Value == null) continue;
+                ImGuiEx.Text($"{x.Value->NameString}");
+            }
+        }
+        { ImGuiEx.Text($"Addon highest focus: {TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && m.IsAddonFocused}"); }
+        { if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m)) ImGuiEx.Text($"Selected chara: {m.Characters.FirstOrDefault(x => x.IsSelected).Name}"); }
+        ImGui.Checkbox("DisableHousePathData", ref P.DisableHousePathData);
         if(ImGui.CollapsingHeader("HUD"))
         {
             var hud = AgentHUD.Instance();

@@ -150,7 +150,7 @@ public class Provider
     [EzIPC]
     public (HousePathData Private, HousePathData FC) GetHousePathData(ulong CID)
     {
-        return (P.Config.HousePathDatas.FirstOrDefault(x => x.CID == CID && x.IsPrivate), P.Config.HousePathDatas.FirstOrDefault(x => x.CID == CID && !x.IsPrivate));
+        return (Utils.GetHousePathDatas().FirstOrDefault(x => x.CID == CID && x.IsPrivate), Utils.GetHousePathDatas().FirstOrDefault(x => x.CID == CID && !x.IsPrivate));
     }
 
     [EzIPC]
@@ -176,11 +176,17 @@ public class Provider
     {
         TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment, null, null, enter);
     }
-    
+
     [EzIPC]
     public void EnqueueInnShortcut(int? innIndex)
     {
         TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innIndex);
+    }
+
+    [EzIPC]
+    public void EnqueueLocalInnShortcut(int? innIndex)
+    {
+        TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innIndex, useSameWorld:true);
     }
 
     [EzIPC]

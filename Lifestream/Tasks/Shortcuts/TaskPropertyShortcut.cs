@@ -33,7 +33,7 @@ public unsafe static class TaskPropertyShortcut
 
     public static uint[] InnNpc = [1000102, 1000974, 1001976, 1011193, 1018981, 1048375, 1037293, 1027231];
 
-    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null, bool? enterApartment = null)
+    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null, bool? enterApartment = null, bool useSameWorld = false)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -41,11 +41,14 @@ public unsafe static class TaskPropertyShortcut
             return;
         }
         if(!Player.Available) return;
-        if(!Player.IsInHomeWorld)
+        if(!useSameWorld)
         {
-            P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
+            if(!Player.IsInHomeWorld)
+            {
+                P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
+            }
+            P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
         }
-        P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
         P.TaskManager.Enqueue(() =>
         {
             if(propertyType == PropertyType.Auto)
