@@ -11,19 +11,19 @@ using System.Threading.Tasks;
 namespace Lifestream.Services;
 public class AddressBookFileSystemManager
 {
-    public GenericFileSystem<AddressBookFolder> AddressBookFileSystem;
+    public GenericFileSystem<AddressBookFolder> FileSystem;
     private AddressBookFileSystemManager()
     {
-        AddressBookFileSystem = new(P.Config.AddressBookFolders, "AddressBook");
-        AddressBookFileSystem.Selector.OnAfterDrawLeafName += Selector_OnAfterDrawLeafName;
-        AddressBookFileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
-        AddressBookFileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
-        AddressBookFileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
+        FileSystem = new(P.Config.AddressBookFolders, "AddressBook");
+        FileSystem.Selector.OnAfterDrawLeafName += Selector_OnAfterDrawLeafName;
+        FileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
+        FileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
+        FileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;
     }
     private void Selector_OnBeforeCopy(AddressBookFolder original, ref AddressBookFolder copy)
     {
         copy.IsCopy = true;
-        if(AddressBookFileSystem.FindLeaf(original, out var leaf))
+        if(FileSystem.FindLeaf(original, out var leaf))
         {
             copy.ExportedName = leaf.Name;
         }

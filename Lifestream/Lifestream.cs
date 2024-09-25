@@ -271,6 +271,14 @@ public unsafe class Lifestream : IDalamudPlugin
                         }
                     }
                 }
+                foreach(var x in Config.CustomAliases)
+                {
+                    if(x.Alias.EqualsIgnoreCase(primary))
+                    {
+                        x.Enqueue();
+                        return;
+                    }
+                }
                 if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
                     TPAndChangeWorld(w, false, secondary);

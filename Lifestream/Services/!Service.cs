@@ -14,4 +14,5 @@ public static class Service
     public static InstanceHandler InstanceHandler { get; private set; }
     public static ContextMenuManager ContextMenuManager { get; private set; }
     public static AddressBookFileSystemManager AddressBookFileSystemManager { get; private set; }
+    public static CustomAliasFileSystemManager CustomAliasFileSystemManager { get; private set; }
 }

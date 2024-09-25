@@ -68,4 +68,5 @@ public class Config : IEzConfig
     public int DcvRetryInterval = 30;
     public bool RetryWorldVisit = false;
     public int RetryWorldVisitInterval = 5;
+    public List<CustomAlias> CustomAliases = [];
 }

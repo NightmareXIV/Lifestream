@@ -44,13 +44,13 @@ public static unsafe class TabAddressBook
     public static void Draw()
     {
         InputWardDetailDialog.Draw();
-        var selector = S.AddressBookFileSystemManager.AddressBookFileSystem.Selector;
+        var selector = S.AddressBookFileSystemManager.FileSystem.Selector;
         selector.Draw(150f);
         ImGui.SameLine();
         if(P.Config.AddressBookFolders.Count == 0)
         {
             var book = new AddressBookFolder() { IsDefault = true };
-            S.AddressBookFileSystemManager.AddressBookFileSystem.Create(book, "Default Book", out _);
+            S.AddressBookFileSystemManager.FileSystem.Create(book, "Default Book", out _);
         }
         if(ImGui.BeginChild("Child"))
         {
