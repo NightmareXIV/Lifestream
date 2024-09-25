@@ -12,5 +12,5 @@ public static class Service
     public static TeleportService TeleportService { get; private set; }
     //public static NetworkDebugger NetworkDebugger { get; private set; }
     public static InstanceHandler InstanceHandler { get; private set; }
-    //public static ContextMenuManager ContextMenuManager { get; private set; }
+    public static ContextMenuManager ContextMenuManager { get; private set; }
 }

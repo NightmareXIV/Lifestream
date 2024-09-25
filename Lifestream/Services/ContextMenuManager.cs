@@ -40,8 +40,7 @@ public class ContextMenuManager : IDisposable
             Prefix = (SeIconChar)'',
             OnClicked = (args) =>
             {
-                //P.CharaSelectOverlay.Open(name, homeWorld);
-                args.OpenSubmenu(new List<MenuItem>() { new() { Name = "Data Center 1", OnClicked = (x) => x.OpenSubmenu(ExcelWorldHelper.GetPublicWorlds(1).Select(x => new MenuItem() { Name = x.Name.ToString() }).ToList()) } }); 
+                P.CharaSelectOverlay.Open(name, homeWorld);
             }
         };
         return ret;

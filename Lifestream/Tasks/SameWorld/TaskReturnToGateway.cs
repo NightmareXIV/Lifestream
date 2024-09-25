@@ -21,6 +21,7 @@ public static class TaskReturnToGateway
                     new(() => Player.Interactable && Svc.ClientState.TerritoryType == gateway.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M)
                     );
             }
+            return true;
         }, "TaskReturnToGatewayMaster");
     }
 

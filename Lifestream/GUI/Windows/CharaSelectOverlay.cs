@@ -1,14 +1,8 @@
 ﻿using ECommons.ExcelServices;
-using ECommons.GameHelpers;
 using ECommons.SimpleGui;
 using ECommons.UIHelpers.AddonMasterImplementations;
-using FFXIVClientStructs.FFXIV.Component.GUI;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Printing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Lifestream.Systems;
+using Lifestream.Tasks.CrossDC;
 
 namespace Lifestream.GUI.Windows;
 public unsafe class CharaSelectOverlay : EzOverlayWindow
@@ -42,8 +36,8 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             ImGuiEx.Text($"Error: for world {homeWorldData} no data found");
             return;
         }
-        var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).OrderBy(x => x.Name.ToString());
-        if(!worlds.Any())
+        var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).OrderBy(x => x.Name.ToString()).ToArray();
+        if(worlds.Length == 0)
         {
             ImGuiEx.Text($"No available destinations");
             return;
@@ -84,9 +78,53 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                         {
                             var modifier = "";
                             if(CharaWorld == world.RowId) modifier += "";
-                            if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy()))
+                            if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy() && chara.CurrentWorld != world.RowId))
                             {
-                                //P.ProcessCommand("/li", world.Name);
+                                var charaCurrentWorld = ExcelWorldHelper.Get(chara.CurrentWorld);
+                                var charaHomeWorld = ExcelWorldHelper.Get(chara.HomeWorld);
+                                var isInHomeDc = charaCurrentWorld.DataCenter.Row == charaHomeWorld.DataCenter.Row;
+                                if(world.RowId == charaHomeWorld.RowId)
+                                {
+                                    //returning home
+                                    if(isInHomeDc)
+                                    {
+                                        CharaSelectVisit.HomeToHome(world.Name, chara.Name, chara.HomeWorld);
+                                    }
+                                    else
+                                    {
+                                        CharaSelectVisit.GuestToHome(world.Name, chara.Name, chara.HomeWorld);
+                                    }
+                                }
+                                else
+                                {
+                                    if(world.DataCenter.Row != charaCurrentWorld.DataCenter.Row)
+                                    {
+                                        //visiting another DC
+                                        if(charaCurrentWorld.RowId == charaHomeWorld.RowId)
+                                        {
+                                            CharaSelectVisit.HomeToGuest(world.Name, chara.Name, chara.HomeWorld);
+                                        }
+                                        else
+                                        {
+                                            CharaSelectVisit.GuestToGuest(world.Name, chara.Name, chara.HomeWorld);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //teleporting to the other world's same dc
+                                        if(isInHomeDc)
+                                        {
+                                            //just log in and use world visit
+                                            CharaSelectVisit.GuestToHome(world.Name, chara.Name, chara.HomeWorld, skipReturn: true);
+                                        }
+                                        else
+                                        {
+                                            //special guest to guest sequence
+                                            CharaSelectVisit.GuestToGuest(world.Name, chara.Name, chara.HomeWorld);
+                                        }
+                                    }
+                                }
+                                this.IsOpen = false;
                             }
                         }
                     }

@@ -32,6 +32,23 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static WorldChangeAetheryte AdjustGateway(this WorldChangeAetheryte gateway)
+    {
+        if(!Svc.AetheryteList.Any(x => x.AetheryteId == (int)gateway))
+        {
+            foreach(var c in Enum.GetValues<WorldChangeAetheryte>())
+            {
+                if(Svc.AetheryteList.Any(x => x.AetheryteId == (int)c))
+                {
+                    DuoLog.Warning($"{gateway} is not unlocked, but {c} is, adjusting.");
+                    gateway = c;
+                    break;
+                }
+            }
+        }
+        return gateway;
+    }
+
     public static bool IsAddonVisible(string name)
     {
         if(TryGetAddonByName<AtkUnitBase>(name, out var addon) && addon->IsVisible) return true;
@@ -186,6 +203,17 @@ internal static unsafe class Utils
                 if(entry != null) return true;
             }
         }
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward|)%shortDelimiter%numeric%delimiter(P|plot|)%shortDelimiter%numeric");
+            PluginLog.Debug($"Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, result.Groups[6].Value, false, false);
+                if(entry != null) return true;
+            }
+        }
         if(!retry)
         {
             if(TryParseAddressBookEntry(Player.CurrentWorld + ", " + s, out entry, true))
@@ -199,7 +227,7 @@ internal static unsafe class Utils
     public static string ReplaceAddressBookRegex(string str)
     {
         var cities = "goblet|the goblet|lavender beds|the lavender beds|lb|empy|empyreum|shiro|shirogane|mist";
-        var worlds = ExcelWorldHelper.GetPublicWorlds().Select(x => x.Name.ToString()).Join("|");
+        var worlds = ExcelWorldHelper.GetPublicWorlds().Select(x => x.Name.ToString()).Join("|") + "|[a-z]{3,30}";
         return str.Replace("%worlds", worlds)
             .Replace("%delimiter", @"[\s\.\,\-\(\)\t]{1,10}")
             .Replace("%optDelimiter", @"[\s\.\,\-\(\)\t]{0,10}")
@@ -211,6 +239,17 @@ internal static unsafe class Utils
     public static AddressBookEntry BuildAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision)
     {
         var world = ExcelWorldHelper.Get(worldStr, true);
+        if(world == null)
+        {
+            foreach(var x in ExcelWorldHelper.GetPublicWorlds())
+            {
+                if(x.Name.ToString().StartsWith(worldStr, StringComparison.OrdinalIgnoreCase))
+                {
+                    world = x;
+                    break;
+                }
+            }
+        }
         if(world == null) return null;
         var city = ParseResidentialAetheryteKind(cityStr);
         if(city == null) return null;

@@ -74,8 +74,26 @@ public static unsafe class TaskGCShortcut
         companyNullable ??= fcgc ? (GrandCompany)InfoProxyFreeCompany.Instance()->GrandCompany : Player.GrandCompany;
         if(companyNullable == GrandCompany.Unemployed)
         {
-            DuoLog.Error($"Grand company not specified and player is unemployed");
-            return;
+            if(Svc.AetheryteList.Any(x => x.AetheryteId == (int)WorldChangeAetheryte.Uldah))
+            {
+                DuoLog.Warning($"Grand company not specified and player is unemployed. Teleporting to Immortal Flames.");
+                companyNullable = GrandCompany.ImmortalFlames;
+            }
+            else if(Svc.AetheryteList.Any(x => x.AetheryteId == (int)WorldChangeAetheryte.Gridania))
+            {
+                DuoLog.Warning($"Grand company not specified and player is unemployed. Teleporting to Twin Adder.");
+                companyNullable = GrandCompany.TwinAdder;
+            }
+            else if(Svc.AetheryteList.Any(x => x.AetheryteId == (int)WorldChangeAetheryte.Limsa))
+            {
+                DuoLog.Warning($"Grand company not specified and player is unemployed. Teleporting to Maelstrom.");
+                companyNullable = GrandCompany.Maelstrom;
+            }
+            else
+            {
+                DuoLog.Error("Grand company not specified, player is unemployed and can not teleport to any destination.");
+                return;
+            }
         }
         if(returnHome)
         {
