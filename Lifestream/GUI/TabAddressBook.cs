@@ -18,16 +18,16 @@ using SortMode = Lifestream.Data.SortMode;
 namespace Lifestream.GUI;
 public static unsafe class TabAddressBook
 {
-    public static readonly FrozenDictionary<ResidentialAetheryteKind, string> ResidentialNames = new Dictionary<ResidentialAetheryteKind, string>()
+    public static readonly Dictionary<ResidentialAetheryteKind, string> ResidentialNames = new Dictionary<ResidentialAetheryteKind, string>()
     {
         [ResidentialAetheryteKind.Gridania] = "Lavender Beds",
         [ResidentialAetheryteKind.Limsa] = "Mist",
         [ResidentialAetheryteKind.Uldah] = "Goblet",
         [ResidentialAetheryteKind.Kugane] = "Shirogane",
         [ResidentialAetheryteKind.Foundation] = "Empyreum",
-    }.ToFrozenDictionary();
+    };
 
-    public static readonly FrozenDictionary<SortMode, string> SortModeNames = new Dictionary<SortMode, string>()
+    public static readonly Dictionary<SortMode, string> SortModeNames = new Dictionary<SortMode, string>()
     {
         [SortMode.Manual] = "Manual (drag and drop)",
         [SortMode.Name] = "Name (A-Z)",
@@ -38,20 +38,19 @@ public static unsafe class TabAddressBook
         [SortMode.PlotReversed] = "Plot (9-1)",
         [SortMode.Ward] = "Ward (1-9)",
         [SortMode.WardReversed] = "Ward (9-1)",
-    }.ToFrozenDictionary();
+    };
     private static Guid CurrentDrag = Guid.Empty;
 
     public static void Draw()
     {
-        ImGuiEx.Text(ImGuiColors.DalamudOrange, "Beta feature, please report issues.");
         InputWardDetailDialog.Draw();
-        var selector = P.AddressBookFileSystem.Selector;
+        var selector = S.AddressBookFileSystemManager.AddressBookFileSystem.Selector;
         selector.Draw(150f);
         ImGui.SameLine();
         if(P.Config.AddressBookFolders.Count == 0)
         {
             var book = new AddressBookFolder() { IsDefault = true };
-            P.AddressBookFileSystem.Create(book, "Default Book", out _);
+            S.AddressBookFileSystemManager.AddressBookFileSystem.Create(book, "Default Book", out _);
         }
         if(ImGui.BeginChild("Child"))
         {
@@ -367,44 +366,6 @@ public static unsafe class TabAddressBook
                 ImGui.Dummy(new Vector2(ImGui.GetContentRegionAvail().X, ImGuiHelpers.GetButtonSize(" ").Y));
                 x.AcceptDraw();
             }
-        }
-    }
-
-    public static void Selector_OnAfterDrawLeafName(AddressBookFS.Leaf leaf, GenericFileSystem<AddressBookFolder>.FileSystemSelector.State arg2, bool arg3)
-    {
-        if(ImGui.BeginDragDropTarget())
-        {
-            if(ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload))
-            {
-                AddressBookEntry entry = null;
-                AddressBookFolder folder = null;
-                foreach(var f in P.Config.AddressBookFolders)
-                {
-                    foreach(var e in f.Entries)
-                    {
-                        if(e.GUID == payload)
-                        {
-                            entry = e;
-                            folder = f;
-                            break;
-                        }
-                    }
-                }
-                if(entry == null)
-                {
-                    Notify.Error("Could not move");
-                }
-                else if(folder == leaf.Value)
-                {
-                    Notify.Error($"Could not move to the same folder");
-                }
-                else
-                {
-                    folder.Entries.Remove(entry);
-                    leaf.Value.Entries.Add(entry);
-                }
-            }
-            ImGui.EndDragDropTarget();
         }
     }
 }
