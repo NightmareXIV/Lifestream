@@ -1,12 +1,11 @@
-﻿using Dalamud.Memory;
-using Dalamud.Utility;
+﻿using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
-using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.EzSharedDataManager;
 using ECommons.GameHelpers;
+using ECommons.MathHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -21,13 +20,11 @@ using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
-using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
-using System.IO;
-using static FFXIVClientStructs.FFXIV.Client.Game.Control.InputManager.Delegates;
+using System.Windows.Forms;
 using Path = System.IO.Path;
 
 namespace Lifestream.GUI;
@@ -338,9 +335,63 @@ internal static unsafe class UIDebug
     private static string addr = "";
     private static string CharaName = "";
     private static int WorldSel;
+    private static float DistanceToLineSegment(Vector3 v, Vector3 a, Vector3 b)
+    {
+        var ab = b - a;
+        var av = v - a;
+
+        if(ab.Length() == 0 || Vector3.Dot(av, ab) <= 0)
+            return av.Length();
+
+        var bv = v - b;
+        if(Vector3.Dot(bv, ab) >= 0)
+            return bv.Length();
+
+        return Vector3.Cross(ab, av).Length() / ab.Length();
+    }
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Curcular movelemt"))
+        {
+            ImGuiEx.Text($"{MathHelper.IsPointPerpendicularToLineSegment(Player.Position.ToVector2(), new(-135f, -85f), new(-125.000f, -80f))}");
+            ImGuiEx.Text($"{MathHelper.FindClosestPointOnLine(Player.Position.ToVector2(), new(-135f, -85f), new(-125.000f, -80f))}");
+            ImGuiEx.Text($"{Vector2.Distance(Player.Position.ToVector2(), MathHelper.FindClosestPointOnLine(Player.Position.ToVector2(), new(-135f, -85f), new(-125.000f, -80f)))}");
+            ref var target = ref Ref<Vector3>.Get();
+            ref var exit = ref Ref<Vector3>.Get("exit");
+            ref var list = ref Ref<List<Vector3>>.Get();
+            ref var listList = ref Ref<List<List<Vector3>>>.Get();
+            ref var prec = ref Ref<int>.Get();
+            ref var tol = ref Ref<int>.Get("tlr");
+            if(ImGui.Button("Set target")) target = Svc.Targets.Target?.Position ?? default;
+            ImGui.SameLine();
+            ImGuiEx.Text($"{target}");
+            if(ImGui.Button("Set exit")) exit = Player.Position;
+            ImGui.SameLine();
+            ImGuiEx.Text($"{exit}");
+            ImGui.InputInt("Precision", ref prec);
+            ImGui.InputInt("Tolerance", ref tol);
+            if(ImGui.Button("Calculate"))
+            {
+                list = MathHelper.CalculateCircularMovement(target, Player.Position, exit, out listList, prec, tol);
+            }
+            if(list != null)
+            {
+                ImGuiEx.Text($"List: {list.Print()}");
+                P.SplatoonManager.RenderPath(list, false, true);
+            }
+            if(listList != null)
+            {
+                foreach(var x in listList)
+                {
+                    ImGuiEx.Text($"Candidate: {x.Print()}");
+                    if(ImGui.IsItemHovered())
+                    {
+                        P.SplatoonManager.RenderPath(x, false, true);
+                    }
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("CharaSelectListMenu"))
         {
             var list = RaptureAtkUnitManager.Instance()->FocusedUnitsList;

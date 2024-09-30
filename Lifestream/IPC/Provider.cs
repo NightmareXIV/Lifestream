@@ -245,5 +245,10 @@ public class Provider
         return TaskPropertyShortcut.GetFreeCompanyAetheryteID() != 0;
     }
 
+    [EzIPC] public void Move(List<Vector3> path)
+    {
+        P.FollowPath.Move(path, true);
+    }
+
     [EzIPCEvent] public Action OnHouseEnterError;
 }

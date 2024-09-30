@@ -91,10 +91,10 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li <address> - go to specified plot in current world, where address - plot adddress formatted in "residential district, ward, plot" format (without quotes)
                 /li <worldname> <address> - go to specified plot in specified world
 
-                /li gc|hc - go to your grand company
-                /li gc|hc <company name> - go to specified grand company
-                /li gcc|hcc - go to your grand company's fc chest
-                /li gcc|hcc <company name> - go to specified grand company's fc chest
+                /li gc|hc - go to your grand company (vnavmesh plugin required)
+                /li gc|hc <company name> - go to specified grand company (vnavmesh plugin required)
+                /li gcc|hcc - go to your grand company's fc chest (vnavmesh plugin required)
+                /li gcc|hcc <company name> - go to specified grand company's fc chest (vnavmesh plugin required)
                 ...where "gc" or "gcc" will move you to grand company in current world while "hc" or "hcc" will return you to home world first
 
                 /li auto - go to your private estate, free company estate or apartment, whatever is found in this order
@@ -103,6 +103,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li apartment|apt - go to your apartment
 
                 /li w|world|open|select - open world travel window
+                /li island - go to island sanctuary
                 """);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() => DataStore.BuildWorlds());
@@ -273,6 +274,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 foreach(var x in Config.CustomAliases)
                 {
+                    if(!x.Enabled || x.Alias == "") continue;
                     if(x.Alias.EqualsIgnoreCase(primary))
                     {
                         x.Enqueue();

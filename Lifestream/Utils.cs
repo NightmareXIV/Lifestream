@@ -2,16 +2,20 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
+using ECommons.Automation;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
+using ECommons.Interop;
 using ECommons.MathHelpers;
+using ECommons.SplatoonAPI;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -23,8 +27,12 @@ using Lumina.Excel.GeneratedSheets;
 using NightmareUI;
 using OtterGui;
 using OtterGui.Filesystem;
+using PInvoke;
 using SharpDX;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using Action = System.Action;
 using CharaData = (string Name, ushort World);
 
@@ -32,6 +40,144 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static void ScreenToWorldSelector(string id, ref Vector3 point)
+    {
+        ref var isInWorldToScreen = ref Ref<bool>.Get($"{id}_screenToWorldSelector");
+        if(isInWorldToScreen)
+        {
+            if(Svc.GameGui.ScreenToWorld(ImGui.GetIO().MousePos, out var worldPos))
+            {
+                point = worldPos;
+            }
+            ImGui.BeginTooltip();
+            ImGuiEx.Text($"Point: {point:F2}\nLeft-click to finish");
+            ImGui.EndTooltip();
+            if(IsKeyPressed(Keys.LButton))
+            {
+                isInWorldToScreen = false;
+            }
+        }
+    }
+
+    public static void BeginScreenToWorldSelection(string id, Vector3 point)
+    {
+        ref var isInWorldToScreen = ref Ref<bool>.Get($"{id}_screenToWorldSelector");
+        if(Svc.GameGui.WorldToScreen(point, out var screenPos))
+        {
+            SetCursorTo((int)screenPos.X, (int)screenPos.Y);
+        }
+        isInWorldToScreen = true;
+    }
+
+    public static void ScreenToWorldSelector(string id, ref Vector2 point)
+    {
+        ref var isInWorldToScreen = ref Ref<bool>.Get($"{id}_screenToWorldSelector");
+        if(isInWorldToScreen)
+        {
+            //PluginLog.Debug($"{ImGui.GetIO().MousePos}");
+            if(Svc.GameGui.ScreenToWorld(ImGui.GetIO().MousePos, out var worldPos))
+            {
+                point = worldPos.ToVector2();
+            }
+            ImGui.BeginTooltip();
+            ImGuiEx.Text($"Point: {point:F2}\nLeft-click to finish");
+            ImGui.EndTooltip();
+            if(IsKeyPressed(Keys.LButton))
+            {
+                isInWorldToScreen = false;
+            }
+        }
+    }
+
+    public static void BeginScreenToWorldSelection(string id, Vector2 point)
+    {
+        ref var isInWorldToScreen = ref Ref<bool>.Get($"{id}_screenToWorldSelector");
+        if(Svc.GameGui.WorldToScreen(point.ToVector3(Player.Position.Y), out var screenPos))
+        {
+            SetCursorTo((int)screenPos.X, (int)screenPos.Y);
+        }
+        isInWorldToScreen = true;
+    }
+
+    public static void SetCursorTo(int x, int y)
+    {
+        for(int i = 0; i < 1000; i++)
+        {
+            if(WindowFunctions.TryFindGameWindow(out var hwnd))
+            {
+                var point = new POINT() { x = x, y = y };
+                if(User32.ClientToScreen(hwnd, ref point))
+                {
+                    User32.SetCursorPos(point.x, point.y);
+                }
+                break;
+            }
+        }
+        
+    }
+
+    public static void DrawVector2Selector(string id, ref Vector2 value)
+    {
+        ImGui.SetNextItemWidth(150f);
+        ImGui.DragFloat2($"##vec{id}", ref value, 0.01f);
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.MapPin, $"myPos{id}", enabled: Player.Interactable))
+        {
+            value = Player.Position.ToVector2();
+        }
+        ImGuiEx.Tooltip("To player positon");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Crosshairs, $"target{id}", enabled: Svc.Targets.Target != null))
+        {
+            value = Svc.Targets.Target.Position.ToVector2();
+        }
+        ImGuiEx.Tooltip("To target positon");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.MousePointer, $"target{id}", enabled: Player.Interactable))
+        {
+            BeginScreenToWorldSelection(id, value);
+        }
+        ScreenToWorldSelector(id, ref value);
+        ImGuiEx.Tooltip("Select with mouse");
+    }
+
+    public static void DrawVector3Selector(string id, ref Vector3 value)
+    {
+        ImGui.SetNextItemWidth(150f);
+        ImGui.DragFloat3($"##vec{id}", ref value, 0.01f);
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.MapPin, $"myPos{id}", enabled: Player.Interactable))
+        {
+            value = Player.Position;
+        }
+        ImGuiEx.Tooltip("To player positon");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Crosshairs, $"target{id}", enabled: Svc.Targets.Target != null))
+        {
+            value = Svc.Targets.Target.Position;
+        }
+        ImGuiEx.Tooltip("To target positon");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.MousePointer, $"target{id}", enabled: Player.Interactable))
+        {
+            BeginScreenToWorldSelection(id, value);
+        }
+        ScreenToWorldSelector(id, ref value);
+        ImGuiEx.Tooltip("Select with mouse");
+    }
+
+    public static IEnumerable<uint> GetAllRegisteredAethernetDestinations()
+    {
+        foreach(var x in P.DataStore.Aetherytes)
+        {
+            yield return x.Key.ID;
+            foreach(var v in x.Value)
+            {
+                yield return v.ID;
+            }
+        }
+    }
+
     public static WorldChangeAetheryte AdjustGateway(this WorldChangeAetheryte gateway)
     {
         if(!Svc.AetheryteList.Any(x => x.AetheryteId == (int)gateway))

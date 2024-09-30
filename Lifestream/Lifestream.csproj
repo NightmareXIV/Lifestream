@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>NightmareXIV</Authors>
-        <Version>2.3.0.0</Version>
+        <Version>2.3.0.2</Version>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -76,6 +76,10 @@
         </Reference>
         <Reference Include="PInvoke.User32">
             <HintPath>$(DalamudLibPath)PInvoke.User32.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="PInvoke.Windows.Core.dll">
+            <HintPath>$(DalamudLibPath)PInvoke.Windows.Core.dll</HintPath>
             <Private>False</Private>
         </Reference>
     </ItemGroup>
