@@ -292,7 +292,7 @@ internal class Overlay : Window
         for(var i = 1; i <= 30; i++)
         {
             ResizeButton($"{i}");
-            var buttonSize = new Vector2((ButtonSizeWorld.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
+            var buttonSize = new Vector2((ButtonSizeInstance.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
             if(ImGuiEx.Button($"{i}##ward", buttonSize))
             {
                 TaskRemoveAfkStatus.Enqueue();
