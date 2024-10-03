@@ -73,6 +73,7 @@ public unsafe class Lifestream : IDalamudPlugin
         new TickScheduler(delegate
         {
             Config = EzConfig.Init<Config>();
+            Utils.CheckConfigMigration();
             EzConfigGui.Init(MainGui.Draw);
             Overlay = new();
             TaskManager = new();
