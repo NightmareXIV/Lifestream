@@ -1083,6 +1083,7 @@ internal static unsafe class Utils
     {
         // int ButtonWidth -> int[3] ButtonWidthArray
         if (P.Config.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
+        EzConfig.Save();
     }
 
     internal static void MigrateConfigButtonWidthToButtonWidthArray()
