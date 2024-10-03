@@ -91,9 +91,25 @@ internal class Overlay : Window
         {
             actions.Add(DrawInstances);
         }
-        ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
 
-        if(P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+        if (actions.Count == 1)
+        {
+            Safe(actions[0]);
+        }
+        else
+        {
+            if (ImGui.BeginTable("LifestreamTable", Math.Max(1, actions.Count), ImGuiTableFlags.NoSavedSettings))
+            {
+                foreach (var action in actions)
+                {
+                    ImGui.TableNextColumn();
+                    Safe(action);
+                }
+                ImGui.EndTable();
+            }
+        }
+
+        if (P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
         {
             if(ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
             {
