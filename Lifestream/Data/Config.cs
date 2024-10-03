@@ -9,6 +9,7 @@ public class Config : IEzConfig
     public bool Enable = true;
     internal bool AllowClosingESC2 = false;
     public int ButtonWidth = 10;
+    public int[] ButtonWidthArray = null;
     public int ButtonHeightAetheryte = 1;
     public int ButtonHeightWorld = 5;
     public bool FixedPosition = false;
