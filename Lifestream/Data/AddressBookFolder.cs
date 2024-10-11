@@ -1,13 +1,4 @@
-﻿using ECommons.GameHelpers;
-using Newtonsoft.Json;
-using NightmareUI.OtterGuiWrapper.FileSystems;
-using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 
 namespace Lifestream.Data;
 [Serializable]

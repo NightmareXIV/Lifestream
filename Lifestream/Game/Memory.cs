@@ -3,7 +3,6 @@ using Dalamud.Memory;
 using Dalamud.Utility.Signatures;
 using ECommons.EzHookManager;
 using ECommons.MathHelpers;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
 using Lifestream.Tasks.SameWorld;

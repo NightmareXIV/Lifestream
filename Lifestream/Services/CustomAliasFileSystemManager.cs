@@ -1,11 +1,6 @@
 ﻿using ECommons.Configuration;
 using Lifestream.Data;
 using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Services;
 public class CustomAliasFileSystemManager

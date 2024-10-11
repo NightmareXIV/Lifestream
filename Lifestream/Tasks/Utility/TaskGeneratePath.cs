@@ -1,14 +1,6 @@
-﻿using ECommons.Configuration;
-using ECommons.GameHelpers;
+﻿using ECommons.GameHelpers;
 using Lifestream.Data;
-using Lifestream.Enums;
-using Lifestream.Systems;
 using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ResidentialAetheryte = Lifestream.Systems.ResidentialAetheryte;
 
 namespace Lifestream.Tasks.Utility;

@@ -1,5 +1,4 @@
-﻿using ECommons.ExcelServices;
-using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.SplatoonAPI;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -7,11 +6,6 @@ using Lifestream.Data;
 using Lifestream.Enums;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.GUI;
 #nullable enable

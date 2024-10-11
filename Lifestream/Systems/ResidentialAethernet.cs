@@ -1,11 +1,9 @@
-﻿using Dalamud.Game.ClientState.Objects.Enums;
-using Dalamud.Game.ClientState.Objects.Types;
+﻿using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Configuration;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
 using Lifestream.Data;
 using Lumina.Excel.GeneratedSheets;
-using System.IO;
 using Path = System.IO.Path;
 
 namespace Lifestream.Systems;

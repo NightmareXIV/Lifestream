@@ -1,18 +1,10 @@
-﻿using ECommons;
-using ECommons.ChatMethods;
-using ECommons.Configuration;
+﻿using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
 using Lifestream.Enums;
-using Lifestream.Tasks.CrossDC;
-using NightmareUI.OtterGuiWrapper.FileSystems;
-using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
-using OtterGui.Filesystem;
-using System.Collections.Frozen;
-using System.Windows.Forms;
 using SortMode = Lifestream.Data.SortMode;
 
 namespace Lifestream.GUI;

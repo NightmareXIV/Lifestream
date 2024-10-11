@@ -1,21 +1,13 @@
-﻿using ECommons.ExcelServices;
-using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lifestream.Enums;
-using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream.Tasks.Shortcuts;

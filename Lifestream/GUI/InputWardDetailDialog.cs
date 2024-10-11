@@ -1,13 +1,6 @@
 ﻿using ECommons.Configuration;
-using ECommons.ExcelServices;
 using Lifestream.Data;
 using NightmareUI.ImGuiElements;
-using OtterGui;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.GUI;
 public static class InputWardDetailDialog

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lifestream;
+﻿namespace Lifestream;
 public static class Colors
 {
     public static readonly Vector4 TabBlue = ImGuiEx.Vector4FromRGB(0xade7ff, 0.75f);

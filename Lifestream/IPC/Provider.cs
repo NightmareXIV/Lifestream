@@ -6,7 +6,6 @@ using Lifestream.GUI;
 using Lifestream.Tasks;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
-using System.Linq;
 
 namespace Lifestream.IPC;
 public class Provider

@@ -1,17 +1,10 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
-using ECommons.Automation;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
-using Lifestream.Schedulers;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskMBShortcut

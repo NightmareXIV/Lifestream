@@ -1,6 +1,5 @@
 ﻿using AutoRetainerAPI;
 using ECommons.Automation.NeoTaskManager;
-using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.Events;
@@ -28,7 +27,6 @@ using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
-using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 using NotificationMasterAPI;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 

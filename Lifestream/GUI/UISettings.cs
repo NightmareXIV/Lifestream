@@ -1,11 +1,9 @@
 ﻿using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.GeneratedSheets;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
-using System;
 using Action = System.Action;
 
 namespace Lifestream.GUI;

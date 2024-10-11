@@ -24,7 +24,6 @@ using Lifestream.Tasks.Utility;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
-using System.Windows.Forms;
 using Path = System.IO.Path;
 
 namespace Lifestream.GUI;

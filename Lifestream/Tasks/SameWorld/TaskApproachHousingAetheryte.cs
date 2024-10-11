@@ -1,18 +1,10 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
-using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.ExcelServices.TerritoryEnumeration;
-using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using Lifestream.Schedulers;
 using Lifestream.Tasks.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Lifestream.Tasks.SameWorld;
 public static class TaskApproachHousingAetheryte

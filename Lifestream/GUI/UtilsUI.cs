@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lifestream.GUI;
+﻿namespace Lifestream.GUI;
 public static class UtilsUI
 {
     public static void DrawSection(string name, Vector4? color, Action drawAction)

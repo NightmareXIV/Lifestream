@@ -2,9 +2,6 @@
 using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
-using System;
-using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Lifestream.Movement;
 
