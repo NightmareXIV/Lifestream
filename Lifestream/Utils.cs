@@ -92,7 +92,7 @@ internal static unsafe class Utils
 
     public static void SetCursorTo(int x, int y)
     {
-        for(int i = 0; i < 1000; i++)
+        for(var i = 0; i < 1000; i++)
         {
             if(WindowFunctions.TryFindGameWindow(out var hwnd))
             {
@@ -104,7 +104,7 @@ internal static unsafe class Utils
                 break;
             }
         }
-        
+
     }
 
     public static void DrawVector2Selector(string id, ref Vector2 value)

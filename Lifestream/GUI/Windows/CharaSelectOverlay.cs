@@ -12,9 +12,9 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
     private BackgroundWindow Modal;
     public CharaSelectOverlay() : base("", HorizontalPosition.Middle, VerticalPosition.Middle)
     {
-        this.IsOpen = false;
-        this.Flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoCollapse;
-        this.RespectCloseHotkey = false;
+        IsOpen = false;
+        Flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoCollapse;
+        RespectCloseHotkey = false;
         Modal = new(this);
         EzConfigGui.WindowSystem.AddWindow(Modal);
     }
@@ -23,9 +23,9 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
     {
         CharaName = charaName;
         CharaWorld = homeWorld;
-        this.WindowName = $"{CharaName}@{ExcelWorldHelper.GetName(CharaWorld)}";
-        this.Modal.IsOpen = true;
-        this.IsOpen = true;
+        WindowName = $"{CharaName}@{ExcelWorldHelper.GetName(CharaWorld)}";
+        Modal.IsOpen = true;
+        IsOpen = true;
     }
 
     public override void DrawAction()
@@ -44,8 +44,8 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
         }
         if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && !Utils.IsAddonVisible("SelectYesno") && !Utils.IsAddonVisible("SelectOk") && !Utils.IsAddonVisible("ContextMenu") && !Utils.IsAddonVisible("_CharaSelectWorldServer") && !Utils.IsAddonVisible("AddonContextSub"))
         {
-            var chara = m.Characters.FirstOrDefault(x => x.Name ==  CharaName && x.HomeWorld == CharaWorld);
-            if (chara == null)
+            var chara = m.Characters.FirstOrDefault(x => x.Name == CharaName && x.HomeWorld == CharaWorld);
+            if(chara == null)
             {
                 ImGuiEx.Text($"Character not found: {CharaName}@{ExcelWorldHelper.GetName(CharaWorld)}");
                 return;
@@ -81,7 +81,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                             if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy() && chara.CurrentWorld != world.RowId))
                             {
                                 Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, world);
-                                this.IsOpen = false;
+                                IsOpen = false;
                             }
                         }
                     }
@@ -145,10 +145,10 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
 
     private class BackgroundWindow : Window
     {
-        CharaSelectOverlay ParentWindow;
-        public BackgroundWindow(CharaSelectOverlay parentWindow) : base($"Lifestream CharaSelect background",  ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse, true)
+        private CharaSelectOverlay ParentWindow;
+        public BackgroundWindow(CharaSelectOverlay parentWindow) : base($"Lifestream CharaSelect background", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse, true)
         {
-            this.RespectCloseHotkey = false;
+            RespectCloseHotkey = false;
             ParentWindow = parentWindow;
         }
 
@@ -161,7 +161,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
 
         public override void Draw()
         {
-            if(!ParentWindow.IsOpen) this.IsOpen = false;
+            if(!ParentWindow.IsOpen) IsOpen = false;
             CImGui.igBringWindowToDisplayBack(CImGui.igGetCurrentWindow());
         }
 

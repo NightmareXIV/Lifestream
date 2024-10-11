@@ -230,15 +230,15 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskMBShortcut.Enqueue();
             }
         }
-        else if (arguments.EqualsIgnoreCaseAny("island", "is", "sanctuary") || arguments.StartsWithAny("island ", "is ", "sanctuary "))
+        else if(arguments.EqualsIgnoreCaseAny("island", "is", "sanctuary") || arguments.StartsWithAny("island ", "is ", "sanctuary "))
         {
             var arglist = arguments.Split(" ");
-            if (arglist.Length == 1)
+            if(arglist.Length == 1)
                 TaskISShortcut.Enqueue();
             else
             {
                 var name = arglist[1];
-                if (DataStore.IslandNPCs.TryGetFirst(x => x.Value.Any(y => y.Contains(name, StringComparison.OrdinalIgnoreCase)), out var npc))
+                if(DataStore.IslandNPCs.TryGetFirst(x => x.Value.Any(y => y.Contains(name, StringComparison.OrdinalIgnoreCase)), out var npc))
                     TaskISShortcut.Enqueue(npc.Key);
                 else
                     DuoLog.Error($"Could not parse input: {name}");

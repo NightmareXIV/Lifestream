@@ -65,7 +65,7 @@ internal class DataStore
             BuildWorlds();
         }
 
-        foreach (TaskISShortcut.IslandNPC npc in Enum.GetValues(typeof(TaskISShortcut.IslandNPC)))
+        foreach(TaskISShortcut.IslandNPC npc in Enum.GetValues(typeof(TaskISShortcut.IslandNPC)))
         {
             var row = Svc.Data.GetExcelSheet<ENpcResident>().GetRow((uint)npc);
             IslandNPCs.Add(npc, [row.Singular, row.Title]);

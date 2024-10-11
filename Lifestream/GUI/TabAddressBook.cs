@@ -10,7 +10,7 @@ using SortMode = Lifestream.Data.SortMode;
 namespace Lifestream.GUI;
 public static unsafe class TabAddressBook
 {
-    public static readonly Dictionary<ResidentialAetheryteKind, string> ResidentialNames = new Dictionary<ResidentialAetheryteKind, string>()
+    public static readonly Dictionary<ResidentialAetheryteKind, string> ResidentialNames = new()
     {
         [ResidentialAetheryteKind.Gridania] = "Lavender Beds",
         [ResidentialAetheryteKind.Limsa] = "Mist",
@@ -19,7 +19,7 @@ public static unsafe class TabAddressBook
         [ResidentialAetheryteKind.Foundation] = "Empyreum",
     };
 
-    public static readonly Dictionary<SortMode, string> SortModeNames = new Dictionary<SortMode, string>()
+    public static readonly Dictionary<SortMode, string> SortModeNames = new()
     {
         [SortMode.Manual] = "Manual (drag and drop)",
         [SortMode.Name] = "Name (A-Z)",

@@ -32,7 +32,7 @@ public class CustomAliasCommand
                 var world = ExcelWorldHelper.GetName(World);
                 if(P.IPCProvider.CanVisitCrossDC(world))
                 {
-                    P.TPAndChangeWorld(world, true, skipChecks:true);
+                    P.TPAndChangeWorld(world, true, skipChecks: true);
                 }
                 else if(P.IPCProvider.CanVisitSameDC(world))
                 {
@@ -54,7 +54,7 @@ public class CustomAliasCommand
                 var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
                 P.TaskManager.InsertMulti(
                     new(() => task.IsCompleted),
-                    new(() => P.FollowPath.Move([..task.Result, .. appendMovement], true)),
+                    new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
                     new(() => P.FollowPath.Waypoints.Count == 0)
                     );
             });
@@ -66,7 +66,7 @@ public class CustomAliasCommand
             {
                 var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte);
                 var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte());
-                if(nearestAetheryte == null || Player.Territory != aetheryte.Territory.Row || Player.DistanceTo(nearestAetheryte) > this.SkipTeleport)
+                if(nearestAetheryte == null || Player.Territory != aetheryte.Territory.Row || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
                 {
                     P.TaskManager.InsertMulti(
                         new((Action)(() => S.TeleportService.TeleportToAetheryte(Aetheryte))),
@@ -87,7 +87,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Circular_movement)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            P.TaskManager.Enqueue(() => P.FollowPath.Move([..MathHelper.CalculateCircularMovement(CenterPoint, Player.Position.ToVector2(), CircularExitPoint.ToVector2(), out _, Precision, Tolerance, Clamp).Select(x => x.ToVector3(Player.Position.Y)).ToList(), .. (Vector3[])(WalkToExit ? [CircularExitPoint] : []), .. appendMovement], true));
+            P.TaskManager.Enqueue(() => P.FollowPath.Move([.. MathHelper.CalculateCircularMovement(CenterPoint, Player.Position.ToVector2(), CircularExitPoint.ToVector2(), out _, Precision, Tolerance, Clamp).Select(x => x.ToVector3(Player.Position.Y)).ToList(), .. (Vector3[])(WalkToExit ? [CircularExitPoint] : []), .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
         }
     }

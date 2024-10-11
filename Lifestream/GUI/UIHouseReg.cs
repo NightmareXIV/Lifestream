@@ -9,7 +9,7 @@ using NightmareUI.PrimaryUI;
 
 namespace Lifestream.GUI;
 #nullable enable
-public unsafe static class UIHouseReg
+public static unsafe class UIHouseReg
 {
     public static void Draw()
     {
@@ -35,7 +35,7 @@ public unsafe static class UIHouseReg
         DrawHousingData(data, true);
     }
 
-    static void DrawHousingData(HousePathData? data, bool isPrivate)
+    private static void DrawHousingData(HousePathData? data, bool isPrivate)
     {
         var plotDataAvailable = TryGetCurrentPlotInfo(out var kind, out var ward, out var plot);
         if(data == null)
@@ -43,7 +43,7 @@ public unsafe static class UIHouseReg
             ImGuiEx.Text($"No data found. ");
             if(plotDataAvailable && Player.IsInHomeWorld)
             {
-                if(ImGui.Button($"Register {kind.GetName()}, ward {ward+1}, plot {plot+1} as {(isPrivate?"private":"free company")} house."))
+                if(ImGui.Button($"Register {kind.GetName()}, ward {ward + 1}, plot {plot + 1} as {(isPrivate ? "private" : "free company")} house."))
                 {
                     var newData = new HousePathData()
                     {
@@ -108,7 +108,7 @@ public unsafe static class UIHouseReg
         {
             path.Insert(0, Player.Position);
         }
-        if(data != null) 
+        if(data != null)
         {
             var entryPoint = Utils.GetPlotEntrance(data.ResidentialDistrict.GetResidentialTerritory(), data.Plot);
             if(entryPoint != null)
@@ -142,7 +142,7 @@ public unsafe static class UIHouseReg
             ImGui.TableNextColumn();
             ImGuiEx.Text($"Entrance to plot");
 
-            for(int i = 0; i < path.Count; i++)
+            for(var i = 0; i < path.Count; i++)
             {
                 ImGui.PushID($"point{i}");
                 var p = path[i];
@@ -206,12 +206,12 @@ public unsafe static class UIHouseReg
         P.SplatoonManager.RenderPath(path, false, true);
     }
 
-    static bool IsOutside()
+    private static bool IsOutside()
     {
         return P.ResidentialAethernet.ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType);
     }
 
-    static bool IsInsideHouse()
+    private static bool IsInsideHouse()
     {
         return Svc.ClientState.TerritoryType.EqualsAny(
             Houses.Private_Cottage_Mist, Houses.Private_House_Mist, Houses.Private_Mansion_Mist,

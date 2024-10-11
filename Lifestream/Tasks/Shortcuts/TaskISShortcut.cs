@@ -43,19 +43,19 @@ public static unsafe class TaskISShortcut
 
     public static void Enqueue(IslandNPC? npcNullable = null, bool returnHome = true)
     {
-        if (P.TaskManager.IsBusy)
+        if(P.TaskManager.IsBusy)
         {
             DuoLog.Error($"Lifestream is busy, could not process request");
             return;
         }
-        if (!Player.Available)
+        if(!Player.Available)
         {
             DuoLog.Error("Player not available");
             return;
         }
-        if (returnHome)
+        if(returnHome)
         {
-            if (!Player.IsInHomeWorld)
+            if(!Player.IsInHomeWorld)
             {
                 P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
             }
@@ -64,9 +64,9 @@ public static unsafe class TaskISShortcut
         var point = npcNullable == null ? NPCPoints[IslandNPC.TactfulTaskmaster] : NPCPoints[npcNullable.Value];
         P.TaskManager.Enqueue(() =>
         {
-            if (Player.Territory == IslandTerritories.Island)
+            if(Player.Territory == IslandTerritories.Island)
                 EnqueueNavToNPC(point);
-            else if (Player.Territory == IslandTerritories.Moraby)
+            else if(Player.Territory == IslandTerritories.Moraby)
                 TravelToIsland();
             else
                 EnqueueFromStart();
@@ -74,7 +74,7 @@ public static unsafe class TaskISShortcut
 
         void EnqueueFromStart()
         {
-            if (Player.Territory != IslandTerritories.Moraby)
+            if(Player.Territory != IslandTerritories.Moraby)
             {
                 TaskTpAndWaitForArrival.Enqueue(10);
                 P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Moraby, "WaitUntilPlayerInteractableInMoraby", TaskSettings.Timeout2M);
@@ -84,7 +84,7 @@ public static unsafe class TaskISShortcut
 
         void TravelToIsland()
         {
-            if (Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) > 3f)
+            if(Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) > 3f)
                 P.TaskManager.Enqueue(EnqueueBaldinNavigation);
             P.TaskManager.Enqueue(InteractWithBaldin);
             P.TaskManager.Enqueue(TalkWithBaldin);
@@ -95,18 +95,18 @@ public static unsafe class TaskISShortcut
 
         bool EnqueueBaldinNavigation()
         {
-            if (P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning() || AgentMap.Instance()->IsPlayerMoving == 1) return false;
+            if(P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning() || AgentMap.Instance()->IsPlayerMoving == 1) return false;
             P.VnavmeshManager.PathfindAndMoveTo(NPCPoints[IslandNPC.Baldin], false);
             return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f && !P.VnavmeshManager.IsRunning();
         }
 
         bool InteractWithBaldin()
         {
-            if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent]) return true;
+            if(Svc.Condition[ConditionFlag.OccupiedInQuestEvent]) return true;
             var baldin = Svc.Objects.FirstOrDefault(x => x.DataId == (uint)IslandNPC.Baldin);
-            if (baldin.IsTarget())
+            if(baldin.IsTarget())
             {
-                if (EzThrottler.Throttle(nameof(InteractWithBaldin)))
+                if(EzThrottler.Throttle(nameof(InteractWithBaldin)))
                 {
                     TargetSystem.Instance()->InteractWithObject(baldin.Struct(), false);
                     return false;
@@ -114,7 +114,7 @@ public static unsafe class TaskISShortcut
             }
             else
             {
-                if (EzThrottler.Throttle("BaldinSetTarget"))
+                if(EzThrottler.Throttle("BaldinSetTarget"))
                 {
                     Svc.Targets.Target = baldin;
                     return false;
@@ -125,7 +125,7 @@ public static unsafe class TaskISShortcut
 
         bool TalkWithBaldin()
         {
-            if (TryGetAddonMaster<AddonMaster.Talk>(out var talk))
+            if(TryGetAddonMaster<AddonMaster.Talk>(out var talk))
                 talk.Click();
             return Utils.TrySelectSpecificEntry(Lang.TravelToMyIsland, () => EzThrottler.Throttle(nameof(TalkWithBaldin)));
         }
@@ -133,9 +133,9 @@ public static unsafe class TaskISShortcut
         bool ConfirmIslandTravel()
         {
             var addon = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.TravelToYourIsland);
-            if (addon != null && addon->YesButton->IsEnabled)
+            if(addon != null && addon->YesButton->IsEnabled)
             {
-                if (EzThrottler.Throttle(nameof(ConfirmIslandTravel), 5000))
+                if(EzThrottler.Throttle(nameof(ConfirmIslandTravel), 5000))
                 {
                     new AddonMaster.SelectYesno(addon).Yes();
                     return true;
@@ -153,7 +153,7 @@ public static unsafe class TaskISShortcut
                 var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
                 P.TaskManager.Enqueue(() =>
                 {
-                    if (!task.IsCompleted) return false;
+                    if(!task.IsCompleted) return false;
                     var path = task.Result;
                     P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
                     P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));

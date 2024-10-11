@@ -108,7 +108,7 @@ internal static unsafe class UIDebug
                     {
                         AutotestPlot++;
                         DuoLog.Information($"Now going to plot {AutotestPlot}");
-                        TaskTpAndGoToWard.Enqueue(Player.CurrentWorld, AutotestKind, AutotestWard, AutotestPlot-1, false, false);
+                        TaskTpAndGoToWard.Enqueue(Player.CurrentWorld, AutotestKind, AutotestWard, AutotestPlot - 1, false, false);
                     }
                 }
             }
@@ -406,7 +406,7 @@ internal static unsafe class UIDebug
         if(ImGui.CollapsingHeader("HUD"))
         {
             var hud = AgentHUD.Instance();
-            for(int i = 0; i < hud->MapMarkers.Count; i++)
+            for(var i = 0; i < hud->MapMarkers.Count; i++)
             {
                 var marker = hud->MapMarkers[i];
                 var pos = new Vector3(marker.X, marker.Y, marker.Z);

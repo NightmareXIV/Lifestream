@@ -185,7 +185,7 @@ public class Provider
     [EzIPC]
     public void EnqueueLocalInnShortcut(int? innIndex)
     {
-        TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innIndex, useSameWorld:true);
+        TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innIndex, useSameWorld: true);
     }
 
     [EzIPC]
@@ -198,7 +198,7 @@ public class Provider
         return null;
     }
 
-    [EzIPC] 
+    [EzIPC]
     public bool CanChangeInstance()
     {
         return S.InstanceHandler.CanChangeInstance();
@@ -244,7 +244,8 @@ public class Provider
         return TaskPropertyShortcut.GetFreeCompanyAetheryteID() != 0;
     }
 
-    [EzIPC] public void Move(List<Vector3> path)
+    [EzIPC]
+    public void Move(List<Vector3> path)
     {
         P.FollowPath.Move(path, true);
     }

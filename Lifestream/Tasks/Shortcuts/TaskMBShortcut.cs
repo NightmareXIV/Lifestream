@@ -9,7 +9,7 @@ using Lumina.Excel.GeneratedSheets;
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskMBShortcut
 {
-    static Vector3[] Path = [new(139.2f, 4.0f, -31.8f), new(145.3f, 4.0f, -31.8f)];
+    private static Vector3[] Path = [new(139.2f, 4.0f, -31.8f), new(145.3f, 4.0f, -31.8f)];
 
     public static void Enqueue()
     {

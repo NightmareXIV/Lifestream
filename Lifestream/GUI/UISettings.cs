@@ -70,7 +70,7 @@ internal static unsafe class UISettings
             }
             ImGui.Separator();
             ImGuiEx.Text("\"/li auto\" command priority:");
-            for(int i = 0; i < P.Config.PropertyPrio.Count; i++)
+            for(var i = 0; i < P.Config.PropertyPrio.Count; i++)
             {
                 var d = P.Config.PropertyPrio[i];
                 ImGui.PushID($"c{i}");

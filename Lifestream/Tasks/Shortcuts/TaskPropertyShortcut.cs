@@ -14,7 +14,7 @@ using Lifestream.Tasks.Utility;
 using Lumina.Excel.GeneratedSheets;
 
 namespace Lifestream.Tasks.Shortcuts;
-public unsafe static class TaskPropertyShortcut
+public static unsafe class TaskPropertyShortcut
 {
     public static readonly SortedDictionary<uint, (uint Aethernet, Vector3[] Path)> InnData = new()
     {
@@ -98,7 +98,7 @@ public unsafe static class TaskPropertyShortcut
         }, "ReturnToHomeTask");
     }
 
-    static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode, int? innIndex, bool? enterApartment)
+    private static bool ExecuteByPropertyType(PropertyType type, HouseEnterMode? mode, int? innIndex, bool? enterApartment)
     {
         if(type == PropertyType.Home && GetPrivateHouseAetheryteID() != 0)
         {
@@ -130,7 +130,7 @@ public unsafe static class TaskPropertyShortcut
         P.TaskManager.BeginStack();
         P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id));
         P.TaskManager.Enqueue(() => !IsScreenReady());
-        P.TaskManager.Enqueue(() => IsScreenReady()  && Player.Interactable);
+        P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
         if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house))
         {
             P.TaskManager.Enqueue(() =>
@@ -323,7 +323,7 @@ public unsafe static class TaskPropertyShortcut
         return false;
     }
 
-    static uint GetInnTerritoryId()
+    private static uint GetInnTerritoryId()
     {
         if(P.Config.PreferredInn != 0)
         {

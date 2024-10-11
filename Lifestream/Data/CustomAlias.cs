@@ -17,15 +17,15 @@ public class CustomAlias : IFileSystemStorage
     {
         if(!Utils.IsBusy())
         {
-            for(int i = 0; i < Commands.Count; i++)
+            for(var i = 0; i < Commands.Count; i++)
             {
                 List<Vector3> append = [];
                 var cmd = Commands[i];
                 if(cmd.Kind.EqualsAny(CustomAliasKind.Walk_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement) == true)
                 {
-                    while(Commands.SafeSelect(i+1)?.Kind == CustomAliasKind.Walk_to_point)
+                    while(Commands.SafeSelect(i + 1)?.Kind == CustomAliasKind.Walk_to_point)
                     {
-                        append.Add(Commands[i+1].Point);
+                        append.Add(Commands[i + 1].Point);
                         i++;
                     }
                 }

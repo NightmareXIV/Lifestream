@@ -36,7 +36,7 @@ public class SplatoonManager
         {
             for(var i = 0; i < path.Count; i++)
             {
-                var point = GetNextPoint(addNumbers?(i+1).ToString():"");
+                var point = GetNextPoint(addNumbers ? (i + 1).ToString() : "");
                 point.SetRefCoord(path[i]);
                 var line = GetNextLine();
                 line.SetRefCoord(path[i]);
