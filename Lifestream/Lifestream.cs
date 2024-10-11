@@ -302,20 +302,23 @@ public unsafe class Lifestream : IDalamudPlugin
         }
     }
 
-    internal void TPAndChangeWorld(string destinationWorld, bool isDcTransfer = false, string secondaryTeleport = null, bool noSecondaryTeleport = false, WorldChangeAetheryte? gateway = null, bool? doNotify = null, bool? returnToGateway = null)
+    internal void TPAndChangeWorld(string destinationWorld, bool isDcTransfer = false, string secondaryTeleport = null, bool noSecondaryTeleport = false, WorldChangeAetheryte? gateway = null, bool? doNotify = null, bool? returnToGateway = null, bool skipChecks = false)
     {
         try
         {
             CharaSelectVisit.ApplyDefaults(ref returnToGateway, ref gateway, ref doNotify);
-            if(isDcTransfer && !P.Config.AllowDcTransfer)
+            if(!skipChecks)
             {
-                Notify.Error($"Data center transfers are not enabled in the configuration.");
-                return;
-            }
-            if(TaskManager.IsBusy)
-            {
-                Notify.Error("Another task is in progress");
-                return;
+                if(isDcTransfer && !P.Config.AllowDcTransfer)
+                {
+                    Notify.Error($"Data center transfers are not enabled in the configuration.");
+                    return;
+                }
+                if(TaskManager.IsBusy)
+                {
+                    Notify.Error("Another task is in progress");
+                    return;
+                }
             }
             if(!Player.Available)
             {

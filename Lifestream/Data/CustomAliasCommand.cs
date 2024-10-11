@@ -38,11 +38,11 @@ public class CustomAliasCommand
                 var world = ExcelWorldHelper.GetName(World);
                 if(P.IPCProvider.CanVisitCrossDC(world))
                 {
-                    P.TPAndChangeWorld(world, true);
+                    P.TPAndChangeWorld(world, true, skipChecks:true);
                 }
                 else if(P.IPCProvider.CanVisitSameDC(world))
                 {
-                    P.TPAndChangeWorld(world, false);
+                    P.TPAndChangeWorld(world, false, skipChecks: true);
                 }
             }
         }
@@ -54,7 +54,7 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && P.VnavmeshManager.IsReady() == true);
             P.TaskManager.Enqueue(() =>
             {
                 var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
@@ -87,6 +87,8 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             var aethernetPoint = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte).AethernetName.Value.Name.ExtractText();
             TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
+            P.TaskManager.Enqueue(() => !IsScreenReady());
+            P.TaskManager.Enqueue(() => IsScreenReady());
         }
         else if(Kind == CustomAliasKind.Circular_movement)
         {
