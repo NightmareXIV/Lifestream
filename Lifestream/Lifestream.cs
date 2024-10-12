@@ -397,6 +397,10 @@ public unsafe class Lifestream : IDalamudPlugin
             else
             {
                 TaskRemoveAfkStatus.Enqueue();
+                /*if(Config.LeavePartyBeforeWorldChangeSameWorld && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                {
+                    TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
+                }*/
                 TaskTPAndChangeWorld.Enqueue(destinationWorld, gateway.Value.AdjustGateway(), false);
                 if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {destinationWorld}");
                 CharaSelectVisit.EnqueueSecondary(noSecondaryTeleport, secondaryTeleport);

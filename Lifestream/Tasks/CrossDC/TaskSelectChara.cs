@@ -1,5 +1,7 @@
-﻿using FFXIVClientStructs.FFXIV.Component.GUI;
+﻿using ECommons.ExcelServices;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
+using Lifestream.Tasks.Login;
 
 namespace Lifestream.Tasks.CrossDC;
 
@@ -7,8 +9,7 @@ internal class TaskSelectChara
 {
     internal static unsafe void Enqueue(string charaName, uint charaWorld)
     {
-        P.TaskManager.Enqueue(() => TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon), "Wait until chara list available", TaskSettings.TimeoutInfinite);
-        P.TaskManager.Enqueue(() => DCChange.SelectCharacter(charaName, charaWorld), nameof(DCChange.SelectCharacter));
-        P.TaskManager.Enqueue(DCChange.SelectYesLogin, TaskSettings.TimeoutInfinite);
+        P.TaskManager.Enqueue(() => TaskChangeCharacter.SelectCharacter(charaName, ExcelWorldHelper.GetName(charaWorld)));
+        P.TaskManager.Enqueue(TaskChangeCharacter.ConfirmLogin);
     }
 }

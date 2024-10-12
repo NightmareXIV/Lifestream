@@ -9,6 +9,7 @@ using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.Interop;
 using ECommons.MathHelpers;
+using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -31,6 +32,11 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static bool GenericThrottle => FrameThrottler.Throttle("LifestreamGenericThrottle", 10);
+    public static void RethrottleGeneric(int num = 10)
+    {
+        FrameThrottler.Throttle("LifestreamGenericThrottle", num, true);
+    }
     public static void ScreenToWorldSelector(string id, ref Vector3 point)
     {
         ref var isInWorldToScreen = ref Ref<bool>.Get($"{id}_screenToWorldSelector");

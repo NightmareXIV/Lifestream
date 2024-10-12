@@ -140,6 +140,10 @@ internal static unsafe class UISettings
         .Section("Movement")
         .Checkbox("Use Sprint and Peloton when auto-moving", () => ref P.Config.UseSprintPeloton)
 
+        .Section("Character Select Menu")
+        .Checkbox("Enable Data center and World visit from Character Select Menu", () => ref P.Config.AllowDCTravelFromCharaSelect)
+        .Checkbox("Use world visit instead of DC visit to travel to same world on guest DC", () => ref P.Config.UseGuestWorldTravel)
+
         .Draw();
     }
 

@@ -334,23 +334,19 @@ internal static unsafe class UIDebug
     private static string addr = "";
     private static string CharaName = "";
     private static int WorldSel;
-    private static float DistanceToLineSegment(Vector3 v, Vector3 a, Vector3 b)
-    {
-        var ab = b - a;
-        var av = v - a;
-
-        if(ab.Length() == 0 || Vector3.Dot(av, ab) <= 0)
-            return av.Length();
-
-        var bv = v - b;
-        if(Vector3.Dot(bv, ab) >= 0)
-            return bv.Length();
-
-        return Vector3.Cross(ab, av).Length() / ab.Length();
-    }
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Lobby2"))
+        {
+            if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m))
+            {
+                foreach(var x in m.Characters)
+                {
+                    ImGuiEx.Text($"{x.Name} is at {ExcelWorldHelper.GetName(x.Entry->CurrentWorldId)}/{x.IsVisitingAnotherDC}/{x.Entry->LoginFlags}");
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("Curcular movelemt"))
         {
             ImGuiEx.Text($"{MathHelper.IsPointPerpendicularToLineSegment(Player.Position.ToVector2(), new(-135f, -85f), new(-125.000f, -80f))}");

@@ -2,6 +2,8 @@
 using ECommons.SimpleGui;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Systems;
+using Lifestream.Tasks.Login;
+using System.Xml.Serialization;
 using World = Lumina.Excel.GeneratedSheets.World;
 
 namespace Lifestream.GUI.Windows;
@@ -10,6 +12,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
     public string CharaName = "";
     public uint CharaWorld = 0;
     private BackgroundWindow Modal;
+    private bool NoLogin = false;
     public CharaSelectOverlay() : base("", HorizontalPosition.Middle, VerticalPosition.Middle)
     {
         IsOpen = false;
@@ -50,6 +53,10 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                 ImGuiEx.Text($"Character not found: {CharaName}@{ExcelWorldHelper.GetName(CharaWorld)}");
                 return;
             }
+            ImGuiEx.LineCentered(() =>
+            {
+                ImGui.Checkbox("Do not log in after transfer", ref NoLogin);
+            });
             var datacenters = worlds.Select(x => x.DataCenter).DistinctBy(x => x.Row).OrderBy(x => x.Value.Region).ToArray();
             if(ImGui.BeginTable("LifestreamSelectWorld", datacenters.Length, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersV | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.NoSavedSettings))
             {
@@ -80,7 +87,15 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                             if(CharaWorld == world.RowId) modifier += "";
                             if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy() && chara.CurrentWorld != world.RowId))
                             {
-                                Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, world);
+                                if(chara.IsVisitingAnotherDC)
+                                {
+                                    ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, world, NoLogin);
+                                }
+                                else
+                                {
+                                    Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, world, NoLogin);
+                                }
+                                NoLogin = false;
                                 IsOpen = false;
                             }
                         }
@@ -95,49 +110,56 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
         }
     }
 
-    public static void Command(string charaName, uint currentWorld, uint homeWorld, World world)
+    public static void ReconnectToValidDC(string charaName, uint currentWorld, uint homeWorld, World world, bool noLogin)
+    {
+        P.TaskManager.Enqueue(TaskChangeCharacter.CloseCharaSelect);
+        P.TaskManager.Enqueue(() => TaskChangeCharacter.ConnectToDc(ExcelWorldHelper.GetName(currentWorld), Utils.GetServiceAccount($"{charaName}@{ExcelWorldHelper.GetName(homeWorld)}")));
+        P.TaskManager.Enqueue(() => Command(charaName, currentWorld, homeWorld, world, noLogin));
+    }
+
+    public static void Command(string charaName, uint currentWorld, uint homeWorld, World targetWorld, bool noLogin)
     {
         var charaCurrentWorld = ExcelWorldHelper.Get(currentWorld);
         var charaHomeWorld = ExcelWorldHelper.Get(homeWorld);
         var isInHomeDc = charaCurrentWorld.DataCenter.Row == charaHomeWorld.DataCenter.Row;
-        if(world.RowId == charaHomeWorld.RowId)
+        if(targetWorld.RowId == charaHomeWorld.RowId)
         {
             //returning home
             if(isInHomeDc)
             {
-                CharaSelectVisit.HomeToHome(world.Name, charaName, homeWorld);
+                CharaSelectVisit.HomeToHome(targetWorld.Name, charaName, homeWorld, noLogin:noLogin);
             }
             else
             {
-                CharaSelectVisit.GuestToHome(world.Name, charaName, homeWorld);
+                CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
             }
         }
         else
         {
-            if(world.DataCenter.Row != charaCurrentWorld.DataCenter.Row)
+            if(targetWorld.DataCenter.Row != charaCurrentWorld.DataCenter.Row)
             {
                 //visiting another DC
                 if(charaCurrentWorld.RowId == charaHomeWorld.RowId)
                 {
-                    CharaSelectVisit.HomeToGuest(world.Name, charaName, homeWorld);
+                    CharaSelectVisit.HomeToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
                 }
                 else
                 {
-                    CharaSelectVisit.GuestToGuest(world.Name, charaName, homeWorld);
+                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
                 }
             }
             else
             {
                 //teleporting to the other world's same dc
-                if(isInHomeDc)
+                if(isInHomeDc || P.Config.UseGuestWorldTravel)
                 {
                     //just log in and use world visit
-                    CharaSelectVisit.GuestToHome(world.Name, charaName, homeWorld, skipReturn: true);
+                    CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, skipReturn: true, noLogin: noLogin);
                 }
                 else
                 {
                     //special guest to guest sequence
-                    CharaSelectVisit.GuestToGuest(world.Name, charaName, homeWorld);
+                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
                 }
             }
         }
