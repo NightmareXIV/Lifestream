@@ -1,4 +1,4 @@
-﻿using ECommons.EzEventManager;
+using ECommons.EzEventManager;
 using ECommons.GameHelpers;
 using Lifestream.Enums;
 using Lifestream.Systems;
@@ -19,11 +19,11 @@ internal class Overlay : Window
 
     private Vector2 bWidth = new(10, 10);
 
-    private Vector2 ButtonSizeAetheryte => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.ButtonHeightAetheryte);
+    private Vector2 ButtonSizeAetheryte => bWidth + new Vector2(P.Config.ButtonWidthArray[0], P.Config.ButtonHeightAetheryte);
 
-    private Vector2 ButtonSizeWorld => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.ButtonHeightWorld);
+    private Vector2 ButtonSizeWorld => bWidth + new Vector2(P.Config.ButtonWidthArray[1], P.Config.ButtonHeightWorld);
 
-    private Vector2 ButtonSizeInstance => bWidth + new Vector2(P.Config.ButtonWidth, P.Config.InstanceButtonHeight);
+    private Vector2 ButtonSizeInstance => bWidth + new Vector2(P.Config.ButtonWidthArray[2], P.Config.InstanceButtonHeight);
 
     private Vector2 WSize = new(200, 200);
 
@@ -90,9 +90,25 @@ internal class Overlay : Window
         {
             actions.Add(DrawInstances);
         }
-        ImGuiEx.EzTableColumns("LifestreamTable", [.. actions]);
 
-        if(P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+        if (actions.Count == 1)
+        {
+            Safe(actions[0]);
+        }
+        else
+        {
+            if (ImGui.BeginTable("LifestreamTable", Math.Max(1, actions.Count), ImGuiTableFlags.NoSavedSettings))
+            {
+                foreach (var action in actions)
+                {
+                    ImGui.TableNextColumn();
+                    Safe(action);
+                }
+                ImGui.EndTable();
+            }
+        }
+
+        if (P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
         {
             if(ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
             {
@@ -291,7 +307,7 @@ internal class Overlay : Window
         for(var i = 1; i <= 30; i++)
         {
             ResizeButton($"{i}");
-            var buttonSize = new Vector2((ButtonSizeWorld.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
+            var buttonSize = new Vector2((ButtonSizeInstance.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
             if(ImGuiEx.Button($"{i}##ward", buttonSize))
             {
                 TaskRemoveAfkStatus.Enqueue();

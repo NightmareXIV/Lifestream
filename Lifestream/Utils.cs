@@ -1,4 +1,4 @@
-﻿
+
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
@@ -1074,5 +1074,17 @@ internal static unsafe class Utils
             if(ret > -1) return ret;
         }
         return 0;
+    }
+
+    internal static void CheckConfigMigration()
+    {
+        // int ButtonWidth -> int[3] ButtonWidthArray
+        if (P.Config.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
+        EzConfig.Save();
+    }
+
+    internal static void MigrateConfigButtonWidthToButtonWidthArray()
+    {
+        P.Config.ButtonWidthArray = [P.Config.ButtonWidth, P.Config.ButtonWidth, P.Config.ButtonWidth];
     }
 }

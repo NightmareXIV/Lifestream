@@ -177,7 +177,7 @@ internal static unsafe class UISettings
                     UtilsUI.NextSection();
 
                     ImGui.SetNextItemWidth(100f);
-                    ImGui.InputInt("Button left/right padding", ref P.Config.ButtonWidth);
+                    ImGui.InputInt3("Button left/right padding", ref P.Config.ButtonWidthArray[0]);
                     ImGui.SetNextItemWidth(100f);
                     ImGui.InputInt("Aetheryte button top/bottom padding", ref P.Config.ButtonHeightAetheryte);
                     ImGui.SetNextItemWidth(100f);
