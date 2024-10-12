@@ -174,17 +174,17 @@ internal static unsafe class UISettings
                     ImGui.SetNextItemWidth(200f);
                     ImGui.DragFloat2("Offset", ref P.Config.Offset);
 
-                    UtilsUI.NextSection();
-
-                    ImGui.SetNextItemWidth(100f);
-                    ImGui.InputInt3("Button left/right padding", ref P.Config.ButtonWidthArray[0]);
-                    ImGui.SetNextItemWidth(100f);
-                    ImGui.InputInt("Aetheryte button top/bottom padding", ref P.Config.ButtonHeightAetheryte);
-                    ImGui.SetNextItemWidth(100f);
-                    ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
-
                     ImGui.Unindent();
                 }
+
+                UtilsUI.NextSection();
+
+                ImGui.SetNextItemWidth(100f);
+                ImGui.InputInt3("Button left/right padding", ref P.Config.ButtonWidthArray[0]);
+                ImGui.SetNextItemWidth(100f);
+                ImGui.InputInt("Aetheryte button top/bottom padding", ref P.Config.ButtonHeightAetheryte);
+                ImGui.SetNextItemWidth(100f);
+                ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
                 ImGui.Unindent();
             }
         })
