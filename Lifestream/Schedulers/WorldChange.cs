@@ -1,5 +1,6 @@
 ﻿
 using ECommons.Automation;
+using ECommons.Automation.UIInput;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -266,6 +267,50 @@ internal static unsafe class WorldChange
             return true;
         }
         return false;
+    }
+
+    internal static bool ClosePF()
+    {
+        if (TryGetAddonMaster<AddonMaster.LookingForGroupDetail>(out var m))
+        {
+            if(m.IsAddonReady && Utils.GenericThrottle) Callback.Fire(m.Base, true, -1);
+        }
+        else
+        {
+            return true;
+        }
+        return false;
+    }
+
+    internal static bool OpenSelfPF()
+    {
+        if(Player.Available)
+        {
+            if(Utils.GenericThrottle)
+            {
+                P.Memory.OpenPartyFinderInfo(AgentLookingForGroup.Instance(), Player.CID);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    internal static bool EndPF()
+    {
+        if(TryGetAddonMaster<AddonMaster.LookingForGroupDetail>(out var m) && m.IsAddonReady)
+        {
+            if(Utils.GenericThrottle)
+            {
+                m.EndButton->ClickAddonButton(m.Base);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    internal static bool WaitUntilNotRecruiting()
+    {
+        return !Svc.Condition[ConditionFlag.RecruitingWorldOnly];
     }
 
     internal static bool? LeaveAnyParty()

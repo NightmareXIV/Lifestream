@@ -112,6 +112,15 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
 
     public static void ReconnectToValidDC(string charaName, uint currentWorld, uint homeWorld, World world, bool noLogin)
     {
+        try
+        {
+            Utils.AssertCanTravel(charaName, homeWorld, currentWorld, world.RowId);
+        }
+        catch(Exception e)
+        {
+            e.Log();
+            return;
+        }
         P.TaskManager.Enqueue(TaskChangeCharacter.CloseCharaSelect);
         P.TaskManager.Enqueue(() => TaskChangeCharacter.ConnectToDc(ExcelWorldHelper.GetName(currentWorld), Utils.GetServiceAccount($"{charaName}@{ExcelWorldHelper.GetName(homeWorld)}")));
         P.TaskManager.Enqueue(() => Command(charaName, currentWorld, homeWorld, world, noLogin));
@@ -121,6 +130,15 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
     {
         var charaCurrentWorld = ExcelWorldHelper.Get(currentWorld);
         var charaHomeWorld = ExcelWorldHelper.Get(homeWorld);
+        try
+        {
+            Utils.AssertCanTravel(charaName, homeWorld, currentWorld, targetWorld.RowId);
+        }
+        catch(Exception e)
+        {
+            e.Log();
+            return;
+        }
         var isInHomeDc = charaCurrentWorld.DataCenter.Row == charaHomeWorld.DataCenter.Row;
         if(targetWorld.RowId == charaHomeWorld.RowId)
         {

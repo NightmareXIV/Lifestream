@@ -72,4 +72,6 @@ public class Config : IEzConfig
     public List<CustomAlias> CustomAliases = [];
     public bool UseGuestWorldTravel = false;
     public bool AllowDCTravelFromCharaSelect = true;
+    public List<TravelBanInfo> TravelBans = [];
+    public bool TerminateSelfPartyFinder = false;
 }

@@ -8,9 +8,21 @@ internal static unsafe class TaskChangeWorld
 {
     internal static void Enqueue(string world)
     {
+        try
+        {
+            Utils.AssertCanTravel(Player.Name, Player.Object.HomeWorld.Id, Player.Object.CurrentWorld.Id, world);
+        }
+        catch(Exception e) { e.Log(); return; }
         if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.Config.LeavePartyBeforeWorldChange)
         {
+            if(Svc.Condition[ConditionFlag.RecruitingWorldOnly])
+            {
+                P.TaskManager.Enqueue(WorldChange.ClosePF);
+                P.TaskManager.Enqueue(WorldChange.OpenSelfPF);
+                P.TaskManager.Enqueue(WorldChange.EndPF);
+                P.TaskManager.Enqueue(WorldChange.WaitUntilNotRecruiting);
+            }
             P.TaskManager.Enqueue(WorldChange.LeaveParty);
         }
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);

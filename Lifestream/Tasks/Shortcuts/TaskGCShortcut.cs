@@ -4,6 +4,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
+using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
@@ -25,6 +26,19 @@ public static unsafe class TaskGCShortcut
         [GrandCompany.ImmortalFlames] = new(-148.1f, 4.1f, -93.0f),
         [GrandCompany.Maelstrom] = new(90.5f, 40.2f, 63.0f),
         [GrandCompany.TwinAdder] = new(-76.8f, -0.5f, -1.1f),
+    };
+    public static Dictionary<GrandCompany, CustomAlias> CompanyNPCCommands => new()
+    {
+        [GrandCompany.ImmortalFlames] = GCAlias.UldahGC,
+        [GrandCompany.Maelstrom] = GCAlias.LimsaGC,
+        [GrandCompany.TwinAdder] = GCAlias.GridaniaGC,
+    };
+
+    public static Dictionary<GrandCompany, CustomAlias> CompanyChestCommands => new()
+    {
+        [GrandCompany.ImmortalFlames] = GCAlias.UldahGCC,
+        [GrandCompany.Maelstrom] = GCAlias.LimsaGCC,
+        [GrandCompany.TwinAdder] = GCAlias.GridaniaGCC,
     };
 
     public static readonly Dictionary<GrandCompany, uint> CompanyTerritory = new()
@@ -97,33 +111,8 @@ public static unsafe class TaskGCShortcut
         }
         var company = companyNullable.Value;
         var point = (isChest ? CompanyChestPoints : CompanyNPCPoints)[company];
-        P.TaskManager.Enqueue(() =>
-        {
-            if(Player.Territory == CompanyTerritory[company])
-            {
-                P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
-                P.TaskManager.Enqueue(() =>
-                {
-                    if(!task.IsCompleted) return false;
-                    var path = task.Result;
-                    if(Utils.CalculatePathDistance([.. path]) > 150f)
-                    {
-                        EnqueueFromStart();
-                    }
-                    else
-                    {
-                        P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                        P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                    }
-                    return true;
-                }, "Build path and check");
-            }
-            else
-            {
-                EnqueueFromStart();
-            }
-        });
+        var moveCommand = (isChest ? CompanyChestCommands : CompanyNPCCommands)[company];
+        P.TaskManager.Enqueue(EnqueueFromStart);
 
         void EnqueueFromStart()
         {
@@ -141,44 +130,14 @@ public static unsafe class TaskGCShortcut
                 });
                 P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
                 P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == CompanyTerritory[company], "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
-                EnqueueNavigation();
+                P.TaskManager.Enqueue(Utils.WaitForScreen);
+                P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+                P.TaskManager.Enqueue(() => P.FollowPath.Move([point], true));
             }
             else
             {
-                if(company == GrandCompany.Maelstrom)
-                {
-                    if(Utils.GetReachableWorldChangeAetheryte() == null || Player.Territory != MainCities.Limsa_Lominsa_Lower_Decks)
-                    {
-                        TaskTpAndWaitForArrival.Enqueue(CompanyAetheryte[company]);
-                    }
-                    TaskTryTpToAethernetDestination.Enqueue(Svc.Data.GetExcelSheet<Aetheryte>().GetRow(41).AethernetName.Value.Name.ExtractText());
-                    P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                    P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == MainCities.Limsa_Lominsa_Upper_Decks, "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
-                }
-                else
-                {
-                    TaskTpAndWaitForArrival.Enqueue(CompanyAetheryte[company]);
-                }
-                EnqueueNavigation();
+                moveCommand.Enqueue(true);
             }
-        }
-
-        void EnqueueNavigation()
-        {
-            P.TaskManager.Enqueue(Utils.WaitForScreen);
-            P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
-            P.TaskManager.Enqueue(() =>
-            {
-                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
-                P.TaskManager.Enqueue(() =>
-                {
-                    if(!task.IsCompleted) return false;
-                    var path = task.Result;
-                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                    P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
-                    return true;
-                }, "Build path");
-            }, "Master navmesh task");
         }
     }
 

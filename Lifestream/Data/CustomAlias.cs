@@ -13,9 +13,9 @@ public class CustomAlias : IFileSystemStorage
     public string GetCustomName() => null;
     public void SetCustomName(string s) { }
 
-    public void Enqueue()
+    public void Enqueue(bool force = false)
     {
-        if(!Utils.IsBusy())
+        if(force || !Utils.IsBusy())
         {
             for(var i = 0; i < Commands.Count; i++)
             {

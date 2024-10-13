@@ -305,6 +305,7 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         try
         {
+            Utils.AssertCanTravel(Player.Name, Player.Object.HomeWorld.Id, Player.Object.CurrentWorld.Id, destinationWorld);
             CharaSelectVisit.ApplyDefaults(ref returnToGateway, ref gateway, ref doNotify);
             if(!skipChecks)
             {
@@ -367,9 +368,12 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         TaskTpToAethernetDestination.Enqueue(gateway.Value.AdjustGateway());
                     }
-                    if(Config.LeavePartyBeforeLogout && (Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]))
+                    if(Config.LeavePartyBeforeLogout)
                     {
-                        TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
+                        if(Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance])
+                        {
+                            TaskManager.EnqueueTask(new(WorldChange.LeaveAnyParty));
+                        }
                     }
                 }
                 if(type == DCVType.HomeToGuest)

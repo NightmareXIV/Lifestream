@@ -337,6 +337,10 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.Button("Open PF self"))
+        {
+            P.Memory.OpenPartyFinderInfo(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID); 
+        }
         if(ImGui.CollapsingHeader("Lobby2"))
         {
             if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m))

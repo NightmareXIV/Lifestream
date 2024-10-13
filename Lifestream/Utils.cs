@@ -32,6 +32,69 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static void DrawWorldSelector(ICollection<int> worldList)
+    {
+        ImGuiEx.CollectionCheckbox("All", ExcelWorldHelper.GetPublicWorlds().Select(x => (int)x.RowId), worldList);
+        ImGui.Indent();
+        var regions = Enum.GetValues<ExcelWorldHelper.Region>();
+        foreach(var r in regions)
+        {
+            ImGuiEx.CollectionCheckbox(r.ToString(), ExcelWorldHelper.GetPublicWorlds(r).Select(x => (int)x.RowId), worldList);
+            var dc = ExcelWorldHelper.GetDataCenters(r);
+            ImGui.Indent();
+            foreach(var d in dc)
+            {
+                var worlds = ExcelWorldHelper.GetPublicWorlds(d.RowId);
+                ImGuiEx.CollectionCheckbox(d.Name, worlds.Select(x => (int)x.RowId), worldList);
+                ImGui.Indent();
+                foreach(var w in worlds.OrderBy(x => x.Name.ToString()))
+                {
+                    ImGuiEx.CollectionCheckbox(w.Name, (int)w.RowId, worldList);
+                }
+                ImGui.Unindent();
+            }
+            ImGui.Unindent();
+        }
+        ImGui.Unindent();
+    }
+
+    public static bool IsTravelBlocked(string charaName, Number charaWorld, Number sourceWorld, string targetWorld)
+    {
+        return IsTravelBlocked(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).RowId);
+    }
+
+    public static bool IsTravelBlocked(string charaName, Number charaWorld, Number sourceWorld, Number targetWorld)
+    {
+        foreach(var x in P.Config.TravelBans)
+        {
+            if(x.IsEnabled && x.CharaName == charaName && x.CharaHomeWorld == charaWorld)
+            {
+                if(x.BannedFrom.Contains(sourceWorld) && x.BannedTo.Contains(targetWorld))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void AssertCanTravel(string charaName, Number charaWorld, Number sourceWorld, string targetWorld)
+    {
+        AssertCanTravel(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).RowId);
+    }
+
+    public static void AssertCanTravel(string charaName, Number charaWorld, Number sourceWorld, Number targetWorld)
+    {
+        if(IsTravelBlocked(charaName, charaWorld, sourceWorld, targetWorld))
+        {
+            var err = $"Character {charaName}@{ExcelWorldHelper.GetName(charaWorld)} can not travel from {ExcelWorldHelper.GetName(sourceWorld)} to {ExcelWorldHelper.GetName(targetWorld)}. Access Lifestream - Travel Block to change it.";
+            Svc.Toasts.ShowError(err);
+            Notify.Error(err);
+            DuoLog.Error(err);
+            throw new InvalidOperationException(err);
+        }
+    }
+
     public static bool GenericThrottle => FrameThrottler.Throttle("LifestreamGenericThrottle", 10);
     public static void RethrottleGeneric(int num = 10)
     {

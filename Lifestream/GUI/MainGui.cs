@@ -11,8 +11,8 @@ internal static unsafe class MainGui
             ("Address Book", TabAddressBook.Draw, null, true),
             ("House Registration", UIHouseReg.Draw, null, true),
             ("Custom Alias", TabCustomAlias.Draw, null, true),
+            ("Travel Block", TabTravelBan.Draw, null, true),
             ("Settings", UISettings.Draw, null, true),
-            ("Service accounts", UIServiceAccount.Draw, null, true),
             ("Debug", UIDebug.Draw, ImGuiColors.DalamudGrey3, true)
             );
     }
