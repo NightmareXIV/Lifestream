@@ -14,19 +14,20 @@ using GrandCompany = ECommons.ExcelServices.GrandCompany;
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskGCShortcut
 {
-    public static readonly Dictionary<GrandCompany, Vector3> CompanyNPCPoints = new()
+    public static readonly Dictionary<GrandCompany, Vector3[]> CompanyNPCPoints = new()
     {
-        [GrandCompany.ImmortalFlames] = new(-140.6f, 4.1f, -105.6f),
-        [GrandCompany.Maelstrom] = new(93.0f, 40.3f, 75.6f),
-        [GrandCompany.TwinAdder] = new(-67.2f, -0.5f, -7.8f),
+        [GrandCompany.ImmortalFlames] = [new(-140.6f, 4.1f, -105.6f)],
+        [GrandCompany.Maelstrom] = [new(93.0f, 40.3f, 75.6f)],
+        [GrandCompany.TwinAdder] = [new(-67.2f, -0.5f, -7.8f)],
     };
 
-    public static readonly Dictionary<GrandCompany, Vector3> CompanyChestPoints = new()
+    public static readonly Dictionary<GrandCompany, Vector3[]> CompanyChestPoints = new()
     {
-        [GrandCompany.ImmortalFlames] = new(-148.1f, 4.1f, -93.0f),
-        [GrandCompany.Maelstrom] = new(90.5f, 40.2f, 63.0f),
-        [GrandCompany.TwinAdder] = new(-76.8f, -0.5f, -1.1f),
+        [GrandCompany.ImmortalFlames] = [new(-132.9f, 4.1f, -96.2f), new(-148.1f, 4.1f, -93.0f)],
+        [GrandCompany.Maelstrom] = [new(90.4f, 40.2f, 65.1f)],
+        [GrandCompany.TwinAdder] = [new(-76.8f, -0.5f, -1.1f)],
     };
+
     public static Dictionary<GrandCompany, CustomAlias> CompanyNPCCommands => new()
     {
         [GrandCompany.ImmortalFlames] = GCAlias.UldahGC,
@@ -132,7 +133,7 @@ public static unsafe class TaskGCShortcut
                 P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == CompanyTerritory[company], "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
                 P.TaskManager.Enqueue(Utils.WaitForScreen);
                 P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
-                P.TaskManager.Enqueue(() => P.FollowPath.Move([point], true));
+                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. point], true));
             }
             else
             {

@@ -339,7 +339,7 @@ internal static unsafe class UIDebug
     {
         if(ImGui.Button("Open PF self"))
         {
-            P.Memory.OpenPartyFinderInfo(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID); 
+            P.Memory.OpenPartyFinderInfoDetour(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID); 
         }
         if(ImGui.CollapsingHeader("Lobby2"))
         {

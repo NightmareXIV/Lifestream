@@ -30,9 +30,15 @@ internal unsafe class Memory : IDisposable
     [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress)]
     internal int* MaxInstances;
 
-    internal delegate bool OpenPartyFinderInfoDelegate(void* agentLfg, ulong contentId);
-    [Signature("48 89 5C 24 ?? 57 48 83 EC 20 48 8B FA 48 8B D9 48 85 D2 74 4F")]
-    internal OpenPartyFinderInfoDelegate OpenPartyFinderInfo;
+    internal delegate byte OpenPartyFinderInfoDelegate(void* agentLfg, ulong contentId);
+    [EzHook("40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 84 C0 74 07 C6 83 ?? ?? ?? ?? ?? 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53", false)]
+    internal EzHook<OpenPartyFinderInfoDelegate> OpenPartyFinderInfoHook;
+
+    internal byte OpenPartyFinderInfoDetour(void* agentLfg, ulong contentId)
+    {
+        PluginLog.Information($"{((nint)agentLfg):X16}, {contentId:X16}");
+        return OpenPartyFinderInfoHook.Original(agentLfg, contentId);
+    }
 
     private void AtkComponentTreeList_vf31Detour(nint a1, uint a2, byte a3)
     {

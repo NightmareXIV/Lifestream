@@ -46,8 +46,14 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
             ImGui.Checkbox("Retry same-world failed world visits", ref P.Config.RetryWorldVisit);
             ImGui.Indent();
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(100f);
             ImGui.InputInt("Interval between retries, seconds##2", ref P.Config.RetryWorldVisitInterval.ValidateRange(1, 120));
+            ImGui.SameLine();
+            ImGuiEx.Text("+ up to");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(100f);
+            ImGui.InputInt("seconds##2", ref P.Config.RetryWorldVisitIntervalDelta.ValidateRange(0, 120));
+            ImGuiEx.HelpMarker("To make it appear less bot-like");
             ImGui.Unindent();
             //ImGui.Checkbox("Use Return instead of Teleport when possible", ref P.Config.UseReturn);
             //ImGuiEx.HelpMarker("This includes any IPC calls");

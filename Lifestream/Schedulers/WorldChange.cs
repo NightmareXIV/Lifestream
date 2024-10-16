@@ -288,7 +288,7 @@ internal static unsafe class WorldChange
         {
             if(Utils.GenericThrottle)
             {
-                P.Memory.OpenPartyFinderInfo(AgentLookingForGroup.Instance(), Player.CID);
+                P.Memory.OpenPartyFinderInfoDetour(AgentLookingForGroup.Instance(), Player.CID);
                 return true;
             }
         }
@@ -301,7 +301,7 @@ internal static unsafe class WorldChange
         {
             if(Utils.GenericThrottle)
             {
-                m.EndButton->ClickAddonButton(m.Base);
+                m.TellEnd();
                 return true;
             }
         }
