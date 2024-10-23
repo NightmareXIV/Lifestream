@@ -6,7 +6,7 @@ using Lifestream.Data;
 using Lumina.Excel.GeneratedSheets;
 using Path = System.IO.Path;
 
-namespace Lifestream.Systems;
+namespace Lifestream.Systems.Residential;
 public sealed class ResidentialAethernet : IDisposable
 {
     private const string FileName = "HousingData.json";
@@ -51,17 +51,17 @@ public sealed class ResidentialAethernet : IDisposable
         try
         {
             HousingData = EzConfig.LoadConfiguration<HousingData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, FileName), false);
-            foreach(var zone in ZoneInfo)
+            foreach (var zone in ZoneInfo)
             {
                 var values = Svc.Data.GetExcelSheet<HousingAethernet>().Where(a => a.TerritoryType.Row == zone.Key).OrderBy(x => x.Order);
-                foreach(var a in values)
+                foreach (var a in values)
                 {
                     var aetheryte = new ResidentialAetheryte(a, a.Order >= values.Count() / 2, zone.Value.SubdivisionModifier);
                     zone.Value.Aetherytes.Add(aetheryte);
                 }
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             e.Log();
         }
@@ -74,7 +74,7 @@ public sealed class ResidentialAethernet : IDisposable
 
     public void Tick()
     {
-        if(Svc.ClientState.LocalPlayer != null && ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType))
+        if (Svc.ClientState.LocalPlayer != null && ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType))
         {
             UpdateActiveAetheryte();
         }
@@ -87,12 +87,12 @@ public sealed class ResidentialAethernet : IDisposable
     private void UpdateActiveAetheryte()
     {
         var a = Utils.GetValidAetheryte();
-        if(a != null)
+        if (a != null)
         {
             var aetheryte = GetFromIGameObject(a);
-            if(aetheryte != null)
+            if (aetheryte != null)
             {
-                if(ActiveAetheryte == null)
+                if (ActiveAetheryte == null)
                 {
                     P.Overlay.IsOpen = true;
                 }
@@ -107,13 +107,13 @@ public sealed class ResidentialAethernet : IDisposable
 
     public ResidentialAetheryte? GetFromIGameObject(IGameObject obj)
     {
-        if(obj == null) return null;
+        if (obj == null) return null;
         var pos2 = obj.Position.ToVector2();
-        if(ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
+        if (ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
         {
-            foreach(var l in result.Aetherytes)
+            foreach (var l in result.Aetherytes)
             {
-                if(Vector2.Distance(l.Position, pos2) < 10)
+                if (Vector2.Distance(l.Position, pos2) < 10)
                 {
                     return l;
                 }

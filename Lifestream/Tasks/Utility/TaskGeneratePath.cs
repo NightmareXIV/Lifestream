@@ -1,7 +1,7 @@
 ﻿using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lumina.Excel.GeneratedSheets;
-using ResidentialAetheryte = Lifestream.Systems.ResidentialAetheryte;
+using ResidentialAetheryte = Lifestream.Systems.Residential.ResidentialAetheryte;
 
 namespace Lifestream.Tasks.Utility;
 public static class TaskGeneratePath

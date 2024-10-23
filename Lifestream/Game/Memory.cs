@@ -111,7 +111,7 @@ internal unsafe class Memory : IDisposable
         //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
         try
         {
-            if((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
+            if((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null || P.CustomAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
             {
                 if(a2 == 3)
                 {
@@ -146,6 +146,21 @@ internal unsafe class Memory : IDisposable
                                     foreach(var x in zone.Aetherytes)
                                     {
                                         if(x.Name == text)
+                                        {
+                                            TaskAethernetTeleport.Enqueue(x.Name);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if(P.CustomAethernet.ActiveAetheryte != null)
+                            {
+                                var zone = P.CustomAethernet.ZoneInfo.SafeSelect(Svc.ClientState.TerritoryType);
+                                if(zone != null)
+                                {
+                                    foreach(var x in zone)
+                                    {
+                                        if(x.Name.StartsWith(text))
                                         {
                                             TaskAethernetTeleport.Enqueue(x.Name);
                                             break;

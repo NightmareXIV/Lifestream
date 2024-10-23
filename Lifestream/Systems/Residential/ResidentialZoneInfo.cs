@@ -1,4 +1,4 @@
-﻿namespace Lifestream.Systems;
+﻿namespace Lifestream.Systems.Residential;
 public class ResidentialZoneInfo
 {
     public List<ResidentialAetheryte> Aetherytes = [];

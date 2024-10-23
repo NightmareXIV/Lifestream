@@ -75,7 +75,7 @@ internal static unsafe class WorldChange
         {
             if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
             {
-                new SelectYesnoMaster(x).Yes();
+                new AddonMaster.SelectYesno(x).Yes();
                 return true;
             }
         }
@@ -178,6 +178,20 @@ internal static unsafe class WorldChange
                                 );
                             return true;
                         }
+                    }
+                }
+            }
+        }
+        else if(P.CustomAethernet.QuasiAethernetZones.Contains(Svc.ClientState.TerritoryType) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
+        {
+            foreach(var x in m.Entries)
+            {
+                if(x.Text.Contains(name))
+                {
+                    if(EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
+                    {
+                        x.Select();
+                        return true;
                     }
                 }
             }

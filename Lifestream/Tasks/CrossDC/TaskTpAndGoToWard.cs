@@ -8,7 +8,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
 using Lifestream.Enums;
-using Lifestream.Systems;
+using Lifestream.Systems.Residential;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using ResidentialAetheryteKind = Lifestream.Enums.ResidentialAetheryteKind;

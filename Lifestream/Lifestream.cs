@@ -20,7 +20,9 @@ using Lifestream.Movement;
 using Lifestream.Schedulers;
 using Lifestream.Services;
 using Lifestream.Systems;
+using Lifestream.Systems.Custom;
 using Lifestream.Systems.Legacy;
+using Lifestream.Systems.Residential;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
@@ -49,6 +51,7 @@ public unsafe class Lifestream : IDalamudPlugin
     public TaskManager TaskManager;
 
     public ResidentialAethernet ResidentialAethernet;
+    public CustomAethernet CustomAethernet;
     internal FollowPath followPath = null;
     public Provider IPCProvider;
     public FollowPath FollowPath
@@ -113,6 +116,7 @@ public unsafe class Lifestream : IDalamudPlugin
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
             ResidentialAethernet = new();
+            CustomAethernet = new();
             VnavmeshManager = new();
             SplatoonManager = new();
             IPCProvider = new();
@@ -176,7 +180,7 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
-        else if(arguments.EqualsIgnoreCaseAny("inn") || arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "inn "))
+        else if(arguments.EqualsIgnoreCaseAny("inn", "hinn") || arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "inn ", "hinn "))
         {
             var x = arguments.Split(" ");
             int? innNum = x.Length == 1 ? null : int.Parse(x[1]) - 1;
@@ -187,7 +191,7 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             else
             {
-                TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, default, innNum);
+                TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, innIndex:innNum, useSameWorld: !arguments.StartsWithAny("hinn"));
             }
         }
         else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc", "fcgc", "gcfc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc ", "fcgc ", "gcfc "))
@@ -429,7 +433,8 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             ActiveAetheryte = null;
         }
-        P.ResidentialAethernet.Tick();
+        ResidentialAethernet.Tick();
+        CustomAethernet.Tick();
     }
 
     public void Dispose()

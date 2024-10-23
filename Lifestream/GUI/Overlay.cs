@@ -79,6 +79,10 @@ internal class Overlay : Window
                 actions.Add(() => DrawResidentialAethernet(true));
             }
         }
+        else if(P.CustomAethernet.ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType))
+        {
+            if(P.Config.ShowAethernet) actions.Add(DrawCustomAethernet);
+        }
         else if(P.ActiveAetheryte != null)
         {
             if(P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
@@ -220,6 +224,32 @@ internal class Overlay : Window
         }
     }
 
+    private void DrawCustomAethernet()
+    {
+        var zinfo = P.CustomAethernet.ZoneInfo[P.Territory];
+        Draw(true);
+        Draw(false);
+        void Draw(bool favorites)
+        {
+            foreach(var x in zinfo)
+            {
+                if(P.Config.Favorites.Contains(x.ID) != favorites) continue;
+                if(!P.Config.Hidden.Contains(x.ID))
+                {
+                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    ResizeButton(name);
+                    var d = P.CustomAethernet.ActiveAetheryte == x;
+                    if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
+                    {
+                        TaskRemoveAfkStatus.Enqueue();
+                        TaskAethernetTeleport.Enqueue(x.Name);
+                    }
+                    Popup(x);
+                }
+            }
+        }
+    }
+
     private void DrawInstances()
     {
         if(S.InstanceHandler.InstancesInitizliaed(out var maxInstances))
@@ -342,7 +372,7 @@ internal class Overlay : Window
                 ret = P.Config.ShowAethernet;
             }
         }
-        else if(canUse == AetheryteUseState.Residential)
+        else if(canUse == AetheryteUseState.Residential || canUse == AetheryteUseState.Custom)
         {
             ret = P.Config.ShowAethernet;
         }

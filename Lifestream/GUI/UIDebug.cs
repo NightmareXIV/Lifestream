@@ -10,6 +10,7 @@ using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -337,6 +338,21 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Custom aethernet"))
+        {
+            if(ImGui.Button("Copy target") && Svc.Targets.Target != null)
+            {
+                var pname = TerritoryInfo.Instance()->AreaPlaceNameId;
+                var pname2 = TerritoryInfo.Instance()->SubAreaPlaceNameId;
+                Copy($"""
+                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {Svc.ClientState.TerritoryType}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRow(pname)?.Name?.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRow(pname2)?.Name?.ExtractText()} ({pname2}), 
+                    """);
+            }
+            ImGuiEx.Text($"Active: {P.CustomAethernet.ActiveAetheryte}");
+            ImGuiEx.Text($"Valid: {Utils.GetValidAetheryte()}");
+            if(Utils.GetValidAetheryte() != null) ImGuiEx.Text($"FromIGameObject: {P.CustomAethernet.GetFromIGameObject(Utils.GetValidAetheryte())}");
+        }
+        if(ImGui.Button("Get file list")) Utils.ReadClipboardFiles();
         if(ImGui.Button("Open PF self"))
         {
             P.Memory.OpenPartyFinderInfoDetour(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID); 
