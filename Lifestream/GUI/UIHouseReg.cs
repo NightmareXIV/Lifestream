@@ -77,18 +77,40 @@ public static unsafe class UIHouseReg
             }
             if(data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
             {
-                var path = data.PathToEntrance;
-                new NuiBuilder()
-                    .Section("Path to house")
-                    .Widget(() =>
-                    {
-                        ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
+                if(!IsInsideHouse())
+                {
+                    var path = data.PathToEntrance;
+                    new NuiBuilder()
+                        .Section("Path to house")
+                        .Widget(() =>
+                        {
+                            ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
 
-                        ImGui.PushID($"path{isPrivate}");
-                        DrawPathEditor(path, data);
-                        ImGui.PopID();
+                            ImGui.PushID($"path{isPrivate}");
+                            DrawPathEditor(path, data);
+                            ImGui.PopID();
 
-                    }).Draw();
+                        }).Draw();
+                }
+                else if(!isPrivate)
+                {
+                    var path = data.PathToWorkshop;
+                    new NuiBuilder()
+                        .Section("Path to workshop")
+                        .Widget(() =>
+                        {
+                            ImGuiEx.TextWrapped($"Create path from house entrance to workshop entrance. This feature can curretly only be used by external plugins.");
+
+                            ImGui.PushID($"workshop");
+                            DrawPathEditor(path, data);
+                            ImGui.PopID();
+
+                        }).Draw();
+                }
+                else
+                {
+                    ImGuiEx.TextWrapped("Go to registered plot to edit path");
+                }
             }
             else
             {
@@ -117,6 +139,11 @@ public static unsafe class UIHouseReg
                 if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test", data.ResidentialDistrict.GetResidentialTerritory() == Player.Territory && Vector3.Distance(Player.Position, entryPoint.Value) < 10f))
                 {
                     P.FollowPath.Move(data.PathToEntrance, true);
+                }
+                ImGui.SameLine();
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test Workshop", data.PathToWorkshop.Count > 0 && IsInsideHouse()))
+                {
+                    P.FollowPath.Move(data.PathToWorkshop, true);
                 }
                 if(ImGui.IsItemHovered())
                 {

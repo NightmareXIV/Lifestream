@@ -11,7 +11,7 @@ public static class TabCustomAlias
 {
     public static void Draw()
     {
-        ImGuiEx.Text(EColor.RedBright, "Alpha feature, please report bugs.");
+        ImGuiEx.Text(EColor.Orange, "Beta feature, please report bugs.");
         var selector = S.CustomAliasFileSystemManager.FileSystem.Selector;
         selector.Draw(150f);
         ImGui.SameLine();

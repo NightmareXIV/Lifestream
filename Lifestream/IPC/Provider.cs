@@ -250,5 +250,31 @@ public class Provider
         P.FollowPath.Move(path, true);
     }
 
+    [EzIPC]
+    public bool CanMoveToWorkshop()
+    {
+        var data = Utils.GetFCPathData();
+        if(data == null) return false;
+        var plotDataAvailable = UIHouseReg.TryGetCurrentPlotInfo(out var kind, out var ward, out var plot);
+        if(plotDataAvailable)
+        {
+            return data.PathToWorkshop.Count > 0 && data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot;
+        }
+        return false;
+    }
+
+    [EzIPC]
+    public void MoveToWorkshop()
+    {
+        if(IsBusy()) return;
+        var data = Utils.GetFCPathData();
+        if(data == null) return;
+        var plotDataAvailable = UIHouseReg.TryGetCurrentPlotInfo(out var kind, out var ward, out var plot);
+        if(plotDataAvailable && data.PathToWorkshop.Count > 0 && data.PathToWorkshop.Count > 0 && data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
+        {
+            P.FollowPath.Move(data.PathToWorkshop, true);
+        }
+    }
+
     [EzIPCEvent] public Action OnHouseEnterError;
 }
