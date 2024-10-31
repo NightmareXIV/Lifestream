@@ -1,4 +1,5 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.Configuration;
+using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
 using Lifestream.Data;
@@ -113,6 +114,10 @@ public static class TabCustomAlias
     private static void DrawCommand(CustomAliasCommand command, CustomAlias selected)
     {
         ImGui.PushID(command.ID);
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Copy, "Copy"))
+        {
+            Copy(EzConfig.DefaultSerializationFactory.Serialize(command, false));
+        }
         var aetherytes = Ref<uint[]>.Get("Aetherytes", () => Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.Value?.Name?.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray());
         var aetherytePlaceNames = Ref<Dictionary<uint, string>>.Get("Aetherytes", () => aetherytes.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.PlaceName.Value.Name.ToString()));
 
