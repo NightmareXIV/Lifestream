@@ -9,6 +9,7 @@ using ECommons.MathHelpers;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -108,7 +109,11 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li island - go to island sanctuary
                 """);
             DataStore = new();
-            ProperOnLogin.RegisterAvailable(() => DataStore.BuildWorlds());
+            ProperOnLogin.RegisterAvailable(() =>
+            {
+                DataStore.BuildWorlds();
+                Config.CharaMap[Player.CID] = Player.NameWithWorld;
+            });
             Svc.Framework.Update += Framework_Update;
             Memory = new();
             //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
@@ -191,7 +196,7 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             else
             {
-                TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, innIndex:innNum, useSameWorld: !arguments.StartsWithAny("hinn"));
+                TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Inn, innIndex: innNum, useSameWorld: !arguments.StartsWithAny("hinn"));
             }
         }
         else if(arguments.EqualsAny("gc", "gcc", "hc", "hcc", "fcgc", "gcfc") || arguments.StartsWithAny("gc ", "gcc ", "hc ", "hcc ", "fcgc ", "gcfc "))
@@ -435,6 +440,16 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         ResidentialAethernet.Tick();
         CustomAethernet.Tick();
+        if(!Svc.ClientState.IsLoggedIn)
+        {
+            if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && m.IsAddonReady)
+            {
+                foreach(var chara in m.Characters)
+                {
+                    Config.CharaMap[chara.Entry->ContentId] = $"{chara.Name}@{ExcelWorldHelper.GetName(chara.HomeWorld)}";
+                }
+            }
+        }
     }
 
     public void Dispose()
