@@ -76,10 +76,17 @@ public static unsafe class CharaSelectVisit
         }
     }
 
-    public static void GuestToGuest(string destinationWorld, string charaName, uint homeWorld, string secondaryTeleport = null, bool noSecondaryTeleport = false, WorldChangeAetheryte? gateway = null, bool? doNotify = null, bool? returnToGateway = null, bool noLogin = false)
+    public static void GuestToGuest(string destinationWorld, string charaName, uint homeWorld, string secondaryTeleport = null, bool noSecondaryTeleport = false, WorldChangeAetheryte? gateway = null, bool? doNotify = null, bool? returnToGateway = null, bool noLogin = false, bool useSameWorldReturnHome = false)
     {
         ApplyDefaults(ref returnToGateway, ref gateway, ref doNotify);
-        TaskReturnToHomeDC.Enqueue(charaName, homeWorld);
+        if(useSameWorldReturnHome)
+        {
+            TaskReturnToHomeWorldCharaSelect.Enqueue(charaName, homeWorld);
+        }
+        else
+        {
+            TaskReturnToHomeDC.Enqueue(charaName, homeWorld);
+        }
         TaskChangeDatacenter.Enqueue(destinationWorld, charaName, homeWorld);
         if(!noLogin)
         {

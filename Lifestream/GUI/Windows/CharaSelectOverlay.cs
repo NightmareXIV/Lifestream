@@ -145,10 +145,12 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             //returning home
             if(isInHomeDc)
             {
+                PluginLog.Information($"CharaSelectVisit: Return - HomeToHome (1)");
                 CharaSelectVisit.HomeToHome(targetWorld.Name, charaName, homeWorld, noLogin:noLogin);
             }
             else
             {
+                PluginLog.Information($"CharaSelectVisit: Return - GuestToHome (2)");
                 CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
             }
         }
@@ -159,11 +161,13 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                 //visiting another DC
                 if(charaCurrentWorld.RowId == charaHomeWorld.RowId)
                 {
+                    PluginLog.Information($"CharaSelectVisit: Visit DC - HomeToGuest (3)");
                     CharaSelectVisit.HomeToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
                 }
                 else
                 {
-                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
+                    PluginLog.Information($"CharaSelectVisit: Visit DC - GuestToGuest (5)");
+                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin, useSameWorldReturnHome: isInHomeDc);
                 }
             }
             else
@@ -172,11 +176,13 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                 if(isInHomeDc || P.Config.UseGuestWorldTravel)
                 {
                     //just log in and use world visit
+                    PluginLog.Information($"CharaSelectVisit: Visit World - GuestToHome (6)");
                     CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, skipReturn: true, noLogin: noLogin);
                 }
                 else
                 {
                     //special guest to guest sequence
+                    PluginLog.Information($"CharaSelectVisit: Visit World - GuestToGuest (7)");
                     CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
                 }
             }
