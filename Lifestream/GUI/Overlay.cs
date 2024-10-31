@@ -95,15 +95,15 @@ internal class Overlay : Window
             actions.Add(DrawInstances);
         }
 
-        if (actions.Count == 1)
+        if(actions.Count == 1)
         {
             Safe(actions[0]);
         }
         else
         {
-            if (ImGui.BeginTable("LifestreamTable", Math.Max(1, actions.Count), ImGuiTableFlags.NoSavedSettings))
+            if(ImGui.BeginTable("LifestreamTable", Math.Max(1, actions.Count), ImGuiTableFlags.NoSavedSettings))
             {
-                foreach (var action in actions)
+                foreach(var action in actions)
                 {
                     ImGui.TableNextColumn();
                     Safe(action);
@@ -112,7 +112,7 @@ internal class Overlay : Window
             }
         }
 
-        if (P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+        if(P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
         {
             if(ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
             {

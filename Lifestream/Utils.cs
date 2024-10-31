@@ -1167,7 +1167,7 @@ internal static unsafe class Utils
     internal static void CheckConfigMigration()
     {
         // int ButtonWidth -> int[3] ButtonWidthArray
-        if (P.Config.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
+        if(P.Config.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
         EzConfig.Save();
     }
 

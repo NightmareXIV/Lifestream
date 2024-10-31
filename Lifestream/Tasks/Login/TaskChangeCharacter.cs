@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.Login;
-public unsafe static class TaskChangeCharacter
+public static unsafe class TaskChangeCharacter
 {
     public static void Enqueue(string currentWorld, string charaName, string charaWorld, int account)
     {
@@ -231,9 +231,9 @@ public unsafe static class TaskChangeCharacter
         {
             return true;
         }
-        if(Svc.ClientState.IsLoggedIn) 
-        { 
-            return true; 
+        if(Svc.ClientState.IsLoggedIn)
+        {
+            return true;
         }
         if(TryGetAddonMaster<AddonMaster.SelectYesno>(out var m) && m.IsAddonReady)
         {

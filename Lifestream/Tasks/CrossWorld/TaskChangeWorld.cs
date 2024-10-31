@@ -58,7 +58,7 @@ internal static unsafe class TaskChangeWorld
             }
             if(EzThrottler.Check("RetryWorldVisit"))
             {
-                WorldVisitRand = Random.Shared.Next(0, P.Config.RetryWorldVisitIntervalDelta*1000);
+                WorldVisitRand = Random.Shared.Next(0, P.Config.RetryWorldVisitIntervalDelta * 1000);
                 P.TaskManager.BeginStack();
                 TaskChangeWorld.Enqueue(targetWorld);
                 P.TaskManager.EnqueueStack();

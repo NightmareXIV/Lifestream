@@ -43,7 +43,7 @@ public static class TabTravelBan
             ImGui.TableSetupColumn("##control");
 
             ImGui.TableHeadersRow();
-            for(int i = 0; i < P.Config.TravelBans.Count; i++)
+            for(var i = 0; i < P.Config.TravelBans.Count; i++)
             {
                 var entry = P.Config.TravelBans[i];
                 ImGui.PushID(entry.ID);

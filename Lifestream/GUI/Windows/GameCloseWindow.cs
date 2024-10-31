@@ -16,8 +16,8 @@ public class GameCloseWindow : Window
     };
     public GameCloseWindow() : base("Lifestream Scheduler", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.AlwaysAutoResize)
     {
-        this.RespectCloseHotkey = false;
-        this.ShowCloseButton = false;
+        RespectCloseHotkey = false;
+        ShowCloseButton = false;
     }
 
     public override void Draw()

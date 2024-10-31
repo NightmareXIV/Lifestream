@@ -285,7 +285,7 @@ internal static unsafe class WorldChange
 
     internal static bool ClosePF()
     {
-        if (TryGetAddonMaster<AddonMaster.LookingForGroupDetail>(out var m))
+        if(TryGetAddonMaster<AddonMaster.LookingForGroupDetail>(out var m))
         {
             if(m.IsAddonReady && Utils.GenericThrottle) Callback.Fire(m.Base, true, -1);
         }
