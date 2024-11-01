@@ -15,12 +15,109 @@ public static unsafe class UIHouseReg
     {
         if(Player.Available)
         {
-            NuiTools.ButtonTabs([[new("Private House", DrawPrivate), new("Free Company House", DrawFC)]]);
+            NuiTools.ButtonTabs([[new("Private House", DrawPrivate), new("Free Company House", DrawFC), new("Overview", DrawOverview)]]);
         }
         else
         {
-            ImGuiEx.TextWrapped("Please log in to use this feature.");
+            ImGuiEx.TextWrapped("Please log in to be able to create and edit registrations. ");
+            DrawOverview();
         }
+    }
+
+    private static void DrawOverview()
+    {
+        var charas = P.Config.HousePathDatas.Select(x => x.CID).Distinct();
+        if(ImGui.BeginTable("##charaTable", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoSavedSettings))
+        {
+            ImGui.TableSetupColumn("Name or CID", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("Private");
+            ImGui.TableSetupColumn("FC");
+            ImGui.TableSetupColumn("Workshop");
+            ImGui.TableHeadersRow();
+
+            foreach(var x in charas)
+            {
+                ImGui.PushID($"{x}");
+                var priv = P.Config.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x);
+                var fc = P.Config.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x);
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGuiEx.TextV($"{Utils.GetCharaName(x)}");
+                ImGui.TableNextColumn();
+                if(priv != null)
+                {
+                    NuiTools.RenderResidentialIcon((uint)priv.ResidentialDistrict.GetResidentialTerritory());
+                    ImGui.SameLine();
+                    ImGuiEx.Text($"W{priv.Ward + 1}, P{priv.Plot + 1}{(priv.PathToEntrance.Count > 0 ? ", +path" : "")}");
+                    ImGui.SameLine();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DelePrivate"))
+                    {
+                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == x));
+                    }
+                    ImGuiEx.Tooltip("Cancel private house registration");
+                    if(priv.PathToEntrance.Count > 0)
+                    {
+                        ImGui.SameLine();
+                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DelePrivatePath"))
+                        {
+                            priv.PathToEntrance.Clear();
+                        }
+                        ImGuiEx.Tooltip("Delete path to private house");
+                    }
+                }
+                else
+                {
+                    ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                }
+
+                ImGui.TableNextColumn();
+                if(fc != null)
+                {
+                    NuiTools.RenderResidentialIcon((uint)fc.ResidentialDistrict.GetResidentialTerritory());
+                    ImGui.SameLine();
+                    ImGuiEx.Text($"W{fc.Ward + 1}, P{fc.Plot + 1}{(fc.PathToEntrance.Count > 0 ? ", +path" : "")}");
+                    ImGui.SameLine();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DeleFc"))
+                    {
+                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == x));
+                    }
+                    ImGuiEx.Tooltip("Cancel FC house registration");
+                    if(fc.PathToEntrance.Count > 0)
+                    {
+                        ImGui.SameLine();
+                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcPath"))
+                        {
+                            fc.PathToEntrance.Clear();
+                        }
+                        ImGuiEx.Tooltip("Delete path to FC house");
+                    }
+                }
+                else
+                {
+                    ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                }
+
+                ImGui.TableNextColumn();
+                if(fc == null || fc.PathToWorkshop.Count == 0)
+                {
+                    ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                }
+                else
+                {
+                    ImGuiEx.TextV($"{fc.PathToWorkshop.Count} points");
+                    ImGui.SameLine();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcWorkshopPath"))
+                    {
+                        fc.PathToWorkshop.Clear();
+                    }
+                    ImGuiEx.Tooltip("Delete path to workshop");
+                }
+                ImGui.PopID();
+            }
+
+            ImGui.EndTable();
+        }
+        
     }
 
     private static void DrawFC()

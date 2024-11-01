@@ -32,6 +32,7 @@ public static unsafe class TaskMBShortcut
         P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
         P.TaskManager.Enqueue(() =>
         {
+            if(!Utils.DismountIfNeeded()) return false;
             if(!GetMarketBoard().IsTarget())
             {
                 if(EzThrottler.Throttle("TargetMB")) Svc.Targets.Target = GetMarketBoard();

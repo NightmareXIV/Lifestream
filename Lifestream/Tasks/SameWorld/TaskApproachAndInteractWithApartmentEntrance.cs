@@ -47,6 +47,7 @@ public static class TaskApproachAndInteractWithApartmentEntrance
     public static unsafe bool InteractWithApartmentEntrance()
     {
         if(Player.IsAnimationLocked) return false;
+        if(!Utils.DismountIfNeeded()) return false;
         if(Svc.Targets.Target?.ObjectKind == ObjectKind.EventObj && Svc.Targets.Target?.DataId == 2007402)
         {
             if(EzThrottler.Throttle("InteractWithApartment", 5000))

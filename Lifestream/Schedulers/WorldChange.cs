@@ -42,6 +42,7 @@ internal static unsafe class WorldChange
     {
         if(!Player.Available) return false;
         if(Player.IsAnimationLocked) return false;
+        if(!Utils.DismountIfNeeded()) return false;
         if(IsOccupied()) return false;
         var a = Utils.GetValidAetheryte();
         if(a != null && Svc.Targets.Target?.Address == a.Address)

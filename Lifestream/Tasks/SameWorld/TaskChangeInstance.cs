@@ -90,6 +90,7 @@ public static unsafe class TaskChangeInstance
     public static bool InteractWithAetheryte()
     {
         if(Svc.Condition[ConditionFlag.OccupiedInQuestEvent]) return true;
+        if(!Utils.DismountIfNeeded()) return false;
         var aetheryte = GetAetheryte() ?? throw new NullReferenceException();
         if(aetheryte.IsTarget())
         {

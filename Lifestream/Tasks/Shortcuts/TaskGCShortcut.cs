@@ -30,16 +30,16 @@ public static unsafe class TaskGCShortcut
 
     public static Dictionary<GrandCompany, CustomAlias> CompanyNPCCommands => new()
     {
-        [GrandCompany.ImmortalFlames] = GCAlias.UldahGC,
-        [GrandCompany.Maelstrom] = GCAlias.LimsaGC,
-        [GrandCompany.TwinAdder] = GCAlias.GridaniaGC,
+        [GrandCompany.ImmortalFlames] = StaticAlias.UldahGC,
+        [GrandCompany.Maelstrom] = StaticAlias.LimsaGC,
+        [GrandCompany.TwinAdder] = StaticAlias.GridaniaGC,
     };
 
     public static Dictionary<GrandCompany, CustomAlias> CompanyChestCommands => new()
     {
-        [GrandCompany.ImmortalFlames] = GCAlias.UldahGCC,
-        [GrandCompany.Maelstrom] = GCAlias.LimsaGCC,
-        [GrandCompany.TwinAdder] = GCAlias.GridaniaGCC,
+        [GrandCompany.ImmortalFlames] = StaticAlias.UldahGCC,
+        [GrandCompany.Maelstrom] = StaticAlias.LimsaGCC,
+        [GrandCompany.TwinAdder] = StaticAlias.GridaniaGCC,
     };
 
     public static readonly Dictionary<GrandCompany, uint> CompanyTerritory = new()

@@ -1,10 +1,13 @@
-﻿using ECommons.GameFunctions;
+﻿using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Automation.NeoTaskManager.Tasks;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using Lifestream.Data;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 
@@ -65,62 +68,26 @@ public static unsafe class TaskISShortcut
         P.TaskManager.Enqueue(() =>
         {
             if(Player.Territory == IslandTerritories.Island)
+            {
                 EnqueueNavToNPC(point);
-            else if(Player.Territory == IslandTerritories.Moraby)
-                TravelToIsland();
+            }
             else
-                EnqueueFromStart();
+            {
+                TravelToIsland();
+            }
         });
 
-        void EnqueueFromStart()
-        {
-            if(Player.Territory != IslandTerritories.Moraby)
-            {
-                TaskTpAndWaitForArrival.Enqueue(10);
-                P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Moraby, "WaitUntilPlayerInteractableInMoraby", TaskSettings.Timeout2M);
-            }
-            TravelToIsland();
-        }
+        IGameObject baldin() => Svc.Objects.FirstOrDefault(x => x.DataId == (uint)IslandNPC.Baldin);
 
         void TravelToIsland()
         {
-            if(Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) > 3f)
-                P.TaskManager.Enqueue(EnqueueBaldinNavigation);
-            P.TaskManager.Enqueue(InteractWithBaldin);
+            StaticAlias.IslandSanctuary.Enqueue(true);
+            P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(baldin, 6.5f));
+            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(baldin));
             P.TaskManager.Enqueue(TalkWithBaldin);
             P.TaskManager.Enqueue(ConfirmIslandTravel);
             P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Island, "WaitUntilPlayerInteractableOnIsland", TaskSettings.Timeout2M);
             P.TaskManager.Enqueue(() => EnqueueNavToNPC(point));
-        }
-
-        bool EnqueueBaldinNavigation()
-        {
-            if(P.VnavmeshManager.PathfindInProgress() || P.VnavmeshManager.IsRunning() || AgentMap.Instance()->IsPlayerMoving == 1) return false;
-            P.VnavmeshManager.PathfindAndMoveTo(NPCPoints[IslandNPC.Baldin], false);
-            return Vector3.Distance(Player.Position, NPCPoints[IslandNPC.Baldin]) < 3f && !P.VnavmeshManager.IsRunning();
-        }
-
-        bool InteractWithBaldin()
-        {
-            if(Svc.Condition[ConditionFlag.OccupiedInQuestEvent]) return true;
-            var baldin = Svc.Objects.FirstOrDefault(x => x.DataId == (uint)IslandNPC.Baldin);
-            if(baldin.IsTarget())
-            {
-                if(EzThrottler.Throttle(nameof(InteractWithBaldin)))
-                {
-                    TargetSystem.Instance()->InteractWithObject(baldin.Struct(), false);
-                    return false;
-                }
-            }
-            else
-            {
-                if(EzThrottler.Throttle("BaldinSetTarget"))
-                {
-                    Svc.Targets.Target = baldin;
-                    return false;
-                }
-            }
-            return false;
         }
 
         bool TalkWithBaldin()
@@ -147,6 +114,18 @@ public static unsafe class TaskISShortcut
         void EnqueueNavToNPC(Vector3 point)
         {
             P.TaskManager.Enqueue(Utils.WaitForScreen);
+            P.TaskManager.Enqueue(() =>
+            {
+                if(!(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "vnavmesh" && x.IsLoaded)))
+                {
+                    PluginLog.Warning($"Navmesh not found, will not continue navigation");
+                    return null;
+                }
+                else
+                {
+                    return true;
+                }
+            });
             P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
             P.TaskManager.Enqueue(() =>
             {

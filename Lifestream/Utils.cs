@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
+using ECommons.Automation;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
@@ -34,6 +35,12 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static string GetCharaName(ulong cid)
+    {
+        if(P.Config.CharaMap.TryGetValue(cid, out var name)) return name;
+        return $"#{cid:X16}";
+    }
+
     public static void ReadClipboardFiles()
     {
         try
@@ -53,6 +60,46 @@ internal static unsafe class Utils
         {
             e.Log();
         }
+    }
+
+    public static bool IsMountedEx()
+    {
+        if(Svc.Condition[ConditionFlag.Mounted]) return true;
+        if(IsPlayerFalling()) return true;
+        return false;
+    }
+
+    public static bool DismountIfNeeded()
+    {
+        if(Utils.IsMountedEx())
+        {
+            EzThrottler.Throttle("PlayerMounted", 200, true);
+            if(EzThrottler.Throttle("DismountPlayer", 1000))
+            {
+                Chat.Instance.ExecuteGeneralAction(23);
+            }
+            return false;
+        }
+        if(!EzThrottler.Check("PlayerMounted")) return false;
+        return true;
+    }
+
+    public static bool IsPlayerFalling()
+    {
+        var p = Svc.ClientState.LocalPlayer;
+        if(p == null)
+            return true;
+
+        // 0 if grounded
+        // 1 = "jumpsquat"
+        // 3 = going up
+        // 4 = stopped
+        // 5 = going down
+        var isJumping = *(byte*)(p.Address + 736) > 0;
+        // 1 iff dismounting and haven't hit the ground yet
+        var isAirDismount = **(byte**)(p.Address + 1432) == 1;
+
+        return isJumping || isAirDismount;
     }
 
     public static void DrawWorldSelector(ICollection<int> worldList)

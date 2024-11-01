@@ -147,6 +147,7 @@ public static unsafe class TaskPropertyShortcut
             {
                 P.TaskManager.Enqueue(() =>
                 {
+                    if(!Utils.DismountIfNeeded()) return false;
                     var e = Utils.GetNearestEntrance(out var dist);
                     if(e != null && dist < 10f)
                     {
@@ -201,6 +202,7 @@ public static unsafe class TaskPropertyShortcut
             {
                 var obj = Svc.Objects.FirstOrDefault(x => x.DataId.EqualsAny(InnNpc) && x.ObjectKind == ObjectKind.EventNpc && x.IsTargetable && Vector3.Distance(x.Position, Player.Position) < 10f);
                 if(obj == null) return false;
+                if(!Utils.DismountIfNeeded()) return false;
                 if(obj.IsTarget())
                 {
                     if(EzThrottler.Throttle("InteractInnNpc", 1000))
