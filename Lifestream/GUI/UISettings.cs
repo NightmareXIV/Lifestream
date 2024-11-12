@@ -144,6 +144,7 @@ internal static unsafe class UISettings
         })
 
         .Section("Movement")
+        .Checkbox("Use Mount Roulette when auto-moving", () => ref P.Config.UseMount)
         .Checkbox("Use Sprint and Peloton when auto-moving", () => ref P.Config.UseSprintPeloton)
 
         .Section("Character Select Menu")

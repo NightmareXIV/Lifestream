@@ -76,4 +76,5 @@ public class Config : IEzConfig
     public List<TravelBanInfo> TravelBans = [];
     public bool TerminateSelfPartyFinder = false;
     public Dictionary<ulong, string> CharaMap = [];
+    public bool UseMount = true;
 }

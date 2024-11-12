@@ -19,8 +19,30 @@ public static unsafe class TaskMoveToHouse
 
     public static bool? UseSprint()
     {
-        if(!P.Config.UseSprintPeloton) return true;
         if(Player.IsAnimationLocked) return false;
+        if(P.Config.UseMount)
+        {
+            if(Svc.Condition[ConditionFlag.Casting] || Svc.Condition[ConditionFlag.Unknown57])
+            {
+                EzThrottler.Throttle("MountForceStop", 200, true);
+                return false;
+            }
+            if(Svc.Condition[ConditionFlag.Mounted]) return true;
+            if(!EzThrottler.Check("MountForceStop")) return false;
+            if(ActionManager.Instance()->GetActionStatus(ActionType.GeneralAction, 9) == 0)
+            {
+                if(EzThrottler.Throttle("UseMount", 3000))
+                {
+                    Chat.Instance.ExecuteGeneralAction(9);
+                }
+            }
+            else
+            {
+                return true;
+            }
+            return false;
+        }
+        if(!P.Config.UseSprintPeloton) return true;
         if(Player.Object.StatusList.Any(x => x.StatusId.EqualsAny<uint>(50, 1199))) return true;
         uint[] abilities = [3, 7557];
         foreach(var ability in abilities)

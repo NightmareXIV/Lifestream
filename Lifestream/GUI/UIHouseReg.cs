@@ -11,6 +11,8 @@ namespace Lifestream.GUI;
 #nullable enable
 public static unsafe class UIHouseReg
 {
+    public static ImGuiEx.RealtimeDragDrop PathDragDrop = new("UIHouseReg");
+
     public static void Draw()
     {
         if(Player.Available)
@@ -252,6 +254,7 @@ public static unsafe class UIHouseReg
                 }
             }
         }
+        PathDragDrop.Begin();
         if(ImGui.BeginTable($"pathtable", 4, ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn("##num");
@@ -271,19 +274,12 @@ public static unsafe class UIHouseReg
                 ImGui.PushID($"point{i}");
                 var p = path[i];
                 ImGui.TableNextRow();
+                PathDragDrop.SetRowColor(p.ToString());
                 ImGui.TableNextColumn();
+                PathDragDrop.NextRow();
                 ImGuiEx.TextV($"{i + 1}");
                 ImGui.TableNextColumn();
-                if(ImGui.ArrowButton("##up", ImGuiDir.Up) && i > 0)
-                {
-                    (path[i - 1], path[i]) = (path[i], path[i - 1]);
-                }
-                Visualise();
-                ImGui.SameLine();
-                if(ImGui.ArrowButton("##down", ImGuiDir.Down) && i < path.Count - 1)
-                {
-                    (path[i - 1], path[i]) = (path[i], path[i - 1]);
-                }
+                PathDragDrop.DrawButtonDummy(p, path, (x) => x.ToString(), i);
                 Visualise();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"{p:F1}");
@@ -326,6 +322,7 @@ public static unsafe class UIHouseReg
 
             ImGui.EndTable();
         }
+        PathDragDrop.End();
 
         P.SplatoonManager.RenderPath(path, false, true);
     }
