@@ -22,7 +22,7 @@ using Lifestream.GUI;
 using Lifestream.Systems.Legacy;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.CrossDC;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using NightmareUI;
 using PInvoke;
 using System.Collections.Specialized;
@@ -115,11 +115,11 @@ internal static unsafe class Utils
             foreach(var d in dc)
             {
                 var worlds = ExcelWorldHelper.GetPublicWorlds(d.RowId);
-                ImGuiEx.CollectionCheckbox(d.Name, worlds.Select(x => (int)x.RowId), worldList);
+                ImGuiEx.CollectionCheckbox(d.Name.ToString(), worlds.Select(x => (int)x.RowId), worldList);
                 ImGui.Indent();
                 foreach(var w in worlds.OrderBy(x => x.Name.ToString()))
                 {
-                    ImGuiEx.CollectionCheckbox(w.Name, (int)w.RowId, worldList);
+                    ImGuiEx.CollectionCheckbox(w.Name.ToString(), (int)w.RowId, worldList);
                 }
                 ImGui.Unindent();
             }
@@ -130,7 +130,7 @@ internal static unsafe class Utils
 
     public static bool IsTravelBlocked(string charaName, Number charaWorld, Number sourceWorld, string targetWorld)
     {
-        return IsTravelBlocked(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).RowId);
+        return IsTravelBlocked(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).Value.RowId);
     }
 
     public static bool IsTravelBlocked(string charaName, Number charaWorld, Number sourceWorld, Number targetWorld)
@@ -150,7 +150,7 @@ internal static unsafe class Utils
 
     public static void AssertCanTravel(string charaName, Number charaWorld, Number sourceWorld, string targetWorld)
     {
-        AssertCanTravel(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).RowId);
+        AssertCanTravel(charaName, charaWorld, sourceWorld, ExcelWorldHelper.Get(targetWorld).Value.RowId);
     }
 
     public static void AssertCanTravel(string charaName, Number charaWorld, Number sourceWorld, Number targetWorld)
@@ -418,7 +418,7 @@ internal static unsafe class Utils
                 var worlds = ExcelWorldHelper.GetPublicWorlds(x.RowId);
                 if(worlds.Length > 0)
                 {
-                    world = worlds[Random.Shared.Next(worlds.Length)].Name;
+                    world = worlds[Random.Shared.Next(worlds.Length)].Name.ToString();
                     dataCenter = x.RowId;
                     if(P.DataStore.Worlds.Contains(world) || P.DataStore.DCWorlds.Contains(world))
                     {
@@ -534,7 +534,7 @@ internal static unsafe class Utils
             var entry = new AddressBookEntry()
             {
                 City = city.Value,
-                World = (int)world.RowId,
+                World = (int)world?.RowId,
                 PropertyType = isApartment ? PropertyType.Apartment : PropertyType.House,
                 Ward = ward,
                 Apartment = plot,
@@ -598,7 +598,7 @@ internal static unsafe class Utils
     {
         if(P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward - 1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
         var h = HousingManager.Instance();
-        return h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.Id;
+        return h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.RowId;
     }
 
     public static void GoTo(this AddressBookEntry entry)
@@ -795,13 +795,12 @@ internal static unsafe class Utils
     internal static string GetInnNameFromTerritory(uint tt)
     {
         if(tt == 0) return "Autodetect";
-        var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(tt);
-        if(t != null)
+        if(Svc.Data.GetExcelSheet<TerritoryType>().TryGetRow(tt, out var t))
         {
-            var inn = Svc.Data.GetExcelSheet<TerritoryType>().FirstOrDefault(x => x.PlaceNameRegion.Value?.RowId == t.PlaceNameRegion.Value.RowId && x.TerritoryIntendedUse == (int)TerritoryIntendedUseEnum.Inn);
+            var inn = Svc.Data.GetExcelSheet<TerritoryType>().FirstOrNull(x => x.PlaceNameRegion.ValueNullable?.RowId == t.PlaceNameRegion.Value.RowId && x.TerritoryIntendedUse.RowId == (int)TerritoryIntendedUseEnum.Inn);
             if(inn != null)
             {
-                return inn.PlaceNameZone.Value.Name;
+                return inn.Value.PlaceNameZone.Value.Name.ToString();
             }
         }
         return "???";
@@ -957,7 +956,7 @@ internal static unsafe class Utils
     }
     internal static string GetName(this ResidentialAetheryteKind r)
     {
-        return ExcelTerritoryHelper.Get(r.GetResidentialTerritory()).PlaceName.Value?.Name;
+        return ExcelTerritoryHelper.Get(r.GetResidentialTerritory())?.PlaceName.ValueNullable?.Name.ToString();
     }
 
     internal static uint GetTerritory(this WorldChangeAetheryte r)
@@ -967,13 +966,13 @@ internal static unsafe class Utils
 
     internal static ResidentialAetheryteKind? GetResidentialAetheryteByTerritoryType(uint territoryType)
     {
-        var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRow(territoryType);
+        var t = Svc.Data.GetExcelSheet<TerritoryType>().GetRowOrDefault(territoryType);
         if(t == null) return null;
-        if(t.PlaceNameRegion.Row == 2402) return ResidentialAetheryteKind.Kugane;
-        if(t.PlaceNameRegion.Row == 25) return ResidentialAetheryteKind.Foundation;
-        if(t.PlaceNameRegion.Row == 23) return ResidentialAetheryteKind.Gridania;
-        if(t.PlaceNameRegion.Row == 24) return ResidentialAetheryteKind.Uldah;
-        if(t.PlaceNameRegion.Row == 22) return ResidentialAetheryteKind.Limsa;
+        if(t.Value.PlaceNameRegion.RowId == 2402) return ResidentialAetheryteKind.Kugane;
+        if(t.Value.PlaceNameRegion.RowId == 25) return ResidentialAetheryteKind.Foundation;
+        if(t.Value.PlaceNameRegion.RowId == 23) return ResidentialAetheryteKind.Gridania;
+        if(t.Value.PlaceNameRegion.RowId == 24) return ResidentialAetheryteKind.Uldah;
+        if(t.Value.PlaceNameRegion.RowId == 22) return ResidentialAetheryteKind.Limsa;
         return null;
     }
 

@@ -4,7 +4,7 @@ using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using Lifestream.Tasks.SameWorld;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskMBShortcut
@@ -17,7 +17,7 @@ public static unsafe class TaskMBShortcut
         {
             TaskReturnToGateway.Enqueue(Enums.WorldChangeAetheryte.Uldah, true);
         }
-        TaskTryTpToAethernetDestination.Enqueue(Svc.Data.GetExcelSheet<Aetheryte>().GetRow(125).AethernetName.Value.Name);
+        TaskTryTpToAethernetDestination.Enqueue(Svc.Data.GetExcelSheet<Aetheryte>().GetRow(125).AethernetName.Value.Name.ToString());
         P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
         P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
         P.TaskManager.Enqueue(() =>

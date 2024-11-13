@@ -18,7 +18,7 @@ public static unsafe class CharaSelectVisit
         if(!noLogin)
         {
             TaskSelectChara.Enqueue(charaName, homeWorld);
-            if(ExcelWorldHelper.Get(homeWorld).Name != destinationWorld)
+            if(ExcelWorldHelper.Get(homeWorld)?.Name != destinationWorld)
             {
                 P.TaskManager.EnqueueMulti([
                     new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),
@@ -43,7 +43,7 @@ public static unsafe class CharaSelectVisit
         if(!noLogin)
         {
             TaskSelectChara.Enqueue(charaName, homeWorld);
-            if(ExcelWorldHelper.Get(homeWorld).Name != destinationWorld)
+            if(ExcelWorldHelper.Get(homeWorld)?.Name != destinationWorld)
             {
                 P.TaskManager.EnqueueMulti([
                     new(WorldChange.WaitUntilNotBusy, TaskSettings.TimeoutInfinite),

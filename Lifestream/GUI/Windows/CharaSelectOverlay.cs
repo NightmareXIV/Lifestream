@@ -4,7 +4,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Systems;
 using Lifestream.Tasks.Login;
 using System.Xml.Serialization;
-using World = Lumina.Excel.GeneratedSheets.World;
+using World = Lumina.Excel.Sheets.World;
 
 namespace Lifestream.GUI.Windows;
 public unsafe class CharaSelectOverlay : EzOverlayWindow
@@ -39,7 +39,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             ImGuiEx.Text($"Error: for world {homeWorldData} no data found");
             return;
         }
-        var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).OrderBy(x => x.Name.ToString()).ToArray();
+        var worlds = Utils.GetVisitableWorldsFrom(homeWorldData.Value).OrderBy(x => x.Name.ToString()).ToArray();
         if(worlds.Length == 0)
         {
             ImGuiEx.Text($"No available destinations");
@@ -57,14 +57,14 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             {
                 ImGui.Checkbox("Do not log in after transfer", ref NoLogin);
             });
-            var datacenters = worlds.Select(x => x.DataCenter).DistinctBy(x => x.Row).OrderBy(x => x.Value.Region).ToArray();
+            var datacenters = worlds.Select(x => x.DataCenter).DistinctBy(x => x.RowId).OrderBy(x => x.Value.Region).ToArray();
             if(ImGui.BeginTable("LifestreamSelectWorld", datacenters.Length, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersV | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.NoSavedSettings))
             {
                 foreach(var dc in datacenters)
                 {
                     var modifier = "";
-                    if(ExcelWorldHelper.Get(chara.HomeWorld).DataCenter.Row == dc.Row) modifier += "";
-                    if(ExcelWorldHelper.Get(chara.CurrentWorld).DataCenter.Row != dc.Row) modifier += "";
+                    if(ExcelWorldHelper.Get(chara.HomeWorld)?.DataCenter.RowId == dc.RowId) modifier += "";
+                    if(ExcelWorldHelper.Get(chara.CurrentWorld)?.DataCenter.RowId != dc.RowId) modifier += "";
                     ImGui.TableSetupColumn($"{modifier}{dc.Value.Name}");
                 }
                 ImGui.TableHeadersRow();
@@ -72,7 +72,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                 var buttonSize = Vector2.Zero;
                 foreach(var w in worlds)
                 {
-                    var newSize = ImGuiHelpers.GetButtonSize("" + w.Name);
+                    var newSize = ImGuiHelpers.GetButtonSize("" + w.Name.ToString());
                     if(newSize.X > buttonSize.X) buttonSize = newSize;
                 }
                 buttonSize += new Vector2(0, P.Config.ButtonHeightWorld);
@@ -81,11 +81,11 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                     ImGui.TableNextColumn();
                     foreach(var world in worlds)
                     {
-                        if(world.DataCenter.Row == dc.Row)
+                        if(world.DataCenter.RowId == dc.RowId)
                         {
                             var modifier = "";
                             if(CharaWorld == world.RowId) modifier += "";
-                            if(ImGuiEx.Button(modifier + world.Name, buttonSize, !Utils.IsBusy() && chara.CurrentWorld != world.RowId))
+                            if(ImGuiEx.Button(modifier + world.Name.ToString(), buttonSize, !Utils.IsBusy() && chara.CurrentWorld != world.RowId))
                             {
                                 if(chara.IsVisitingAnotherDC)
                                 {
@@ -139,35 +139,35 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             e.Log();
             return;
         }
-        var isInHomeDc = charaCurrentWorld.DataCenter.Row == charaHomeWorld.DataCenter.Row;
-        if(targetWorld.RowId == charaHomeWorld.RowId)
+        var isInHomeDc = charaCurrentWorld?.DataCenter.RowId == charaHomeWorld?.DataCenter.RowId;
+        if(targetWorld.RowId == charaHomeWorld?.RowId)
         {
             //returning home
             if(isInHomeDc)
             {
                 PluginLog.Information($"CharaSelectVisit: Return - HomeToHome (1)");
-                CharaSelectVisit.HomeToHome(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
+                CharaSelectVisit.HomeToHome(targetWorld.Name.ToString(), charaName, homeWorld, noLogin: noLogin);
             }
             else
             {
                 PluginLog.Information($"CharaSelectVisit: Return - GuestToHome (2)");
-                CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
+                CharaSelectVisit.GuestToHome(targetWorld.Name.ToString(), charaName, homeWorld, noLogin: noLogin);
             }
         }
         else
         {
-            if(targetWorld.DataCenter.Row != charaCurrentWorld.DataCenter.Row)
+            if(targetWorld.DataCenter.RowId != charaCurrentWorld?.DataCenter.RowId)
             {
                 //visiting another DC
-                if(charaCurrentWorld.RowId == charaHomeWorld.RowId)
+                if(charaCurrentWorld?.RowId == charaHomeWorld?.RowId)
                 {
                     PluginLog.Information($"CharaSelectVisit: Visit DC - HomeToGuest (3)");
-                    CharaSelectVisit.HomeToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
+                    CharaSelectVisit.HomeToGuest(targetWorld.Name.ToString(), charaName, homeWorld, noLogin: noLogin);
                 }
                 else
                 {
                     PluginLog.Information($"CharaSelectVisit: Visit DC - GuestToGuest (5)");
-                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin, useSameWorldReturnHome: isInHomeDc);
+                    CharaSelectVisit.GuestToGuest(targetWorld.Name.ToString(), charaName, homeWorld, noLogin: noLogin, useSameWorldReturnHome: isInHomeDc);
                 }
             }
             else
@@ -177,13 +177,13 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                 {
                     //just log in and use world visit
                     PluginLog.Information($"CharaSelectVisit: Visit World - GuestToHome (6)");
-                    CharaSelectVisit.GuestToHome(targetWorld.Name, charaName, homeWorld, skipReturn: true, noLogin: noLogin);
+                    CharaSelectVisit.GuestToHome(targetWorld.Name.ToString(), charaName, homeWorld, skipReturn: true, noLogin: noLogin);
                 }
                 else
                 {
                     //special guest to guest sequence
                     PluginLog.Information($"CharaSelectVisit: Visit World - GuestToGuest (7)");
-                    CharaSelectVisit.GuestToGuest(targetWorld.Name, charaName, homeWorld, noLogin: noLogin);
+                    CharaSelectVisit.GuestToGuest(targetWorld.Name.ToString(), charaName, homeWorld, noLogin: noLogin);
                 }
             }
         }

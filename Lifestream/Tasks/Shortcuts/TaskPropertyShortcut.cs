@@ -11,7 +11,7 @@ using Lifestream.Data;
 using Lifestream.Schedulers;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskPropertyShortcut
@@ -182,7 +182,7 @@ public static unsafe class TaskPropertyShortcut
             var id = innIndex == null ? GetInnTerritoryId() : InnData.Keys.ElementAt(innIndex.Value);
             PluginLog.Debug($"Inn territory: {ExcelTerritoryHelper.GetName(id)}");
             var data = InnData[id];
-            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.Row == id);
+            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.RowId == id);
             if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && (Utils.GetReachableMasterAetheryte() == null || id != Player.Territory))
             {
                 P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(aetheryte.RowId, 0));
@@ -329,10 +329,10 @@ public static unsafe class TaskPropertyShortcut
     {
         if(P.Config.PreferredInn != 0)
         {
-            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().FirstOrDefault(x => x.IsAetheryte && x.Territory.Row == P.Config.PreferredInn);
-            if(aetheryte != null && Svc.AetheryteList.Any(a => a.AetheryteId == aetheryte.RowId))
+            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().FirstOrNull(x => x.IsAetheryte && x.Territory.RowId == P.Config.PreferredInn);
+            if(aetheryte != null && Svc.AetheryteList.Any(a => a.AetheryteId == aetheryte?.RowId))
             {
-                return aetheryte.Territory.Row;
+                return aetheryte.Value.Territory.RowId;
             }
         }
         return P.Config.WorldChangeAetheryte.GetTerritory();

@@ -11,7 +11,7 @@ namespace Lifestream.GUI;
 #nullable enable
 public static unsafe class UIHouseReg
 {
-    public static ImGuiEx.RealtimeDragDrop PathDragDrop = new("UIHouseReg");
+    public static ImGuiEx.RealtimeDragDrop<Vector3> PathDragDrop = new("UIHouseReg", (x) => x.ToString());
 
     public static void Draw()
     {
@@ -279,7 +279,7 @@ public static unsafe class UIHouseReg
                 PathDragDrop.NextRow();
                 ImGuiEx.TextV($"{i + 1}");
                 ImGui.TableNextColumn();
-                PathDragDrop.DrawButtonDummy(p, path, (x) => x.ToString(), i);
+                PathDragDrop.DrawButtonDummy(p, path, i);
                 Visualise();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"{p:F1}");

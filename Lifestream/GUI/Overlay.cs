@@ -312,7 +312,7 @@ internal class Overlay : Window
 
     private void DrawWorldVisit()
     {
-        var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.GameData.Name.ToString();
+        var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.ValueNullable?.Name.ToString();
         foreach(var x in P.DataStore.Worlds)
         {
             ResizeButton(x);

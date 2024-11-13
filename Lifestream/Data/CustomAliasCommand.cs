@@ -2,7 +2,7 @@
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using Lifestream.Tasks.SameWorld;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Action = System.Action;
 
 namespace Lifestream.Data;
@@ -27,7 +27,7 @@ public class CustomAliasCommand
         if(Kind == CustomAliasKind.Change_world)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            if(World != Player.Object.CurrentWorld.Id)
+            if(World != Player.Object.CurrentWorld.RowId)
             {
                 var world = ExcelWorldHelper.GetName(World);
                 if(P.IPCProvider.CanVisitCrossDC(world))
@@ -66,7 +66,7 @@ public class CustomAliasCommand
             {
                 var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte);
                 var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte());
-                if(nearestAetheryte == null || Player.Territory != aetheryte.Territory.Row || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
+                if(nearestAetheryte == null || Player.Territory != aetheryte.Territory.RowId || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
                 {
                     P.TaskManager.InsertMulti(
                         new((Action)(() => S.TeleportService.TeleportToAetheryte(Aetheryte))),

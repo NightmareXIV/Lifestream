@@ -1,6 +1,6 @@
 ﻿using Dalamud.Utility;
 using Lifestream.Enums;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream;
 

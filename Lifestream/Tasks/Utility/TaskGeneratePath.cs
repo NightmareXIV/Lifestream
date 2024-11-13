@@ -1,6 +1,6 @@
 ﻿using ECommons.GameHelpers;
 using Lifestream.Data;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using ResidentialAetheryte = Lifestream.Systems.Residential.ResidentialAetheryte;
 
 namespace Lifestream.Tasks.Utility;
@@ -55,7 +55,7 @@ public static class TaskGeneratePath
                         var distanceOld = Utils.CalculatePathDistance([.. info.Path]);
                         if(distanceNew < distanceOld)
                         {
-                            DuoLog.Warning($"-- For plot {plotNum + 1}, old distance was {distanceOld} > {distanceNew} new distance, replacing path and aetheryte from {Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(info.AethernetID)?.PlaceName?.Value?.Name}, please double-check path.");
+                            DuoLog.Warning($"-- For plot {plotNum + 1}, old distance was {distanceOld} > {distanceNew} new distance, replacing path and aetheryte from {Svc.Data.GetExcelSheet<HousingAethernet>().GetRowOrDefault(info.AethernetID)?.PlaceName.ValueNullable?.Name}, please double-check path.");
                             info.Path = [.. task.Result];
                             info.AethernetID = aetheryte.ID;
                             Utils.SaveGeneratedHousingData();

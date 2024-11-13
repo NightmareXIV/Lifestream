@@ -4,7 +4,7 @@ using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
 using Lifestream.Data;
 using NightmareUI.ImGuiElements;
-using Aetheryte = Lumina.Excel.GeneratedSheets.Aetheryte;
+using Aetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace Lifestream.GUI;
 public static class TabCustomAlias
@@ -118,7 +118,7 @@ public static class TabCustomAlias
         {
             Copy(EzConfig.DefaultSerializationFactory.Serialize(command, false));
         }
-        var aetherytes = Ref<uint[]>.Get("Aetherytes", () => Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.Value?.Name?.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray());
+        var aetherytes = Ref<uint[]>.Get("Aetherytes", () => Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray());
         var aetherytePlaceNames = Ref<Dictionary<uint, string>>.Get("Aetherytes", () => aetherytes.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.PlaceName.Value.Name.ToString()));
 
         var aethernet = Ref<uint[]>.Get("Aethernet", () => Utils.GetAllRegisteredAethernetDestinations().ToArray());

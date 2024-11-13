@@ -60,12 +60,12 @@ public unsafe class ContextMenuManager : IDisposable
             {
                 if(isVisitingAnotherDC)
                 {
-                    CharaSelectOverlay.ReconnectToValidDC(name, currentWorld, homeWorld, ExcelWorldHelper.Get(homeWorld), false);
+                    CharaSelectOverlay.ReconnectToValidDC(name, currentWorld, homeWorld, ExcelWorldHelper.Get(homeWorld).Value, false);
                 }
                 else
                 {
                     P.TaskManager.Enqueue(() => !(TryGetAddonByName<AtkUnitBase>("ContextMenu", out var c) && c->IsVisible));
-                    P.TaskManager.Enqueue(() => CharaSelectOverlay.Command(name, currentWorld, homeWorld, ExcelWorldHelper.Get(homeWorld), false));
+                    P.TaskManager.Enqueue(() => CharaSelectOverlay.Command(name, currentWorld, homeWorld, ExcelWorldHelper.Get(homeWorld).Value, false));
                 }
             }
         };

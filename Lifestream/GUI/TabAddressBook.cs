@@ -85,7 +85,7 @@ public static unsafe class TabAddressBook
             }
             if(Player.Available)
             {
-                entry.World = (int)Player.Object.CurrentWorld.Id;
+                entry.World = (int)Player.Object.CurrentWorld.RowId;
             }
             var ra = Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType);
             if(ra != null)
@@ -300,7 +300,7 @@ public static unsafe class TabAddressBook
                 ImGui.TableNextColumn();
 
                 var wcol = ImGuiColors.DalamudGrey;
-                if(Player.Available && Player.Object.CurrentWorld.GameData.DataCenter.Row == ExcelWorldHelper.Get((uint)entry.World).DataCenter.Row)
+                if(Player.Available && Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId == ExcelWorldHelper.Get((uint)entry.World)?.DataCenter.RowId)
                 {
                     wcol = ImGuiColors.DalamudGrey;
                 }
@@ -308,7 +308,7 @@ public static unsafe class TabAddressBook
                 {
                     if(!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World))) wcol = ImGuiColors.DalamudGrey3;
                 }
-                if(Player.Available && Player.Object.CurrentWorld.Id == entry.World) wcol = new Vector4(0.9f, 0.9f, 0.9f, 1f);
+                if(Player.Available && Player.Object.CurrentWorld.RowId == entry.World) wcol = new Vector4(0.9f, 0.9f, 0.9f, 1f);
 
                 ImGuiEx.TextV(wcol, ExcelWorldHelper.GetName(entry.World));
 

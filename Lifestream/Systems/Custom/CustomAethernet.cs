@@ -2,7 +2,7 @@
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using Lifestream.Systems.Residential;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;

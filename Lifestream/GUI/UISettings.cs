@@ -1,7 +1,7 @@
 ﻿using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using Lifestream.Tasks.Shortcuts;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
 using Action = System.Action;
@@ -296,7 +296,7 @@ internal static unsafe class UISettings
                 uint toRem = 0;
                 foreach(var x in P.Config.Hidden)
                 {
-                    ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRow(x)?.AethernetName.Value?.Name.ToString() ?? x.ToString()}");
+                    ImGuiEx.Text($"{Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(x)?.AethernetName.ValueNullable?.Name.ToString() ?? x.ToString()}");
                     ImGui.SameLine();
                     if(ImGui.SmallButton($"Delete##{x}"))
                     {

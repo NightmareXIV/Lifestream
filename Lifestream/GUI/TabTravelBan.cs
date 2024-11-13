@@ -29,7 +29,7 @@ public static class TabTravelBan
                 if(Player.Available)
                 {
                     entry.CharaName = Player.Name;
-                    entry.CharaHomeWorld = (int)Player.Object.HomeWorld.Id;
+                    entry.CharaHomeWorld = (int)Player.Object.HomeWorld.RowId;
                 }
                 P.Config.TravelBans.Add(entry);
             }

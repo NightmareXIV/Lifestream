@@ -1,4 +1,4 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.Sheets;
 
 namespace Lifestream.Systems.Residential;
 public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryte
@@ -14,7 +14,7 @@ public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryt
     {
         Ref = data;
         Name = data.PlaceName.Value.Name.ExtractText();
-        TerritoryType = data.TerritoryType.Row;
+        TerritoryType = data.TerritoryType.RowId;
         ID = data.RowId;
         IsSubdivision = isSubdivision;
         Position = GetCoordinates();
@@ -45,10 +45,9 @@ public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryt
         var AethersY = 0f;
         var reference = this;
         {
-            var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == reference.Ref.TerritoryType.Row);
+            var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.RowId == reference.Ref.TerritoryType.RowId);
             var scale = map.SizeFactor;
-            var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => m.DataType == 4 && m.DataKey == reference.Ref.PlaceName.Row);
-            if(mapMarker != null)
+            if(Svc.Data.GetSubrowExcelSheet<MapMarker>().AllRows().TryGetFirst(m => m.DataType == 4 && m.DataKey.RowId == reference.Ref.PlaceName.RowId, out var mapMarker))
             {
                 AethersX = Utils.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
                 AethersY = Utils.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);

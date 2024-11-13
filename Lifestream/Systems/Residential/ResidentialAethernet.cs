@@ -3,7 +3,7 @@ using ECommons.Configuration;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.MathHelpers;
 using Lifestream.Data;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Path = System.IO.Path;
 
 namespace Lifestream.Systems.Residential;
@@ -53,7 +53,7 @@ public sealed class ResidentialAethernet : IDisposable
             HousingData = EzConfig.LoadConfiguration<HousingData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, FileName), false);
             foreach(var zone in ZoneInfo)
             {
-                var values = Svc.Data.GetExcelSheet<HousingAethernet>().Where(a => a.TerritoryType.Row == zone.Key).OrderBy(x => x.Order);
+                var values = Svc.Data.GetExcelSheet<HousingAethernet>().Where(a => a.TerritoryType.RowId == zone.Key).OrderBy(x => x.Order);
                 foreach(var a in values)
                 {
                     var aetheryte = new ResidentialAetheryte(a, a.Order >= values.Count() / 2, zone.Value.SubdivisionModifier);

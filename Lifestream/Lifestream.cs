@@ -29,7 +29,7 @@ using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using NotificationMasterAPI;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
@@ -300,7 +300,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 else if(Utils.TryGetWorldFromDataCenter(primary, out var world, out var dc))
                 {
                     Utils.DisplayInfo($"Random world from {Svc.Data.GetExcelSheet<WorldDCGroupType>().GetRow(dc).Name}: {world}");
-                    TPAndChangeWorld(world, Player.Object.CurrentWorld.GameData.DataCenter.Row != dc, secondary);
+                    TPAndChangeWorld(world, Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId != dc, secondary);
                 }
                 else
                 {
@@ -314,7 +314,7 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         try
         {
-            Utils.AssertCanTravel(Player.Name, Player.Object.HomeWorld.Id, Player.Object.CurrentWorld.Id, destinationWorld);
+            Utils.AssertCanTravel(Player.Name, Player.Object.HomeWorld.RowId, Player.Object.CurrentWorld.RowId, destinationWorld);
             CharaSelectVisit.ApplyDefaults(ref returnToGateway, ref gateway, ref doNotify);
             if(!skipChecks)
             {
@@ -352,8 +352,8 @@ public unsafe class Lifestream : IDalamudPlugin
             if(isDcTransfer)
             {
                 var type = DCVType.Unknown;
-                var homeDC = Player.Object.HomeWorld.GameData.DataCenter.Value.Name.ToString();
-                var currentDC = Player.Object.CurrentWorld.GameData.DataCenter.Value.Name.ToString();
+                var homeDC = Player.Object.HomeWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString();
+                var currentDC = Player.Object.CurrentWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString();
                 var targetDC = Utils.GetDataCenterName(destinationWorld);
                 if(currentDC == homeDC)
                 {
@@ -390,17 +390,17 @@ public unsafe class Lifestream : IDalamudPlugin
                     if(!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value.AdjustGateway(), false);
                     TaskWaitUntilInHomeWorld.Enqueue();
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.HomeToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.Id, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.HomeToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else if(type == DCVType.GuestToHome)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.GuestToHome(destinationWorld, Player.Name, Player.Object.HomeWorld.Id, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.GuestToHome(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else if(type == DCVType.GuestToGuest)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.GuestToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.Id, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.GuestToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else
                 {

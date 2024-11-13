@@ -22,7 +22,7 @@ using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
 using Path = System.IO.Path;
@@ -215,7 +215,7 @@ internal static unsafe class UIDebug
                 entries.Add(
                     new("Num", () => ImGuiEx.Text($"{index + 1}")),
                     new("Front", () => ImGuiEx.Text($"{plot.Front}")),
-                    new("Aethernet", () => ImGuiEx.Text($"{Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(plot.AethernetID)?.PlaceName?.Value?.Name ?? plot.AethernetID.ToString()}")),
+                    new("Aethernet", () => ImGuiEx.Text($"{Svc.Data.GetExcelSheet<HousingAethernet>().GetRowOrDefault(plot.AethernetID)?.PlaceName.ValueNullable?.Name ?? plot.AethernetID.ToString()}")),
                     new("Edit", () =>
                     {
                         if(ImGui.Button($"Edit{index + 1}"))
@@ -345,7 +345,7 @@ internal static unsafe class UIDebug
                 var pname = TerritoryInfo.Instance()->AreaPlaceNameId;
                 var pname2 = TerritoryInfo.Instance()->SubAreaPlaceNameId;
                 Copy($"""
-                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {Svc.ClientState.TerritoryType}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRow(pname)?.Name?.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRow(pname2)?.Name?.ExtractText()} ({pname2}), 
+                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {Svc.ClientState.TerritoryType}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.ExtractText()} ({pname2}), 
                     """);
             }
             ImGuiEx.Text($"Active: {P.CustomAethernet.ActiveAetheryte}");
@@ -463,10 +463,10 @@ internal static unsafe class UIDebug
         var text = data.Text.ExtractText();
         if(ImGui.Button("Lumina"))
         {
-            foreach(var x in data.Text.Payloads)
+            /*foreach(var x in data.Text.Payloads)
             {
                 PluginLog.Information($"Payload {x.PayloadType}, text: {x.ToString()}");
-            }
+            }*/
         }
         if(ImGui.Button("Dalamud"))
         {

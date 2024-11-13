@@ -4,7 +4,7 @@ using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Tasks.Shortcuts;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Path = System.IO.Path;
 
 namespace Lifestream.Systems.Legacy;
@@ -67,8 +67,10 @@ internal class DataStore
 
         foreach(TaskISShortcut.IslandNPC npc in Enum.GetValues(typeof(TaskISShortcut.IslandNPC)))
         {
-            var row = Svc.Data.GetExcelSheet<ENpcResident>().GetRow((uint)npc);
-            IslandNPCs.Add(npc, [row.Singular, row.Title]);
+            if(Svc.Data.GetExcelSheet<ENpcResident>().TryGetRow((uint)npc, out var row))
+            {
+                IslandNPCs.Add(npc, [row.Singular.ToString(), row.Title.ToString()]);
+            }
         }
     }
 
@@ -88,7 +90,7 @@ internal class DataStore
 
     internal void BuildWorlds()
     {
-        BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.GameData.DataCenter.Value.RowId);
+        BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.Value.DataCenter.Value.RowId);
         if(Player.Available)
         {
             if(P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
@@ -110,7 +112,7 @@ internal class DataStore
     {
         Worlds = [.. Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic()).Select(x => x.Name.ToString()).Order()];
         PluginLog.Debug($"Built worlds: {Worlds.Print()}");
-        DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic() && (x.DataCenter.Value.Region == Player.Object.HomeWorld.GameData.DataCenter.Value.Region || x.DataCenter.Value.Region == 4)).Select(x => x.Name.ToString()).ToArray();
+        DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic() && (x.DataCenter.Value.Region == Player.Object.HomeWorld.Value.DataCenter.Value.Region || x.DataCenter.Value.Region == 4)).Select(x => x.Name.ToString()).ToArray();
         PluginLog.Debug($"Built DCworlds: {DCWorlds.Print()}");
     }
 
@@ -125,10 +127,9 @@ internal class DataStore
         }
         else
         {
-            var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.Row == aetheryte.Territory.Value.RowId);
+            var map = Svc.Data.GetExcelSheet<Map>().FirstOrDefault(m => m.TerritoryType.RowId == aetheryte.Territory.Value.RowId);
             var scale = map.SizeFactor;
-            var mapMarker = Svc.Data.GetExcelSheet<MapMarker>().FirstOrDefault(m => m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.Value.RowId));
-            if(mapMarker != null)
+            if(Svc.Data.GetSubrowExcelSheet<MapMarker>().AllRows().TryGetFirst(m => m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey.RowId == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.RowId), out var mapMarker))
             {
                 AethersX = Utils.ConvertMapMarkerToRawPosition(mapMarker.X, scale);
                 AethersY = Utils.ConvertMapMarkerToRawPosition(mapMarker.Y, scale);

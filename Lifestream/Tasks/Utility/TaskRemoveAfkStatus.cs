@@ -12,12 +12,12 @@ internal static class TaskRemoveAfkStatus
     {
         P.TaskManager.Enqueue(() =>
         {
-            if(Player.Object.OnlineStatus.Id == 17)
+            if(Player.Object.OnlineStatus.RowId == 17)
             {
                 if(EzThrottler.Throttle("RemoveAfk"))
                 {
                     Chat.Instance.SendMessage("/afk off");
-                    P.TaskManager.InsertTask(new(() => Player.Object.OnlineStatus.Id != 17, "WaitUntilNotAfk"));
+                    P.TaskManager.InsertTask(new(() => Player.Object.OnlineStatus.RowId != 17, "WaitUntilNotAfk"));
                 }
             }
             if(MoveCancelConditions.Select(x => Svc.Condition[x]).Any(x => x))

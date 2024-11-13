@@ -12,7 +12,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
 using Lifestream.Tasks.Login;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream.Schedulers;
 
@@ -77,7 +77,7 @@ internal static unsafe class DCChange
         {
             return true;
         }
-        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Addon>()?.GetRow(115)?.Text.ToDalamudString().ExtractText());
+        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Addon>()?.GetRow(115).Text.ToDalamudString().ExtractText());
         if(addon == null || !IsAddonReady(addon))
         {
             DCRethrottle();
@@ -462,7 +462,7 @@ internal static unsafe class DCChange
             && addon->AtkUnitBase.UldManager.NodeListCount >= 4)
         {
             var text = MemoryHelper.ReadSeString(&addon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText();
-            var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11)?.Text.ToString();
+            var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11).Text.ToString();
             if(text == compareTo)
             {
                 PluginLog.Information($"Selecting service account");
