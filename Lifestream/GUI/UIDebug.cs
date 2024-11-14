@@ -440,9 +440,8 @@ internal static unsafe class UIDebug
                 if(x.Value == null) continue;
                 ImGuiEx.Text($"{x.Value->NameString}");
             }
+            { if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m)) ImGuiEx.Text($"Selected chara: {m.Characters.FirstOrDefault(x => x.IsSelected)?.Name}"); }
         }
-        { ImGuiEx.Text($"Addon highest focus: {TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && m.IsAddonFocused}"); }
-        { if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m)) ImGuiEx.Text($"Selected chara: {m.Characters.FirstOrDefault(x => x.IsSelected).Name}"); }
         ImGui.Checkbox("DisableHousePathData", ref P.DisableHousePathData);
         if(ImGui.CollapsingHeader("HUD"))
         {

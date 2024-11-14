@@ -259,9 +259,10 @@ public static unsafe class TaskPropertyShortcut
 
     private static void EnqueueGoToMyApartment(bool? enterApartment)
     {
+        DuoLog.Warning($"Teleport to apartment function is limited");
         enterApartment ??= P.Config.EnterMyApartment;
         var a = GetApartmentAetheryteID();
-        var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId.EqualsAny(60790u, 60792u) && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
+        var nextToMyApt = false;//AgentHUD.Instance()->MapMarkers.Any(x => x.IconId.EqualsAny(60790u, 60792u) && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
         P.TaskManager.BeginStack();
         if(!nextToMyApt)
         {

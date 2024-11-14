@@ -9,19 +9,9 @@ public unsafe class TeleportService
 
     public bool TeleportToAetheryte(uint id, uint sub = 0)
     {
-        if(!Player.Interactable)
+        if(!CanTeleport(out var err))
         {
-            InternalLog.Warning("Can't teleport - no player");
-            return false;
-        }
-        if(ActionManager.Instance()->GetActionStatus(ActionType.Action, 5) != 0)
-        {
-            InternalLog.Warning("Can't execute teleport action");
-            return false;
-        }
-        if(Player.IsAnimationLocked)
-        {
-            InternalLog.Warning("Can't teleport - animation locked");
+            InternalLog.Warning(err);
             return false;
         }
         foreach(var x in Svc.AetheryteList)
@@ -32,7 +22,28 @@ public unsafe class TeleportService
                 return true;
             }
         }
-        InternalLog.Warning("Could not find teleport destination");
+        InternalLog.Warning($"Could not find teleport destination for {id}");
         return false;
+    }
+
+    public bool CanTeleport(out string error)
+    {
+        error = null;
+        if(!Player.Interactable)
+        {
+            error = ("Can't teleport - no player");
+            return false;
+        }
+        if(ActionManager.Instance()->GetActionStatus(ActionType.Action, 5) != 0)
+        {
+            error = ("Can't execute teleport action");
+            return false;
+        }
+        if(Player.IsAnimationLocked)
+        {
+            error = ("Can't teleport - animation locked");
+            return false;
+        }
+        return true;
     }
 }

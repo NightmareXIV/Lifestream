@@ -6,6 +6,7 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
@@ -72,6 +73,13 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         P = this;
         ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);
+#if CUSTOMCS
+        PluginLog.Warning($"Using custom FFXIVClientStructs");
+        var gameVersion = DalamudReflector.TryGetDalamudStartInfo(out var ver) ? ver.GameVersion.ToString() : "unknown";
+        InteropGenerator.Runtime.Resolver.GetInstance.Setup(Svc.SigScanner.SearchBase, gameVersion, new(Svc.PluginInterface.ConfigDirectory.FullName + "/cs.json"));
+        FFXIVClientStructs.Interop.Generated.Addresses.Register();
+        InteropGenerator.Runtime.Resolver.GetInstance.Resolve();
+#endif
         new TickScheduler(delegate
         {
             Config = EzConfig.Init<Config>();
@@ -253,6 +261,58 @@ public unsafe class Lifestream : IDalamudPlugin
                 else
                     DuoLog.Error($"Could not parse input: {name}");
             }
+        }
+        else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
+        {
+            var destination = arguments[(arguments.IndexOf("tp")+2)..].Trim();
+            if(destination == null || destination == "")
+            {
+                DuoLog.Error($"Please type something");
+            }
+            else
+            {
+                if(!P.TaskManager.IsBusy && Player.Interactable)
+                {
+                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid))
+                    {
+                        if(x.AetheryteData.Value.AethernetName.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            {
+                                ChatPrinter.Green($"[Lifestream] Destination (Aethernet): {x.AetheryteData
+                                    .Value.AethernetName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                return;
+                            }
+                        }
+                    }
+                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.PlaceName.IsValid))
+                    {
+                        if(x.AetheryteData.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            {
+                                ChatPrinter.Green($"[Lifestream] Destination (Place): {x.AetheryteData
+                                    .Value.PlaceName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                return;
+                            }
+                        }
+                    }
+                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.Territory.IsValid && s.AetheryteData.Value.Territory.Value.PlaceName.IsValid))
+                    {
+                        if(x.AetheryteData.Value.Territory.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            {
+                                ChatPrinter.Green($"[Lifestream] Destination (Zone): {x.AetheryteData
+                                    .Value.Territory.Value.PlaceName.Value.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                return;
+                            }
+                        }
+                    }
+                    DuoLog.Error($"Could not parse {destination}");
+                }
+            }
+            
         }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {

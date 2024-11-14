@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>NightmareXIV</Authors>
-        <Version>2.3.1.5</Version>
+        <Version>2.3.1.8</Version>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -17,6 +17,7 @@
         <NoWarn>CS1591</NoWarn>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <UseWindowsForms>true</UseWindowsForms>
+        <CustomCS>true</CustomCS>
     </PropertyGroup>
 
     <PropertyGroup Label="Documentation">
@@ -41,6 +42,24 @@
       <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
     </ItemGroup>
 
+
+    <ItemGroup Condition="'$(CustomCS)' != 'true'">
+        <Reference Include="FFXIVClientStructs">
+            <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(CustomCS)'=='true'">
+        <DefineConstants>CUSTOMCS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(CustomCS)'=='true'">
+        <ProjectReference Include="..\FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj" />
+        <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator.Runtime\InteropGenerator.Runtime.csproj" />
+        <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator\InteropGenerator.csproj" />
+    </ItemGroup>
+
+
     <ItemGroup>
         <Reference Include="Newtonsoft.Json">
             <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
@@ -62,8 +81,8 @@
             <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="FFXIVClientStructs">
-            <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+        <Reference Include="Dalamud.Common">
+            <HintPath>$(DalamudLibPath)Dalamud.Common.dll</HintPath>
             <Private>False</Private>
         </Reference>
         <Reference Include="ImGuiScene">
