@@ -16,3 +16,6 @@
 [submodule "NightmareUI.OtterGuiWrapper"]
 	path = NightmareUI.OtterGuiWrapper
 	url = https://github.com/NightmareXIV/NightmareUI.OtterGuiWrapper
+[submodule "FFXIVClientStructs"]
+	path = FFXIVClientStructs
+	url = https://github.com/Limiana/FFXIVClientStructs
