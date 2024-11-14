@@ -86,6 +86,8 @@ internal static unsafe class Utils
 
     public static bool IsPlayerFalling()
     {
+        return false;
+        //TODO: fix
         var p = Svc.ClientState.LocalPlayer;
         if(p == null)
             return true;
