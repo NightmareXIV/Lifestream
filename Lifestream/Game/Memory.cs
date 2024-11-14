@@ -1,6 +1,7 @@
 ﻿using Dalamud.Hooking;
 using Dalamud.Memory;
 using Dalamud.Utility.Signatures;
+using ECommons.Automation.UIInput;
 using ECommons.EzHookManager;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -9,6 +10,7 @@ using Lifestream.Enums;
 using Lifestream.Tasks.SameWorld;
 using PInvoke;
 using System.Windows.Forms;
+using AtkEvent = ECommons.Automation.UIInput.AtkEvent;
 
 namespace Lifestream.Game;
 
@@ -20,14 +22,14 @@ internal unsafe class Memory : IDisposable
     private bool IsLeftMouseHeld = false;
 
     internal delegate void AddonDKTWorldList_ReceiveEventDelegate(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5);
-    [Signature("40 53 48 83 EC 20 F6 81 ?? ?? ?? ?? ?? 49 8B D9 41 8B C0", DetourName = nameof(AddonDKTWorldList_ReceiveEventDetour))]
+    [Signature("48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? F6 81", DetourName = nameof(AddonDKTWorldList_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
     internal Hook<AddonDKTWorldList_ReceiveEventDelegate> AddonDKTWorldList_ReceiveEventHook;
 
     internal delegate void AtkComponentTreeList_vf31(nint a1, uint a2, byte a3);
-    [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour))]
+    [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour), Fallibility = Fallibility.Fallible)]
     internal Hook<AtkComponentTreeList_vf31> AtkComponentTreeList_vf31Hook;
 
-    [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress)]
+    [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress, Fallibility = Fallibility.Fallible)]
     internal int* MaxInstances;
 
     internal delegate byte OpenPartyFinderInfoDelegate(void* agentLfg, ulong contentId);
@@ -48,11 +50,11 @@ internal unsafe class Memory : IDisposable
 
     private void AddonDKTWorldList_ReceiveEventDetour(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5)
     {
-        /*PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
+        PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
         PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->Type}, {a4->Unk29}, {a4->Flags}");
         PluginLog.Debug($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}/{*a5->unk_8:X16}), [{a5->unk_8s->unk_4}/{a5->unk_8s->SelectedItem}] {a5->unk_16}, {a5->unk_24} | "); //{a5->RawDumpSpan.ToArray().Print()}
         //var span = new Span<byte>((void*)*a5->unk_8, 0x40).ToArray().Select(x => $"{x:X2}");
-        //PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {MemoryHelper.ReadRaw((nint)a5->unk_8s->CategorySelection, 4).Print(",")},  :{string.Join(" ", span)}");*/
+        //PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {MemoryHelper.ReadRaw((nint)a5->unk_8s->CategorySelection, 4).Print(",")},  :{string.Join(" ", span)}");
         AddonDKTWorldList_ReceiveEventHook.Original(a1, a2, a3, a4, a5);
     }
 
@@ -61,16 +63,16 @@ internal unsafe class Memory : IDisposable
         if(itemToSelect == 0) throw new Exception("Enumeration starts with 1");
         var Event = stackalloc AtkEvent[1]
         {
-            new AtkEvent()//TODO:fix
+            new AtkEvent()
             {
                 Node = null,
                 Target = (AtkEventTarget*)addon->UldManager.NodeList[nodeIndex],
                 Listener = &addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentNode()->Component->AtkEventListener,
                 Param = 1,
                 NextEvent = null,
-                //Type = AtkEventType.ListItemToggle,
-                //Unk29 = 0,
-                //Flags = 0,
+                Type = AtkEventType.ListItemToggle,
+                Unk29 = 0,
+                Flags = 0,
             }
         };
         var Unk = stackalloc UnknownStruct[1]
