@@ -351,10 +351,12 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
+                    PluginLog.Information($"Same dc/{primary}/{w}");
                     TPAndChangeWorld(w, false, secondary);
                 }
                 else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
                 {
+                    PluginLog.Information($"Cross dc/{primary}/{w}");
                     TPAndChangeWorld(dcw, true, secondary);
                 }
                 else if(Utils.TryGetWorldFromDataCenter(primary, out var world, out var dc))
@@ -412,8 +414,8 @@ public unsafe class Lifestream : IDalamudPlugin
             if(isDcTransfer)
             {
                 var type = DCVType.Unknown;
-                var homeDC = Player.Object.HomeWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString();
-                var currentDC = Player.Object.CurrentWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString();
+                var homeDC = Player.Object.HomeWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString() ?? throw new NullReferenceException("Home DC is null ??????");
+                var currentDC = Player.Object.CurrentWorld.ValueNullable?.DataCenter.ValueNullable?.Name.ToString() ?? throw new NullReferenceException("Current DC is null ??????"); ;
                 var targetDC = Utils.GetDataCenterName(destinationWorld);
                 if(currentDC == homeDC)
                 {

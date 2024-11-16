@@ -12,6 +12,7 @@ public static class TaskReturnToGateway
         P.TaskManager.Enqueue(WaitUntilInteractable);
         P.TaskManager.Enqueue(() =>
         {
+            gateway = Utils.AdjustGateway(gateway);
             if(force || Svc.ClientState.TerritoryType != gateway.GetTerritory())
             {
                 P.TaskManager.InsertMulti(

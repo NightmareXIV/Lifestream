@@ -1,18 +1,28 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 
 namespace Lifestream.Tasks;
 
 internal static class TaskWaitUntilInWorld
 {
-    internal static void Enqueue(string world)
+    internal static void Enqueue(string world, bool checkDc)
     {
-        P.TaskManager.Enqueue(() =>
+        P.TaskManager.Enqueue(() => Task(world, checkDc), nameof(TaskWaitUntilInWorld), TaskSettings.TimeoutInfinite);
+    }
+
+    internal static bool Task(string world, bool checkDc)
+    {
+        if(checkDc)
         {
-            if(Player.Available && Player.CurrentWorld == world)
+            if(Player.Available && ExcelWorldHelper.Get(world)?.DataCenter.RowId == Svc.ClientState.LocalPlayer.CurrentWorld.Value.DataCenter.RowId)
             {
                 return true;
             }
-            return false;
-        }, nameof(TaskWaitUntilInWorld), TaskSettings.TimeoutInfinite);
+        }
+        if(Player.Available && Player.CurrentWorld == world)
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -28,7 +28,7 @@ public static unsafe class CharaSelectVisit
             }
             else
             {
-                TaskWaitUntilInWorld.Enqueue(destinationWorld);
+                TaskWaitUntilInWorld.Enqueue(destinationWorld, false);
             }
             if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
             if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {destinationWorld}");
@@ -53,7 +53,7 @@ public static unsafe class CharaSelectVisit
             }
             else
             {
-                TaskWaitUntilInWorld.Enqueue(destinationWorld);
+                TaskWaitUntilInWorld.Enqueue(destinationWorld, true);
             }
             if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
             if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {destinationWorld}");
@@ -68,7 +68,9 @@ public static unsafe class CharaSelectVisit
         if(!noLogin)
         {
             TaskSelectChara.Enqueue(charaName, homeWorld);
-            TaskWaitUntilInWorld.Enqueue(destinationWorld);
+            TaskWaitUntilInWorld.Enqueue(destinationWorld, true);
+            TaskEnforceWorld.Enqueue(destinationWorld, gateway);
+
 
             if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
             if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {destinationWorld}");
@@ -91,7 +93,8 @@ public static unsafe class CharaSelectVisit
         if(!noLogin)
         {
             TaskSelectChara.Enqueue(charaName, homeWorld);
-            TaskWaitUntilInWorld.Enqueue(destinationWorld);
+            TaskWaitUntilInWorld.Enqueue(destinationWorld, true);
+            TaskEnforceWorld.Enqueue(destinationWorld, gateway);
             if(gateway != null && returnToGateway == true) TaskReturnToGateway.Enqueue(gateway.Value);
             if(doNotify == true) TaskDesktopNotification.Enqueue($"Arrived to {destinationWorld}");
             EnqueueSecondary(noSecondaryTeleport, secondaryTeleport);
