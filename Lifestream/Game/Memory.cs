@@ -122,7 +122,7 @@ internal unsafe class Memory : IDisposable
                 {
                     IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
                 }
-                if(a2 == 4 && IsLeftMouseHeld)
+                if(a2 == 4 && IsLeftMouseHeld)  
                 {
                     IsLeftMouseHeld = false;
                     if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))

@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>NightmareXIV</Authors>
-        <Version>2.3.1.8</Version>
+        <Version>2.3.2.0</Version>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -17,7 +17,7 @@
         <NoWarn>CS1591</NoWarn>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <UseWindowsForms>true</UseWindowsForms>
-        <CustomCS>true</CustomCS>
+        <CustomCS>false</CustomCS>
     </PropertyGroup>
 
     <PropertyGroup Label="Documentation">
