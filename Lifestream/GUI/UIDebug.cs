@@ -338,6 +338,64 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("ReaderLobbyDKTWorldList"))
+        {
+            if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
+            {
+                var r = new ReaderLobbyDKTWorldList(addon);
+                ImGuiEx.Text($"""
+                    Source {r.Source}
+                    Destination {r.Destination}
+                    SelectedDataCenter {r.SelectedDataCenter}
+                    """);
+                ImGuiEx.Text($"Regions:");
+                ImGui.Indent();
+                foreach(var region in r.Regions)
+                {
+                    ImGuiEx.Text($"""
+                        {region.RegionTitle}
+                        """);
+                    ImGuiEx.Text("DataCenters");
+                    foreach(var dc in region.DataCenters)
+                    {
+                        ImGui.Indent();
+                        ImGuiEx.Text($"""
+                            {dc.Name}
+                            """);
+                        ImGui.Unindent();
+                    }
+                }
+                ImGui.Separator();
+                ImGuiEx.Text($"Worlds: {r.GetNumWorlds()}");
+                ImGui.Indent();
+                foreach(var x in r.Worlds)
+                {
+                    ImGuiEx.Text($"{x.WorldName}, active={x.IsAvailable}");
+                }
+                ImGui.Unindent();
+                ImGui.Unindent();
+            }
+        } 
+        if(ImGui.CollapsingHeader("Context"))
+        {
+            if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m))
+            {
+                foreach(var e in m.Entries)
+                {
+                    ImGuiEx.Text($"{e.Text} / {e.Enabled}");
+                }
+            }
+        }
+        if(ImGui.CollapsingHeader("CharaSelect"))
+        {
+            if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m))
+            {
+                foreach(var x in m.Characters)
+                {
+                    ImGuiEx.Text($"{x.Name}/{x.CurrentWorld}/{x.HomeWorld}/{x.IsSelected}");
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("Custom aethernet"))
         {
             if(ImGui.Button("Copy target") && Svc.Targets.Target != null)

@@ -173,21 +173,13 @@ internal static unsafe class DCChange
 
     internal static bool? SelectVisitAnotherDC()
     {
-        if(TryGetAddonByName<AddonContextMenu>("ContextMenu", out var menu) && IsAddonReady(&menu->AtkUnitBase))
+        if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
-            var addon = menu->AtkUnitBase;
-            var list = addon.UldManager.NodeList[2];
-            var item = list->GetAsAtkComponentNode()->Component->UldManager.NodeList[9];
-            var textNode = item->GetAsAtkComponentNode()->Component->UldManager.NodeList[6];
-            if(textNode->Alpha_2 == 255)
+            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.ExtractText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
             {
-                var text = GenericHelpers.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
-                if(text.EqualsAny(Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.ToDalamudString().ExtractText()) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
-                {
-                    PluginLog.Debug($"[DCChange] Selecting visit another data center");
-                    Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)8, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
-                    return true;
-                }
+                PluginLog.Debug($"[DCChange] Selecting visit another data center");
+                entry.Select();
+                return true;
             }
         }
         else
@@ -199,22 +191,13 @@ internal static unsafe class DCChange
 
     internal static bool? SelectReturnToHomeWorld()
     {
-        if(TryGetAddonByName<AddonContextMenu>("ContextMenu", out var menu) && IsAddonReady(&menu->AtkUnitBase))
+        if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
-            var addon = menu->AtkUnitBase;
-            var list = addon.UldManager.NodeList[2];
-            var item = list->GetAsAtkComponentNode()->Component->UldManager.NodeList[7];
-            var textNode = item->GetAsAtkComponentNode()->Component->UldManager.NodeList[6];
-            if(textNode->Alpha_2 == 255)
+            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.ExtractText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
             {
-                var text = GenericHelpers.ReadSeString(&textNode->GetAsAtkTextNode()->NodeText).ExtractText();
-                //"Return to Home World"
-                if(text.EqualsAny(Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.ToDalamudString().ExtractText()) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
-                {
-                    PluginLog.Debug($"[DCChange] Selecting return to home world");
-                    Callback.Fire(&menu->AtkUnitBase, true, (int)0, (int)6, (int)0, new AtkValue() { Type = 0, Int = 0 }, new AtkValue() { Type = 0, Int = 0 });
-                    return true;
-                }
+                PluginLog.Debug($"[DCChange] Selecting return to home world");
+                entry.Select();
+                return true;
             }
         }
         else
@@ -365,7 +348,7 @@ internal static unsafe class DCChange
             {
                 if(DCThrottle && EzThrottler.Throttle("CancelDcVisit", 5000))
                 {
-                    PluginLog.Debug($"[DCChange] Confirming DC visit");
+                    PluginLog.Debug($"[DCChange] Cancelling DC visit");
                     addon->UldManager.NodeList[4]->GetAsAtkComponentButton()->ClickAddonButton(addon);
                     return true;
                 }

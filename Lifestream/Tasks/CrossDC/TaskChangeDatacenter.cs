@@ -26,12 +26,14 @@ internal static class TaskChangeDatacenter
         P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
         P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
         P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), nameof(DCChange.SelectTargetDataCenter), TaskSettings.Timeout2M);
+        P.TaskManager.Enqueue(() => RetryAt = Environment.TickCount64 + P.Config.DcvRetryInterval * 1000);
         P.TaskManager.Enqueue(() => DCChange.SelectTargetWorld(destination, () => RetryVisit(destination, charaName, charaWorld)), nameof(DCChange.SelectTargetWorld), TaskSettings.Timeout60M);
     }
 
     private static bool RetryVisit(string destination, string charaName, uint charaWorld)
     {
         if(!P.Config.EnableDvcRetry) return false;
+        PluginLog.Information($"Retrying DC visit");
         if(RetryAt == 0)
         {
             RetryAt = Environment.TickCount64 + P.Config.DcvRetryInterval * 1000;
