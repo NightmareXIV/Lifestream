@@ -10,6 +10,8 @@ using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.Interop;
 using ECommons.MathHelpers;
+using ECommons.Reflection;
+using ECommons.SimpleGui;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -35,6 +37,39 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static void EnsureEnhancedLoginIsOff()
+    {
+        try
+        {
+            if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "HaselTweaks" && x.IsLoaded))
+            {
+                if(DalamudReflector.TryGetDalamudPlugin("HaselTweaks", out var instance, out var context, false, true))
+                {
+                    var configWindow = ReflectionHelper.CallStatic(context.Assemblies, "HaselCommon.Service", [], "Get", ["HaselTweaks.Windows.PluginWindow"], []);
+                    var tweaks = (System.Collections.IEnumerable)configWindow.GetFoP("Tweaks");
+                    foreach(var x in tweaks)
+                    {
+                        if(x.GetFoP<string>("InternalName") == "EnhancedLoginLogout" && x.GetFoP<int>("Status") == 5)
+                        {
+                            configWindow.GetFoP("TweakManager").Call("UserDisableTweak", [x], true);
+                            new PopupWindow(() =>
+                            {
+                                ImGuiEx.Text($"""
+                                    Enhanced Login/Logout from HaselTweaks plugin has been detected.
+                                    It is not compatible with Lifestream and has been disabled.
+                                    """);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            e.Log();
+        }
+    }
+
     public static string GetCharaName(ulong cid)
     {
         if(P.Config.CharaMap.TryGetValue(cid, out var name)) return name;

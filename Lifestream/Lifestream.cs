@@ -512,6 +512,10 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
             }
         }
+        if(P.TaskManager.IsBusy)
+        {
+            if(EzThrottler.Throttle("EnsureEnhancedLoginIsOff")) Utils.EnsureEnhancedLoginIsOff();
+        }
     }
 
     public void Dispose()
