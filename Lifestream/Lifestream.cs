@@ -1,4 +1,5 @@
 ﻿using AutoRetainerAPI;
+using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
@@ -12,6 +13,7 @@ using ECommons.Singletons;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Game;
@@ -158,6 +160,7 @@ public unsafe class Lifestream : IDalamudPlugin
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy ? 1 : 0)} tasks");
             TaskManager.Abort();
             followPath?.Stop();
+            TabUtility.TargetWorldID = 0;
         }
         else if(arguments.Length == 1 && int.TryParse(arguments, out var val) && val.InRange(1, 9))
         {
@@ -516,6 +519,31 @@ public unsafe class Lifestream : IDalamudPlugin
         if(P.TaskManager.IsBusy)
         {
             if(EzThrottler.Throttle("EnsureEnhancedLoginIsOff")) Utils.EnsureEnhancedLoginIsOff();
+            if(TryGetAddonByName<AtkUnitBase>("Trade", out var trade))
+            {
+                Callback.Fire(trade, true, -1);
+            }
+        }
+        if(TabUtility.TargetWorldID != 0)
+        {
+            if(Player.Available && Player.Object.CurrentWorld.RowId == TabUtility.TargetWorldID && IsScreenReady())
+            {
+                if(EzThrottler.Throttle("TerminateGame", 60000))
+                {
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    if(EzThrottler.Throttle("WarnTerminate", 1000))
+                    {
+                        DuoLog.Warning($"Arrived to {ExcelWorldHelper.GetName(TabUtility.TargetWorldID)}. Game is shutting down in {EzThrottler.GetRemainingTime("TerminateGame") / 1000} seconds. Type \"/li stop\" to cancel.");
+                    }
+                }
+            }
+            else
+            {
+                EzThrottler.Throttle("TerminateGame", 60000, true);
+            }
         }
     }
 

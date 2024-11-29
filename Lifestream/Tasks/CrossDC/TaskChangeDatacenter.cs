@@ -1,4 +1,6 @@
 ﻿using ECommons.GameHelpers;
+using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Schedulers;
 
 namespace Lifestream.Tasks.CrossDC;
@@ -13,7 +15,7 @@ internal static class TaskChangeDatacenter
         NumRetries = 0;
         EnqueueVisitTasks(destination, charaName, charaWorld);
         P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, TaskSettings.Timeout2M);
-        P.TaskManager.Enqueue(DCChange.ConfirmDcVisit2, TaskSettings.Timeout2M);
+        P.TaskManager.Enqueue(() => DCChange.ConfirmDcVisit2(destination, charaName, charaWorld), TaskSettings.Timeout2M);
         P.TaskManager.Enqueue(DCChange.SelectOk, TaskSettings.TimeoutInfinite);
         P.TaskManager.Enqueue(() => DCChange.SelectServiceAccount(Utils.GetServiceAccount(charaName, charaWorld)), $"SelectServiceAccount_{charaName}@{charaWorld}", TaskSettings.Timeout1M);
     }
@@ -28,6 +30,19 @@ internal static class TaskChangeDatacenter
         P.TaskManager.Enqueue(() => DCChange.SelectTargetDataCenter(dc), nameof(DCChange.SelectTargetDataCenter), TaskSettings.Timeout2M);
         P.TaskManager.Enqueue(() => RetryAt = Environment.TickCount64 + P.Config.DcvRetryInterval * 1000);
         P.TaskManager.Enqueue(() => DCChange.SelectTargetWorld(destination, () => RetryVisit(destination, charaName, charaWorld)), nameof(DCChange.SelectTargetWorld), TaskSettings.Timeout60M);
+    }
+
+    internal static void ProcessUnableDialogue(string destination, string charaName, uint charaWorld)
+    {
+        if(TryGetAddonMaster<AddonMaster.SelectOk>(out var m) && m.IsAddonReady)
+        {
+            if(m.Text.ContainsAny(Lang.UnableToSelectWorldForDcv) && EzThrottler.Throttle("RetryVisitOnFaulire"))
+            {
+                m.Ok();
+                P.TaskManager.Abort();
+                EnqueueVisitTasks(destination, charaName, charaWorld);
+            }
+        }
     }
 
     private static bool RetryVisit(string destination, string charaName, uint charaWorld)

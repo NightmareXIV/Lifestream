@@ -97,4 +97,8 @@ internal static class Lang
         "Entrer dans la maison ?",
         "Enter the estate hall?"
     ];
+
+    public static readonly string[] UnableToSelectWorldForDcv = [
+        "Unable to select", "で選択したワールド", "Die für die", "pas être choisi comme destination pour"
+        ];
 }

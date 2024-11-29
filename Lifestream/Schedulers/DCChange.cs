@@ -11,6 +11,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
+using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.Login;
 using Lumina.Excel.Sheets;
 
@@ -390,7 +391,7 @@ internal static unsafe class DCChange
         return false;
     }
 
-    internal static bool? ConfirmDcVisit2()
+    internal static bool? ConfirmDcVisit2(string destination, string charaName, uint charaWorld)
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTCheckExec", out var addon) && IsAddonReady(addon))
         {
@@ -412,6 +413,7 @@ internal static unsafe class DCChange
         {
             DCRethrottle();
         }
+        if(destination != null) TaskChangeDatacenter.ProcessUnableDialogue(destination, charaName, charaWorld);
         return false;
     }
 

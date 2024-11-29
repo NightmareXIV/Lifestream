@@ -61,7 +61,7 @@ internal static unsafe class TaskChangeWorld
                 WorldVisitRand = Random.Shared.Next(0, P.Config.RetryWorldVisitIntervalDelta * 1000);
                 P.TaskManager.BeginStack();
                 TaskChangeWorld.Enqueue(targetWorld);
-                P.TaskManager.EnqueueStack();
+                P.TaskManager.InsertStack();
                 return true;
             }
         }

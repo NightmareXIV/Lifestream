@@ -715,6 +715,7 @@ internal static unsafe class UIDebug
         }
         if(ImGui.CollapsingHeader("DCV"))
         {
+            if(ImGui.Button("Unlock all worlds")) UnlockAllWorlds();
             if(ImGui.Button("Enable AtkComponentTreeList_vf31Hook hook"))
             {
                 P.Memory.AtkComponentTreeList_vf31Hook.Enable();
@@ -741,7 +742,7 @@ internal static unsafe class UIDebug
             ImGui.SameLine();
             ImGui.InputText($"w name", ref str3, 100);
             if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit()}");
-            if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2()}");
+            if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2(default, default, default)}");
             if(ImGui.Button($"{nameof(DCChange.SelectOk)}")) PluginLog.Information($"{DCChange.SelectOk()}");
             if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisitIntention)}")) PluginLog.Information($"{DCChange.ConfirmDcVisitIntention()}");
             if(ImGui.Button($"{nameof(DCChange.SelectYesLogin)}")) PluginLog.Information($"{DCChange.SelectYesLogin()}");
@@ -764,6 +765,23 @@ internal static unsafe class UIDebug
         {
             ImGuiEx.Text($"v.dist: {Svc.Targets.Target.Position.Y - Player.Object.Position.Y}");
             ImGuiEx.Text($"DTT3D: {Vector3.Distance(Svc.Targets.Target.Position, Player.Object.Position)}");
+        }
+    }
+
+    private static void UnlockAllWorlds()
+    {
+        if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
+        {
+            var list = addon->UldManager.NodeList[6]->GetAsAtkComponentNode();
+            for(var i = 3; i < 3 + 8; i++)
+            {
+                addon->AtkValues[160 + (i-3)*8].Int = 0;
+                var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
+                if(t->Alpha_2 != 255)
+                {
+                    t->Alpha_2 = 255;
+                }
+            }
         }
     }
 
