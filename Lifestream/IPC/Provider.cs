@@ -276,5 +276,11 @@ public class Provider
         }
     }
 
+    [EzIPC] 
+    public uint GetRealTerritoryType()
+    {
+        return P.Territory;
+    }
+
     [EzIPCEvent] public Action OnHouseEnterError;
 }

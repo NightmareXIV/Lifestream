@@ -12,6 +12,6 @@ internal static class TaskTpToAethernetDestination
         P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination((uint)worldChangeAetheryte));
         P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
         P.TaskManager.Enqueue(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M);
-        P.TaskManager.Enqueue(() => Player.Interactable && Svc.ClientState.TerritoryType == worldChangeAetheryte.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
+        P.TaskManager.Enqueue(() => Player.Interactable && P.Territory == worldChangeAetheryte.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
     }
 }

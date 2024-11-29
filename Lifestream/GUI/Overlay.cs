@@ -79,7 +79,7 @@ internal class Overlay : Window
                 actions.Add(() => DrawResidentialAethernet(true));
             }
         }
-        else if(P.CustomAethernet.ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType))
+        else if(P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory))
         {
             if(P.Config.ShowAethernet) actions.Add(DrawCustomAethernet);
         }
@@ -87,7 +87,7 @@ internal class Overlay : Window
         {
             if(P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
             if(P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
-            if(P.Config.ShowWards && Utils.HousingAethernet.Contains(Svc.ClientState.TerritoryType) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
+            if(P.Config.ShowWards && Utils.HousingAethernet.Contains(P.Territory) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
         }
         if(S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher
             && (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.IsAetheryte))
@@ -133,7 +133,7 @@ internal class Overlay : Window
                         var num = i * 3 + q + 1;
                         if(ImGui.Button($"{num}", buttonSize))
                         {
-                            TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType).Value, num - 1, false, false, false);
+                            TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(P.Territory).Value, num - 1, false, false, false);
                         }
                     }
                     for(var q = 0; q < 3; q++)
@@ -142,7 +142,7 @@ internal class Overlay : Window
                         var num = i * 3 + q + 30 + 1;
                         if(ImGui.Button($"{num}", buttonSize))
                         {
-                            TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType).Value, num - 1, false, false, false);
+                            TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(P.Territory).Value, num - 1, false, false, false);
                         }
                     }
                 }

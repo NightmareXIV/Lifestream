@@ -11,16 +11,16 @@ public static unsafe class TaskMoveToHouse
     public static void Enqueue(PlotInfo info, bool includeFirst)
     {
         P.TaskManager.EnqueueMulti(
-            new(UseSprint),
+            new(() => UseSprint()),
             new(() => LoadPath(info, includeFirst), "LoadPath"),
             new(WaitUntilPathCompleted, TaskSettings.Timeout5M)
             );
     }
 
-    public static bool? UseSprint()
+    public static bool? UseSprint(bool? mount = null)
     {
         if(Player.IsAnimationLocked) return false;
-        if(P.Config.UseMount)
+        if(mount ?? P.Config.UseMount)
         {
             if(Svc.Condition[ConditionFlag.Casting] || Svc.Condition[ConditionFlag.Unknown57])
             {

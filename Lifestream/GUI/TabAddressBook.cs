@@ -70,7 +70,7 @@ public static unsafe class TabAddressBook
         if(h != null)
         {
             entry.Ward = h->GetCurrentWard() + 1;
-            if(Svc.ClientState.TerritoryType.EqualsAny(Houses.Ingleside_Apartment, Houses.Kobai_Goten_Apartment, Houses.Lily_Hills_Apartment, Houses.Sultanas_Breath_Apartment, Houses.Topmast_Apartment))
+            if(P.Territory.EqualsAny(Houses.Ingleside_Apartment, Houses.Kobai_Goten_Apartment, Houses.Lily_Hills_Apartment, Houses.Sultanas_Breath_Apartment, Houses.Topmast_Apartment))
             {
                 entry.PropertyType = PropertyType.Apartment;
                 entry.ApartmentSubdivision = h->GetCurrentDivision() == 2;
@@ -87,7 +87,7 @@ public static unsafe class TabAddressBook
             {
                 entry.World = (int)Player.Object.CurrentWorld.RowId;
             }
-            var ra = Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType);
+            var ra = Utils.GetResidentialAetheryteByTerritoryType(P.Territory);
             if(ra != null)
             {
                 entry.City = ra.Value;

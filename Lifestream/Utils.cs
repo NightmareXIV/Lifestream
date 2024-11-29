@@ -37,9 +37,36 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static bool IsInsideHouse()
+    {
+        return P.Territory.EqualsAny<uint>(
+            Houses.Private_Cottage_Mist, Houses.Private_House_Mist, Houses.Private_Mansion_Mist,
+            Houses.Private_Cottage_Empyreum, Houses.Private_House_Empyreum, Houses.Private_Mansion_Empyreum,
+            Houses.Private_Cottage_Shirogane, Houses.Private_House_Shirogane, Houses.Private_Mansion_Shirogane,
+            Houses.Private_Cottage_The_Goblet, Houses.Private_House_The_Goblet, Houses.Private_Mansion_The_Goblet,
+            Houses.Private_Cottage_The_Lavender_Beds, Houses.Private_House_The_Lavender_Beds, Houses.Private_Mansion_The_Lavender_Beds,
+            1249, 1250, 1251
+            );
+    }
+
+    public static bool IsInsideWorkshop()
+    {
+        return P.Territory.EqualsAny(Houses.Company_Workshop_Empyreum, Houses.Company_Workshop_Mist, Houses.Company_Workshop_Shirogane, Houses.Company_Workshop_The_Goblet, Houses.Company_Workshop_The_Lavender_Beds);
+    }
+
+    public static bool IsInsidePrivateChambers()
+    {
+        return P.Territory.EqualsAny(Houses.Private_Chambers_Empyreum, Houses.Private_Chambers_Mist, Houses.Private_Chambers_Shirogane, Houses.Private_Chambers_The_Goblet, Houses.Private_Chambers_The_Lavender_Beds);
+    }
+
+    public static bool IsTerritoryResidentialDistrict(ushort obj)
+    {
+        return obj.EqualsAny(ResidentalAreas.Mist, ResidentalAreas.Shirogane, ResidentalAreas.Empyreum, ResidentalAreas.The_Goblet, ResidentalAreas.The_Lavender_Beds);
+    }
+
     public static void EnsureEnhancedLoginIsOff()
     {
-        try
+        /*try
         {
             if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "HaselTweaks" && x.IsLoaded))
             {
@@ -67,7 +94,7 @@ internal static unsafe class Utils
         catch(Exception e)
         {
             e.Log();
-        }
+        }*/
     }
 
     public static string GetCharaName(ulong cid)
@@ -618,7 +645,7 @@ internal static unsafe class Utils
         var h = HousingManager.Instance();
         if(h == null) return false;
         if(h->GetCurrentWard() != entry.Ward - 1) return false;
-        if(Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) != entry.City) return false;
+        if(Utils.GetResidentialAetheryteByTerritoryType(P.Territory) != entry.City) return false;
         if(entry.PropertyType == PropertyType.House)
         {
             return h->GetCurrentPlot() == entry.Plot - 1;
@@ -635,7 +662,7 @@ internal static unsafe class Utils
     {
         if(P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward - 1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
         var h = HousingManager.Instance();
-        return h != null && entry.City.GetResidentialTerritory() == Svc.ClientState.TerritoryType && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.RowId;
+        return h != null && entry.City.GetResidentialTerritory() == P.Territory && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.RowId;
     }
 
     public static void GoTo(this AddressBookEntry entry)
@@ -930,7 +957,7 @@ internal static unsafe class Utils
         if(P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
         if(P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
         if(P.ResidentialAethernet.IsInResidentialZone() && P.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
-        if(P.CustomAethernet.ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType) && P.CustomAethernet.ActiveAetheryte != null) return AetheryteUseState.Custom;
+        if(P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory) && P.CustomAethernet.ActiveAetheryte != null) return AetheryteUseState.Custom;
         return AetheryteUseState.None;
     }
 
@@ -1021,7 +1048,7 @@ internal static unsafe class Utils
 
     internal static bool TryGetTinyAetheryteFromIGameObject(IGameObject a, out TinyAetheryte? t, uint? TerritoryType = null)
     {
-        TerritoryType ??= Svc.ClientState.TerritoryType;
+        TerritoryType ??= P.Territory;
         if(a == null)
         {
             t = default;
@@ -1147,7 +1174,7 @@ internal static unsafe class Utils
                 var d2d = Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2());
                 var d3d = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
                 if(P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
-                if(P.CustomAethernet.MaxDistance.TryGetValue(Svc.ClientState.TerritoryType, out var distance) && d3d > distance) continue;
+                if(P.CustomAethernet.MaxDistance.TryGetValue(P.Territory, out var distance) && d3d > distance) continue;
 
                 if(d2d < 11f
                     && d3d < 15f

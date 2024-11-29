@@ -67,7 +67,7 @@ public static unsafe class TaskISShortcut
         var point = npcNullable == null ? NPCPoints[IslandNPC.TactfulTaskmaster] : NPCPoints[npcNullable.Value];
         P.TaskManager.Enqueue(() =>
         {
-            if(Player.Territory == IslandTerritories.Island)
+            if(P.Territory == IslandTerritories.Island)
             {
                 EnqueueNavToNPC(point);
             }
@@ -86,7 +86,7 @@ public static unsafe class TaskISShortcut
             P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(baldin));
             P.TaskManager.Enqueue(TalkWithBaldin);
             P.TaskManager.Enqueue(ConfirmIslandTravel);
-            P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == IslandTerritories.Island, "WaitUntilPlayerInteractableOnIsland", TaskSettings.Timeout2M);
+            P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && P.Territory == IslandTerritories.Island, "WaitUntilPlayerInteractableOnIsland", TaskSettings.Timeout2M);
             P.TaskManager.Enqueue(() => EnqueueNavToNPC(point));
         }
 
@@ -134,7 +134,7 @@ public static unsafe class TaskISShortcut
                 {
                     if(!task.IsCompleted) return false;
                     var path = task.Result;
-                    P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+                    P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
                     P.TaskManager.Enqueue(() => P.FollowPath.Move([.. path], true));
                     return true;
                 }, "Build path");

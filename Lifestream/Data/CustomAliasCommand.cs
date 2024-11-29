@@ -2,6 +2,7 @@
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using Lifestream.Tasks.SameWorld;
+using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
 
@@ -43,6 +44,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Walk_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([Point, .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
         }
@@ -54,6 +56,7 @@ public class CustomAliasCommand
                 var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
                 P.TaskManager.InsertMulti(
                     new(() => task.IsCompleted),
+                    new(() => TaskMoveToHouse.UseSprint(false)),
                     new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
                     new(() => P.FollowPath.Waypoints.Count == 0)
                     );
@@ -66,7 +69,7 @@ public class CustomAliasCommand
             {
                 var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte);
                 var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte());
-                if(nearestAetheryte == null || Player.Territory != aetheryte.Territory.RowId || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
+                if(nearestAetheryte == null || P.Territory != aetheryte.Territory.RowId || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
                 {
                     P.TaskManager.InsertMulti(
                         new((Action)(() => S.TeleportService.TeleportToAetheryte(Aetheryte))),
@@ -87,6 +90,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Circular_movement)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([.. MathHelper.CalculateCircularMovement(CenterPoint, Player.Position.ToVector2(), CircularExitPoint.ToVector2(), out _, Precision, Tolerance, Clamp).Select(x => x.ToVector3(Player.Position.Y)).ToList(), .. (Vector3[])(WalkToExit ? [CircularExitPoint] : []), .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
         }

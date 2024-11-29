@@ -44,7 +44,7 @@ public sealed class ResidentialAethernet : IDisposable
 
     public ResidentialAetheryte? ActiveAetheryte = null;
 
-    public bool IsInResidentialZone() => ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType);
+    public bool IsInResidentialZone() => ZoneInfo.ContainsKey(P.Territory);
 
     public ResidentialAethernet()
     {
@@ -74,7 +74,7 @@ public sealed class ResidentialAethernet : IDisposable
 
     public void Tick()
     {
-        if(Svc.ClientState.LocalPlayer != null && ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType))
+        if(Svc.ClientState.LocalPlayer != null && ZoneInfo.ContainsKey(P.Territory))
         {
             UpdateActiveAetheryte();
         }
@@ -109,7 +109,7 @@ public sealed class ResidentialAethernet : IDisposable
     {
         if(obj == null) return null;
         var pos2 = obj.Position.ToVector2();
-        if(ZoneInfo.TryGetValue(Svc.ClientState.TerritoryType, out var result))
+        if(ZoneInfo.TryGetValue(P.Territory, out var result))
         {
             foreach(var l in result.Aetherytes)
             {

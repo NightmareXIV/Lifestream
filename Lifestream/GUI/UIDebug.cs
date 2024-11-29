@@ -141,7 +141,7 @@ internal static unsafe class UIDebug
                 }
             }
         }
-        if(data.TryGetValue(Svc.ClientState.TerritoryType, out var plots))
+        if(data.TryGetValue(P.Territory, out var plots))
         {
             if(ImGui.CollapsingHeader("Control"))
             {
@@ -283,9 +283,9 @@ internal static unsafe class UIDebug
         }
         else
         {
-            if(ImGui.Button($"Create data for {ExcelTerritoryHelper.GetName(Svc.ClientState.TerritoryType)}"))
+            if(ImGui.Button($"Create data for {ExcelTerritoryHelper.GetName(P.Territory)}"))
             {
-                data[Svc.ClientState.TerritoryType] = [];
+                data[P.Territory] = [];
             }
         }
     }
@@ -403,7 +403,7 @@ internal static unsafe class UIDebug
                 var pname = TerritoryInfo.Instance()->AreaPlaceNameId;
                 var pname2 = TerritoryInfo.Instance()->SubAreaPlaceNameId;
                 Copy($"""
-                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {Svc.ClientState.TerritoryType}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.ExtractText()} ({pname2}), 
+                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {P.Territory}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.ExtractText()} ({pname2}), 
                     """);
             }
             ImGuiEx.Text($"Active: {P.CustomAethernet.ActiveAetheryte}");

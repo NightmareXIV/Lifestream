@@ -145,7 +145,7 @@ internal unsafe class Memory : IDisposable
                             }
                             if(P.ResidentialAethernet.ActiveAetheryte != null)
                             {
-                                var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(Svc.ClientState.TerritoryType);
+                                var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
                                 if(zone != null)
                                 {
                                     foreach(var x in zone.Aetherytes)
@@ -160,7 +160,7 @@ internal unsafe class Memory : IDisposable
                             }
                             if(P.CustomAethernet.ActiveAetheryte != null)
                             {
-                                var zone = P.CustomAethernet.ZoneInfo.SafeSelect(Svc.ClientState.TerritoryType);
+                                var zone = P.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
                                 if(zone != null)
                                 {
                                     foreach(var x in zone)

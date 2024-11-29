@@ -46,13 +46,13 @@ public unsafe class InstanceHandler : IDisposable
             }
             else
             {
-                if(P.Config.PublicInstances.TryGetValue(Player.Territory, out var value) && value == inst)
+                if(P.Config.PublicInstances.TryGetValue(P.Territory, out var value) && value == inst)
                 {
                     //
                 }
                 else
                 {
-                    P.Config.PublicInstances[Player.Territory] = inst;
+                    P.Config.PublicInstances[P.Territory] = inst;
                     EzConfig.Save();
                 }
             }
@@ -66,7 +66,7 @@ public unsafe class InstanceHandler : IDisposable
 
     public bool InstancesInitizliaed(out int maxInstances)
     {
-        return P.Config.PublicInstances.TryGetValue(Player.Territory, out maxInstances);
+        return P.Config.PublicInstances.TryGetValue(P.Territory, out maxInstances);
     }
 
     public void Dispose()

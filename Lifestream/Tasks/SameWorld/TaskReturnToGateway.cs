@@ -13,13 +13,13 @@ public static class TaskReturnToGateway
         P.TaskManager.Enqueue(() =>
         {
             gateway = Utils.AdjustGateway(gateway);
-            if(force || Svc.ClientState.TerritoryType != gateway.GetTerritory())
+            if(force || P.Territory != gateway.GetTerritory())
             {
                 P.TaskManager.InsertMulti(
                     new(() => WorldChange.ExecuteTPToAethernetDestination((uint)gateway), $"ExecuteTPToAethernetDestination({gateway})"),
                     new(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas"),
                     new(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M),
-                    new(() => Player.Interactable && Svc.ClientState.TerritoryType == gateway.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M)
+                    new(() => Player.Interactable && P.Territory == gateway.GetTerritory(), "WaitUntilPlayerInteractable", TaskSettings.Timeout2M)
                     );
             }
             return true;

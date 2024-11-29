@@ -67,12 +67,12 @@ public static class TabMultipath
             {
                 Copy(EzConfig.DefaultSerializationFactory.Serialize(Selected, false));
             }
-            var currentPath = Selected?.Entries.FirstOrDefault(x => x.Territory == Svc.ClientState.TerritoryType);
+            var currentPath = Selected?.Entries.FirstOrDefault(x => x.Territory == P.Territory);
             if(currentPath == null)
             {
-                if(ImGui.Button($"Create for {ExcelTerritoryHelper.GetName(Svc.ClientState.TerritoryType)}"))
+                if(ImGui.Button($"Create for {ExcelTerritoryHelper.GetName(P.Territory)}"))
                 {
-                    Selected.Entries.Add(new() { Territory = Svc.ClientState.TerritoryType });
+                    Selected.Entries.Add(new() { Territory = P.Territory });
                 }
             }
             else

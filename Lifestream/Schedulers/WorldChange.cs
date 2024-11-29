@@ -183,7 +183,7 @@ internal static unsafe class WorldChange
                 }
             }
         }
-        else if(P.CustomAethernet.QuasiAethernetZones.Contains(Svc.ClientState.TerritoryType) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
+        else if(P.CustomAethernet.QuasiAethernetZones.Contains(P.Territory) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
         {
             foreach(var x in m.Entries)
             {

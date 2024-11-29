@@ -47,7 +47,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal TinyAetheryte? ActiveAetheryte = null;
     internal AutoRetainerApi AutoRetainerApi;
-    internal uint Territory => Svc.ClientState.TerritoryType;
+    internal uint Territory => TerritoryWatcher.GetRealTerritoryType();
     internal NotificationMasterApi NotificationMasterApi;
 
     public TaskManager TaskManager;
@@ -82,6 +82,7 @@ public unsafe class Lifestream : IDalamudPlugin
 #endif
         new TickScheduler(delegate
         {
+            TerritoryWatcher.Initialize();
             Config = EzConfig.Init<Config>();
             Utils.CheckConfigMigration();
             EzConfigGui.Init(MainGui.Draw);
@@ -435,7 +436,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskRemoveAfkStatus.Enqueue();
                 if(type != DCVType.Unknown)
                 {
-                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || ExcelTerritoryHelper.IsSanctuary(Svc.ClientState.TerritoryType)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || ExcelTerritoryHelper.IsSanctuary(P.Territory)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                     {
                         TaskTpToAethernetDestination.Enqueue(gateway.Value.AdjustGateway());
                     }
@@ -492,7 +493,7 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         YesAlreadyManager.Tick();
         followPath?.Update();
-        if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(Svc.ClientState.TerritoryType))
+        if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(P.Territory))
         {
             UpdateActiveAetheryte();
         }
@@ -536,7 +537,7 @@ public unsafe class Lifestream : IDalamudPlugin
             var pos2 = a.Position.ToVector2();
             foreach(var x in DataStore.Aetherytes)
             {
-                if(x.Key.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
+                if(x.Key.TerritoryType == P.Territory && Vector2.Distance(x.Key.Position, pos2) < 10)
                 {
                     if(ActiveAetheryte == null)
                     {
@@ -547,7 +548,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 foreach(var l in x.Value)
                 {
-                    if(l.TerritoryType == Svc.ClientState.TerritoryType && Vector2.Distance(l.Position, pos2) < 10)
+                    if(l.TerritoryType == P.Territory && Vector2.Distance(l.Position, pos2) < 10)
                     {
                         if(ActiveAetheryte == null)
                         {

@@ -183,7 +183,7 @@ public static unsafe class TaskPropertyShortcut
             PluginLog.Debug($"Inn territory: {ExcelTerritoryHelper.GetName(id)}");
             var data = InnData[id];
             var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.RowId == id);
-            if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && (Utils.GetReachableMasterAetheryte() == null || id != Player.Territory))
+            if((P.ActiveAetheryte == null || P.ActiveAetheryte.Value.ID != aetheryte.RowId) && (Utils.GetReachableMasterAetheryte() == null || id != P.Territory))
             {
                 P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(aetheryte.RowId, 0));
                 P.TaskManager.Enqueue(() => !IsScreenReady());
@@ -195,7 +195,7 @@ public static unsafe class TaskPropertyShortcut
             TaskTryTpToAethernetDestination.Enqueue(aethernetDest);
             P.TaskManager.Enqueue(() => !IsScreenReady());
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+            P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([.. data.Path], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
             P.TaskManager.Enqueue(() =>

@@ -16,7 +16,7 @@ public static class TaskApproachHousingAetheryte
     {
         P.TaskManager.EnqueueMulti(
             P.Config.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
-            new(TaskMoveToHouse.UseSprint),
+            new(() => TaskMoveToHouse.UseSprint(false)),
             new(MoveIMP),
             new(WaitUntilArrivesAtIMP),
             new(TargetNearestShard),
@@ -29,11 +29,11 @@ public static class TaskApproachHousingAetheryte
 
     public static void MoveIMP()
     {
-        if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Empyreum))
+        if(P.Territory.EqualsAny(ResidentalAreas.Empyreum))
         {
             P.FollowPath.Move([EmpyreumIMP.Pos], true);
         }
-        else if(Svc.ClientState.TerritoryType.EqualsAny(ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
+        else if(P.Territory.EqualsAny(ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
         {
             Chat.Instance.ExecuteCommand("/automove on");
         }
@@ -41,15 +41,15 @@ public static class TaskApproachHousingAetheryte
 
     public static bool WaitUntilArrivesAtIMP()
     {
-        if(Svc.ClientState.TerritoryType == ResidentalAreas.Empyreum)
+        if(P.Territory == ResidentalAreas.Empyreum)
         {
             return !P.FollowPath.Waypoints.Any();
         }
-        if(Svc.ClientState.TerritoryType == ResidentalAreas.The_Lavender_Beds)
+        if(P.Territory == ResidentalAreas.The_Lavender_Beds)
         {
             return Svc.Objects.Any(x => Utils.AethernetShards.Contains(x.DataId) && Vector3.Distance(Player.Object.Position, x.Position) < LavenderIMP.Distance);
         }
-        if(Svc.ClientState.TerritoryType == ResidentalAreas.Shirogane)
+        if(P.Territory == ResidentalAreas.Shirogane)
         {
             return Player.Object.Position.Z < 128f;
         }

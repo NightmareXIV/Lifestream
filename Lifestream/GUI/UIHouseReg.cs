@@ -4,6 +4,7 @@ using ECommons.SplatoonAPI;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
 using Lifestream.Enums;
+using Lifestream.Services;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
 
@@ -176,7 +177,7 @@ public static unsafe class UIHouseReg
             }
             if(data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
             {
-                if(!IsInsideHouse())
+                if(!Utils.IsInsideHouse())
                 {
                     var path = data.PathToEntrance;
                     new NuiBuilder()
@@ -220,6 +221,11 @@ public static unsafe class UIHouseReg
 
     public static void DrawPathEditor(List<Vector3> path, HousePathData? data = null)
     {
+        if(!TerritoryWatcher.IsDataReliable())
+        {
+            ImGuiEx.Text(EColor.RedBright, $"You can not edit house path right now. \nPlease exit and enter your house.");
+            return;
+        }
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the end of the list"))
         {
             path.Add(Player.Position);
@@ -235,12 +241,12 @@ public static unsafe class UIHouseReg
             if(entryPoint != null)
             {
                 ImGui.SameLine();
-                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test", data.ResidentialDistrict.GetResidentialTerritory() == Player.Territory && Vector3.Distance(Player.Position, entryPoint.Value) < 10f))
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test", data.ResidentialDistrict.GetResidentialTerritory() == P.Territory && Vector3.Distance(Player.Position, entryPoint.Value) < 10f))
                 {
                     P.FollowPath.Move(data.PathToEntrance, true);
                 }
                 ImGui.SameLine();
-                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test Workshop", data.PathToWorkshop.Count > 0 && IsInsideHouse()))
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Test Workshop", data.PathToWorkshop.Count > 0 && Utils.IsInsideHouse()))
                 {
                     P.FollowPath.Move(data.PathToWorkshop, true);
                 }
@@ -248,7 +254,7 @@ public static unsafe class UIHouseReg
                 {
                     ImGuiEx.Tooltip($"""
                         ResidentialDistrict territory: {data.ResidentialDistrict.GetResidentialTerritory()}
-                        Player territory: {Player.Territory}
+                        Player territory: {P.Territory}
                         Distance to entry point: {Vector3.Distance(Player.Position, entryPoint.Value)}
                         """);
                 }
@@ -329,18 +335,7 @@ public static unsafe class UIHouseReg
 
     private static bool IsOutside()
     {
-        return P.ResidentialAethernet.ZoneInfo.ContainsKey(Svc.ClientState.TerritoryType);
-    }
-
-    private static bool IsInsideHouse()
-    {
-        return Svc.ClientState.TerritoryType.EqualsAny(
-            Houses.Private_Cottage_Mist, Houses.Private_House_Mist, Houses.Private_Mansion_Mist,
-            Houses.Private_Cottage_Empyreum, Houses.Private_House_Empyreum, Houses.Private_Mansion_Empyreum,
-            Houses.Private_Cottage_Shirogane, Houses.Private_House_Shirogane, Houses.Private_Mansion_Shirogane,
-            Houses.Private_Cottage_The_Goblet, Houses.Private_House_The_Goblet, Houses.Private_Mansion_The_Goblet,
-            Houses.Private_Cottage_The_Lavender_Beds, Houses.Private_House_The_Lavender_Beds, Houses.Private_Mansion_The_Lavender_Beds
-            );
+        return P.ResidentialAethernet.ZoneInfo.ContainsKey(P.Territory);
     }
 
     public static bool TryGetCurrentPlotInfo(out ResidentialAetheryteKind kind, out int ward, out int plot)
@@ -355,7 +350,7 @@ public static unsafe class UIHouseReg
                 kind = default;
                 return false;
             }
-            kind = Utils.GetResidentialAetheryteByTerritoryType(Svc.ClientState.TerritoryType) ?? 0;
+            kind = Utils.GetResidentialAetheryteByTerritoryType(P.Territory) ?? 0;
             return kind != 0;
         }
         kind = default;

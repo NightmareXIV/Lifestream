@@ -130,9 +130,9 @@ public static unsafe class TaskGCShortcut
                     return false;
                 });
                 P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
-                P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && Player.Territory == CompanyTerritory[company], "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
+                P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && P.Territory == CompanyTerritory[company], "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
                 P.TaskManager.Enqueue(Utils.WaitForScreen);
-                P.TaskManager.Enqueue(TaskMoveToHouse.UseSprint);
+                P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
                 P.TaskManager.Enqueue(() => P.FollowPath.Move([.. point], true));
             }
             else

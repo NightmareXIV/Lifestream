@@ -22,8 +22,8 @@ public static unsafe class TaskMultipathExecute
             P.FollowPath.Stop();
             return false;
         }
-        var path = mpath.Entries.FirstOrDefault(x => x.Territory == Svc.ClientState.TerritoryType);
-        if(Svc.ClientState.TerritoryType != LastTerritory)
+        var path = mpath.Entries.FirstOrDefault(x => x.Territory == P.Territory);
+        if(P.Territory != LastTerritory)
         {
             P.FollowPath.Stop();
             var points = (List<Vector3>)[.. path.Points];
