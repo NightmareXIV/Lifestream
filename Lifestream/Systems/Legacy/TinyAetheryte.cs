@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.Sheets;
+﻿using Dalamud.Utility;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream.Systems.Legacy;
 
@@ -19,7 +20,7 @@ public struct TinyAetheryte : IEquatable<TinyAetheryte>, IAetheryte
         TerritoryType = territoryType;
         ID = iD;
         Group = group;
-        Name = Ref.AethernetName.Value.Name.ToString();
+        Name = Ref.AethernetName.Value.Name.ToDalamudString().TextValue;
         IsAetheryte = Ref.IsAetheryte;
     }
 

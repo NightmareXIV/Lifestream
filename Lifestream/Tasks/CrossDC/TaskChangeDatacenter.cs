@@ -48,7 +48,7 @@ internal static class TaskChangeDatacenter
     private static bool RetryVisit(string destination, string charaName, uint charaWorld)
     {
         if(!P.Config.EnableDvcRetry) return false;
-        PluginLog.Information($"Retrying DC visit");
+        //PluginLog.Information($"Retrying DC visit");
         if(RetryAt == 0)
         {
             RetryAt = Environment.TickCount64 + P.Config.DcvRetryInterval * 1000;
