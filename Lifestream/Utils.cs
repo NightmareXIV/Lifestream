@@ -148,8 +148,6 @@ internal static unsafe class Utils
 
     public static bool IsPlayerFalling()
     {
-        return false;
-        //TODO: fix
         var p = Svc.ClientState.LocalPlayer;
         if(p == null)
             return true;
@@ -159,9 +157,9 @@ internal static unsafe class Utils
         // 3 = going up
         // 4 = stopped
         // 5 = going down
-        var isJumping = *(byte*)(p.Address + 736) > 0;
+        var isJumping = *(byte*)(p.Address + 496+208) > 0;
         // 1 iff dismounting and haven't hit the ground yet
-        var isAirDismount = **(byte**)(p.Address + 1432) == 1;
+        var isAirDismount = **(byte**)(p.Address + 496+ 904) == 1;
 
         return isJumping || isAirDismount;
     }

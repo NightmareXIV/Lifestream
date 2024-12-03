@@ -3,6 +3,7 @@ using Dalamud.Memory;
 using Dalamud.Utility.Signatures;
 using ECommons.Automation.UIInput;
 using ECommons.EzHookManager;
+using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
