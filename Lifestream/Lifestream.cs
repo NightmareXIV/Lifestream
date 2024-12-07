@@ -1,4 +1,5 @@
 ﻿using AutoRetainerAPI;
+using Dalamud.Game.Gui.Dtr;
 using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.ChatMethods;
@@ -58,6 +59,8 @@ public unsafe class Lifestream : IDalamudPlugin
     public CustomAethernet CustomAethernet;
     internal FollowPath followPath = null;
     public Provider IPCProvider;
+    public static IDtrBarEntry? Entry;
+
     public FollowPath FollowPath
     {
         get
@@ -137,6 +140,7 @@ public unsafe class Lifestream : IDalamudPlugin
             SplatoonManager = new();
             IPCProvider = new();
             SingletonServiceManager.Initialize(typeof(Service));
+            Utils.HandleDtrBar(P.Config.AddDtrBar);
         });
     }
 
@@ -549,6 +553,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     public void Dispose()
     {
+        Utils.HandleDtrBar(false);
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
         Memory.Dispose();
