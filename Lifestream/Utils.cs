@@ -31,7 +31,10 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dalamud.Game.Gui.Dtr;
 using CharaData = (string Name, ushort World);
+using ECommons.EzEventManager;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace Lifestream;
 
@@ -244,7 +247,7 @@ internal static unsafe class Utils
             ImGui.BeginTooltip();
             ImGuiEx.Text($"Point: {point:F2}\nLeft-click to finish");
             ImGui.EndTooltip();
-            if(IsKeyPressed(Keys.LButton))
+            if(IsKeyPressed((int)Keys.LButton))
             {
                 isInWorldToScreen = false;
             }
@@ -274,7 +277,7 @@ internal static unsafe class Utils
             ImGui.BeginTooltip();
             ImGuiEx.Text($"Point: {point:F2}\nLeft-click to finish");
             ImGui.EndTooltip();
-            if(IsKeyPressed(Keys.LButton))
+            if(IsKeyPressed((int)Keys.LButton))
             {
                 isInWorldToScreen = false;
             }
@@ -1273,5 +1276,51 @@ internal static unsafe class Utils
     internal static void MigrateConfigButtonWidthToButtonWidthArray()
     {
         P.Config.ButtonWidthArray = [P.Config.ButtonWidth, P.Config.ButtonWidth, P.Config.ButtonWidth];
+    }
+#nullable enable
+    public static void HandleDtrBar(bool isAdding)
+    {
+        if (isAdding && Entry == null)
+        {
+            Entry ??= Svc.DtrBar.Get("DailyRoutines-InstanceZoneChangeCommand");
+            Entry.Shown = false;
+            Entry.Tooltip = "Lifestream-InstanceDisplay";
+            OnTerritoryChanged();
+            Svc.ClientState.TerritoryChanged += OnTerritoryChanged;
+            return;
+        }
+
+        if (!isAdding && Entry != null)
+        {
+            Entry.Remove();
+            Entry = null;
+            Svc.ClientState.TerritoryChanged -= OnTerritoryChanged;
+        }
+        return;
+
+        void OnTerritoryChanged(ushort zoneId = 0)
+        {
+            if (Entry == null) return;
+            Entry.Shown = UIState.Instance()->PublicInstance.IsInstancedArea();
+
+            Entry.Text = Entry.Shown
+                ? $"{SEChar(UIState.Instance()->PublicInstance.InstanceId)}"
+                : string.Empty;
+        }
+
+        static char SEChar(uint integer) =>
+            integer switch
+            {
+                1 => '\ue0b1',
+                2 => '\ue0b2',
+                3 => '\ue0b3',
+                4 => '\ue0b4',
+                5 => '\ue0b5',
+                6 => '\ue0b6',
+                7 => '\ue0b7',
+                8 => '\ue0b8',
+                9 => '\ue0b9',
+                _ => char.MinValue,
+            };
     }
 }
