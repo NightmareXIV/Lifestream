@@ -40,7 +40,7 @@ public class PaissaUtils
         return folder;
     }
 
-    public static async Task<string> GetListingsAsync(int worldId)
+    public static async Task<string> GetListingsForHomeWorldAsync(int worldId)
     {
         string url = $"https://paissadb.zhu.codes/worlds/{worldId}";
 
@@ -48,23 +48,29 @@ public class PaissaUtils
         {
             try
             {
+                PluginLog.Debug($"Getting PaissaDB listings for World ID {worldId}...");
                 HttpResponseMessage response = await client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
                     string responseData = await response.Content.ReadAsStringAsync();
-                    PluginLog.Debug("Response data:");
+                    PluginLog.Debug("Response received successfully from PaissaDB:");
                     PluginLog.Debug(responseData);
                     return responseData;
+                }
+                else
+                {
+                    string errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
+                    PluginLog.Error(errorMessage);
+                    return errorMessage;
                 }
             }
             catch (Exception ex)
             {
                 PluginLog.Error($"Exception occurred when getting house listings from PaissaDB: {ex.Message}");
+                return $"Exception: {ex.Message}";
             }
         }
-
-        return "Error getting house listings from PaissaDB";
     }
 
     private static string GetSizeString(int size)

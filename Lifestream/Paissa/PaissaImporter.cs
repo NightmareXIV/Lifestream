@@ -29,20 +29,45 @@ namespace Lifestream.Paissa
 
             if (ImGui.Button("Import from PaissaDB"))
             {
-                PluginLog.Debug("Retrieving house listings from PaissaDB...");
+                PluginLog.Debug("PaissaDB import process initiated!");
 
-                Task.Run(async () => {
-                    var responseData = await PaissaUtils.GetListingsAsync((int)Player.HomeWorldId);
-                    PaissaResponse responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
-                    AddressBookFolder newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        var responseData = await PaissaUtils.GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
 
-                    /* 
+                        if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
+                        {
+                            PluginLog.Error($"Error retrieving data: {responseData}");
+                            folderText = "Error: Unable to retrieve listings. See log for details.";
+                            return;
+                        }
 
-                    ADD NEW FOLDER TO LIST HERE
+                        PaissaResponse responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
+                        if (responseObject == null)
+                        {
+                            PluginLog.Error("Failed to deserialize PaissaResponse.");
+                            folderText = "Error: Invalid response format.";
+                            return;
+                        }
 
-                    */
+                        AddressBookFolder newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
 
-                    folderText = EzConfig.DefaultSerializationFactory.Serialize(newFolder, false);
+                        /*
+                         
+                         ADD NEW FOLDER TO LIST HERE
+                         
+                         */
+
+                        folderText = EzConfig.DefaultSerializationFactory.Serialize(newFolder, false);
+                        PluginLog.Debug("Folder serialized successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        PluginLog.Error($"Exception in import task: {ex.Message}");
+                        folderText = $"Error: {ex.Message}";
+                    }
                 });
             }
 
