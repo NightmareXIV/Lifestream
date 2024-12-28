@@ -574,7 +574,7 @@ internal static unsafe class Utils
             .Replace("%numeric", "([0-9]{1,2})");
     }
 
-    public static AddressBookEntry BuildAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision)
+    public static AddressBookEntry BuildAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision, string name = null)
     {
         var world = ExcelWorldHelper.Get(worldStr, true);
         if(world == null)
@@ -603,6 +603,7 @@ internal static unsafe class Utils
                 Plot = plot,
                 ApartmentSubdivision = isSubdivision,
             };
+            if (name != null) entry.Name = name;
             return entry;
         }
         return null;
