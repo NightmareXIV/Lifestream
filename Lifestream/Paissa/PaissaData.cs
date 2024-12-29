@@ -61,3 +61,8 @@ public class PaissaPlot
     [JsonProperty("lotto_phase_until")]
     public float LottoPhaseUntil;
 }
+
+public enum PaissaStatus
+{
+    Idle, Progress, Success, Error
+}

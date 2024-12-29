@@ -1,4 +1,5 @@
 ﻿using Lifestream.Data;
+using System.Drawing.Configuration;
 using System.Net.Http;
 
 namespace Lifestream.Paissa;
@@ -73,10 +74,36 @@ public class PaissaUtils
         }
     }
 
+    public static string GetStatusStringFromStatus(PaissaStatus status)
+    {
+        return status switch
+        {
+            PaissaStatus.Idle       => "",
+            PaissaStatus.Progress   => "Retrieving...",
+            PaissaStatus.Success    => "Success!",
+            PaissaStatus.Error      => "Error!",
+            _                       => "",
+        };
+    }
+
+    public static Vector4 GetStatusColorFromStatus(PaissaStatus status)
+    {
+        return status switch {
+            PaissaStatus.Idle       => System.Drawing.KnownColor.White.Vector(),
+            PaissaStatus.Progress   => System.Drawing.KnownColor.White.Vector(),
+            PaissaStatus.Success    => System.Drawing.KnownColor.LimeGreen.Vector(),
+            PaissaStatus.Error      => System.Drawing.KnownColor.Red.Vector(),
+            _                       => System.Drawing.KnownColor.White.Vector()
+        };
+    }
+
     private static string GetSizeString(int size)
     {
-        if (size == 0) return "Small";
-        else if (size == 1) return "Medium";
-        else return "Large";
+        return size switch
+        {
+            0 => "Small",
+            1 => "Medium",
+            _ => "Large"
+        };
     }
 }

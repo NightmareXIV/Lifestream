@@ -17,6 +17,9 @@ namespace Lifestream.Paissa
 
         private string ID;
         private string folderText = "No folder yet...";
+        private bool buttonDisabled = false;
+        private DateTime disableEndTime;
+        private PaissaStatus status = PaissaStatus.Idle;
 
         public PaissaImporter(string id = "##paissa")
         {
@@ -27,49 +30,29 @@ namespace Lifestream.Paissa
         {
             ImGui.PushID(ID);
 
+            if (buttonDisabled && DateTime.Now >= disableEndTime)
+            {
+                buttonDisabled = false;
+                status = PaissaStatus.Idle;
+            }
+            bool isDisabled = buttonDisabled;
+            if (isDisabled) ImGui.BeginDisabled();
+
             if (ImGui.Button("Import from PaissaDB"))
             {
                 PluginLog.Debug("PaissaDB import process initiated!");
+                buttonDisabled = true;
+                disableEndTime = DateTime.Now.AddSeconds(5);
+                status = PaissaStatus.Progress;
 
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        var responseData = await PaissaUtils.GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
-
-                        if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
-                        {
-                            PluginLog.Error($"Error retrieving data: {responseData}");
-                            folderText = "Error: Unable to retrieve listings. See log for details.";
-                            return;
-                        }
-
-                        PaissaResponse responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
-                        if (responseObject == null)
-                        {
-                            PluginLog.Error("Failed to deserialize PaissaResponse.");
-                            folderText = "Error: Invalid response format.";
-                            return;
-                        }
-
-                        AddressBookFolder newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
-
-                        /*
-                         
-                         ADD NEW FOLDER TO LIST HERE
-                         
-                         */
-
-                        folderText = EzConfig.DefaultSerializationFactory.Serialize(newFolder, false);
-                        PluginLog.Debug("Folder serialized successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        PluginLog.Error($"Exception in import task: {ex.Message}");
-                        folderText = $"Error: {ex.Message}";
-                    }
-                });
+                _ = ImportFromPaissaDBAsync();
             }
+
+            if (isDisabled) ImGui.EndDisabled();
+
+            ImGui.SameLine();
+
+            ImGui.TextColored(PaissaUtils.GetStatusColorFromStatus(status), PaissaUtils.GetStatusStringFromStatus(status));
 
             // Display folder object in text field to copy and import for testing
             byte[] textBuffer = new byte[2048];
@@ -77,6 +60,49 @@ namespace Lifestream.Paissa
             ImGui.InputText("", textBuffer, (uint)textBuffer.Length);
 
             ImGui.PopID();
+        }
+
+        private async Task ImportFromPaissaDBAsync()
+        {
+            try
+            {
+                var responseData = await PaissaUtils.GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
+
+                if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
+                {
+                    PluginLog.Error($"Error retrieving data: {responseData}");
+                    folderText = "Error: Unable to retrieve listings. See log for details.";
+                    status = PaissaStatus.Error;
+                    return;
+                }
+
+                PaissaResponse responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
+                if (responseObject == null)
+                {
+                    PluginLog.Error("Failed to deserialize PaissaResponse.");
+                    folderText = "Error: Invalid response format.";
+                    status = PaissaStatus.Error;
+                    return;
+                }
+
+                AddressBookFolder newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
+
+                /*
+                
+                 ADD NEW FOLDER TO LIST HERE
+
+                */
+
+                folderText = EzConfig.DefaultSerializationFactory.Serialize(newFolder, false);
+                PluginLog.Debug("Folder serialized successfully.");
+                status = PaissaStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error($"Exception in import task: {ex.Message}");
+                folderText = $"Error: {ex.Message}";
+                status = PaissaStatus.Error;
+            }
         }
     }
 }
