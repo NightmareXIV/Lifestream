@@ -1278,13 +1278,15 @@ internal static unsafe class Utils
         P.Config.ButtonWidthArray = [P.Config.ButtonWidth, P.Config.ButtonWidth, P.Config.ButtonWidth];
     }
 #nullable enable
-    public static void HandleDtrBar(bool isAdding)
+    public static void HandleDtrBar(bool? isAddingNullable)
     {
+        var isAdding = isAddingNullable ?? false;
         if (isAdding && Entry == null)
         {
-            Entry ??= Svc.DtrBar.Get("Lifestream-DisplayInstanceId");
-            Entry.Shown = false;
-            Entry.Tooltip = "Lifestream-DisplayInstanceId";
+            Entry         ??= Svc.DtrBar.Get("Lifestream-DisplayInstanceId");
+            Entry.Shown     = false;
+            Entry.Text    = string.Empty;
+            Entry.Tooltip = string.Empty;
             OnTerritoryChanged();
             Svc.ClientState.TerritoryChanged += OnTerritoryChanged;
             return;
@@ -1302,10 +1304,10 @@ internal static unsafe class Utils
         {
             if (Entry == null) return;
             Entry.Shown = UIState.Instance()->PublicInstance.IsInstancedArea();
-
-            Entry.Text = Entry.Shown
-                ? $"{SEChar(UIState.Instance()->PublicInstance.InstanceId)}"
-                : string.Empty;
+            if (!Entry.Shown) return;
+            var instanceId = UIState.Instance()->PublicInstance.InstanceId;
+            Entry.Text = $"{SEChar(instanceId)}";
+            Entry.Tooltip = $"You are in Instance {instanceId}";
         }
 
         static char SEChar(uint integer) =>
