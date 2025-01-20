@@ -148,7 +148,7 @@ public class WotsitManager : IDisposable
     private void AddWotsitEntry(string townName, string name, uint aetheryteId, uint aethernetId)
     {
         var searchStr = name + (townName != null ? $" - {townName}" : "");
-        var displayName = "Teleport to " + name;
+        var displayName = "Teleport to " + searchStr;
 
         // TODO: icon ID
         var id = _faRegisterWithSearch!.InvokeFunc(P.Name, displayName, searchStr, 0);
