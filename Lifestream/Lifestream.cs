@@ -124,6 +124,7 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 DataStore.BuildWorlds();
                 Config.CharaMap[Player.CID] = Player.NameWithWorld;
+                WotsitManager.MaybeTryInit();
             });
             Svc.Framework.Update += Framework_Update;
             Memory = new();

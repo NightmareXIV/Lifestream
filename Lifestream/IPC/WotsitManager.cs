@@ -1,5 +1,7 @@
 using Dalamud.Plugin.Ipc;
 using Dalamud.Utility;
+using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.Sheets;
 
@@ -113,15 +115,33 @@ public class WotsitManager : IDisposable
         }
     }
 
-    private void Init()
+    private unsafe void Init()
     {
         ClearWotsit();
 
         _faRegisterWithSearch = Svc.PluginInterface.GetIpcSubscriber<string, string, string, uint, string>("FA.RegisterWithSearch");
 
-        // TODO: filter out unavailable aetherytes (unless this already does??)
+        // HACK: Avoid spoilers. Because we never reinitalize WotsitManager, any
+        // new aetherytes will not get added until the next time the plugin is
+        // reloaded.
+        uint[] visibleAetheryteIds = [];
+        if (Player.Available)
+        {
+            var visibleAetherytes = Telepo.Instance()->UpdateAetheryteList();
+            if (visibleAetherytes != null)
+            {
+                visibleAetheryteIds = visibleAetherytes->Select(x => x.AetheryteId).ToArray();
+            }
+        }
+
         foreach (var (rootAetheryte, aethernetShards) in P.DataStore.Aetherytes)
         {
+            if (visibleAetheryteIds.Length > 0 && !visibleAetheryteIds.Contains(rootAetheryte.ID))
+            {
+                PluginLog.Debug($"WotsitManager: Skipping aetheryte {rootAetheryte.ID} ({rootAetheryte.Name}) because it is not visible");
+                continue;
+            }
+
             string townName = null;
             if (AetheryteToTownPlaceName.TryGetValue(rootAetheryte.ID, out var placeId))
             {
