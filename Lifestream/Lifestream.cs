@@ -7,7 +7,6 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
-using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
@@ -155,6 +154,30 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
+        if (arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
+        {
+            var args = arguments.Split(" ");
+            if (args.Length == 4 && args[3] == "firmament")
+            {
+                args[3] = TaskAetheryteAethernetTeleport.FirmamentAethernetId.ToString();
+            }
+            if (args.Length != 4 || !uint.TryParse(args[2], out var a) || !uint.TryParse(args[3], out var b))
+            {
+                DuoLog.Error("Invalid arguments");
+                return;
+            }
+
+            try
+            {
+                TaskAetheryteAethernetTeleport.Enqueue(a, b);
+            }
+            catch (Exception e)
+            {
+                DuoLog.Error(e.Message);
+            }
+            return;
+        }
+
         if(arguments == "stop")
         {
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy ? 1 : 0)} tasks");
