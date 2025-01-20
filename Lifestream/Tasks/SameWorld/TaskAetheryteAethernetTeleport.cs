@@ -1,16 +1,15 @@
-﻿using Dalamud.Utility;
-using ECommons.Automation.NeoTaskManager.Tasks;
+﻿using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using Lifestream.Schedulers;
-using Lumina.Excel.Sheets;
+using OtterGui;
 
 namespace Lifestream.Tasks.SameWorld;
 
 internal static class TaskAetheryteAethernetTeleport
 {
     // Special values for the firmament.
-    internal const uint FirmamentRootAetheryteId = 70;
+    private const uint FirmamentRootAetheryteId = 70;
     internal const uint FirmamentAethernetId = uint.MaxValue;
     private const uint FirmamentRootAetheryteTerritoryId = 418;
     private const string Firmament = "The Firmament";
@@ -27,26 +26,16 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
-        var rootAetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(rootAetheryteId);
-        var aethernet = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(aethernetId);
-        if (!rootAetheryte.IsAetheryte)
+        if (!P.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
         {
-            throw new Exception($"Root aetheryte {rootAetheryteId} is not a full aetheryte");
+            throw new Exception($"Root aetheryte {rootAetheryteId} not found");
         }
-        if (rootAetheryte.AethernetGroup == 0)
+        if (!P.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
         {
-            throw new Exception($"Root aetheryte {rootAetheryteId} is not part of an aethernet group");
-        }
-        if (aethernet.IsAetheryte)
-        {
-            throw new Exception($"Aethernet {aethernetId} is not an aethernet shard");
-        }
-        if (rootAetheryte.AethernetGroup != aethernet.AethernetGroup)
-        {
-            throw new Exception($"Aethernet {aethernetId} is not in the same aethernet network as root aetheryte {rootAetheryteId}");
+            throw new Exception($"Aethernet {aethernetId} not found under root aetheryte {rootAetheryteId}");
         }
 
-        EnqueueInner(rootAetheryte.RowId, rootAetheryte.Territory.RowId, aethernet.AethernetName.Value.Name.ToDalamudString().TextValue);
+        EnqueueInner(rootAetheryte.ID, rootAetheryte.TerritoryType, aethernet.Name);
     }
 
     private static void EnqueueInner(uint rootAetheryteId, uint territoryId, string aethernetName)
@@ -56,6 +45,7 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
+        DuoLog.Information($"Teleporting to {aethernetName}");
         TaskRemoveAfkStatus.Enqueue();
 
         // Teleport to the root aetheryte unless we're already close to it.
