@@ -49,12 +49,17 @@ internal static class TaskAetheryteAethernetTeleport
         TaskRemoveAfkStatus.Enqueue();
 
         // Teleport to the root aetheryte unless we're already close to it.
-        if (Svc.ClientState.TerritoryType != territoryId || Utils.GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.HasValue && ae.Value.ID == rootAetheryteId) == null)
+        P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.Enqueue(() => S.TeleportService.TeleportToAetheryte(rootAetheryteId), "TeleportToRootAetheryte");
-            P.TaskManager.Enqueue(Utils.WaitForScreenFalse);
-            P.TaskManager.Enqueue(Utils.WaitForScreen);
-        }
+            if (Svc.ClientState.TerritoryType != territoryId || Utils.GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.HasValue && ae.Value.ID == rootAetheryteId) == null)
+            {
+                P.TaskManager.InsertMulti(
+                    new(() => S.TeleportService.TeleportToAetheryte(rootAetheryteId), "TeleportToRootAetheryte"),
+                    new(Utils.WaitForScreenFalse),
+                    new(Utils.WaitForScreen)
+                    );
+            }
+        }, "ConditionalTeleportToRootAetheryte");
 
         // Target and ensure we're in range to interact.
         P.TaskManager.EnqueueDelay(10, true);
