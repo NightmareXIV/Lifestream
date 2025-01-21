@@ -1,4 +1,5 @@
-﻿using ECommons.ExcelServices;
+﻿using ECommons.Automation.NeoTaskManager.Tasks;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using Lifestream.Tasks.SameWorld;
@@ -22,6 +23,7 @@ public class CustomAliasCommand
     public int Tolerance = 1;
     public bool WalkToExit = true;
     public float SkipTeleport = 15f;
+    public uint DataID = 0;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -93,6 +95,11 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([.. MathHelper.CalculateCircularMovement(CenterPoint, Player.Position.ToVector2(), CircularExitPoint.ToVector2(), out _, Precision, Tolerance, Clamp).Select(x => x.ToVector3(Player.Position.Y)).ToList(), .. (Vector3[])(WalkToExit ? [CircularExitPoint] : []), .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+        }
+        else if(Kind == CustomAliasKind.Interact)
+        {
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == this.DataID)));
         }
     }
 }

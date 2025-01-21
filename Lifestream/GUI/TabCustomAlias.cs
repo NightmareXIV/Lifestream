@@ -2,6 +2,7 @@
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
+using FFXIVClientStructs;
 using Lifestream.Data;
 using NightmareUI.ImGuiElements;
 using Aetheryte = Lumina.Excel.Sheets.Aetheryte;
@@ -228,6 +229,16 @@ public static class TabCustomAlias
                 }
 
                 ImGui.EndTable();
+            }
+        }
+        if(command.Kind == CustomAliasKind.Interact)
+        {
+            ImGui.SetNextItemWidth(150f);
+            ImGuiEx.InputUint("Data ID", ref command.DataID);
+            ImGui.SameLine();
+            if(ImGuiEx.Button("Target", Svc.Targets.Target?.DataId != 0))
+            {
+                command.DataID = Svc.Targets.Target.DataId;
             }
         }
         ImGui.PopID();
