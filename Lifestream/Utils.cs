@@ -722,8 +722,10 @@ internal static unsafe class Utils
         }
         return distance;
     }
-
+    
     public static bool? WaitForScreen() => IsScreenReady();
+    
+    public static bool? WaitForScreenFalse() => !IsScreenReady();
 
     public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryteKind refConfigField)
     {

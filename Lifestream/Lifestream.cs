@@ -8,7 +8,6 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
-using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
@@ -71,6 +70,7 @@ public unsafe class Lifestream : IDalamudPlugin
     }
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
+    public WotsitManager WotsitManager;
     public bool DisableHousePathData = false;
     public CharaSelectOverlay CharaSelectOverlay;
 
@@ -127,6 +127,7 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 DataStore.BuildWorlds();
                 Config.CharaMap[Player.CID] = Player.NameWithWorld;
+                WotsitManager.MaybeTryInit();
             });
             Svc.Framework.Update += Framework_Update;
             Memory = new();
@@ -138,6 +139,7 @@ public unsafe class Lifestream : IDalamudPlugin
             CustomAethernet = new();
             VnavmeshManager = new();
             SplatoonManager = new();
+            WotsitManager = new();
             IPCProvider = new();
             SingletonServiceManager.Initialize(typeof(Service));
             Utils.HandleDtrBar(P.Config.AddDtrBar);
@@ -159,7 +161,39 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
-        if(arguments == "stop")
+        if (arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
+        {
+            var args = arguments.Split(" ");
+            if (args.Length == 4 && args[3] == "firmament")
+            {
+                args[3] = TaskAetheryteAethernetTeleport.FirmamentAethernetId.ToString();
+            }
+            if (args.Length != 4 || !uint.TryParse(args[2], out var a) || !uint.TryParse(args[3], out var b))
+            {
+                DuoLog.Error("Invalid arguments");
+                return;
+            }
+
+            try
+            {
+                TaskAetheryteAethernetTeleport.Enqueue(a, b);
+            }
+            catch (Exception e)
+            {
+                DuoLog.Error(e.Message);
+            }
+        }
+        else if (arguments == "debug WotsitManager clear")
+        {
+            WotsitManager.TryClearWotsit();
+            Notify.Info("WotsitManager cleared, see logs for details");
+        }
+        else if (arguments == "debug WotsitManager init")
+        {
+            WotsitManager.MaybeTryInit();
+            Notify.Info("WotsitManager reinitialized, see logs for details");
+        }
+        else if(arguments == "stop")
         {
             Notify.Info($"Discarding {TaskManager.NumQueuedTasks + (TaskManager.IsBusy ? 1 : 0)} tasks");
             TaskManager.Abort();
@@ -553,6 +587,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     public void Dispose()
     {
+        WotsitManager.Dispose();
         Utils.HandleDtrBar(false);
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;

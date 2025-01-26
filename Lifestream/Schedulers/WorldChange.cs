@@ -1,4 +1,4 @@
-﻿
+﻿using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
 using ECommons.GameFunctions;
@@ -218,10 +218,20 @@ internal static unsafe class WorldChange
     }
 
 
-    internal static bool? TargetReachableAetheryte()
+    internal static bool? TargetReachableWorldChangeAetheryte()
+    {
+        return TargetReachableAetheryte(Utils.GetReachableWorldChangeAetheryte);
+    }
+
+    internal static bool? TargetReachableMasterAetheryte()
+    {
+        return TargetReachableAetheryte(Utils.GetReachableMasterAetheryte);
+    }
+
+    internal static bool? TargetReachableAetheryte(Func<bool, IGameObject> aetheryteFunc)
     {
         if(!Player.Available) return false;
-        var a = Utils.GetReachableWorldChangeAetheryte();
+        var a = aetheryteFunc(false);
         if(a != null)
         {
             if(!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
