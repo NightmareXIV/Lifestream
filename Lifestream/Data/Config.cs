@@ -78,4 +78,5 @@ public class Config : IEzConfig
     public Dictionary<ulong, string> CharaMap = [];
     public bool UseMount = true;
     public bool WotsitIntegrationEnabled = true;
+    public bool? AddDtrBar = true;
 }
