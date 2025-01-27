@@ -151,6 +151,16 @@ internal static unsafe class UISettings
         .Checkbox("Enable Data center and World visit from Character Select Menu", () => ref P.Config.AllowDCTravelFromCharaSelect)
         .Checkbox("Use world visit instead of DC visit to travel to same world on guest DC", () => ref P.Config.UseGuestWorldTravel)
 
+        .Section("Wotsit Integration")
+        .Widget(() =>
+        {
+            if (ImGui.Checkbox("Enable Wotsit Integration for teleporting to Aethernet destinations", ref P.Config.WotsitIntegrationEnabled))
+            {
+                P.WotsitManager.TryClearWotsit();
+                P.WotsitManager.MaybeTryInit();
+            }
+        })
+
         .Draw();
     }
 
@@ -200,6 +210,14 @@ internal static unsafe class UISettings
         .Checkbox("Enabled", () => ref P.Config.ShowInstanceSwitcher)
         .Checkbox("Retry on failure", () => ref P.Config.InstanceSwitcherRepeat)
         .Checkbox("Return to the ground when flying before changing instance", () => ref P.Config.EnableFlydownInstance)
+        .Widget("Display instance number in Dtr Bar", (x) =>
+        {
+            if (ImGuiEx.Checkbox(x, ref P.Config.AddDtrBar))
+            {
+                EzConfig.Save();
+                Utils.HandleDtrBar(P.Config.AddDtrBar);
+            }
+        })
         .SliderInt(150f, "Extra button height", () => ref P.Config.InstanceButtonHeight, 0, 50)
         .Widget("Reset Instance Data", (x) =>
         {

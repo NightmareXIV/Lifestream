@@ -27,7 +27,7 @@ internal static class TaskTPAndChangeWorld
                 {
                     P.TaskManager.InsertMulti(
                         new FrameDelayTask(10),
-                        new(WorldChange.TargetReachableAetheryte),
+                        new(WorldChange.TargetReachableWorldChangeAetheryte),
                         new(WorldChange.LockOn),
                         new(WorldChange.EnableAutomove),
                         new(WorldChange.WaitUntilMasterAetheryteExists),

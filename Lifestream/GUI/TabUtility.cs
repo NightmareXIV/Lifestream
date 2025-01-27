@@ -1,12 +1,7 @@
 ﻿using ECommons.GameHelpers;
-using NightmareUI;
+using Lifestream.Paissa;
 using NightmareUI.ImGuiElements;
 using NightmareUI.PrimaryUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.GUI;
 public static class TabUtility
@@ -18,6 +13,7 @@ public static class TabUtility
         EmptyName = "Disabled",
         ShouldHideWorld = (x) => x == Player.Object?.CurrentWorld.RowId
     };
+    static PaissaImporter PaissaImporter = new();
 
     public static void Draw()
     {
@@ -27,6 +23,11 @@ public static class TabUtility
             {
                 ImGuiEx.SetNextItemFullWidth();
                 WorldSelector.Draw(ref TargetWorldID);
+            })
+            .Section("Import house listings from PaissaDB")
+            .Widget(() => {
+                ImGuiEx.SetNextItemFullWidth();
+                PaissaImporter.Draw();
             })
             .Draw();
     }
