@@ -146,6 +146,13 @@ public static class TabCustomAlias
             Utils.DrawVector3Selector("walktopoint", ref command.Point);
         }
 
+        if(command.Kind.EqualsAny(CustomAliasKind.Navmesh_to_point))
+        {
+            ImGui.SameLine();
+            ImGuiEx.ButtonCheckbox(FontAwesomeIcon.FastForward, ref command.UseTA, EColor.Green);
+            ImGuiEx.Tooltip("Use TextAdvance for movement");
+        }
+
         if(command.Kind == CustomAliasKind.Change_world)
         {
             ImGui.SetNextItemWidth(150f);

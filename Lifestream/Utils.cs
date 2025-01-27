@@ -331,6 +331,14 @@ internal static unsafe class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == 1))
+        {
+            var marker = AgentMap.Instance()->FlagMapMarker;
+            value = new(marker.XFloat, marker.YFloat);
+        }
+        ScreenToWorldSelector(id, ref value);
+        ImGuiEx.Tooltip("To map flag");
     }
 
     public static void DrawVector3Selector(string id, ref Vector3 value)
@@ -356,6 +364,14 @@ internal static unsafe class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
+        ImGui.SameLine();
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == 1))
+        {
+            var marker = AgentMap.Instance()->FlagMapMarker;
+            value = new(marker.XFloat, 0, marker.YFloat);
+        }
+        ScreenToWorldSelector(id, ref value);
+        ImGuiEx.Tooltip("To map flag");
     }
 
     public static IEnumerable<uint> GetAllRegisteredAethernetDestinations()

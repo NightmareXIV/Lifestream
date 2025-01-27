@@ -24,6 +24,7 @@ public class CustomAliasCommand
     public bool WalkToExit = true;
     public float SkipTeleport = 15f;
     public uint DataID = 0;
+    public bool UseTA = false;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -53,16 +54,35 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && P.VnavmeshManager.IsReady() == true);
-            P.TaskManager.Enqueue(() =>
+            if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
-                var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
-                P.TaskManager.InsertMulti(
-                    new(() => task.IsCompleted),
-                    new(() => TaskMoveToHouse.UseSprint(false)),
-                    new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
-                    new(() => P.FollowPath.Waypoints.Count == 0)
-                    );
-            });
+                P.TaskManager.Enqueue(() =>
+                {
+                    S.TextAdvanceIPC.EnqueueMoveTo2DPoint(new()
+                    {
+                        Position = Point,
+                        NoInteract = true,
+                    }, 5f);
+                });
+                P.TaskManager.Enqueue(S.TextAdvanceIPC.IsBusy, new(abortOnTimeout:false, timeLimitMS:5000));
+                P.TaskManager.Enqueue(() => !S.TextAdvanceIPC.IsBusy(), new(timeLimitMS: 1000 * 60 * 5));
+                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true));
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+                P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+            }
+            else
+            {
+                P.TaskManager.Enqueue(() =>
+                {
+                    var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
+                    P.TaskManager.InsertMulti(
+                        new(() => task.IsCompleted),
+                        new(() => TaskMoveToHouse.UseSprint(false)),
+                        new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
+                        new(() => P.FollowPath.Waypoints.Count == 0)
+                        );
+                });
+            }
         }
         else if(Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {

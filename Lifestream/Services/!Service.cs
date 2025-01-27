@@ -1,4 +1,5 @@
 ﻿using Lifestream.GUI.Windows;
+using Lifestream.IPC;
 
 namespace Lifestream.Services;
 public static class Service
@@ -10,4 +11,5 @@ public static class Service
     public static ContextMenuManager ContextMenuManager { get; private set; }
     public static AddressBookFileSystemManager AddressBookFileSystemManager { get; private set; }
     public static CustomAliasFileSystemManager CustomAliasFileSystemManager { get; private set; }
+    public static TextAdvanceIPC TextAdvanceIPC { get; private set; }
 }
