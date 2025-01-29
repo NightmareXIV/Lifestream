@@ -30,11 +30,10 @@ public class DtrManager : IDisposable
         Entry = Svc.DtrBar.Get(Name);
         Entry.Shown = false;
         new EzTerritoryChanged(OnTerritoryChanged);
-        if(Svc.ClientState.IsLoggedIn)
-        {
-            OnTerritoryChanged(Svc.ClientState.TerritoryType);
-        }
+        Refresh();
     }
+
+    public void Refresh() => OnTerritoryChanged(Svc.ClientState.TerritoryType);
 
     private void OnTerritoryChanged(ushort obj)
     {

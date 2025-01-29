@@ -1,4 +1,6 @@
-﻿using ECommons.ExcelServices.TerritoryEnumeration;
+﻿using ECommons;
+using ECommons.ExcelServices;
+using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.SplatoonAPI;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -6,6 +8,7 @@ using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Services;
 using NightmareUI;
+using NightmareUI.ImGuiElements;
 using NightmareUI.PrimaryUI;
 
 namespace Lifestream.GUI;
@@ -27,25 +30,59 @@ public static unsafe class UIHouseReg
         }
     }
 
+    static ImGuiEx.RealtimeDragDrop<(ulong CID, HousePathData? Private, HousePathData? FC)> DragDropPathData = new("DragDropHPD", (x) => x.CID.ToString());
+    static string Search = "";
+    static int World = 0;
+    static WorldSelector WorldSelector = new()
+    {
+        DisplayCurrent = true,
+        ShouldHideWorld = (x) => !P.Config.HousePathDatas.Any(s => Utils.GetWorldFromCID(s.CID) == ExcelWorldHelper.GetName(x)),
+        EmptyName = "All Worlds",
+        DefaultAllOpen = true,
+    };
+
     private static void DrawOverview()
     {
-        var charas = P.Config.HousePathDatas.Select(x => x.CID).Distinct();
-        if(ImGui.BeginTable("##charaTable", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoSavedSettings))
+        ImGuiEx.InputWithRightButtonsArea(() =>
         {
+            ImGui.InputTextWithHint("##search", "Search...", ref Search, 50);
+        }, () =>
+        {
+            ImGui.SetNextItemWidth(200f);
+            WorldSelector.Draw(ref World);
+        });
+        List<(ulong CID, HousePathData? Private, HousePathData? FC)> charaDatas = [];
+        foreach(var x in P.Config.HousePathDatas.Select(x => x.CID).Distinct())
+        {
+            charaDatas.Add((x, P.Config.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x), P.Config.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x)));
+        }
+        DragDropPathData.Begin();
+        if(ImGui.BeginTable("##charaTable", 5, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoSavedSettings))
+        {
+            ImGui.TableSetupColumn("##move");
             ImGui.TableSetupColumn("Name or CID", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("Private");
             ImGui.TableSetupColumn("FC");
             ImGui.TableSetupColumn("Workshop");
             ImGui.TableHeadersRow();
 
-            foreach(var x in charas)
+            for(int i = 0; i < charaDatas.Count; i++)
             {
-                ImGui.PushID($"{x}");
-                var priv = P.Config.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x);
-                var fc = P.Config.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x);
+                var charaData = charaDatas[i];
+                var charaName = Utils.GetCharaName(charaData.CID);
+                if(Search != "" && !charaName.Contains(Search, StringComparison.OrdinalIgnoreCase)) continue;
+                if(World != 0 && Utils.GetWorldFromCID(charaData.CID) != ExcelWorldHelper.GetName(World)) continue;
+                ImGui.PushID($"{charaData}");
+                var priv = charaData.Private;
+                var fc = charaData.FC;
+                var entry = (priv ?? fc)!;
                 ImGui.TableNextRow();
+                DragDropPathData.SetRowColor(entry.CID.ToString());
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"{Utils.GetCharaName(x)}");
+                DragDropPathData.NextRow();
+                DragDropPathData.DrawButtonDummy(charaData.CID.ToString(), charaDatas, i);
+                ImGui.TableNextColumn();
+                ImGuiEx.TextV($"{charaName}");
                 ImGui.TableNextColumn();
                 if(priv != null)
                 {
@@ -55,7 +92,7 @@ public static unsafe class UIHouseReg
                     ImGui.SameLine();
                     if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DelePrivate"))
                     {
-                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == x));
+                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == charaData.CID));
                     }
                     ImGuiEx.Tooltip("Cancel private house registration");
                     if(priv.PathToEntrance.Count > 0)
@@ -82,7 +119,7 @@ public static unsafe class UIHouseReg
                     ImGui.SameLine();
                     if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DeleFc"))
                     {
-                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == x));
+                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == charaData.CID));
                     }
                     ImGuiEx.Tooltip("Cancel FC house registration");
                     if(fc.PathToEntrance.Count > 0)
@@ -119,8 +156,14 @@ public static unsafe class UIHouseReg
             }
 
             ImGui.EndTable();
+            DragDropPathData.End();
         }
-        
+        P.Config.HousePathDatas.Clear();
+        foreach(var x in charaDatas)
+        {
+            if(x.Private != null) P.Config.HousePathDatas.Add(x.Private);
+            if(x.FC != null) P.Config.HousePathDatas.Add(x.FC);
+        }
     }
 
     private static void DrawFC()

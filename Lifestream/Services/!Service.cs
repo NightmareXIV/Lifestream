@@ -13,4 +13,6 @@ public static class Service
     public static CustomAliasFileSystemManager CustomAliasFileSystemManager;
     public static TextAdvanceIPC TextAdvanceIPC;
     public static HttpClientProvider HttpClientProvider;
+    public static DtrManager DtrManager;
+    public static WotsitManager WotsitManager;
 }

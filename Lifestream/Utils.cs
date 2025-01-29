@@ -39,6 +39,11 @@ namespace Lifestream;
 
 internal static unsafe class Utils
 {
+    public static string GetWorldFromCID(ulong cid)
+    {
+        return Utils.GetCharaName(cid)?.Split("@").SafeSelect(1);
+    }
+
     public static bool IsInsideHouse()
     {
         return P.Territory.EqualsAny<uint>(

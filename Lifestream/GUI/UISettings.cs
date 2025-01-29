@@ -213,8 +213,8 @@ internal static unsafe class UISettings
             if (anyChanged)
             {
                 PluginLog.Debug("Wotsit integration settings changed, re-initializing immediately");
-                P.WotsitManager.TryClearWotsit();
-                P.WotsitManager.MaybeTryInit(true);
+                S.WotsitManager.TryClearWotsit();
+                S.WotsitManager.MaybeTryInit(true);
             }
         })
 
@@ -267,12 +267,11 @@ internal static unsafe class UISettings
         .Checkbox("Enabled", () => ref P.Config.ShowInstanceSwitcher)
         .Checkbox("Retry on failure", () => ref P.Config.InstanceSwitcherRepeat)
         .Checkbox("Return to the ground when flying before changing instance", () => ref P.Config.EnableFlydownInstance)
-        .Widget("Display instance number in Dtr Bar", (x) =>
+        .Widget("Display instance number in Server Info Bar", (x) =>
         {
-            if (ImGuiEx.Checkbox(x, ref P.Config.AddDtrBar))
+            if (ImGui.Checkbox(x, ref P.Config.EnableDtrBar))
             {
-                EzConfig.Save();
-                Utils.HandleDtrBar(P.Config.AddDtrBar);
+                S.DtrManager.Refresh();
             }
         })
         .SliderInt(150f, "Extra button height", () => ref P.Config.InstanceButtonHeight, 0, 50)

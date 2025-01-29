@@ -70,7 +70,6 @@ public unsafe class Lifestream : IDalamudPlugin
     }
     public VnavmeshManager VnavmeshManager;
     public SplatoonManager SplatoonManager;
-    public WotsitManager WotsitManager;
     public bool DisableHousePathData = false;
     public CharaSelectOverlay CharaSelectOverlay;
 
@@ -138,10 +137,8 @@ public unsafe class Lifestream : IDalamudPlugin
             CustomAethernet = new();
             VnavmeshManager = new();
             SplatoonManager = new();
-            WotsitManager = new();
             IPCProvider = new();
             SingletonServiceManager.Initialize(typeof(Service));
-            Utils.HandleDtrBar(P.Config.AddDtrBar);
         });
     }
 
@@ -184,12 +181,12 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if (arguments == "debug WotsitManager clear")
         {
-            WotsitManager.TryClearWotsit();
+            S.WotsitManager.TryClearWotsit();
             Notify.Info("WotsitManager cleared, see logs for details");
         }
         else if (arguments == "debug WotsitManager init")
         {
-            WotsitManager.MaybeTryInit();
+            S.WotsitManager.MaybeTryInit();
             Notify.Info("WotsitManager reinitialized, see logs for details");
         }
         else if(arguments == "stop")
@@ -586,8 +583,6 @@ public unsafe class Lifestream : IDalamudPlugin
 
     public void Dispose()
     {
-        WotsitManager.Dispose();
-        Utils.HandleDtrBar(false);
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
         Memory.Dispose();

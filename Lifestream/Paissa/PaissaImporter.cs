@@ -17,7 +17,7 @@ public class PaissaImporter
     private const int BUTTON_DISABLE_TIME = 5; // in seconds
     private PaissaStatus status = PaissaStatus.Idle;
 
-    private PaissaImporter(string id = "##paissa")
+    public PaissaImporter(string id = "##paissa")
     {
         ID = id;
     }
