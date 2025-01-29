@@ -109,7 +109,7 @@ public static class WotsitEntryGenerator
         }
     }
 
-    private static IEnumerable<WotsitEntry> Generic(Config.WotsitIntegrationIncludedItems includes)
+    private static IEnumerable<WotsitEntry> Generic(WotsitIntegrationIncludedItems includes)
     {
         if (Player.CID != 0 && TaskPropertyShortcut.GetPrivateHouseAetheryteID() != 0)
         {
