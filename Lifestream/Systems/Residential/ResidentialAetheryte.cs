@@ -13,7 +13,7 @@ public struct ResidentialAetheryte : IEquatable<ResidentialAetheryte>, IAetheryt
     public ResidentialAetheryte(HousingAethernet data, bool isSubdivision, Vector2 subdivisionPositionModifier)
     {
         Ref = data;
-        Name = data.PlaceName.Value.Name.ExtractText();
+        Name = data.PlaceName.Value.Name.GetText();
         TerritoryType = data.TerritoryType.RowId;
         ID = data.RowId;
         IsSubdivision = isSubdivision;

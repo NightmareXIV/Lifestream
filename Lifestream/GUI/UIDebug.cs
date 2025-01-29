@@ -403,7 +403,7 @@ internal static unsafe class UIDebug
                 var pname = TerritoryInfo.Instance()->AreaPlaceNameId;
                 var pname2 = TerritoryInfo.Instance()->SubAreaPlaceNameId;
                 Copy($"""
-                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {P.Territory}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.ExtractText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.ExtractText()} ({pname2}), 
+                    new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {P.Territory}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.GetText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.GetText()} ({pname2}), 
                     """);
             }
             ImGuiEx.Text($"Active: {P.CustomAethernet.ActiveAetheryte}");
@@ -517,7 +517,7 @@ internal static unsafe class UIDebug
             }
         }
         var data = Svc.Data.GetExcelSheet<Addon>().GetRow(195);
-        var text = data.Text.ExtractText();
+        var text = data.Text.GetText();
         if(ImGui.Button("Lumina"))
         {
             /*foreach(var x in data.Text.Payloads)

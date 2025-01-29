@@ -57,7 +57,7 @@ public sealed class CustomAethernet
 
     public static string GetPlaceName(uint id)
     {
-        return Svc.Data.GetExcelSheet<PlaceName>().GetRow(id).Name.ExtractText();
+        return Svc.Data.GetExcelSheet<PlaceName>().GetRow(id).Name.GetText();
     }
 
     public CustomAetheryte? ActiveAetheryte = null;

@@ -104,7 +104,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Use_Aethernet)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            var aethernetPoint = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte).AethernetName.Value.Name.ExtractText();
+            var aethernetPoint = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte).AethernetName.Value.Name.GetText();
             TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
             P.TaskManager.Enqueue(() => !IsScreenReady());
             P.TaskManager.Enqueue(() => IsScreenReady());

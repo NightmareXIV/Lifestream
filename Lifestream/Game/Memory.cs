@@ -131,7 +131,7 @@ internal unsafe class Memory : IDisposable
                         if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addon) && IsAddonReady(addon) && addon->IsVisible)
                         {
                             var node = addon->UldManager.NodeList[2]->GetAsAtkTextNode();
-                            var text = GenericHelpers.ReadSeString(&node->NodeText).ExtractText();
+                            var text = GenericHelpers.ReadSeString(&node->NodeText).GetText();
                             if(P.ActiveAetheryte != null)
                             {
                                 var master = Utils.GetMaster();

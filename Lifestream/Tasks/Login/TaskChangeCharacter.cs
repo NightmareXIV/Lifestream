@@ -57,7 +57,7 @@ public static unsafe class TaskChangeCharacter
     public static bool? SelectYesLogout()
     {
         if(!Svc.ClientState.IsLoggedIn) return true;
-        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>()?.GetRow(115).Text.ExtractText());
+        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>()?.GetRow(115).Text.GetText());
         if(addon == null || !IsAddonReady(addon)) return false;
         if(Utils.GenericThrottle && EzThrottler.Throttle("ConfirmLogout"))
         {
@@ -69,7 +69,7 @@ public static unsafe class TaskChangeCharacter
 
     public static bool? Logout()
     {
-        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>()?.GetRow(115).Text.ExtractText());
+        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>()?.GetRow(115).Text.GetText());
         if(addon != null) return true;
         var isLoggedIn = Svc.Condition.Any();
         if(!isLoggedIn) return true;
@@ -90,7 +90,7 @@ public static unsafe class TaskChangeCharacter
         }
         if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
         {
-            var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11).Text.ExtractText();
+            var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11).Text.GetText();
             if(m.Text == compareTo)
             {
                 m.Entries[account].Select();

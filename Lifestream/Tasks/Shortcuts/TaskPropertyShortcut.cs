@@ -190,7 +190,7 @@ public static unsafe class TaskPropertyShortcut
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             }
             TaskApproachAetheryteIfNeeded.Enqueue();
-            var aethernetDest = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.ExtractText();
+            var aethernetDest = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.GetText();
             PluginLog.Debug($"Inn aethernet destination: {aethernetDest} at {aetheryte.AethernetName.Value.Name}");
             TaskTryTpToAethernetDestination.Enqueue(aethernetDest);
             P.TaskManager.Enqueue(() => !IsScreenReady());

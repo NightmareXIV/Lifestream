@@ -147,7 +147,7 @@ public unsafe class Lifestream : IDalamudPlugin
         if(!Svc.ClientState.IsLoggedIn)
         {
             //430	60	8	0	False	Please wait and try logging in later.
-            if(message.ExtractText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.ExtractText().Trim())
+            if(message.GetText().Trim() == Svc.Data.GetExcelSheet<LogMessage>().GetRow(430).Text.GetText().Trim())
             {
                 PluginLog.Warning($"CharaSelectListMenuError encountered");
                 EzThrottler.Throttle("CharaSelectListMenuError", 2.Minutes(), true);
@@ -365,13 +365,11 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             else
             {
-                var primary = arguments.Split(' ').SafeSelect(0);
-                var secondary = arguments.Split(' ').SafeSelect(1);
                 foreach(var b in Config.AddressBookFolders)
                 {
                     foreach(var e in b.Entries)
                     {
-                        if(e.AliasEnabled && e.Alias != "" && e.Alias.EqualsIgnoreCase(primary))
+                        if(e.AliasEnabled && e.Alias != "" && e.Alias.EqualsIgnoreCase(arguments))
                         {
                             e.GoTo();
                             return;
@@ -381,30 +379,46 @@ public unsafe class Lifestream : IDalamudPlugin
                 foreach(var x in Config.CustomAliases)
                 {
                     if(!x.Enabled || x.Alias == "") continue;
-                    if(x.Alias.EqualsIgnoreCase(primary))
+                    if(x.Alias.EqualsIgnoreCase(arguments))
                     {
                         x.Enqueue();
                         return;
                     }
                 }
+
+                var argsSplit = arguments.Split(' ');
+                var primary = arguments.Split(' ').SafeSelect(0);
+                var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(" ") : null;
+                WorldChangeAetheryte? gateway = null;
+                if(additionalCommand == "mb")
+                {
+                    gateway = WorldChangeAetheryte.Uldah;
+                }
+
                 if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
                     PluginLog.Information($"Same dc/{primary}/{w}");
-                    TPAndChangeWorld(w, false, secondary);
+                    TPAndChangeWorld(w, false, gateway: gateway);
                 }
                 else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
                 {
                     PluginLog.Information($"Cross dc/{primary}/{w}");
-                    TPAndChangeWorld(dcw, true, secondary);
+                    TPAndChangeWorld(dcw, true, gateway: gateway);
                 }
                 else if(Utils.TryGetWorldFromDataCenter(primary, out var world, out var dc))
                 {
                     Utils.DisplayInfo($"Random world from {Svc.Data.GetExcelSheet<WorldDCGroupType>().GetRow(dc).Name}: {world}");
-                    TPAndChangeWorld(world, Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId != dc, secondary);
+                    TPAndChangeWorld(world, Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId != dc, gateway: gateway);
                 }
                 else
                 {
                     TaskTryTpToAethernetDestination.Enqueue(primary);
+                }
+
+                if(additionalCommand != null)
+                {
+                    TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+                    TaskManager.Enqueue(() => Svc.Framework.RunOnTick(() => Svc.Commands.ProcessCommand($"/li {additionalCommand}"), delayTicks:1));
                 }
             }
         }

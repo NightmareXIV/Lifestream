@@ -498,7 +498,7 @@ internal static unsafe class Utils
         foreach(var x in Svc.Data.GetExcelSheet<WorldDCGroupType>())
         {
             if(x.RowId == 0 || x.Name == "") continue;
-            if(x.Name.ExtractText().StartsWith(s, StringComparison.OrdinalIgnoreCase))
+            if(x.Name.GetText().StartsWith(s, StringComparison.OrdinalIgnoreCase))
             {
                 var worlds = ExcelWorldHelper.GetPublicWorlds(x.RowId);
                 if(worlds.Length > 0)
@@ -861,7 +861,7 @@ internal static unsafe class Utils
                 var item = data->StringArray[i];
                 if (item != null)
                 {
-                    var str = MemoryHelper.ReadSeStringNullTerminated((nint)item).ExtractText();
+                    var str = MemoryHelper.ReadSeStringNullTerminated((nint)item).GetText();
                     if (str == "") break;
                     ret.Add(str);
                 }
@@ -1135,7 +1135,7 @@ internal static unsafe class Utils
                 if(IsAddonReady(addon))
                 {
                     var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
-                    var text = GenericHelpers.ReadSeString(&textNode->NodeText).ExtractText().Replace(" ", "");
+                    var text = GenericHelpers.ReadSeString(&textNode->NodeText).GetText().Replace(" ", "");
                     if(contains ?
                         text.ContainsAny(s.Select(x => x.Replace(" ", "")))
                         : text.EqualsAny(s.Select(x => x.Replace(" ", "")))
@@ -1163,7 +1163,7 @@ internal static unsafe class Utils
             for(var i = 3; i <= 9; i++)
             {
                 var item = addon->UldManager.NodeList[4]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
-                var text = GenericHelpers.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[4]->GetAsAtkTextNode()->NodeText).ExtractText();
+                var text = GenericHelpers.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[4]->GetAsAtkTextNode()->NodeText).GetText();
                 if(text == "") break;
                 arr.Add(text);
             }
@@ -1180,7 +1180,7 @@ internal static unsafe class Utils
             for(var i = 1; i <= 52; i++)
             {
                 var item = addon->UldManager.NodeList[16]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
-                var text = GenericHelpers.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText().Trim();
+                var text = GenericHelpers.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).GetText().Trim();
                 if(text == "") break;
                 arr.Add(text);
             }
@@ -1256,7 +1256,7 @@ internal static unsafe class Utils
         var list = new List<string>();
         for(var i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
         {
-            list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).ExtractText().Trim());
+            list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).GetText().Trim());
         }
         //PluginLog.Debug($"{list.Print()}");
         return list;

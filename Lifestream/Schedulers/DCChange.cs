@@ -78,7 +78,7 @@ internal static unsafe class DCChange
         {
             return true;
         }
-        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Addon>()?.GetRow(115).Text.ToDalamudString().ExtractText());
+        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Addon>()?.GetRow(115).Text.ToDalamudString().GetText());
         if(addon == null || !IsAddonReady(addon))
         {
             DCRethrottle();
@@ -176,7 +176,7 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
-            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.ExtractText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
+            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.GetText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
             {
                 PluginLog.Debug($"[DCChange] Selecting visit another data center");
                 entry.Select();
@@ -194,7 +194,7 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
-            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.ExtractText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
+            if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.GetText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
             {
                 PluginLog.Debug($"[DCChange] Selecting return to home world");
                 entry.Select();
@@ -231,7 +231,7 @@ internal static unsafe class DCChange
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
             var reader = new ReaderLobbyDKTWorldList(addon);
-            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).ExtractText();
+            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).GetText();
             if(reader.SelectedDataCenter == name)
             {
                 PluginLog.Information($"SelectTargetDataCenter complete");
@@ -253,7 +253,7 @@ internal static unsafe class DCChange
                         var t = list->Component->UldManager.NodeList[listIndex]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                         if(t->AtkResNode.Alpha_2 == 255)
                         {
-                            var text = GenericHelpers.ReadSeString(&t->NodeText).ExtractText();
+                            var text = GenericHelpers.ReadSeString(&t->NodeText).GetText();
                             if(text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
                             {
                                 PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {addonItem} list {listIndex}");
@@ -282,7 +282,7 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
-            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[10]->GetAsAtkTextNode()->NodeText).ExtractText();
+            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[10]->GetAsAtkTextNode()->NodeText).GetText();
             if(cw == name || (P.Config.DcvUseAlternativeWorld && cw.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString()))))
             {
                 return true;
@@ -294,7 +294,7 @@ internal static unsafe class DCChange
                 var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                 if(t->AtkResNode.Alpha_2 == 255)
                 {
-                    var text = GenericHelpers.ReadSeString(&t->NodeText).ExtractText();
+                    var text = GenericHelpers.ReadSeString(&t->NodeText).GetText();
                     if(text != "") num++;
                     if(text == name && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                     {
@@ -312,7 +312,7 @@ internal static unsafe class DCChange
                     var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                     if(t->AtkResNode.Alpha_2 == 255)
                     {
-                        var text = GenericHelpers.ReadSeString(&t->NodeText).ExtractText();
+                        var text = GenericHelpers.ReadSeString(&t->NodeText).GetText();
                         if(text != "") num++;
                         if(text.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString())) && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                         {
@@ -446,7 +446,7 @@ internal static unsafe class DCChange
         if(TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase)
             && addon->AtkUnitBase.UldManager.NodeListCount >= 4)
         {
-            var text = GenericHelpers.ReadSeString(&addon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).ExtractText();
+            var text = GenericHelpers.ReadSeString(&addon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText).GetText();
             var compareTo = Svc.Data.GetExcelSheet<Lobby>()?.GetRow(11).Text.ToString();
             if(text == compareTo)
             {

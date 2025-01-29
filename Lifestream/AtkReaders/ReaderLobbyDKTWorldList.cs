@@ -13,7 +13,7 @@ public unsafe class ReaderLobbyDKTWorldList(AtkUnitBase* UnitBase, int BeginOffs
 
     public int GetNumWorlds()
     {
-        var dc = ExcelWorldHelper.GetDataCenters().FirstOrNull(x => x.Name.ExtractText() == SelectedDataCenter);
+        var dc = ExcelWorldHelper.GetDataCenters().FirstOrNull(x => x.Name.GetText() == SelectedDataCenter);
         if(dc == null) return 0;
         var worlds = ExcelWorldHelper.GetPublicWorlds(dc.Value.RowId);
         return worlds.Count(x => x.IsPublic());
