@@ -4,12 +4,13 @@ using Lifestream.IPC;
 namespace Lifestream.Services;
 public static class Service
 {
-    public static SelectWorldWindow SelectWorldWindow { get; private set; }
-    public static TeleportService TeleportService { get; private set; }
-    //public static NetworkDebugger NetworkDebugger { get; private set; }
-    public static InstanceHandler InstanceHandler { get; private set; }
-    public static ContextMenuManager ContextMenuManager { get; private set; }
-    public static AddressBookFileSystemManager AddressBookFileSystemManager { get; private set; }
-    public static CustomAliasFileSystemManager CustomAliasFileSystemManager { get; private set; }
-    public static TextAdvanceIPC TextAdvanceIPC { get; private set; }
+    public static SelectWorldWindow SelectWorldWindow;
+    public static TeleportService TeleportService;
+    //public static NetworkDebugger NetworkDebugger;
+    public static InstanceHandler InstanceHandler;
+    public static ContextMenuManager ContextMenuManager;
+    public static AddressBookFileSystemManager AddressBookFileSystemManager;
+    public static CustomAliasFileSystemManager CustomAliasFileSystemManager;
+    public static TextAdvanceIPC TextAdvanceIPC;
+    public static HttpClientProvider HttpClientProvider;
 }

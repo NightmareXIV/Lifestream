@@ -1,6 +1,6 @@
 ﻿using Lifestream.Data;
-using System.Drawing.Configuration;
 using System.Net.Http;
+using static Lifestream.Paissa.PaissaData;
 
 namespace Lifestream.Paissa;
 
@@ -45,32 +45,30 @@ public class PaissaUtils
     {
         string url = $"https://paissadb.zhu.codes/worlds/{worldId}";
 
-        using (HttpClient client = new HttpClient())
+        var client = S.HttpClientProvider.Get();
+        try
         {
-            try
-            {
-                PluginLog.Debug($"Getting PaissaDB listings for World ID {worldId}...");
-                HttpResponseMessage response = await client.GetAsync(url);
+            PluginLog.Debug($"Getting PaissaDB listings for World ID {worldId}...");
+            HttpResponseMessage response = await client.GetAsync(url);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseData = await response.Content.ReadAsStringAsync();
-                    PluginLog.Debug("Response received successfully from PaissaDB:");
-                    PluginLog.Debug(responseData);
-                    return responseData;
-                }
-                else
-                {
-                    string errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
-                    PluginLog.Error(errorMessage);
-                    return errorMessage;
-                }
-            }
-            catch (Exception ex)
+            if (response.IsSuccessStatusCode)
             {
-                PluginLog.Error($"Exception occurred when getting house listings from PaissaDB: {ex.Message}");
-                return $"Exception: {ex.Message}";
+                string responseData = await response.Content.ReadAsStringAsync();
+                PluginLog.Debug("Response received successfully from PaissaDB:");
+                PluginLog.Debug(responseData);
+                return responseData;
             }
+            else
+            {
+                string errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
+                PluginLog.Error(errorMessage);
+                return errorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            PluginLog.Error($"Exception occurred when getting house listings from PaissaDB: {ex.Message}");
+            return $"Exception: {ex.Message}";
         }
     }
 
