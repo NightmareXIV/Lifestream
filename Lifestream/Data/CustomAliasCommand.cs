@@ -64,7 +64,7 @@ public class CustomAliasCommand
                         NoInteract = true,
                     }, 5f);
                 });
-                P.TaskManager.Enqueue(S.TextAdvanceIPC.IsBusy, new(abortOnTimeout:false, timeLimitMS:5000));
+                P.TaskManager.Enqueue(S.TextAdvanceIPC.IsBusy, new(abortOnTimeout: false, timeLimitMS: 5000));
                 P.TaskManager.Enqueue(() => !S.TextAdvanceIPC.IsBusy(), new(timeLimitMS: 1000 * 60 * 5));
                 P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true));
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
@@ -119,7 +119,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Interact)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == this.DataID)));
+            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == DataID)));
         }
     }
 }

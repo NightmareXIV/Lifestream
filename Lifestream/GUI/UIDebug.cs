@@ -375,7 +375,7 @@ internal static unsafe class UIDebug
                 ImGui.Unindent();
                 ImGui.Unindent();
             }
-        } 
+        }
         if(ImGui.CollapsingHeader("Context"))
         {
             if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m))
@@ -775,7 +775,7 @@ internal static unsafe class UIDebug
             var list = addon->UldManager.NodeList[6]->GetAsAtkComponentNode();
             for(var i = 3; i < 3 + 8; i++)
             {
-                addon->AtkValues[160 + (i-3)*8].Int = 0;
+                addon->AtkValues[160 + (i - 3) * 8].Int = 0;
                 var t = list->Component->UldManager.NodeList[i]->GetAsAtkComponentNode()->Component->UldManager.NodeList[8]->GetAsAtkTextNode();
                 if(t->Alpha_2 != 255)
                 {

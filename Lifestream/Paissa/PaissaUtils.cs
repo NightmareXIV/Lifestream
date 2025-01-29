@@ -10,9 +10,9 @@ public class PaissaUtils
     {
         List<AddressBookEntry> entries = [];
 
-        foreach (var district in paissaData.Districts)
+        foreach(var district in paissaData.Districts)
         {
-            foreach (var plot in district.OpenPlots)
+            foreach(var plot in district.OpenPlots)
             {
                 // Increment numbers by 1 because PaissaDB has them 0-indexed
                 var wardStr = (plot.WardNumber + 1).ToString();
@@ -31,7 +31,8 @@ public class PaissaUtils
             }
         }
 
-        AddressBookFolder folder = new() {
+        AddressBookFolder folder = new()
+        {
             ExportedName = "House Listings",
             Entries = entries,
             IsDefault = false,
@@ -43,29 +44,29 @@ public class PaissaUtils
 
     public static async Task<string> GetListingsForHomeWorldAsync(int worldId)
     {
-        string url = $"https://paissadb.zhu.codes/worlds/{worldId}";
+        var url = $"https://paissadb.zhu.codes/worlds/{worldId}";
 
         var client = S.HttpClientProvider.Get();
         try
         {
             PluginLog.Debug($"Getting PaissaDB listings for World ID {worldId}...");
-            HttpResponseMessage response = await client.GetAsync(url);
+            var response = await client.GetAsync(url);
 
-            if (response.IsSuccessStatusCode)
+            if(response.IsSuccessStatusCode)
             {
-                string responseData = await response.Content.ReadAsStringAsync();
+                var responseData = await response.Content.ReadAsStringAsync();
                 PluginLog.Debug("Response received successfully from PaissaDB:");
                 PluginLog.Debug(responseData);
                 return responseData;
             }
             else
             {
-                string errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
+                var errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
                 PluginLog.Error(errorMessage);
                 return errorMessage;
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             PluginLog.Error($"Exception occurred when getting house listings from PaissaDB: {ex.Message}");
             return $"Exception: {ex.Message}";
@@ -76,22 +77,23 @@ public class PaissaUtils
     {
         return status switch
         {
-            PaissaStatus.Idle       => "",
-            PaissaStatus.Progress   => "Retrieving...",
-            PaissaStatus.Success    => "Success!",
-            PaissaStatus.Error      => "Error!",
-            _                       => "",
+            PaissaStatus.Idle => "",
+            PaissaStatus.Progress => "Retrieving...",
+            PaissaStatus.Success => "Success!",
+            PaissaStatus.Error => "Error!",
+            _ => "",
         };
     }
 
     public static Vector4 GetStatusColorFromStatus(PaissaStatus status)
     {
-        return status switch {
-            PaissaStatus.Idle       => System.Drawing.KnownColor.White.Vector(),
-            PaissaStatus.Progress   => System.Drawing.KnownColor.White.Vector(),
-            PaissaStatus.Success    => System.Drawing.KnownColor.LimeGreen.Vector(),
-            PaissaStatus.Error      => System.Drawing.KnownColor.Red.Vector(),
-            _                       => System.Drawing.KnownColor.White.Vector()
+        return status switch
+        {
+            PaissaStatus.Idle => System.Drawing.KnownColor.White.Vector(),
+            PaissaStatus.Progress => System.Drawing.KnownColor.White.Vector(),
+            PaissaStatus.Success => System.Drawing.KnownColor.LimeGreen.Vector(),
+            PaissaStatus.Error => System.Drawing.KnownColor.Red.Vector(),
+            _ => System.Drawing.KnownColor.White.Vector()
         };
     }
 

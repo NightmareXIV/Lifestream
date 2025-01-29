@@ -157,14 +157,14 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
-        if (arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
+        if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
         {
             var args = arguments.Split(" ");
-            if (args.Length == 4 && args[3] == "firmament")
+            if(args.Length == 4 && args[3] == "firmament")
             {
                 args[3] = TaskAetheryteAethernetTeleport.FirmamentAethernetId.ToString();
             }
-            if (args.Length != 4 || !uint.TryParse(args[2], out var a) || !uint.TryParse(args[3], out var b))
+            if(args.Length != 4 || !uint.TryParse(args[2], out var a) || !uint.TryParse(args[3], out var b))
             {
                 DuoLog.Error("Invalid arguments");
                 return;
@@ -174,17 +174,17 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 TaskAetheryteAethernetTeleport.Enqueue(a, b);
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 DuoLog.Error(e.Message);
             }
         }
-        else if (arguments == "debug WotsitManager clear")
+        else if(arguments == "debug WotsitManager clear")
         {
             S.WotsitManager.TryClearWotsit();
             Notify.Info("WotsitManager cleared, see logs for details");
         }
-        else if (arguments == "debug WotsitManager init")
+        else if(arguments == "debug WotsitManager init")
         {
             S.WotsitManager.MaybeTryInit();
             Notify.Info("WotsitManager reinitialized, see logs for details");
@@ -302,7 +302,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
         {
-            var destination = arguments[(arguments.IndexOf("tp")+2)..].Trim();
+            var destination = arguments[(arguments.IndexOf("tp") + 2)..].Trim();
             if(destination == null || destination == "")
             {
                 DuoLog.Error($"Please type something");
@@ -350,7 +350,7 @@ public unsafe class Lifestream : IDalamudPlugin
                     DuoLog.Error($"Could not parse {destination}");
                 }
             }
-            
+
         }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {

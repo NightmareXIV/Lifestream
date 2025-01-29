@@ -10,7 +10,7 @@ public unsafe class ReaderLobbyDKTWorldList(AtkUnitBase* UnitBase, int BeginOffs
     public List<RegionInfo> Regions => Loop<RegionInfo>(14, 2 + 8 * 4, 4);
     public string SelectedDataCenter => ReadString(151);
     public List<WorldInfo> Worlds => Loop<WorldInfo>(154, 8, GetNumWorlds());
-    
+
     public int GetNumWorlds()
     {
         var dc = ExcelWorldHelper.GetDataCenters().FirstOrNull(x => x.Name.ExtractText() == SelectedDataCenter);

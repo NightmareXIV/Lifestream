@@ -72,7 +72,7 @@ internal unsafe class Memory : IDisposable
                 NextEvent = null,
                 State = new()
                 {
-                    EventType = AtkEventType.ListItemToggle, 
+                    EventType = AtkEventType.ListItemToggle,
                     UnkFlags1 = 0,
                     StateFlags = 0,
                     UnkFlags3 = 0,
@@ -123,7 +123,7 @@ internal unsafe class Memory : IDisposable
                 {
                     IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
                 }
-                if(a2 == 4 && IsLeftMouseHeld)  
+                if(a2 == 4 && IsLeftMouseHeld)
                 {
                     IsLeftMouseHeld = false;
                     if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))

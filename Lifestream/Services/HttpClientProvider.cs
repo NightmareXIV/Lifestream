@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Lifestream.Services;
 public class HttpClientProvider : IDisposable
 {
-    HttpClient Client;
+    private HttpClient Client;
     private HttpClientProvider()
     {
     }

@@ -1,11 +1,13 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.Gui.Dtr;
 using Dalamud.Memory;
 using ECommons.Automation;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
+using ECommons.EzEventManager;
 using ECommons.GameHelpers;
 using ECommons.Interop;
 using ECommons.MathHelpers;
@@ -14,6 +16,7 @@ using ECommons.SimpleGui;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -30,10 +33,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Dalamud.Game.Gui.Dtr;
 using CharaData = (string Name, ushort World);
-using ECommons.EzEventManager;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace Lifestream;
 
@@ -164,9 +164,9 @@ internal static unsafe class Utils
         // 3 = going up
         // 4 = stopped
         // 5 = going down
-        var isJumping = *(byte*)(p.Address + 496+208) > 0;
+        var isJumping = *(byte*)(p.Address + 496 + 208) > 0;
         // 1 iff dismounting and haven't hit the ground yet
-        var isAirDismount = **(byte**)(p.Address + 496+ 904) == 1;
+        var isAirDismount = **(byte**)(p.Address + 496 + 904) == 1;
 
         return isJumping || isAirDismount;
     }
@@ -626,7 +626,7 @@ internal static unsafe class Utils
                 Plot = plot,
                 ApartmentSubdivision = isSubdivision,
             };
-            if (name != null) entry.Name = name;
+            if(name != null) entry.Name = name;
             return entry;
         }
         return null;
@@ -742,9 +742,9 @@ internal static unsafe class Utils
         }
         return distance;
     }
-    
+
     public static bool? WaitForScreen() => IsScreenReady();
-    
+
     public static bool? WaitForScreenFalse() => !IsScreenReady();
 
     public static bool ResidentialAetheryteEnumSelector(string name, ref ResidentialAetheryteKind refConfigField)

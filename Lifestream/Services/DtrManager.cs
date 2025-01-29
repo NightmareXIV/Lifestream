@@ -25,7 +25,7 @@ public class DtrManager : IDisposable
     };
     public static string Name = "LifestreamInstance";
     public IDtrBarEntry Entry;
-    private DtrManager() 
+    private DtrManager()
     {
         Entry = Svc.DtrBar.Get(Name);
         Entry.Shown = false;

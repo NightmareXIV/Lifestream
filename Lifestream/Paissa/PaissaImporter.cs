@@ -26,15 +26,15 @@ public class PaissaImporter
     {
         ImGui.PushID(ID);
 
-        if (buttonDisabled && DateTime.Now >= disableEndTime)
+        if(buttonDisabled && DateTime.Now >= disableEndTime)
         {
             buttonDisabled = false;
             status = PaissaStatus.Idle;
         }
-        bool isDisabled = buttonDisabled;
-        if (isDisabled) ImGui.BeginDisabled();
+        var isDisabled = buttonDisabled;
+        if(isDisabled) ImGui.BeginDisabled();
 
-        if (ImGui.Button("Import from PaissaDB"))
+        if(ImGui.Button("Import from PaissaDB"))
         {
             PluginLog.Debug("PaissaDB import process initiated!");
             buttonDisabled = true;
@@ -44,29 +44,29 @@ public class PaissaImporter
             _ = ImportFromPaissaDBAsync();
         }
 
-        if (isDisabled) ImGui.EndDisabled();
+        if(isDisabled) ImGui.EndDisabled();
 
         ImGui.SameLine();
 
         ImGui.TextColored(PaissaUtils.GetStatusColorFromStatus(status), PaissaUtils.GetStatusStringFromStatus(status));
 
         // Display folder object in text field to copy and import for testing
-        if (textToCopy == false) ImGui.BeginDisabled();
-        byte[] textBuffer = new byte[2048];
+        if(textToCopy == false) ImGui.BeginDisabled();
+        var textBuffer = new byte[2048];
         Encoding.UTF8.GetBytes(folderText, 0, folderText.Length, textBuffer, 0);
         ImGui.InputText("", textBuffer, (uint)textBuffer.Length);
-        if (textToCopy == false) ImGui.EndDisabled();
+        if(textToCopy == false) ImGui.EndDisabled();
 
         ImGui.SameLine();
-        
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), new Vector2(30, 25), "Copy to clipboard.", !textToCopy, true))
+
+        if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), new Vector2(30, 25), "Copy to clipboard.", !textToCopy, true))
         {
             try
             {
                 Copy(folderText);
                 PluginLog.Debug("Text copied to clipboard: " + folderText);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 PluginLog.Error($"Failed to copy text to clipboard: {ex.Message}");
             }
@@ -81,7 +81,7 @@ public class PaissaImporter
         {
             var responseData = await PaissaUtils.GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
 
-            if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
+            if(responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
             {
                 PluginLog.Error($"Error retrieving data: {responseData}");
                 folderText = "Error: Unable to retrieve listings. See log for details.";
@@ -89,8 +89,8 @@ public class PaissaImporter
                 return;
             }
 
-            PaissaResponse responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
-            if (responseObject == null)
+            var responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
+            if(responseObject == null)
             {
                 PluginLog.Error("Failed to deserialize PaissaResponse.");
                 folderText = "Error: Invalid response format.";
@@ -98,7 +98,7 @@ public class PaissaImporter
                 return;
             }
 
-            AddressBookFolder newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
+            var newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
 
             /*
             
@@ -111,7 +111,7 @@ public class PaissaImporter
             status = PaissaStatus.Success;
             textToCopy = true;
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             PluginLog.Error($"Exception in import task: {ex.Message}");
             folderText = $"Error: {ex.Message}";

@@ -16,9 +16,9 @@ internal static class TaskAetheryteAethernetTeleport
 
     internal static void Enqueue(uint rootAetheryteId, uint aethernetId)
     {
-        if (aethernetId == FirmamentAethernetId)
+        if(aethernetId == FirmamentAethernetId)
         {
-            if (rootAetheryteId != FirmamentRootAetheryteId)
+            if(rootAetheryteId != FirmamentRootAetheryteId)
             {
                 throw new Exception($"Special firmament aethernet {FirmamentAethernetId} must be teleported from root aetheryte {FirmamentRootAetheryteId}");
             }
@@ -26,11 +26,11 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
-        if (!P.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
+        if(!P.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
         {
             throw new Exception($"Root aetheryte {rootAetheryteId} not found");
         }
-        if (!P.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
+        if(!P.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
         {
             throw new Exception($"Aethernet {aethernetId} not found under root aetheryte {rootAetheryteId}");
         }
@@ -40,7 +40,7 @@ internal static class TaskAetheryteAethernetTeleport
 
     private static void EnqueueInner(uint rootAetheryteId, uint territoryId, string aethernetName)
     {
-        if (!Player.Available)
+        if(!Player.Available)
         {
             return;
         }
@@ -51,7 +51,7 @@ internal static class TaskAetheryteAethernetTeleport
         // Teleport to the root aetheryte unless we're already close to it.
         P.TaskManager.Enqueue(() =>
         {
-            if (Svc.ClientState.TerritoryType != territoryId || Utils.GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.HasValue && ae.Value.ID == rootAetheryteId) == null)
+            if(Svc.ClientState.TerritoryType != territoryId || Utils.GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.HasValue && ae.Value.ID == rootAetheryteId) == null)
             {
                 P.TaskManager.InsertMulti(
                     new(() => S.TeleportService.TeleportToAetheryte(rootAetheryteId), "TeleportToRootAetheryte"),
@@ -66,7 +66,7 @@ internal static class TaskAetheryteAethernetTeleport
         P.TaskManager.Enqueue(WorldChange.TargetReachableMasterAetheryte);
         P.TaskManager.Enqueue(() =>
         {
-            if (P.ActiveAetheryte == null)
+            if(P.ActiveAetheryte == null)
             {
                 P.TaskManager.InsertMulti(
                     new(WorldChange.LockOn),
@@ -80,7 +80,7 @@ internal static class TaskAetheryteAethernetTeleport
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
 
         // If we're going to the firmament, select the firmament option.
-        if (aethernetName == Firmament)
+        if(aethernetName == Firmament)
         {
             P.TaskManager.Enqueue(() => Utils.TrySelectSpecificEntry(Lang.TravelToFirmament, () => EzThrottler.Throttle("SelectString")),
                 "SelectTravelToFirmament");

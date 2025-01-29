@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.Services;
-public static class TerritoryWatcher 
+public static class TerritoryWatcher
 {
     public static uint LastHousingOutdoorTerritory = 0;
     public static void Initialize()

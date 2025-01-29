@@ -8,8 +8,8 @@ namespace Lifestream.IPC;
 public class WotsitManager : IDisposable
 {
     // Map from registered Guid string to the entry.
-    private readonly Dictionary<string, WotsitEntry> _registered = new();
-    private HashSet<WotsitEntry> _lastEntries = new();
+    private readonly Dictionary<string, WotsitEntry> _registered = [];
+    private HashSet<WotsitEntry> _lastEntries = [];
 
     private readonly ICallGateSubscriber<bool> _faAvailable;
     private readonly ICallGateSubscriber<string, bool> _faInvoke;
@@ -45,7 +45,7 @@ public class WotsitManager : IDisposable
 
     private void HandleInvoke(string id)
     {
-        if (!_registered.TryGetValue(id, out var entry))
+        if(!_registered.TryGetValue(id, out var entry))
         {
             return;
         }
@@ -55,7 +55,7 @@ public class WotsitManager : IDisposable
         {
             entry.Callback.DynamicInvoke();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             DuoLog.Error($"WotsitManager: Could not handle FA.Invoke(\"{id}\") ({entry.DisplayName}): {e}");
         }
@@ -67,7 +67,7 @@ public class WotsitManager : IDisposable
         {
             ClearWotsit();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             PluginLog.Warning($"WotsitManager: Failed to clear wotsit: {e}");
         }
@@ -102,7 +102,7 @@ public class WotsitManager : IDisposable
 
     private void ConfigSaved()
     {
-        if (!Player.Available)
+        if(!Player.Available)
         {
             return;
         }
@@ -118,7 +118,7 @@ public class WotsitManager : IDisposable
 
     public void MaybeTryInit(bool force = false)
     {
-        if (!P.Config.WotsitIntegrationEnabled)
+        if(!P.Config.WotsitIntegrationEnabled)
         {
             return;
         }
@@ -127,7 +127,7 @@ public class WotsitManager : IDisposable
         {
             Init(force);
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             PluginLog.Verbose($"WotsitManager: Failed to initialize: {e.ToStringFull()}");
         }
@@ -136,7 +136,7 @@ public class WotsitManager : IDisposable
     private void Init(bool force = false)
     {
         var newEntries = WotsitEntryGenerator.Generate().ToHashSet();
-        if (!force && _lastEntries.Count != 0 && newEntries.SetEquals(_lastEntries))
+        if(!force && _lastEntries.Count != 0 && newEntries.SetEquals(_lastEntries))
         {
             PluginLog.Debug("WotsitManager: Entries have not changed, skipping re-registration");
             return;
@@ -160,7 +160,7 @@ public class WotsitManager : IDisposable
 
         _faRegisterWithSearch = Svc.PluginInterface.GetIpcSubscriber<string, string, string, uint, string>("FA.RegisterWithSearch");
 
-        foreach (var entry in newEntries)
+        foreach(var entry in newEntries)
         {
             var id = _faRegisterWithSearch!.InvokeFunc(P.Name, entry.DisplayName, $"{P.Name} {entry.SearchString}", entry.IconId);
             _registered.Add(id, entry);

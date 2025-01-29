@@ -13,7 +13,7 @@ internal static unsafe class UISettings
     private static string AddNew = "";
     internal static void Draw()
     {
-        NuiTools.ButtonTabs([[new("General", () => Wrapper(DrawGeneral)), new("Overlay", () => Wrapper(DrawOverlay))],[new("Expert", () => Wrapper(DrawExpert)), new("Service Accounts", () => Wrapper(UIServiceAccount.Draw)), new("Travel Block", TabTravelBan.Draw)]]);
+        NuiTools.ButtonTabs([[new("General", () => Wrapper(DrawGeneral)), new("Overlay", () => Wrapper(DrawOverlay))], [new("Expert", () => Wrapper(DrawExpert)), new("Service Accounts", () => Wrapper(UIServiceAccount.Draw)), new("Travel Block", TabTravelBan.Draw)]]);
     }
 
     private static void Wrapper(Action action)
@@ -156,61 +156,61 @@ internal static unsafe class UISettings
         {
             var anyChanged = ImGui.Checkbox("Enable Wotsit Integration for teleporting to Aethernet destinations", ref P.Config.WotsitIntegrationEnabled);
 
-            if (P.Config.WotsitIntegrationEnabled)
+            if(P.Config.WotsitIntegrationEnabled)
             {
                 ImGui.Indent();
-                if (ImGui.Checkbox("Include world select window", ref P.Config.WotsitIntegrationIncludes.WorldSelect))
+                if(ImGui.Checkbox("Include world select window", ref P.Config.WotsitIntegrationIncludes.WorldSelect))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include auto-teleport to property", ref P.Config.WotsitIntegrationIncludes.PropertyAuto))
+                if(ImGui.Checkbox("Include auto-teleport to property", ref P.Config.WotsitIntegrationIncludes.PropertyAuto))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to private estate", ref P.Config.WotsitIntegrationIncludes.PropertyPrivate))
+                if(ImGui.Checkbox("Include teleport to private estate", ref P.Config.WotsitIntegrationIncludes.PropertyPrivate))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to free company estate", ref P.Config.WotsitIntegrationIncludes.PropertyFreeCompany))
+                if(ImGui.Checkbox("Include teleport to free company estate", ref P.Config.WotsitIntegrationIncludes.PropertyFreeCompany))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to apartment", ref P.Config.WotsitIntegrationIncludes.PropertyApartment))
+                if(ImGui.Checkbox("Include teleport to apartment", ref P.Config.WotsitIntegrationIncludes.PropertyApartment))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to inn room", ref P.Config.WotsitIntegrationIncludes.PropertyInn))
+                if(ImGui.Checkbox("Include teleport to inn room", ref P.Config.WotsitIntegrationIncludes.PropertyInn))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to grand company", ref P.Config.WotsitIntegrationIncludes.GrandCompany))
+                if(ImGui.Checkbox("Include teleport to grand company", ref P.Config.WotsitIntegrationIncludes.GrandCompany))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to market board", ref P.Config.WotsitIntegrationIncludes.MarketBoard))
+                if(ImGui.Checkbox("Include teleport to market board", ref P.Config.WotsitIntegrationIncludes.MarketBoard))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include teleport to island sanctuary", ref P.Config.WotsitIntegrationIncludes.IslandSanctuary))
+                if(ImGui.Checkbox("Include teleport to island sanctuary", ref P.Config.WotsitIntegrationIncludes.IslandSanctuary))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include auto-teleport to aethernet destinations", ref P.Config.WotsitIntegrationIncludes.AetheryteAethernet))
+                if(ImGui.Checkbox("Include auto-teleport to aethernet destinations", ref P.Config.WotsitIntegrationIncludes.AetheryteAethernet))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include address book entries", ref P.Config.WotsitIntegrationIncludes.AddressBook))
+                if(ImGui.Checkbox("Include address book entries", ref P.Config.WotsitIntegrationIncludes.AddressBook))
                 {
                     anyChanged = true;
                 }
-                if (ImGui.Checkbox("Include custom aliases", ref P.Config.WotsitIntegrationIncludes.CustomAlias))
+                if(ImGui.Checkbox("Include custom aliases", ref P.Config.WotsitIntegrationIncludes.CustomAlias))
                 {
                     anyChanged = true;
                 }
                 ImGui.Unindent();
             }
 
-            if (anyChanged)
+            if(anyChanged)
             {
                 PluginLog.Debug("Wotsit integration settings changed, re-initializing immediately");
                 S.WotsitManager.TryClearWotsit();
@@ -269,7 +269,7 @@ internal static unsafe class UISettings
         .Checkbox("Return to the ground when flying before changing instance", () => ref P.Config.EnableFlydownInstance)
         .Widget("Display instance number in Server Info Bar", (x) =>
         {
-            if (ImGui.Checkbox(x, ref P.Config.EnableDtrBar))
+            if(ImGui.Checkbox(x, ref P.Config.EnableDtrBar))
             {
                 S.DtrManager.Refresh();
             }

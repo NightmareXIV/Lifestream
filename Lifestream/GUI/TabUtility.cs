@@ -7,13 +7,13 @@ namespace Lifestream.GUI;
 public static class TabUtility
 {
     public static int TargetWorldID = 0;
-    static WorldSelector WorldSelector = new()
+    private static WorldSelector WorldSelector = new()
     {
         DisplayCurrent = false,
         EmptyName = "Disabled",
         ShouldHideWorld = (x) => x == Player.Object?.CurrentWorld.RowId
     };
-    static PaissaImporter PaissaImporter = new();
+    private static PaissaImporter PaissaImporter = new();
 
     public static void Draw()
     {

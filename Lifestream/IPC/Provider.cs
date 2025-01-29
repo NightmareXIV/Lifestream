@@ -276,7 +276,7 @@ public class Provider
         }
     }
 
-    [EzIPC] 
+    [EzIPC]
     public uint GetRealTerritoryType()
     {
         return P.Territory;

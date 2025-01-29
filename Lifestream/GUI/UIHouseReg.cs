@@ -30,10 +30,10 @@ public static unsafe class UIHouseReg
         }
     }
 
-    static ImGuiEx.RealtimeDragDrop<(ulong CID, HousePathData? Private, HousePathData? FC)> DragDropPathData = new("DragDropHPD", (x) => x.CID.ToString());
-    static string Search = "";
-    static int World = 0;
-    static WorldSelector WorldSelector = new()
+    private static ImGuiEx.RealtimeDragDrop<(ulong CID, HousePathData? Private, HousePathData? FC)> DragDropPathData = new("DragDropHPD", (x) => x.CID.ToString());
+    private static string Search = "";
+    private static int World = 0;
+    private static WorldSelector WorldSelector = new()
     {
         DisplayCurrent = true,
         ShouldHideWorld = (x) => !P.Config.HousePathDatas.Any(s => Utils.GetWorldFromCID(s.CID) == ExcelWorldHelper.GetName(x)),
@@ -66,7 +66,7 @@ public static unsafe class UIHouseReg
             ImGui.TableSetupColumn("Workshop");
             ImGui.TableHeadersRow();
 
-            for(int i = 0; i < charaDatas.Count; i++)
+            for(var i = 0; i < charaDatas.Count; i++)
             {
                 var charaData = charaDatas[i];
                 var charaName = Utils.GetCharaName(charaData.CID);
