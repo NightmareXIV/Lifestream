@@ -154,10 +154,67 @@ internal static unsafe class UISettings
         .Section("Wotsit Integration")
         .Widget(() =>
         {
-            if (ImGui.Checkbox("Enable Wotsit Integration for teleporting to Aethernet destinations", ref P.Config.WotsitIntegrationEnabled))
+            var anyChanged = ImGui.Checkbox("Enable Wotsit Integration for teleporting to Aethernet destinations", ref P.Config.WotsitIntegrationEnabled);
+
+            if (P.Config.WotsitIntegrationEnabled)
             {
+                ImGui.Indent();
+                if (ImGui.Checkbox("Include world select window", ref P.Config.WotsitIntegrationIncludes.WorldSelect))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include auto-teleport to property", ref P.Config.WotsitIntegrationIncludes.PropertyAuto))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to private estate", ref P.Config.WotsitIntegrationIncludes.PropertyPrivate))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to free company estate", ref P.Config.WotsitIntegrationIncludes.PropertyFreeCompany))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to apartment", ref P.Config.WotsitIntegrationIncludes.PropertyApartment))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to inn room", ref P.Config.WotsitIntegrationIncludes.PropertyInn))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to grand company", ref P.Config.WotsitIntegrationIncludes.GrandCompany))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to market board", ref P.Config.WotsitIntegrationIncludes.MarketBoard))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include teleport to island sanctuary", ref P.Config.WotsitIntegrationIncludes.IslandSanctuary))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include auto-teleport to aethernet destinations", ref P.Config.WotsitIntegrationIncludes.AetheryteAethernet))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include address book entries", ref P.Config.WotsitIntegrationIncludes.AddressBook))
+                {
+                    anyChanged = true;
+                }
+                if (ImGui.Checkbox("Include custom aliases", ref P.Config.WotsitIntegrationIncludes.CustomAlias))
+                {
+                    anyChanged = true;
+                }
+                ImGui.Unindent();
+            }
+
+            if (anyChanged)
+            {
+                PluginLog.Debug("Wotsit integration settings changed, re-initializing immediately");
                 P.WotsitManager.TryClearWotsit();
-                P.WotsitManager.MaybeTryInit();
+                P.WotsitManager.MaybeTryInit(true);
             }
         })
 
