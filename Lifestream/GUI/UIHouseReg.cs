@@ -1,7 +1,9 @@
 ﻿using ECommons;
+using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
+using ECommons.Reflection;
 using ECommons.SplatoonAPI;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
@@ -57,15 +59,8 @@ public static unsafe class UIHouseReg
             charaDatas.Add((x, P.Config.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x), P.Config.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x)));
         }
         DragDropPathData.Begin();
-        if(ImGui.BeginTable("##charaTable", 5, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoSavedSettings))
+        if(ImGuiEx.BeginDefaultTable("##charaTable", ["##move", "~Name or CID", "Private", "##privateCtl", "##privateCtl2", "##privateDlm", "FC", "##FCCtl", "Workshop", "##workshopCtl", "##fcCtl", "##fcCtl2"]))
         {
-            ImGui.TableSetupColumn("##move");
-            ImGui.TableSetupColumn("Name or CID", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Private");
-            ImGui.TableSetupColumn("FC");
-            ImGui.TableSetupColumn("Workshop");
-            ImGui.TableHeadersRow();
-
             for(var i = 0; i < charaDatas.Count; i++)
             {
                 var charaData = charaDatas[i];
@@ -89,26 +84,47 @@ public static unsafe class UIHouseReg
                     NuiTools.RenderResidentialIcon((uint)priv.ResidentialDistrict.GetResidentialTerritory());
                     ImGui.SameLine();
                     ImGuiEx.Text($"W{priv.Ward + 1}, P{priv.Plot + 1}{(priv.PathToEntrance.Count > 0 ? ", +path" : "")}");
-                    ImGui.SameLine();
-                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DelePrivate"))
+                    ImGui.TableNextColumn();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DelePrivate", enabled: ImGuiEx.Ctrl))
                     {
                         new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == charaData.CID));
                     }
-                    ImGuiEx.Tooltip("Cancel private house registration");
+                    ImGuiEx.Tooltip("Remove private house registration. Hold CTRL and click.");
                     if(priv.PathToEntrance.Count > 0)
                     {
                         ImGui.SameLine();
-                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DelePrivatePath"))
+                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DelePrivatePath", enabled: ImGuiEx.Ctrl))
                         {
                             priv.PathToEntrance.Clear();
                         }
-                        ImGuiEx.Tooltip("Delete path to private house");
+                        ImGuiEx.Tooltip("Remove path to private house. Hold CTRL and click.");
                     }
+
+                    ImGui.SameLine();
+                    if(ImGuiEx.IconButton(FontAwesomeIcon.Copy, "CopyPrivatePath"))
+                    {
+                        Copy(EzConfig.DefaultSerializationFactory.Serialize(priv)!);
+                    }
+                    ImGuiEx.Tooltip("Copy private registration data to clipboard");
+                    ImGui.SameLine();
                 }
                 else
                 {
                     ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                    ImGui.TableNextColumn();
                 }
+
+                ImGui.TableNextColumn();
+
+                if(ImGuiEx.IconButton(FontAwesomeIcon.Paste, "PastePriva"))
+                {
+                    ImportFromClipboard(charaData.CID, true);
+                }
+                ImGuiEx.Tooltip("Paste private registration data from clipboard");
+
+                ImGui.TableNextColumn();
+                //delimiter
+                ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetStyle().Colors[(int)ImGuiCol.TableBorderLight].ToUint());
 
                 ImGui.TableNextColumn();
                 if(fc != null)
@@ -116,42 +132,63 @@ public static unsafe class UIHouseReg
                     NuiTools.RenderResidentialIcon((uint)fc.ResidentialDistrict.GetResidentialTerritory());
                     ImGui.SameLine();
                     ImGuiEx.Text($"W{fc.Ward + 1}, P{fc.Plot + 1}{(fc.PathToEntrance.Count > 0 ? ", +path" : "")}");
-                    ImGui.SameLine();
-                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DeleFc"))
+                    ImGui.TableNextColumn();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DeleFc", enabled: ImGuiEx.Ctrl))
                     {
                         new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == charaData.CID));
                     }
-                    ImGuiEx.Tooltip("Cancel FC house registration");
+                    ImGuiEx.Tooltip("Remove FC house registration. Hold CTRL and click.");
                     if(fc.PathToEntrance.Count > 0)
                     {
                         ImGui.SameLine();
-                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcPath"))
+                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcPath", enabled: ImGuiEx.Ctrl))
                         {
                             fc.PathToEntrance.Clear();
                         }
-                        ImGuiEx.Tooltip("Delete path to FC house");
+                        ImGuiEx.Tooltip("Remove path to FC house. Hold CTRL and click.");
                     }
                 }
                 else
                 {
                     ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                    ImGui.TableNextColumn();
                 }
 
                 ImGui.TableNextColumn();
                 if(fc == null || fc.PathToWorkshop.Count == 0)
                 {
                     ImGuiEx.TextV(ImGuiColors.DalamudGrey3, "Not registered");
+                    ImGui.TableNextColumn();
                 }
                 else
                 {
                     ImGuiEx.TextV($"{fc.PathToWorkshop.Count} points");
-                    ImGui.SameLine();
-                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcWorkshopPath"))
+                    ImGui.TableNextColumn();
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcWorkshopPath", enabled:ImGuiEx.Ctrl))
                     {
                         fc.PathToWorkshop.Clear();
                     }
-                    ImGuiEx.Tooltip("Delete path to workshop");
+                    ImGuiEx.Tooltip("Remove path to workshop. Hold CTRL and click.");
                 }
+
+                ImGui.TableNextColumn();
+
+                if(fc != null)
+                {
+                    if(ImGuiEx.IconButton(FontAwesomeIcon.Copy, "CopyFCPath"))
+                    {
+                        Copy(EzConfig.DefaultSerializationFactory.Serialize(fc)!);
+                    }
+                    ImGuiEx.Tooltip("Copy free company registration data to clipboard");
+                    ImGui.SameLine();
+                }
+
+                ImGui.TableNextColumn();
+                if(ImGuiEx.IconButton(FontAwesomeIcon.Paste, "PasteFC"))
+                {
+                    ImportFromClipboard(charaData.CID, false);
+                }
+                ImGuiEx.Tooltip("Paste free company registration data from clipboard");
                 ImGui.PopID();
             }
 
@@ -164,6 +201,42 @@ public static unsafe class UIHouseReg
             if(x.Private != null) P.Config.HousePathDatas.Add(x.Private);
             if(x.FC != null) P.Config.HousePathDatas.Add(x.FC);
         }
+    }
+
+    static void ImportFromClipboard(ulong cid, bool isPrivate)
+    {
+        new TickScheduler(() =>
+        {
+            try
+            {
+                var data = EzConfig.DefaultSerializationFactory.Deserialize<HousePathData>(Paste()!) ?? throw new NullReferenceException("No suitable data forund in clipboard");
+                if(!data.GetType().GetFieldPropertyUnions().All(x => x.GetValue(data) != null)) throw new NullReferenceException("Clipboard contains invalid data");
+                var existingData = P.Config.HousePathDatas.FirstOrDefault(x => x.CID == cid && x.IsPrivate == isPrivate);
+                var same = existingData != null && existingData.Ward == data.Ward && existingData.Plot == data.Plot && existingData.ResidentialDistrict == data.ResidentialDistrict;
+                if(same || ImGuiEx.Ctrl)
+                {
+                    data.CID = cid;
+                    var index = P.Config.HousePathDatas.IndexOf(s => s.CID == data.CID && s.IsPrivate == isPrivate);
+                    if(index == -1)
+                    {
+                        P.Config.HousePathDatas.Add(data);
+                    }
+                    else
+                    {
+                        P.Config.HousePathDatas[index] = data;
+                    }
+                }
+                else
+                {
+                    Notify.Error($"A different {(isPrivate?"private house plot":"FC house plot")} is already registered for this character. If you want to override it, hold CTRL and click paste button.");
+                }
+            }
+            catch(Exception e)
+            {
+                Notify.Error(e.Message);
+                e.Log();
+            }
+        });
     }
 
     private static void DrawFC()
@@ -242,7 +315,7 @@ public static unsafe class UIHouseReg
                         .Section("Path to workshop")
                         .Widget(() =>
                         {
-                            ImGuiEx.TextWrapped($"Create path from house entrance to workshop entrance. This feature can curretly only be used by external plugins.");
+                            ImGuiEx.TextWrapped($"Create path from house entrance to workshop/private chambers entrance.");
 
                             ImGui.PushID($"workshop");
                             DrawPathEditor(path, data);

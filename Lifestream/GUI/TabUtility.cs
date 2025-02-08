@@ -24,11 +24,11 @@ public static class TabUtility
                 ImGuiEx.SetNextItemFullWidth();
                 WorldSelector.Draw(ref TargetWorldID);
             })
-            /*.Section("Import house listings from PaissaDB")
+            .Section("Import house listings from PaissaDB")
             .Widget(() => {
                 ImGuiEx.SetNextItemFullWidth();
                 PaissaImporter.Draw();
-            })*/
+            })
             .Draw();
     }
 }

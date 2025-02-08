@@ -57,11 +57,11 @@ public static class PaissaData
         [JsonProperty("purchase_system")]
         public int PurchaseSystem;
         [JsonProperty("lotto_entries")]
-        public int LottoEntries;
+        public int? LottoEntries;
         [JsonProperty("lotto_phase")]
-        public int LottoPhase;
+        public int? LottoPhase;
         [JsonProperty("lotto_phase_until")]
-        public float LottoPhaseUntil;
+        public float? LottoPhaseUntil;
     }
 
     public enum PaissaStatus
