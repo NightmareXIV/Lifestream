@@ -2,6 +2,7 @@
 using ECommons.GameHelpers;
 using JetBrains.Annotations;
 using Lifestream.Data;
+using Lifestream.GUI;
 using OtterGui;
 using static Lifestream.Paissa.PaissaData;
 
@@ -16,6 +17,7 @@ public class PaissaImporter
     private DateTime disableEndTime;
     private const int BUTTON_DISABLE_TIME = 5; // in seconds
     private PaissaStatus status = PaissaStatus.Idle;
+    public static Dictionary<string, AddressBookFolder> Folders = [];
 
     public PaissaImporter(string id = "##paissa")
     {
@@ -34,7 +36,7 @@ public class PaissaImporter
         var isDisabled = buttonDisabled;
         if(isDisabled) ImGui.BeginDisabled();
 
-        if(ImGui.Button("Import from PaissaDB"))
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Download, "Import from PaissaDB", enabled:Player.Available))
         {
             PluginLog.Debug("PaissaDB import process initiated!");
             buttonDisabled = true;
@@ -50,26 +52,9 @@ public class PaissaImporter
 
         ImGui.TextColored(PaissaUtils.GetStatusColorFromStatus(status), PaissaUtils.GetStatusStringFromStatus(status));
 
-        // Display folder object in text field to copy and import for testing
-        if(textToCopy == false) ImGui.BeginDisabled();
-        var textBuffer = new byte[2048];
-        Encoding.UTF8.GetBytes(folderText, 0, folderText.Length, textBuffer, 0);
-        ImGui.InputText("", textBuffer, (uint)textBuffer.Length);
-        if(textToCopy == false) ImGui.EndDisabled();
-
-        ImGui.SameLine();
-
-        if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), new Vector2(30, 25), "Copy to clipboard.", !textToCopy, true))
+        if(Player.Available && Folders.TryGetValue(Player.CurrentWorld, out var book))
         {
-            try
-            {
-                Copy(folderText);
-                PluginLog.Debug("Text copied to clipboard: " + folderText);
-            }
-            catch(Exception ex)
-            {
-                PluginLog.Error($"Failed to copy text to clipboard: {ex.Message}");
-            }
+            TabAddressBook.DrawBook(book, true);
         }
 
         ImGui.PopID();
@@ -100,16 +85,13 @@ public class PaissaImporter
 
             var newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
 
-            /*
-            
-             ADD NEW FOLDER TO LIST HERE
-
-            */
-
-            folderText = EzConfig.DefaultSerializationFactory.Serialize(newFolder, false);
-            PluginLog.Debug("Folder serialized successfully.");
-            status = PaissaStatus.Success;
-            textToCopy = true;
+            new TickScheduler(() => 
+            {
+                if(Player.Available)
+                {
+                    PaissaImporter.Folders[Player.CurrentWorld] = newFolder;
+                }
+            });
         }
         catch(Exception ex)
         {

@@ -231,6 +231,10 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
         }
+        else if(arguments.EqualsIgnoreCaseAny("shared"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Shared_Estate);
+        }
         else if(arguments.EqualsIgnoreCaseAny("inn", "hinn") || arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "inn ", "hinn "))
         {
             var x = arguments.Split(" ");

@@ -58,11 +58,12 @@ public class Config : IEzConfig
     public bool DisplayChatTeleport = false;
     public bool DisplayPopupNotifications = true;
     public List<HousePathData> HousePathDatas = [];
+    public List<HousePathData> CustomHousePathDatas = [];
     public bool EnterMyApartment = true;
     public HouseEnterMode HouseEnterMode = HouseEnterMode.None;
     public bool UseReturn = true;
     public uint PreferredInn = 0;
-    public List<AutoPropertyData> PropertyPrio = [new(true, TaskPropertyShortcut.PropertyType.Home), new(true, TaskPropertyShortcut.PropertyType.FC), new(true, TaskPropertyShortcut.PropertyType.Apartment), new(true, TaskPropertyShortcut.PropertyType.Inn)];
+    public List<AutoPropertyData> PropertyPrio = [new(true, TaskPropertyShortcut.PropertyType.Home), new(true, TaskPropertyShortcut.PropertyType.FC), new(true, TaskPropertyShortcut.PropertyType.Apartment), new(true, TaskPropertyShortcut.PropertyType.Inn), new(false, TaskPropertyShortcut.PropertyType.Shared_Estate)];
     public bool EnableDvcRetry = true;
     public int MaxDcvRetries = 3000;
     public bool DcvUseAlternativeWorld = true;
@@ -80,4 +81,5 @@ public class Config : IEzConfig
     public bool WotsitIntegrationEnabled = true;
     public WotsitIntegrationIncludedItems WotsitIntegrationIncludes = new();
     public bool EnableDtrBar = false;
+    public Dictionary<ulong, (int Territory, int Ward, int Plot)> PreferredSharedEstates = [];
 }

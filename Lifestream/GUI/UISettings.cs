@@ -1,5 +1,9 @@
 ﻿using ECommons.Configuration;
+using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using Lifestream.Data;
+using Lifestream.Enums;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
 using NightmareUI;
@@ -74,39 +78,53 @@ internal static unsafe class UISettings
                 }
                 ImGui.EndCombo();
             }
+            if(Player.CID != 0) {
+                ImGui.SetNextItemWidth(150f);
+                var pref = P.Config.PreferredSharedEstates.SafeSelect(Player.CID);
+                var name = pref switch
+                {
+                    (0, 0, 0) => "First available",
+                    (-1, 0, 0) => "Disable",
+                    _ => $"{ExcelTerritoryHelper.GetName((uint)pref.Territory)}, W{pref.Ward}, P{pref.Plot}"
+                };
+                if(ImGui.BeginCombo($"Preferred shared estate for {Player.NameWithWorld}", name))
+                {
+                    foreach(var x in Svc.AetheryteList.Where(x => x.IsSharedHouse))
+                    {
+                        if(ImGui.RadioButton("First available", pref == default))
+                        {
+                            P.Config.PreferredSharedEstates.Remove(Player.CID);
+                        }
+                        if(ImGui.RadioButton("Disable", pref == (-1,0,0)))
+                        {
+                            P.Config.PreferredSharedEstates[Player.CID] = (-1, 0, 0);
+                        }
+                        if(ImGui.RadioButton($"{ExcelTerritoryHelper.GetName(x.TerritoryId)}, Ward {x.Ward}, Plot {x.Plot}", pref == ((int)x.TerritoryId, x.Ward, x.Plot)))
+                        {
+                            P.Config.PreferredSharedEstates[Player.CID] = ((int)x.TerritoryId, x.Ward, x.Plot);
+                        }
+                    }
+                    ImGui.EndCombo();
+                }
+            }
             ImGui.Separator();
             ImGuiEx.Text("\"/li auto\" command priority:");
+            ImGui.SameLine();
+            if(ImGui.SmallButton("Reset")) P.Config.PropertyPrio.Clear();
+            var dragDrop = Ref<ImGuiEx.RealtimeDragDrop<AutoPropertyData>>.Get(() => new("apddd", x => x.Type.ToString()));
+            P.Config.PropertyPrio.AddRange(Enum.GetValues<TaskPropertyShortcut.PropertyType>().Where(x => x != TaskPropertyShortcut.PropertyType.Auto && !P.Config.PropertyPrio.Any(s => s.Type == x)).Select(x => new AutoPropertyData(false, x)));
+            dragDrop.Begin();
             for(var i = 0; i < P.Config.PropertyPrio.Count; i++)
             {
                 var d = P.Config.PropertyPrio[i];
                 ImGui.PushID($"c{i}");
-                if(ImGui.ArrowButton("##up", ImGuiDir.Up) && i > 0)
-                {
-                    try
-                    {
-                        (P.Config.PropertyPrio[i - 1], P.Config.PropertyPrio[i]) = (P.Config.PropertyPrio[i], P.Config.PropertyPrio[i - 1]);
-                    }
-                    catch(Exception e)
-                    {
-                        e.Log();
-                    }
-                }
-                ImGui.SameLine();
-                if(ImGui.ArrowButton("##down", ImGuiDir.Down) && i < P.Config.PropertyPrio.Count - 1)
-                {
-                    try
-                    {
-                        (P.Config.PropertyPrio[i + 1], P.Config.PropertyPrio[i]) = (P.Config.PropertyPrio[i], P.Config.PropertyPrio[i + 1]);
-                    }
-                    catch(Exception e)
-                    {
-                        e.Log();
-                    }
-                }
+                dragDrop.NextRow();
+                dragDrop.DrawButtonDummy(d, P.Config.PropertyPrio, i);
                 ImGui.SameLine();
                 ImGui.Checkbox($"{d.Type}", ref d.Enabled);
                 ImGui.PopID();
             }
+            dragDrop.End();
             ImGui.Separator();
         })
 

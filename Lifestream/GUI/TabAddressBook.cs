@@ -96,65 +96,68 @@ public static unsafe class TabAddressBook
         return entry;
     }
 
-    private static void DrawBook(AddressBookFolder book)
+    public static void DrawBook(AddressBookFolder book, bool readOnly = false)
     {
-        ImGuiEx.LineCentered(() =>
+        if(!readOnly)
         {
-            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New"))
+            ImGuiEx.LineCentered(() =>
             {
-                var h = HousingManager.Instance();
-                var entry = GetNewAddressBookEntry();
-                book.Entries.Add(entry);
-                InputWardDetailDialog.Entry = entry;
-            }
-            ImGui.SameLine();
-            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
-            {
-                try
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New"))
                 {
-                    var entry = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookEntry>(Paste());
-                    if(entry != null)
+                    var h = HousingManager.Instance();
+                    var entry = GetNewAddressBookEntry();
+                    book.Entries.Add(entry);
+                    InputWardDetailDialog.Entry = entry;
+                }
+                ImGui.SameLine();
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
+                {
+                    try
                     {
-                        if(!entry.IsValid(out var error))
+                        var entry = EzConfig.DefaultSerializationFactory.Deserialize<AddressBookEntry>(Paste());
+                        if(entry != null)
                         {
-                            Notify.Error($"Could not paste from clipboard:\n{error}");
+                            if(!entry.IsValid(out var error))
+                            {
+                                Notify.Error($"Could not paste from clipboard:\n{error}");
+                            }
+                            else
+                            {
+                                book.Entries.Add(entry);
+                            }
                         }
                         else
                         {
-                            book.Entries.Add(entry);
+                            Notify.Error($"Could not paste from clipboard");
                         }
                     }
-                    else
+                    catch(Exception e)
                     {
-                        Notify.Error($"Could not paste from clipboard");
+                        if(Utils.TryParseAddressBookEntry(Paste(), out var entry))
+                        {
+                            book.Entries.Add(entry);
+                        }
+                        else
+                        {
+                            Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+                        }
                     }
                 }
-                catch(Exception e)
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(100f);
+                ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
+                ImGuiEx.Tooltip($"Select sort mode for this address book");
+                ImGui.SameLine();
+                if(ImGui.Checkbox($"Default", ref book.IsDefault))
                 {
-                    if(Utils.TryParseAddressBookEntry(Paste(), out var entry))
+                    if(book.IsDefault)
                     {
-                        book.Entries.Add(entry);
-                    }
-                    else
-                    {
-                        Notify.Error($"Could not paste from clipboard:\n{e.Message}");
+                        P.Config.AddressBookFolders.Where(z => z != book).Each(z => z.IsDefault = false);
                     }
                 }
-            }
-            ImGui.SameLine();
-            ImGui.SetNextItemWidth(100f);
-            ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
-            ImGuiEx.Tooltip($"Select sort mode for this address book");
-            ImGui.SameLine();
-            if(ImGui.Checkbox($"Default", ref book.IsDefault))
-            {
-                if(book.IsDefault)
-                {
-                    P.Config.AddressBookFolders.Where(z => z != book).Each(z => z.IsDefault = false);
-                }
-            }
-            ImGuiEx.Tooltip($"Default book automatically opens when you open plugin first time in a game session.");
-        });
+                ImGuiEx.Tooltip($"Default book automatically opens when you open plugin first time in a game session.");
+            });
+        }
 
         if(ImGui.BeginTable($"##addressbook", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
@@ -352,11 +355,14 @@ public static unsafe class TabAddressBook
 
             ImGui.EndTable();
 
-            foreach(var x in MoveCommands)
+            if(!readOnly)
             {
-                ImGui.SetCursorPos(x.RowPos);
-                ImGui.Dummy(new Vector2(ImGui.GetContentRegionAvail().X, ImGuiHelpers.GetButtonSize(" ").Y));
-                x.AcceptDraw();
+                foreach(var x in MoveCommands)
+                {
+                    ImGui.SetCursorPos(x.RowPos);
+                    ImGui.Dummy(new Vector2(ImGui.GetContentRegionAvail().X, ImGuiHelpers.GetButtonSize(" ").Y));
+                    x.AcceptDraw();
+                }
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.Enums;
+﻿using Dalamud.Game.ClientState.Aetherytes;
+using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameFunctions;
@@ -80,6 +81,19 @@ public static unsafe class TaskPropertyShortcut
                     DuoLog.Error("Could not find free company house");
                 }
             }
+            else if(propertyType == PropertyType.Shared_Estate)
+            {
+                var e = GetSharedHouseAetheryteId(out var entry);
+                if(e.ID != 0)
+                {
+                    var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward-1, entry.Plot-1);
+                    ExecuteTpAndPathfind(e.ID, e.Sub, data, mode);
+                }
+                else
+                {
+                    DuoLog.Error("Could not find shared estate");
+                }
+            }
             else if(propertyType == PropertyType.Apartment)
             {
                 if(GetApartmentAetheryteID().ID != 0)
@@ -115,6 +129,13 @@ public static unsafe class TaskPropertyShortcut
             EnqueueGoToMyApartment(enterApartment);
             return true;
         }
+        else if(type == PropertyType.Shared_Estate && GetSharedHouseAetheryteId(out var sharedAetheryte).ID != 0)
+        {
+            var s = GetSharedHouseAetheryteId(out var entry);
+            var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward-1, entry.Plot-1);
+            ExecuteTpAndPathfind(s.ID, s.Sub, data, mode);
+            return true;
+        }
         else if(type == PropertyType.Inn)
         {
             EnqueueGoToInn(innIndex);
@@ -122,13 +143,14 @@ public static unsafe class TaskPropertyShortcut
         }
         return false;
     }
+    private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null) => ExecuteTpAndPathfind(id, 0, data, mode);
 
-    private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null)
+    private static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null)
     {
         mode ??= data?.GetHouseEnterMode() ?? HouseEnterMode.None;
         PluginLog.Information($"id={id}, data={data}, mode={mode}, cnt={data?.PathToEntrance.Count}");
         P.TaskManager.BeginStack();
-        P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id));
+        P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id, subIndex));
         P.TaskManager.Enqueue(() => !IsScreenReady());
         P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
         if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house))
@@ -275,6 +297,30 @@ public static unsafe class TaskPropertyShortcut
         P.TaskManager.InsertStack();
     }
 
+    public static (uint ID, uint Sub) GetSharedHouseAetheryteId(out IAetheryteEntry entry)
+    {
+        entry = default;
+        var pref = P.Config.PreferredSharedEstates.SafeSelect(Player.CID);
+        if(pref == (-1, 0, 0)) return default;
+        foreach(var x in Svc.AetheryteList)
+        {
+            if(x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165) && pref == ((int)x.TerritoryId, x.Ward, x.Plot))
+            {
+                entry = x;
+                return (x.AetheryteId, x.SubIndex);
+            }
+        }
+        foreach(var x in Svc.AetheryteList)
+        {
+            if(x.IsSharedHouse && x.AetheryteId.EqualsAny<uint>(59, 60, 61, 97, 165))
+            {
+                entry = x;
+                return (x.AetheryteId, x.SubIndex);
+            }
+        }
+        return (0,0);
+    }
+
     public static uint GetPrivateHouseAetheryteID()
     {
         foreach(var x in Svc.AetheryteList)
@@ -340,6 +386,6 @@ public static unsafe class TaskPropertyShortcut
 
     public enum PropertyType
     {
-        Auto, Home, FC, Apartment, Inn
+        Auto, Home, FC, Apartment, Inn, Shared_Estate
     }
 }

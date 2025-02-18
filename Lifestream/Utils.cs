@@ -442,6 +442,10 @@ internal static unsafe class Utils
 
     public static HousePathData GetFCPathData() => Utils.GetHousePathDatas().FirstOrDefault(x => x.CID == Player.CID && !x.IsPrivate);
     public static HousePathData GetPrivatePathData() => Utils.GetHousePathDatas().FirstOrDefault(x => x.CID == Player.CID && x.IsPrivate);
+    public static HousePathData GetCustomPathData(ResidentialAetheryteKind kind, int ward, int plot)
+    {
+        return P.Config.HousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot) ?? P.Config.CustomHousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot);
+    }
 
     /// <summary>
     /// 

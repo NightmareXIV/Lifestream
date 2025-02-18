@@ -9,6 +9,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Services;
+using Lumina.Excel.Sheets;
 using NightmareUI;
 using NightmareUI.ImGuiElements;
 using NightmareUI.PrimaryUI;
@@ -23,7 +24,7 @@ public static unsafe class UIHouseReg
     {
         if(Player.Available)
         {
-            NuiTools.ButtonTabs([[new("Private House", DrawPrivate), new("Free Company House", DrawFC), new("Overview", DrawOverview)]]);
+            NuiTools.ButtonTabs([[new("Private House", DrawPrivate), new("Free Company House", DrawFC), new("Custom House", DrawCustom), new("Overview", DrawOverview)]]);
         }
         else
         {
@@ -251,6 +252,45 @@ public static unsafe class UIHouseReg
         DrawHousingData(data, true);
     }
 
+    private static void DrawCustom()
+    {
+        if(TryGetCurrentPlotInfo(out var kind, out var ward, out var plot))
+        {
+            if(P.Config.HousePathDatas.TryGetFirst(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot, out var regData))
+            {
+                ImGuiEx.TextWrapped($"This house is already registered as {(regData.IsPrivate ? "private house" : "FC house")} for character {Utils.GetCharaName(regData.CID)} and can not be registered as a custom house.");
+            }
+            else
+            {
+                var data = P.Config.CustomHousePathDatas.FirstOrDefault(x => x.Ward == ward && x.Plot == plot && x.ResidentialDistrict == kind);
+                if(data == null)
+                {
+                    if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Register this house as custom house"))
+                    {
+                        P.Config.CustomHousePathDatas.Add(new()
+                        {
+                            ResidentialDistrict = kind,
+                            Plot = plot,
+                            Ward = ward
+                        });
+                    }
+                }
+                else
+                {
+                    if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Unregister this house", ImGuiEx.Ctrl))
+                    {
+                        new TickScheduler(() => P.Config.CustomHousePathDatas.Remove(data));
+                    }
+                    DrawHousingData_DrawPath(data, false, kind, ward, plot);
+                }
+            }
+        }
+        else
+        {
+            ImGuiEx.TextWrapped($"Please navigate to the plot to register it as custom house. Registering custom house will allow it's path to be used for shared estate teleports and address book teleports.");
+        }
+    }
+
     private static void DrawHousingData(HousePathData? data, bool isPrivate)
     {
         var plotDataAvailable = TryGetCurrentPlotInfo(out var kind, out var ward, out var plot);
@@ -291,47 +331,52 @@ public static unsafe class UIHouseReg
                 ImGui.SetNextItemWidth(150f);
                 ImGuiEx.EnumCombo("##override", ref data.EnterModeOverride);
             }
-            if(data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
+            DrawHousingData_DrawPath(data, isPrivate, kind, ward, plot);
+        }
+    }
+
+    public static void DrawHousingData_DrawPath(HousePathData data, bool isPrivate, ResidentialAetheryteKind kind, int ward, int plot)
+    {
+        if(data.ResidentialDistrict == kind && data.Ward == ward && data.Plot == plot)
+        {
+            if(!Utils.IsInsideHouse())
             {
-                if(!Utils.IsInsideHouse())
-                {
-                    var path = data.PathToEntrance;
-                    new NuiBuilder()
-                        .Section("Path to house")
-                        .Widget(() =>
-                        {
-                            ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
+                var path = data.PathToEntrance;
+                new NuiBuilder()
+                    .Section("Path to house")
+                    .Widget(() =>
+                    {
+                        ImGuiEx.TextWrapped($"Create path from plot entrance to house entrance. A path should have it's first point slightly inside your plot to which you can run in a straight line after teleporting and last point next to house entrance from where you can enter the house.");
 
-                            ImGui.PushID($"path{isPrivate}");
-                            DrawPathEditor(path, data);
-                            ImGui.PopID();
+                        ImGui.PushID($"path{isPrivate}");
+                        DrawPathEditor(path, data);
+                        ImGui.PopID();
 
-                        }).Draw();
-                }
-                else if(!isPrivate)
-                {
-                    var path = data.PathToWorkshop;
-                    new NuiBuilder()
-                        .Section("Path to workshop")
-                        .Widget(() =>
-                        {
-                            ImGuiEx.TextWrapped($"Create path from house entrance to workshop/private chambers entrance.");
+                    }).Draw();
+            }
+            else if(!isPrivate)
+            {
+                var path = data.PathToWorkshop;
+                new NuiBuilder()
+                    .Section("Path to workshop")
+                    .Widget(() =>
+                    {
+                        ImGuiEx.TextWrapped($"Create path from house entrance to workshop/private chambers entrance.");
 
-                            ImGui.PushID($"workshop");
-                            DrawPathEditor(path, data);
-                            ImGui.PopID();
+                        ImGui.PushID($"workshop");
+                        DrawPathEditor(path, data);
+                        ImGui.PopID();
 
-                        }).Draw();
-                }
-                else
-                {
-                    ImGuiEx.TextWrapped("Go to registered plot to edit path");
-                }
+                    }).Draw();
             }
             else
             {
                 ImGuiEx.TextWrapped("Go to registered plot to edit path");
             }
+        }
+        else
+        {
+            ImGuiEx.TextWrapped("Go to registered plot to edit path");
         }
     }
 
