@@ -72,7 +72,7 @@ internal unsafe class Memory : IDisposable
                 NextEvent = null,
                 State = new()
                 {
-                    EventType = AtkEventType.ListItemToggle,
+                    EventType = AtkEventType.ListItemClick,
                     UnkFlags1 = 0,
                     StateFlags = 0,
                     UnkFlags3 = 0,

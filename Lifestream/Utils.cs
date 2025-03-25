@@ -339,7 +339,7 @@ internal static unsafe class Utils
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
         ImGui.SameLine();
-        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == 1))
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;
             value = new(marker.XFloat, marker.YFloat);
@@ -372,7 +372,7 @@ internal static unsafe class Utils
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
         ImGui.SameLine();
-        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == 1))
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;
             value = new(marker.XFloat, 0, marker.YFloat);
@@ -1260,7 +1260,7 @@ internal static unsafe class Utils
         var list = new List<string>();
         for(var i = 0; i < addon->PopupMenu.PopupMenu.EntryCount; i++)
         {
-            list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i]).GetText().Trim());
+            list.Add(MemoryHelper.ReadSeStringNullTerminated((nint)addon->PopupMenu.PopupMenu.EntryNames[i].Value).GetText().Trim());
         }
         //PluginLog.Debug($"{list.Print()}");
         return list;

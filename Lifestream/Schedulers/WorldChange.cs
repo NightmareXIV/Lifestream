@@ -203,7 +203,7 @@ internal static unsafe class WorldChange
     internal static bool? ExecuteTPToAethernetDestination(uint destination, uint subIndex = 0)
     {
         if(!Player.Available) return false;
-        if(AgentMap.Instance()->IsPlayerMoving == 0 && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
+        if(AgentMap.Instance()->IsPlayerMoving == false && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
             return S.TeleportService.TeleportToAetheryte(destination, subIndex);
             //return Svc.PluginInterface.GetIpcSubscriber<uint, byte, bool>("Teleport").InvokeFunc(destination, (byte)subIndex);
