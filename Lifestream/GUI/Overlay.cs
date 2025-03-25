@@ -18,11 +18,8 @@ internal class Overlay : Window
     }
 
     private Vector2 bWidth = new(10, 10);
-
     private Vector2 ButtonSizeAetheryte => bWidth + new Vector2(P.Config.ButtonWidthArray[0], P.Config.ButtonHeightAetheryte);
-
     private Vector2 ButtonSizeWorld => bWidth + new Vector2(P.Config.ButtonWidthArray[1], P.Config.ButtonHeightWorld);
-
     private Vector2 ButtonSizeInstance => bWidth + new Vector2(P.Config.ButtonWidthArray[2], P.Config.InstanceButtonHeight);
 
     private Vector2 WSize = new(200, 200);
@@ -32,6 +29,18 @@ internal class Overlay : Window
         if(P.Config.FixedPosition)
         {
             ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new Vector2(GetBasePosX(), GetBasePosY()) + P.Config.Offset);
+        }
+        if(P.Config.LeftAlignButtons)
+        {
+            ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
+        }
+    }
+
+    public override void PostDraw()
+    {
+        if(P.Config.LeftAlignButtons)
+        {
+            ImGui.PopStyleVar();
         }
     }
 

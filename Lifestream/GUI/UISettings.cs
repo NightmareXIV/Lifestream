@@ -66,6 +66,8 @@ internal static unsafe class UISettings
         .Section("Shortcuts")
         .Widget(() =>
         {
+            ImGui.SetNextItemWidth(200f);
+            ImGuiEx.EnumCombo("\"/li\" command behavior", ref P.Config.LiCommandBehavior);
             ImGui.Checkbox("When teleporting to your own apartment, enter inside", ref P.Config.EnterMyApartment);
             ImGui.SetNextItemWidth(150f);
             ImGuiEx.EnumCombo("When teleporting to your/fc house, perform this action", ref P.Config.HouseEnterMode);
@@ -278,6 +280,8 @@ internal static unsafe class UISettings
                 ImGui.SetNextItemWidth(100f);
                 ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
                 ImGui.Unindent();
+
+                ImGui.Checkbox("Left-align text on buttons", ref P.Config.LeftAlignButtons);
             }
         })
 

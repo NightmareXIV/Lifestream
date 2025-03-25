@@ -9,6 +9,7 @@ using ECommons.MathHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using ECommons.UIHelpers.AtkReaderImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -338,6 +339,21 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("DawnStory"))
+        {
+            if(TryGetAddonMaster<AddonMaster.DawnStory>(out var m) && m.IsAddonReady)
+            {
+                ImGuiEx.Text($"Cnt: {m.Reader.EntryCount}");
+                foreach(var x in m.Entries)
+                {
+                    ImGuiEx.Text($"{x.Name} / {x.ReaderEntryName.Level} / {x.ReaderEntry.Callback} / {x.Index}");
+                    if(ImGuiEx.HoveredAndClicked() && x.Status != 2)
+                    {
+                        x.Select();
+                    }
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("ReaderLobbyDKTWorldList"))
         {
             if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))

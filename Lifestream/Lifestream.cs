@@ -369,6 +369,23 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             else
             {
+                if(arguments == "")
+                {
+                    if(Config.LiCommandBehavior == LiCommandBehavior.Open_World_Change_Menu)
+                    {
+                        S.SelectWorldWindow.IsOpen = true;
+                        return;
+                    }
+                    else if(Config.LiCommandBehavior == LiCommandBehavior.Open_Configuration)
+                    {
+                        EzConfigGui.Open();
+                        return;
+                    }
+                    else if(Config.LiCommandBehavior == LiCommandBehavior.Do_Nothing)
+                    {
+                        return;
+                    }
+                }
                 foreach(var b in Config.AddressBookFolders)
                 {
                     foreach(var e in b.Entries)

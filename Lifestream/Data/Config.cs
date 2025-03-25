@@ -82,4 +82,6 @@ public class Config : IEzConfig
     public WotsitIntegrationIncludedItems WotsitIntegrationIncludes = new();
     public bool EnableDtrBar = false;
     public Dictionary<ulong, (int Territory, int Ward, int Plot)> PreferredSharedEstates = [];
+    public bool LeftAlignButtons = false;
+    public LiCommandBehavior LiCommandBehavior = LiCommandBehavior.Return_to_Home_World;
 }
