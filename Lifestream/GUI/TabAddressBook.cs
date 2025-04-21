@@ -37,7 +37,7 @@ public static unsafe class TabAddressBook
     {
         InputWardDetailDialog.Draw();
         var selector = S.AddressBookFileSystemManager.FileSystem.Selector;
-        selector.Draw(150f);
+        selector.Draw(150f.Scale());
         ImGui.SameLine();
         if(P.Config.AddressBookFolders.Count == 0)
         {
@@ -144,7 +144,7 @@ public static unsafe class TabAddressBook
                     }
                 }
                 ImGui.SameLine();
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGuiEx.EnumCombo("##sort", ref book.SortMode, SortModeNames);
                 ImGuiEx.Tooltip($"Select sort mode for this address book");
                 ImGui.SameLine();

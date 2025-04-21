@@ -49,7 +49,7 @@ public static class TabMultipath
 
         if(Selected != null)
         {
-            ImGui.SetNextItemWidth(200f);
+            ImGui.SetNextItemWidth(200f.Scale());
             ImGui.InputText($"##name", ref Selected.Name, 100);
             ImGui.SameLine();
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.FastForward, "Execute", !P.TaskManager.IsBusy && Player.Interactable))

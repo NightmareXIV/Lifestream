@@ -51,7 +51,7 @@ public static unsafe class UIHouseReg
             ImGui.InputTextWithHint("##search", "Search...", ref Search, 50);
         }, () =>
         {
-            ImGui.SetNextItemWidth(200f);
+            ImGui.SetNextItemWidth(200f.Scale());
             WorldSelector.Draw(ref World);
         });
         List<(ulong CID, HousePathData? Private, HousePathData? FC)> charaDatas = [];
@@ -328,7 +328,7 @@ public static unsafe class UIHouseReg
             if(data.EnableHouseEnterModeOverride)
             {
                 ImGui.SameLine();
-                ImGui.SetNextItemWidth(150f);
+                ImGui.SetNextItemWidth(150f.Scale());
                 ImGuiEx.EnumCombo("##override", ref data.EnterModeOverride);
             }
             DrawHousingData_DrawPath(data, isPrivate, kind, ward, plot);

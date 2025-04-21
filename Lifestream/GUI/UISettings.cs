@@ -32,14 +32,14 @@ internal static unsafe class UISettings
         .Section("Teleport Configuration")
         .Widget(() =>
         {
-            ImGui.SetNextItemWidth(200f);
+            ImGui.SetNextItemWidth(200f.Scale());
             ImGuiEx.EnumCombo($"Teleport world change gateway", ref P.Config.WorldChangeAetheryte, Lang.WorldChangeAetherytes);
             ImGuiEx.HelpMarker($"Where would you like to teleport for world changes");
             ImGui.Checkbox($"Teleport to specific aethernet destination after world/dc visit", ref P.Config.WorldVisitTPToAethernet);
             if(P.Config.WorldVisitTPToAethernet)
             {
                 ImGui.Indent();
-                ImGui.SetNextItemWidth(250f);
+                ImGui.SetNextItemWidth(250f.Scale());
                 ImGui.InputText("Aethernet destination, as if you'd use in \"/li\" command", ref P.Config.WorldVisitTPTarget, 50);
                 ImGui.Checkbox($"Only teleport from command but not from overlay", ref P.Config.WorldVisitTPOnlyCmd);
                 ImGui.Unindent();
@@ -50,28 +50,30 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Show teleport destination in popup notifications", ref P.Config.DisplayPopupNotifications);
             ImGui.Checkbox("Retry same-world failed world visits", ref P.Config.RetryWorldVisit);
             ImGui.Indent();
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f.Scale());
             ImGui.InputInt("Interval between retries, seconds##2", ref P.Config.RetryWorldVisitInterval.ValidateRange(1, 120));
             ImGui.SameLine();
             ImGuiEx.Text("+ up to");
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f.Scale());
             ImGui.InputInt("seconds##2", ref P.Config.RetryWorldVisitIntervalDelta.ValidateRange(0, 120));
             ImGuiEx.HelpMarker("To make it appear less bot-like");
             ImGui.Unindent();
             //ImGui.Checkbox("Use Return instead of Teleport when possible", ref P.Config.UseReturn);
             //ImGuiEx.HelpMarker("This includes any IPC calls");
+            ImGui.Checkbox("Enable tray notifications upon travel completion", ref P.Config.EnableNotifications);
+            ImGuiEx.PluginAvailabilityIndicator([new("NotificationMaster")]);
         })
 
         .Section("Shortcuts")
         .Widget(() =>
         {
-            ImGui.SetNextItemWidth(200f);
+            ImGui.SetNextItemWidth(200f.Scale());
             ImGuiEx.EnumCombo("\"/li\" command behavior", ref P.Config.LiCommandBehavior);
             ImGui.Checkbox("When teleporting to your own apartment, enter inside", ref P.Config.EnterMyApartment);
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGuiEx.EnumCombo("When teleporting to your/fc house, perform this action", ref P.Config.HouseEnterMode);
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             if(ImGui.BeginCombo("Preferred Inn", Utils.GetInnNameFromTerritory(P.Config.PreferredInn), ImGuiComboFlags.HeightLarge))
             {
                 foreach(var x in (uint[])[0, .. TaskPropertyShortcut.InnData.Keys])
@@ -81,7 +83,7 @@ internal static unsafe class UISettings
                 ImGui.EndCombo();
             }
             if(Player.CID != 0) {
-                ImGui.SetNextItemWidth(150f);
+                ImGui.SetNextItemWidth(150f.Scale());
                 var pref = P.Config.PreferredSharedEstates.SafeSelect(Player.CID);
                 var name = pref switch
                 {
@@ -147,9 +149,9 @@ internal static unsafe class UISettings
             ImGuiEx.HelpMarker("If destination world isn't available but some other world on targeted data center is, it will be selected instead. Normal world visit will be enqueued after logging in.");
             ImGui.Checkbox($"Retry data center transfer if destination world is not available", ref P.Config.EnableDvcRetry);
             ImGui.Indent();
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGui.InputInt("Max retries", ref P.Config.MaxDcvRetries.ValidateRange(1, int.MaxValue));
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGui.InputInt("Interval between retries, seconds", ref P.Config.DcvRetryInterval.ValidateRange(10, 1000));
             ImGui.Unindent();
         })
@@ -261,11 +263,11 @@ internal static unsafe class UISettings
                 if(P.Config.FixedPosition)
                 {
                     ImGui.Indent();
-                    ImGui.SetNextItemWidth(200f);
+                    ImGui.SetNextItemWidth(200f.Scale());
                     ImGuiEx.EnumCombo("Horizontal base position", ref P.Config.PosHorizontal);
-                    ImGui.SetNextItemWidth(200f);
+                    ImGui.SetNextItemWidth(200f.Scale());
                     ImGuiEx.EnumCombo("Vertical base position", ref P.Config.PosVertical);
-                    ImGui.SetNextItemWidth(200f);
+                    ImGui.SetNextItemWidth(200f.Scale());
                     ImGui.DragFloat2("Offset", ref P.Config.Offset);
 
                     ImGui.Unindent();
@@ -273,11 +275,11 @@ internal static unsafe class UISettings
 
                 UtilsUI.NextSection();
 
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.InputInt3("Button left/right padding", ref P.Config.ButtonWidthArray[0]);
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.InputInt("Aetheryte button top/bottom padding", ref P.Config.ButtonHeightAetheryte);
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.InputInt("World button top/bottom padding", ref P.Config.ButtonHeightWorld);
                 ImGui.Unindent();
 
@@ -419,7 +421,7 @@ internal static unsafe class UISettings
             if(P.Config.SlowTeleport)
             {
                 ImGui.Indent();
-                ImGui.SetNextItemWidth(200f);
+                ImGui.SetNextItemWidth(200f.Scale());
                 ImGui.DragInt("Teleport delay (ms)", ref P.Config.SlowTeleportThrottle);
                 ImGui.Unindent();
             }

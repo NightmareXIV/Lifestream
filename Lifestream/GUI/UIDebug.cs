@@ -166,7 +166,7 @@ internal static unsafe class UIDebug
                 var curPlot = HousingManager.Instance()->GetCurrentPlot();
                 if(curPlot != -1) LastPlot = curPlot;
                 ImGuiEx.Text($"Plot: {curPlot + 1}");
-                ImGui.SetNextItemWidth(150f);
+                ImGui.SetNextItemWidth(150f.Scale());
                 ImGui.InputInt($"Resize", ref Resize);
                 ImGui.SameLine();
                 if(ImGui.Button("Resize arrays"))
@@ -821,7 +821,7 @@ internal static unsafe class UIDebug
                     ImGui.SameLine();
                     if(!P.DataStore.StaticData.SortOrder.ContainsKey(x.Key.ID)) P.DataStore.StaticData.SortOrder[x.Key.ID] = 0;
                     var d = (int)P.DataStore.StaticData.SortOrder[x.Key.ID];
-                    ImGui.SetNextItemWidth(100f);
+                    ImGui.SetNextItemWidth(100f.Scale());
                     if(ImGui.InputInt($"##{x.Key.Name}{x.Key.ID}sort", ref d))
                     {
                         P.DataStore.StaticData.SortOrder[x.Key.ID] = (uint)d;
@@ -850,7 +850,7 @@ internal static unsafe class UIDebug
                         ImGui.SameLine();
                         if(!P.DataStore.StaticData.SortOrder.ContainsKey(l.ID)) P.DataStore.StaticData.SortOrder[l.ID] = 0;
                         var d = (int)P.DataStore.StaticData.SortOrder[l.ID];
-                        ImGui.SetNextItemWidth(100f);
+                        ImGui.SetNextItemWidth(100f.Scale());
                         if(ImGui.InputInt($"##{l.Name}{l.ID}sort", ref d))
                         {
                             P.DataStore.StaticData.SortOrder[l.ID] = (uint)d;

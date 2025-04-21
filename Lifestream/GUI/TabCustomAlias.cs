@@ -40,7 +40,7 @@ public static class TabCustomAlias
         ImGui.SameLine();
         ImGui.Checkbox("##en", ref selected.Enabled);
         ImGui.SameLine();
-        ImGui.SetNextItemWidth(100f);
+        ImGui.SetNextItemWidth(100f.Scale());
         if(!selected.Enabled) ImGui.BeginDisabled();
         ImGui.InputText($"##Alias", ref selected.Alias, 50);
         if(!selected.Enabled) ImGui.EndDisabled();
@@ -125,7 +125,7 @@ public static class TabCustomAlias
         var aethernet = Ref<uint[]>.Get("Aethernet", () => Utils.GetAllRegisteredAethernetDestinations().ToArray());
         var aethernetNames = Ref<Dictionary<uint, string>>.Get("Aethernet", () => aethernet.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.AethernetName.Value.Name.ToString()));
         ImGui.Separator();
-        ImGui.SetNextItemWidth(150f);
+        ImGui.SetNextItemWidth(150f.Scale());
         ImGuiEx.EnumCombo("Alias kind", ref command.Kind);
         ImGui.SameLine();
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Delete"))
@@ -135,9 +135,9 @@ public static class TabCustomAlias
 
         if(command.Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGuiEx.Combo("Select aetheryte to teleport to", ref command.Aetheryte, aetherytes, names: aetherytePlaceNames);
-            ImGui.SetNextItemWidth(60f);
+            ImGui.SetNextItemWidth(60f.Scale());
             ImGui.DragFloat("Skip teleport if already at aetheryte within this range", ref command.SkipTeleport, 0.01f);
         }
 
@@ -155,7 +155,7 @@ public static class TabCustomAlias
 
         if(command.Kind == CustomAliasKind.Change_world)
         {
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             WorldSelector.Instance.Draw(ref command.World);
             ImGui.SameLine();
             ImGuiEx.Text("Select world");
@@ -163,7 +163,7 @@ public static class TabCustomAlias
 
         if(command.Kind == CustomAliasKind.Use_Aethernet)
         {
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGuiEx.Combo("Select aethernet shard to teleport to", ref command.Aetheryte, aethernet, names: aethernetNames);
         }
 
@@ -189,13 +189,13 @@ public static class TabCustomAlias
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"Precision: ");
                 ImGui.TableNextColumn();
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.DragFloat("##precision", ref command.Precision.ValidateRange(4f, 100f), 0.01f);
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"Tolerance: ");
                 ImGui.TableNextColumn();
-                ImGui.SetNextItemWidth(100f);
+                ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.DragInt("##tol", ref command.Tolerance.ValidateRange(1, (int)(command.Precision * 0.75f)), 0.01f);
 
                 ImGui.TableNextColumn();
@@ -217,12 +217,12 @@ public static class TabCustomAlias
                 {
                     var v = command.Clamp.Value;
                     ImGui.SameLine();
-                    ImGui.SetNextItemWidth(50f);
+                    ImGui.SetNextItemWidth(50f.Scale());
                     ImGui.DragFloat("##prec1", ref v.Min, 0.01f);
                     ImGui.SameLine();
                     ImGuiEx.Text("-");
                     ImGui.SameLine();
-                    ImGui.SetNextItemWidth(50f);
+                    ImGui.SetNextItemWidth(50f.Scale());
                     ImGui.DragFloat("##prec2", ref v.Max, 0.01f);
                     if(v.Min < v.Max)
                     {
@@ -240,7 +240,7 @@ public static class TabCustomAlias
         }
         if(command.Kind == CustomAliasKind.Interact)
         {
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             ImGuiEx.InputUint("Data ID", ref command.DataID);
             ImGui.SameLine();
             if(ImGuiEx.Button("Target", Svc.Targets.Target?.DataId != 0))

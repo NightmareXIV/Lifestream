@@ -303,7 +303,7 @@ internal class Overlay : Window
             ImGuiEx.CollectionCheckbox("Hidden", x.ID, P.Config.Hidden);
             var newName = P.Config.Renames.TryGetValue(x.ID, out var value) ? value : "";
             ImGuiEx.Text($"Rename:");
-            ImGui.SetNextItemWidth(200);
+            ImGui.SetNextItemWidth(200f.Scale());
             if(ImGui.InputText($"##LifestreamRename", ref newName, 100))
             {
                 if(newName == "")

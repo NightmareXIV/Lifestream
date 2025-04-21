@@ -407,9 +407,9 @@ public unsafe class Lifestream : IDalamudPlugin
                     }
                 }
 
-                var argsSplit = arguments.Split(' ');
-                var primary = arguments.Split(' ').SafeSelect(0);
-                var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(" ") : null;
+                var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var primary = argsSplit.SafeSelect(0);
+                var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
                 WorldChangeAetheryte? gateway = null;
                 if(additionalCommand == "mb")
                 {

@@ -17,7 +17,7 @@ internal static class UIServiceAccount
                 {
                     var name = $"{data.Name}@{data.World}";
                     ManagedByAR.Add(name);
-                    ImGui.SetNextItemWidth(150f);
+                    ImGui.SetNextItemWidth(150f.Scale());
                     if(ImGui.BeginCombo($"{name}", data.ServiceAccount == -1 ? "Not selected" : $"Service account {data.ServiceAccount + 1}"))
                     {
                         for(var i = 0; i < 10; i++)
@@ -40,7 +40,7 @@ internal static class UIServiceAccount
         foreach(var x in P.Config.ServiceAccounts)
         {
             if(ManagedByAR.Contains(x.Key)) continue;
-            ImGui.SetNextItemWidth(150f);
+            ImGui.SetNextItemWidth(150f.Scale());
             if(ImGui.BeginCombo($"{x.Key}", x.Value == -1 ? "Not selected" : $"Service account {x.Value + 1}"))
             {
                 for(var i = 0; i < 10; i++)

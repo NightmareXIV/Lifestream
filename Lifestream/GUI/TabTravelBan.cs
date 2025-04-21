@@ -58,12 +58,12 @@ public static class TabTravelBan
                 {
                     ImGuiEx.Text("@");
                     ImGui.SameLine();
-                    ImGui.SetNextItemWidth(100);
+                    ImGui.SetNextItemWidth(100f.Scale());
                     WorldSelector.Instance.Draw(ref entry.CharaHomeWorld);
                 });
                 ImGui.TableNextColumn();
 
-                ImGui.SetNextItemWidth(100);
+                ImGui.SetNextItemWidth(100f.Scale());
                 if(ImGui.BeginCombo("##from", $"{entry.BannedFrom.Count} worlds", ImGuiComboFlags.HeightLarge))
                 {
                     Utils.DrawWorldSelector(entry.BannedFrom);
@@ -71,7 +71,7 @@ public static class TabTravelBan
                 }
                 ImGui.TableNextColumn();
 
-                ImGui.SetNextItemWidth(100);
+                ImGui.SetNextItemWidth(100f.Scale());
                 if(ImGui.BeginCombo("##to", $"{entry.BannedTo.Count} worlds", ImGuiComboFlags.HeightLarge))
                 {
                     Utils.DrawWorldSelector(entry.BannedTo);

@@ -317,7 +317,7 @@ internal static unsafe class Utils
 
     public static void DrawVector2Selector(string id, ref Vector2 value)
     {
-        ImGui.SetNextItemWidth(150f);
+        ImGui.SetNextItemWidth(150f.Scale());
         ImGui.DragFloat2($"##vec{id}", ref value, 0.01f);
         ImGui.SameLine();
         if(ImGuiEx.IconButton(FontAwesomeIcon.MapPin, $"myPos{id}", enabled: Player.Interactable))
@@ -350,7 +350,7 @@ internal static unsafe class Utils
 
     public static void DrawVector3Selector(string id, ref Vector3 value)
     {
-        ImGui.SetNextItemWidth(150f);
+        ImGui.SetNextItemWidth(150f.Scale());
         ImGui.DragFloat3($"##vec{id}", ref value, 0.01f);
         ImGui.SameLine();
         if(ImGuiEx.IconButton(FontAwesomeIcon.MapPin, $"myPos{id}", enabled: Player.Interactable))
@@ -806,7 +806,10 @@ internal static unsafe class Utils
 
     internal static void TryNotify(string s)
     {
-        P.NotificationMasterApi.DisplayTrayNotification(P.Name, s);
+        if(P.Config.EnableNotifications)
+        {
+            P.NotificationMasterApi.DisplayTrayNotification(P.Name, s);
+        }
     }
 
     internal static string GetDataCenterName(string world)

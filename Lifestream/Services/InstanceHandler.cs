@@ -15,7 +15,7 @@ public unsafe class InstanceHandler : IDisposable
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
         var gv = CSFramework.Instance()->GameVersionString;
-        if(gv != null && gv != P.Config.GameVersion)
+        if(!gv.IsNullOrEmpty() && gv != P.Config.GameVersion)
         {
             PluginLog.Information($"New game version detected, new {gv}, old {P.Config.GameVersion}");
             P.Config.GameVersion = gv;
