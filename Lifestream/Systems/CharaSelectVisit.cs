@@ -104,9 +104,9 @@ public static unsafe class CharaSelectVisit
     public static void EnqueueSecondary(bool noSecondaryTeleport, string secondaryTeleport)
     {
         if(noSecondaryTeleport) return;
-        if(secondaryTeleport == null && P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty())
+        if(secondaryTeleport == null && C.WorldVisitTPToAethernet && !C.WorldVisitTPTarget.IsNullOrEmpty())
         {
-            secondaryTeleport = P.Config.WorldVisitTPTarget;
+            secondaryTeleport = C.WorldVisitTPTarget;
         }
         if(!secondaryTeleport.IsNullOrEmpty())
         {
@@ -119,8 +119,8 @@ public static unsafe class CharaSelectVisit
 
     public static void ApplyDefaults(ref bool? returnToGateway, ref WorldChangeAetheryte? gateway, ref bool? doNotify)
     {
-        returnToGateway ??= P.Config.DCReturnToGateway;
-        gateway ??= P.Config.WorldChangeAetheryte;
+        returnToGateway ??= C.DCReturnToGateway;
+        gateway ??= C.WorldChangeAetheryte;
         doNotify ??= true;
     }
 }

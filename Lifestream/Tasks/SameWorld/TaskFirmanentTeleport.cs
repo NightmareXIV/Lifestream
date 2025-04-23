@@ -8,7 +8,7 @@ internal static class TaskFirmanentTeleport
 {
     internal static void Enqueue()
     {
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         P.TaskManager.Enqueue(() =>

@@ -339,6 +339,8 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        ImGui.Text(Utils.ParseSheetPattern("<Addon:10:Text>"));
+        ImGui.Text(Utils.ParseSheetPattern("<Addon:10:RowId>"));
         if(ImGui.CollapsingHeader("DawnStory"))
         {
             if(TryGetAddonMaster<AddonMaster.DawnStory>(out var m) && m.IsAddonReady)
@@ -589,8 +591,8 @@ internal static unsafe class UIDebug
                 GetInstance: {S.InstanceHandler.GetInstance()}
                 DrawConditions: {P.Overlay.DrawConditions()}
                 """);
-            if(ImGui.Button("instance data reset")) P.Config.PublicInstances.Clear();
-            if(ImGui.Button("game version reset")) P.Config.GameVersion = "";
+            if(ImGui.Button("instance data reset")) C.PublicInstances.Clear();
+            if(ImGui.Button("game version reset")) C.GameVersion = "";
         }
         ImGuiEx.Text($"Player interactable: {Player.Interactable}");
         ImGuiEx.Text($"Is moving: {AgentMap.Instance()->IsPlayerMoving}");

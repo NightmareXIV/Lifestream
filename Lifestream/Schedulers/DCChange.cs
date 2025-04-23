@@ -283,7 +283,7 @@ internal static unsafe class DCChange
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
             var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[10]->GetAsAtkTextNode()->NodeText).GetText();
-            if(cw == name || (P.Config.DcvUseAlternativeWorld && cw.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString()))))
+            if(cw == name || (C.DcvUseAlternativeWorld && cw.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString()))))
             {
                 return true;
             }
@@ -305,7 +305,7 @@ internal static unsafe class DCChange
                     }
                 }
             }
-            if(P.Config.DcvUseAlternativeWorld)
+            if(C.DcvUseAlternativeWorld)
             {
                 for(var i = 3; i < 3 + 8; i++)
                 {

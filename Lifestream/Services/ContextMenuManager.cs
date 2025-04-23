@@ -20,7 +20,7 @@ public unsafe class ContextMenuManager : IDisposable
 
     private void ContextMenu_OnMenuOpened(IMenuOpenedArgs args)
     {
-        if(P.Config.AllowDCTravelFromCharaSelect)
+        if(C.AllowDCTravelFromCharaSelect)
         {
             if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m))
             {

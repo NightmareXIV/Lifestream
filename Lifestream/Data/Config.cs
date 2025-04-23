@@ -78,6 +78,7 @@ public class Config : IEzConfig
     public bool TerminateSelfPartyFinder = false;
     public Dictionary<ulong, string> CharaMap = [];
     public bool UseMount = true;
+    public int Mount = 0;
     public bool WotsitIntegrationEnabled = true;
     public WotsitIntegrationIncludedItems WotsitIntegrationIncludes = new();
     public bool EnableDtrBar = false;

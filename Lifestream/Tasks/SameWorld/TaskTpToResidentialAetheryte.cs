@@ -11,6 +11,6 @@ public static class TaskTpToResidentialAetheryte
         P.TaskManager.Insert(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M);
         P.TaskManager.Insert(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
         P.TaskManager.Insert(() => WorldChange.ExecuteTPToAethernetDestination((uint)target), $"ExecuteTPToAethernetDestination {target}");
-        if(P.Config.WaitForScreenReady) P.TaskManager.Insert(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Insert(Utils.WaitForScreen);
     }
 }

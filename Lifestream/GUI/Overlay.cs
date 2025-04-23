@@ -18,19 +18,19 @@ internal class Overlay : Window
     }
 
     private Vector2 bWidth = new(10, 10);
-    private Vector2 ButtonSizeAetheryte => bWidth + new Vector2(P.Config.ButtonWidthArray[0], P.Config.ButtonHeightAetheryte);
-    private Vector2 ButtonSizeWorld => bWidth + new Vector2(P.Config.ButtonWidthArray[1], P.Config.ButtonHeightWorld);
-    private Vector2 ButtonSizeInstance => bWidth + new Vector2(P.Config.ButtonWidthArray[2], P.Config.InstanceButtonHeight);
+    private Vector2 ButtonSizeAetheryte => bWidth + new Vector2(C.ButtonWidthArray[0], C.ButtonHeightAetheryte);
+    private Vector2 ButtonSizeWorld => bWidth + new Vector2(C.ButtonWidthArray[1], C.ButtonHeightWorld);
+    private Vector2 ButtonSizeInstance => bWidth + new Vector2(C.ButtonWidthArray[2], C.InstanceButtonHeight);
 
     private Vector2 WSize = new(200, 200);
 
     public override void PreDraw()
     {
-        if(P.Config.FixedPosition)
+        if(C.FixedPosition)
         {
-            ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new Vector2(GetBasePosX(), GetBasePosY()) + P.Config.Offset);
+            ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new Vector2(GetBasePosX(), GetBasePosY()) + C.Offset);
         }
-        if(P.Config.LeftAlignButtons)
+        if(C.LeftAlignButtons)
         {
             ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
         }
@@ -38,7 +38,7 @@ internal class Overlay : Window
 
     public override void PostDraw()
     {
-        if(P.Config.LeftAlignButtons)
+        if(C.LeftAlignButtons)
         {
             ImGui.PopStyleVar();
         }
@@ -46,11 +46,11 @@ internal class Overlay : Window
 
     private float GetBasePosX()
     {
-        if(P.Config.PosHorizontal == BasePositionHorizontal.Middle)
+        if(C.PosHorizontal == BasePositionHorizontal.Middle)
         {
             return ImGuiHelpers.MainViewport.Size.X / 2 - WSize.X / 2;
         }
-        else if(P.Config.PosHorizontal == BasePositionHorizontal.Right)
+        else if(C.PosHorizontal == BasePositionHorizontal.Right)
         {
             return ImGuiHelpers.MainViewport.Size.X - WSize.X;
         }
@@ -62,11 +62,11 @@ internal class Overlay : Window
 
     private float GetBasePosY()
     {
-        if(P.Config.PosVertical == BasePositionVertical.Middle)
+        if(C.PosVertical == BasePositionVertical.Middle)
         {
             return ImGuiHelpers.MainViewport.Size.Y / 2 - WSize.Y / 2;
         }
-        else if(P.Config.PosVertical == BasePositionVertical.Bottom)
+        else if(C.PosVertical == BasePositionVertical.Bottom)
         {
             return ImGuiHelpers.MainViewport.Size.Y - WSize.Y;
         }
@@ -78,11 +78,11 @@ internal class Overlay : Window
 
     public override void Draw()
     {
-        RespectCloseHotkey = P.Config.AllowClosingESC2;
+        RespectCloseHotkey = C.AllowClosingESC2;
         List<Action> actions = [];
         if(P.ResidentialAethernet.IsInResidentialZone())
         {
-            if(P.Config.ShowAethernet)
+            if(C.ShowAethernet)
             {
                 actions.Add(() => DrawResidentialAethernet(false));
                 actions.Add(() => DrawResidentialAethernet(true));
@@ -90,15 +90,15 @@ internal class Overlay : Window
         }
         else if(P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory))
         {
-            if(P.Config.ShowAethernet) actions.Add(DrawCustomAethernet);
+            if(C.ShowAethernet) actions.Add(DrawCustomAethernet);
         }
         else if(P.ActiveAetheryte != null)
         {
-            if(P.Config.ShowAethernet) actions.Add(DrawNormalAethernet);
-            if(P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && P.Config.ShowWorldVisit) actions.Add(DrawWorldVisit);
-            if(P.Config.ShowWards && Utils.HousingAethernet.Contains(P.Territory) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
+            if(C.ShowAethernet) actions.Add(DrawNormalAethernet);
+            if(P.ActiveAetheryte.Value.IsWorldChangeAetheryte() && C.ShowWorldVisit) actions.Add(DrawWorldVisit);
+            if(C.ShowWards && Utils.HousingAethernet.Contains(P.Territory) && P.ActiveAetheryte.Value.IsResidentialAetheryte()) actions.Add(DrawHousingWards);
         }
-        if(S.InstanceHandler.GetInstance() != 0 && P.Config.ShowInstanceSwitcher
+        if(S.InstanceHandler.GetInstance() != 0 && C.ShowInstanceSwitcher
             && (P.ActiveAetheryte == null || P.ActiveAetheryte.Value.IsAetheryte))
         {
             actions.Add(DrawInstances);
@@ -121,7 +121,7 @@ internal class Overlay : Window
             }
         }
 
-        if(P.Config.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+        if(C.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
         {
             if(ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
             {
@@ -165,9 +165,9 @@ internal class Overlay : Window
     private void DrawNormalAethernet()
     {
         var master = Utils.GetMaster();
-        if(!P.Config.Hidden.Contains(master.ID))
+        if(!C.Hidden.Contains(master.ID))
         {
-            var name = (P.Config.Favorites.Contains(master.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
+            var name = (C.Favorites.Contains(master.ID) ? "★ " : "") + (C.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
             ResizeButton(name);
             var md = P.ActiveAetheryte == master;
             if(ImGuiEx.Button(name, ButtonSizeAetheryte, !md))
@@ -180,9 +180,9 @@ internal class Overlay : Window
 
         foreach(var x in P.DataStore.Aetherytes[master])
         {
-            if(!P.Config.Hidden.Contains(x.ID))
+            if(!C.Hidden.Contains(x.ID))
             {
-                var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                 ResizeButton(name);
                 var d = P.ActiveAetheryte == x;
                 if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
@@ -194,7 +194,7 @@ internal class Overlay : Window
             }
         }
 
-        if(P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
+        if(P.ActiveAetheryte.Value.ID == 70 && C.Firmament)
         {
             var name = "Firmament";
             ResizeButton(name);
@@ -215,11 +215,11 @@ internal class Overlay : Window
         {
             foreach(var x in zinfo.Aetherytes)
             {
-                if(P.Config.Favorites.Contains(x.ID) != favorites) continue;
+                if(C.Favorites.Contains(x.ID) != favorites) continue;
                 if(subdivision != null && x.IsSubdivision != subdivision) continue;
-                if(!P.Config.Hidden.Contains(x.ID))
+                if(!C.Hidden.Contains(x.ID))
                 {
-                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = P.ResidentialAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
@@ -242,10 +242,10 @@ internal class Overlay : Window
         {
             foreach(var x in zinfo)
             {
-                if(P.Config.Favorites.Contains(x.ID) != favorites) continue;
-                if(!P.Config.Hidden.Contains(x.ID))
+                if(C.Favorites.Contains(x.ID) != favorites) continue;
+                if(!C.Hidden.Contains(x.ID))
                 {
-                    var name = (P.Config.Favorites.Contains(x.ID) ? "★ " : "") + (P.Config.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = P.CustomAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
@@ -295,24 +295,24 @@ internal class Overlay : Window
         }
         if(ImGui.BeginPopup($"LifestreamPopup{x.ID}"))
         {
-            if(ImGuiEx.CollectionCheckbox("Favorite", x.ID, P.Config.Favorites))
+            if(ImGuiEx.CollectionCheckbox("Favorite", x.ID, C.Favorites))
             {
                 PluginLog.Debug($"Rebuilding data store");
                 P.DataStore = new();
             }
-            ImGuiEx.CollectionCheckbox("Hidden", x.ID, P.Config.Hidden);
-            var newName = P.Config.Renames.TryGetValue(x.ID, out var value) ? value : "";
+            ImGuiEx.CollectionCheckbox("Hidden", x.ID, C.Hidden);
+            var newName = C.Renames.TryGetValue(x.ID, out var value) ? value : "";
             ImGuiEx.Text($"Rename:");
             ImGui.SetNextItemWidth(200f.Scale());
             if(ImGui.InputText($"##LifestreamRename", ref newName, 100))
             {
                 if(newName == "")
                 {
-                    P.Config.Renames.Remove(x.ID);
+                    C.Renames.Remove(x.ID);
                 }
                 else
                 {
-                    P.Config.Renames[x.ID] = newName;
+                    C.Renames[x.ID] = newName;
                 }
             }
             ImGui.EndPopup();
@@ -332,10 +332,10 @@ internal class Overlay : Window
                 TaskRemoveAfkStatus.Enqueue();
                 TaskChangeWorld.Enqueue(x);
                 TaskDesktopNotification.Enqueue($"Arrived to {x}");
-                if(P.Config.WorldVisitTPToAethernet && !P.Config.WorldVisitTPTarget.IsNullOrEmpty() && !P.Config.WorldVisitTPOnlyCmd)
+                if(C.WorldVisitTPToAethernet && !C.WorldVisitTPTarget.IsNullOrEmpty() && !C.WorldVisitTPOnlyCmd)
                 {
                     P.TaskManager.Enqueue(() => Player.Interactable);
-                    P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.Enqueue(P.Config.WorldVisitTPTarget));
+                    P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.Enqueue(C.WorldVisitTPTarget));
                 }
             }
         }
@@ -367,23 +367,23 @@ internal class Overlay : Window
 
     public override bool DrawConditions()
     {
-        if(!P.Config.Enable) return false;
+        if(!C.Enable) return false;
         var canUse = Utils.CanUseAetheryte();
         var ret = canUse != AetheryteUseState.None;
         if(canUse == AetheryteUseState.Normal)
         {
             if(P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {
-                ret = P.Config.ShowWorldVisit || P.Config.ShowAethernet;
+                ret = C.ShowWorldVisit || C.ShowAethernet;
             }
             else
             {
-                ret = P.Config.ShowAethernet;
+                ret = C.ShowAethernet;
             }
         }
         else if(canUse == AetheryteUseState.Residential || canUse == AetheryteUseState.Custom)
         {
-            ret = P.Config.ShowAethernet;
+            ret = C.ShowAethernet;
         }
         if(canUse == AetheryteUseState.None)
         {
@@ -393,6 +393,6 @@ internal class Overlay : Window
         {
             ret = true;
         }
-        return ret && !(P.Config.HideAddon && Utils.IsAddonsVisible(P.Config.HideAddonList));
+        return ret && !(C.HideAddon && Utils.IsAddonsVisible(C.HideAddonList));
     }
 }

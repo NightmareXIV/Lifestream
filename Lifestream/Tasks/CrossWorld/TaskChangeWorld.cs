@@ -13,8 +13,8 @@ internal static unsafe class TaskChangeWorld
             Utils.AssertCanTravel(Player.Name, Player.Object.HomeWorld.RowId, Player.Object.CurrentWorld.RowId, world);
         }
         catch(Exception e) { e.Log(); return; }
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
-        if(P.Config.LeavePartyBeforeWorldChange)
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.LeavePartyBeforeWorldChange)
         {
             if(Svc.Condition[ConditionFlag.RecruitingWorldOnly])
             {
@@ -30,7 +30,7 @@ internal static unsafe class TaskChangeWorld
         P.TaskManager.Enqueue(WorldChange.SelectVisitAnotherWorld);
         P.TaskManager.Enqueue(() => WorldChange.SelectWorldToVisit(world), $"{nameof(WorldChange.SelectWorldToVisit)}, {world}");
         P.TaskManager.Enqueue(() => WorldChange.ConfirmWorldVisit(world), $"{nameof(WorldChange.ConfirmWorldVisit)}, {world}");
-        P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle("RetryWorldVisit", Math.Max(10000, P.Config.RetryWorldVisitInterval * 1000), true)));
+        P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle("RetryWorldVisit", Math.Max(10000, C.RetryWorldVisitInterval * 1000), true)));
         P.TaskManager.Enqueue(() => RetryWorldVisit(world), TaskSettings.Timeout5M);
     }
 
@@ -41,11 +41,11 @@ internal static unsafe class TaskChangeWorld
         {
             return true;
         }
-        if(P.Config.RetryWorldVisit)
+        if(C.RetryWorldVisit)
         {
             if(!IsScreenReady() || Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld] || Svc.Condition[ConditionFlag.ReadyingVisitOtherWorld] || Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
             {
-                EzThrottler.Throttle("RetryWorldVisit", Math.Max(1000, P.Config.RetryWorldVisitInterval * 1000 + WorldVisitRand), true);
+                EzThrottler.Throttle("RetryWorldVisit", Math.Max(1000, C.RetryWorldVisitInterval * 1000 + WorldVisitRand), true);
                 return false;
             }
             if(Svc.Targets.Target == null && Player.Interactable)
@@ -58,7 +58,7 @@ internal static unsafe class TaskChangeWorld
             }
             if(EzThrottler.Check("RetryWorldVisit"))
             {
-                WorldVisitRand = Random.Shared.Next(0, P.Config.RetryWorldVisitIntervalDelta * 1000);
+                WorldVisitRand = Random.Shared.Next(0, C.RetryWorldVisitIntervalDelta * 1000);
                 P.TaskManager.BeginStack();
                 TaskChangeWorld.Enqueue(targetWorld);
                 P.TaskManager.InsertStack();

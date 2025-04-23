@@ -39,7 +39,7 @@ public static unsafe class TabAddressBook
         var selector = S.AddressBookFileSystemManager.FileSystem.Selector;
         selector.Draw(150f.Scale());
         ImGui.SameLine();
-        if(P.Config.AddressBookFolders.Count == 0)
+        if(C.AddressBookFolders.Count == 0)
         {
             var book = new AddressBookFolder() { IsDefault = true };
             S.AddressBookFileSystemManager.FileSystem.Create(book, "Default Book", out _);
@@ -53,7 +53,7 @@ public static unsafe class TabAddressBook
             }
             else
             {
-                if(P.Config.AddressBookFolders.TryGetFirst(x => x.IsDefault, out var value))
+                if(C.AddressBookFolders.TryGetFirst(x => x.IsDefault, out var value))
                 {
                     selector.SelectByValue(value);
                 }
@@ -152,7 +152,7 @@ public static unsafe class TabAddressBook
                 {
                     if(book.IsDefault)
                     {
-                        P.Config.AddressBookFolders.Where(z => z != book).Each(z => z.IsDefault = false);
+                        C.AddressBookFolders.Where(z => z != book).Each(z => z.IsDefault = false);
                     }
                 }
                 ImGuiEx.Tooltip($"Default book automatically opens when you open plugin first time in a game session.");

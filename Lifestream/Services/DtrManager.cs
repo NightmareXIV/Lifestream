@@ -38,7 +38,7 @@ public class DtrManager : IDisposable
     private void OnTerritoryChanged(ushort obj)
     {
         Entry.Shown = false;
-        if(P.Config.EnableDtrBar && S.InstanceHandler.GetInstance() > 0)
+        if(C.EnableDtrBar && S.InstanceHandler.GetInstance() > 0)
         {
             var str = InstanceNumbers.SafeSelect(obj);
             if(str != null)

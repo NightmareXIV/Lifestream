@@ -76,9 +76,12 @@ public class WotsitManager : IDisposable
     private void ClearWotsit()
     {
         _lastEntries = [];
-        var faUnregisterAll = Svc.PluginInterface.GetIpcSubscriber<string, bool>("FA.UnregisterAll");
-        faUnregisterAll!.InvokeFunc(P.Name);
-        PluginLog.Debug($"WotsitManager: Invoked FA.UnregisterAll(\"{P.Name}\")");
+        if(Utils.WotsitInstalled())
+        {
+            var faUnregisterAll = Svc.PluginInterface.GetIpcSubscriber<string, bool>("FA.UnregisterAll");
+            faUnregisterAll!.InvokeFunc(P.Name);
+            PluginLog.Debug($"WotsitManager: Invoked FA.UnregisterAll(\"{P.Name}\")");
+        }
         _registered.Clear();
     }
 
@@ -118,7 +121,7 @@ public class WotsitManager : IDisposable
 
     public void MaybeTryInit(bool force = false)
     {
-        if(!P.Config.WotsitIntegrationEnabled)
+        if(!C.WotsitIntegrationEnabled || !Utils.WotsitInstalled())
         {
             return;
         }

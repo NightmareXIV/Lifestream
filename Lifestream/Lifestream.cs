@@ -42,7 +42,8 @@ public unsafe class Lifestream : IDalamudPlugin
 {
     public string Name => "Lifestream";
     internal static Lifestream P;
-    internal Config Config;
+    internal static Config C => P.Config;
+    private Config Config;
     internal DataStore DataStore;
     internal Memory Memory;
     internal Overlay Overlay;
@@ -304,6 +305,22 @@ public unsafe class Lifestream : IDalamudPlugin
                     DuoLog.Error($"Could not parse input: {name}");
             }
         }
+        else if(arguments.EqualsIgnoreCaseAny("cosmic", "ardorum", "moon"))
+        {
+            if(!Utils.IsBusy())
+            {
+                if(!Player.IsInHomeWorld)
+                {
+                    P.TPAndChangeWorld(Player.HomeWorld, !Player.IsInHomeDC, null, true, null, false, false);
+                }
+                P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
+                StaticAlias.CosmicExploration.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
         else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
         {
             var destination = arguments[(arguments.IndexOf("tp") + 2)..].Trim();
@@ -408,7 +425,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
 
                 var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                var primary = argsSplit.SafeSelect(0);
+                var primary = argsSplit.SafeSelect(0) ?? "";
                 var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
                 WorldChangeAetheryte? gateway = null;
                 if(additionalCommand == "mb")
@@ -439,7 +456,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 if(additionalCommand != null)
                 {
                     TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-                    TaskManager.Enqueue(() => Svc.Framework.RunOnTick(() => Svc.Commands.ProcessCommand($"/li {additionalCommand}"), delayTicks:1));
+                    TaskManager.Enqueue(() => Svc.Framework.RunOnTick(() => Svc.Commands.ProcessCommand($"/li {additionalCommand}"), delayTicks: 1));
                 }
             }
         }
@@ -453,7 +470,7 @@ public unsafe class Lifestream : IDalamudPlugin
             CharaSelectVisit.ApplyDefaults(ref returnToGateway, ref gateway, ref doNotify);
             if(!skipChecks)
             {
-                if(isDcTransfer && !P.Config.AllowDcTransfer)
+                if(isDcTransfer && !C.AllowDcTransfer)
                 {
                     Notify.Error($"Data center transfers are not enabled in the configuration.");
                     return;
@@ -479,7 +496,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 Notify.Error("You are unable to teleport at this time");
                 return;
             }*/
-            if(Svc.Party.Length > 1 && !P.Config.LeavePartyBeforeWorldChange && !P.Config.LeavePartyBeforeWorldChange)
+            if(Svc.Party.Length > 1 && !C.LeavePartyBeforeWorldChange && !C.LeavePartyBeforeWorldChange)
             {
                 Notify.Warning("You must disband party in order to switch worlds");
             }
@@ -663,7 +680,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         if(!Overlay.IsOpen)
         {
-            if(P.Config.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
+            if(C.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
             {
                 Overlay.IsOpen = true;
             }

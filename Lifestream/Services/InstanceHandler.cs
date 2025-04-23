@@ -15,17 +15,17 @@ public unsafe class InstanceHandler : IDisposable
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostUpdate, "SelectString", OnPostUpdate);
         var gv = CSFramework.Instance()->GameVersionString;
-        if(!gv.IsNullOrEmpty() && gv != P.Config.GameVersion)
+        if(!gv.IsNullOrEmpty() && gv != C.GameVersion)
         {
-            PluginLog.Information($"New game version detected, new {gv}, old {P.Config.GameVersion}");
-            P.Config.GameVersion = gv;
-            P.Config.PublicInstances = [];
+            PluginLog.Information($"New game version detected, new {gv}, old {C.GameVersion}");
+            C.GameVersion = gv;
+            C.PublicInstances = [];
         }
     }
 
     public bool CanChangeInstance()
     {
-        return P.Config.ShowInstanceSwitcher && !Utils.IsDisallowedToUseAethernet() && !P.TaskManager.IsBusy && !IsOccupied() && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() != null;
+        return C.ShowInstanceSwitcher && !Utils.IsDisallowedToUseAethernet() && !P.TaskManager.IsBusy && !IsOccupied() && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() != null;
     }
 
     private void OnPostUpdate(AddonEvent type, AddonArgs args)
@@ -46,13 +46,13 @@ public unsafe class InstanceHandler : IDisposable
             }
             else
             {
-                if(P.Config.PublicInstances.TryGetValue(P.Territory, out var value) && value == inst)
+                if(C.PublicInstances.TryGetValue(P.Territory, out var value) && value == inst)
                 {
                     //
                 }
                 else
                 {
-                    P.Config.PublicInstances[P.Territory] = inst;
+                    C.PublicInstances[P.Territory] = inst;
                     EzConfig.Save();
                 }
             }
@@ -66,7 +66,7 @@ public unsafe class InstanceHandler : IDisposable
 
     public bool InstancesInitizliaed(out int maxInstances)
     {
-        return P.Config.PublicInstances.TryGetValue(P.Territory, out maxInstances);
+        return C.PublicInstances.TryGetValue(P.Territory, out maxInstances);
     }
 
     public void Dispose()

@@ -8,7 +8,7 @@ public class AddressBookFileSystemManager
     public GenericFileSystem<AddressBookFolder> FileSystem;
     private AddressBookFileSystemManager()
     {
-        FileSystem = new(P.Config.AddressBookFolders, "AddressBook");
+        FileSystem = new(C.AddressBookFolders, "AddressBook");
         FileSystem.Selector.OnAfterDrawLeafName += Selector_OnAfterDrawLeafName;
         FileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
         FileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
@@ -55,7 +55,7 @@ public class AddressBookFileSystemManager
             {
                 AddressBookEntry entry = null;
                 AddressBookFolder folder = null;
-                foreach(var f in P.Config.AddressBookFolders)
+                foreach(var f in C.AddressBookFolders)
                 {
                     foreach(var e in f.Entries)
                     {

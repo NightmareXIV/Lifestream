@@ -39,7 +39,7 @@ public static unsafe class UIHouseReg
     private static WorldSelector WorldSelector = new()
     {
         DisplayCurrent = true,
-        ShouldHideWorld = (x) => !P.Config.HousePathDatas.Any(s => Utils.GetWorldFromCID(s.CID) == ExcelWorldHelper.GetName(x)),
+        ShouldHideWorld = (x) => !C.HousePathDatas.Any(s => Utils.GetWorldFromCID(s.CID) == ExcelWorldHelper.GetName(x)),
         EmptyName = "All Worlds",
         DefaultAllOpen = true,
     };
@@ -55,9 +55,9 @@ public static unsafe class UIHouseReg
             WorldSelector.Draw(ref World);
         });
         List<(ulong CID, HousePathData? Private, HousePathData? FC)> charaDatas = [];
-        foreach(var x in P.Config.HousePathDatas.Select(x => x.CID).Distinct())
+        foreach(var x in C.HousePathDatas.Select(x => x.CID).Distinct())
         {
-            charaDatas.Add((x, P.Config.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x), P.Config.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x)));
+            charaDatas.Add((x, C.HousePathDatas.FirstOrDefault(z => z.IsPrivate && z.CID == x), C.HousePathDatas.FirstOrDefault(z => !z.IsPrivate && z.CID == x)));
         }
         DragDropPathData.Begin();
         if(ImGuiEx.BeginDefaultTable("##charaTable", ["##move", "~Name or CID", "Private", "##privateCtl", "##privateCtl2", "##privateDlm", "FC", "##FCCtl", "Workshop", "##workshopCtl", "##fcCtl", "##fcCtl2"]))
@@ -88,7 +88,7 @@ public static unsafe class UIHouseReg
                     ImGui.TableNextColumn();
                     if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DelePrivate", enabled: ImGuiEx.Ctrl))
                     {
-                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == charaData.CID));
+                        new TickScheduler(() => C.HousePathDatas.RemoveAll(z => z.IsPrivate && z.CID == charaData.CID));
                     }
                     ImGuiEx.Tooltip("Remove private house registration. Hold CTRL and click.");
                     if(priv.PathToEntrance.Count > 0)
@@ -136,7 +136,7 @@ public static unsafe class UIHouseReg
                     ImGui.TableNextColumn();
                     if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue50b', "DeleFc", enabled: ImGuiEx.Ctrl))
                     {
-                        new TickScheduler(() => P.Config.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == charaData.CID));
+                        new TickScheduler(() => C.HousePathDatas.RemoveAll(z => !z.IsPrivate && z.CID == charaData.CID));
                     }
                     ImGuiEx.Tooltip("Remove FC house registration. Hold CTRL and click.");
                     if(fc.PathToEntrance.Count > 0)
@@ -196,11 +196,11 @@ public static unsafe class UIHouseReg
             ImGui.EndTable();
             DragDropPathData.End();
         }
-        P.Config.HousePathDatas.Clear();
+        C.HousePathDatas.Clear();
         foreach(var x in charaDatas)
         {
-            if(x.Private != null) P.Config.HousePathDatas.Add(x.Private);
-            if(x.FC != null) P.Config.HousePathDatas.Add(x.FC);
+            if(x.Private != null) C.HousePathDatas.Add(x.Private);
+            if(x.FC != null) C.HousePathDatas.Add(x.FC);
         }
     }
 
@@ -212,19 +212,19 @@ public static unsafe class UIHouseReg
             {
                 var data = EzConfig.DefaultSerializationFactory.Deserialize<HousePathData>(Paste()!) ?? throw new NullReferenceException("No suitable data forund in clipboard");
                 if(!data.GetType().GetFieldPropertyUnions().All(x => x.GetValue(data) != null)) throw new NullReferenceException("Clipboard contains invalid data");
-                var existingData = P.Config.HousePathDatas.FirstOrDefault(x => x.CID == cid && x.IsPrivate == isPrivate);
+                var existingData = C.HousePathDatas.FirstOrDefault(x => x.CID == cid && x.IsPrivate == isPrivate);
                 var same = existingData != null && existingData.Ward == data.Ward && existingData.Plot == data.Plot && existingData.ResidentialDistrict == data.ResidentialDistrict;
                 if(same || ImGuiEx.Ctrl)
                 {
                     data.CID = cid;
-                    var index = P.Config.HousePathDatas.IndexOf(s => s.CID == data.CID && s.IsPrivate == isPrivate);
+                    var index = C.HousePathDatas.IndexOf(s => s.CID == data.CID && s.IsPrivate == isPrivate);
                     if(index == -1)
                     {
-                        P.Config.HousePathDatas.Add(data);
+                        C.HousePathDatas.Add(data);
                     }
                     else
                     {
-                        P.Config.HousePathDatas[index] = data;
+                        C.HousePathDatas[index] = data;
                     }
                 }
                 else
@@ -256,18 +256,18 @@ public static unsafe class UIHouseReg
     {
         if(TryGetCurrentPlotInfo(out var kind, out var ward, out var plot))
         {
-            if(P.Config.HousePathDatas.TryGetFirst(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot, out var regData))
+            if(C.HousePathDatas.TryGetFirst(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot, out var regData))
             {
                 ImGuiEx.TextWrapped($"This house is already registered as {(regData.IsPrivate ? "private house" : "FC house")} for character {Utils.GetCharaName(regData.CID)} and can not be registered as a custom house.");
             }
             else
             {
-                var data = P.Config.CustomHousePathDatas.FirstOrDefault(x => x.Ward == ward && x.Plot == plot && x.ResidentialDistrict == kind);
+                var data = C.CustomHousePathDatas.FirstOrDefault(x => x.Ward == ward && x.Plot == plot && x.ResidentialDistrict == kind);
                 if(data == null)
                 {
                     if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Register this house as custom house"))
                     {
-                        P.Config.CustomHousePathDatas.Add(new()
+                        C.CustomHousePathDatas.Add(new()
                         {
                             ResidentialDistrict = kind,
                             Plot = plot,
@@ -279,7 +279,7 @@ public static unsafe class UIHouseReg
                 {
                     if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Unregister this house", ImGuiEx.Ctrl))
                     {
-                        new TickScheduler(() => P.Config.CustomHousePathDatas.Remove(data));
+                        new TickScheduler(() => C.CustomHousePathDatas.Remove(data));
                     }
                     DrawHousingData_DrawPath(data, false, kind, ward, plot);
                 }
@@ -309,7 +309,7 @@ public static unsafe class UIHouseReg
                         ResidentialDistrict = kind,
                         IsPrivate = isPrivate
                     };
-                    P.Config.HousePathDatas.Add(newData);
+                    C.HousePathDatas.Add(newData);
                 }
             }
             else
@@ -322,7 +322,7 @@ public static unsafe class UIHouseReg
             ImGuiEx.TextWrapped(ImGuiColors.ParsedGreen, $"{data.ResidentialDistrict.GetName()}, Ward {data.Ward + 1}, Plot {data.Plot + 1} is registered as {(data.IsPrivate ? "private" : "free company")} house.");
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Remove registration", ImGuiEx.Ctrl))
             {
-                P.Config.HousePathDatas.Remove(data);
+                C.HousePathDatas.Remove(data);
             }
             ImGui.Checkbox("Override teleport behavior", ref data.EnableHouseEnterModeOverride);
             if(data.EnableHouseEnterModeOverride)

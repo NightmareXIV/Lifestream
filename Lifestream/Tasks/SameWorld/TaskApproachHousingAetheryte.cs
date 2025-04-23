@@ -15,7 +15,7 @@ public static class TaskApproachHousingAetheryte
     public static void Enqueue()
     {
         P.TaskManager.EnqueueMulti(
-            P.Config.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
+            C.WaitForScreenReady ? new(Utils.WaitForScreen) : null,
             new(() => TaskMoveToHouse.UseSprint(false)),
             new(MoveIMP),
             new(WaitUntilArrivesAtIMP),

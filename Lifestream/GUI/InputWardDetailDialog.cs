@@ -42,7 +42,7 @@ public static class InputWardDetailDialog
                         ImGuiEx.InputWithRightButtonsArea(() => ImGui.InputText($"##aliasname", ref Entry.Alias, 150), () =>
                         {
                             AddressBookEntry existing = null;
-                            if(Entry.Alias != "" && P.Config.AddressBookFolders.Any(b => b.Entries.TryGetFirst(a => a != Entry && a.AliasEnabled && a.Alias.EqualsIgnoreCase(Entry.Alias), out existing)))
+                            if(Entry.Alias != "" && C.AddressBookFolders.Any(b => b.Entries.TryGetFirst(a => a != Entry && a.AliasEnabled && a.Alias.EqualsIgnoreCase(Entry.Alias), out existing)))
                             {
                                 ImGuiEx.HelpMarker($"Alias conflict found: this alias already set for {existing?.Name.NullWhenEmpty() ?? existing?.GetAutoName()}", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                             }

@@ -8,7 +8,7 @@ public class CustomAliasFileSystemManager
     public GenericFileSystem<CustomAlias> FileSystem;
     private CustomAliasFileSystemManager()
     {
-        FileSystem = new(P.Config.CustomAliases, "CustomAlias");
+        FileSystem = new(C.CustomAliases, "CustomAlias");
         FileSystem.Selector.OnBeforeItemCreation += Selector_OnBeforeItemCreation;
         FileSystem.Selector.OnBeforeCopy += Selector_OnBeforeCopy;
         FileSystem.Selector.OnImportPopupOpen += Selector_OnImportPopupOpen;

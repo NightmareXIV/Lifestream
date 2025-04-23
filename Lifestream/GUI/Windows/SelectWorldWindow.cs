@@ -36,7 +36,7 @@ public class SelectWorldWindow : Window
                 var newSize = ImGuiHelpers.GetButtonSize("" + w?.Name.ToString());
                 if(newSize.X > buttonSize.X) buttonSize = newSize;
             }
-            buttonSize += new Vector2(0, P.Config.ButtonHeightWorld);
+            buttonSize += new Vector2(0, C.ButtonHeightWorld);
             foreach(var dc in datacenters)
             {
                 ImGui.TableNextColumn();

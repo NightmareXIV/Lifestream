@@ -10,14 +10,14 @@ internal static class TaskTPAndChangeWorld
     internal static void Enqueue(string world, WorldChangeAetheryte gateway, bool insert)
     {
         P.TaskManager.BeginStack();
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
         {
             TaskChangeWorld.Enqueue(world);
         }
         else
         {
-            if(Utils.GetReachableWorldChangeAetheryte(!P.Config.WalkToAetheryte) == null)
+            if(Utils.GetReachableWorldChangeAetheryte(!C.WalkToAetheryte) == null)
             {
                 TaskTpToAethernetDestination.Enqueue(gateway);
             }

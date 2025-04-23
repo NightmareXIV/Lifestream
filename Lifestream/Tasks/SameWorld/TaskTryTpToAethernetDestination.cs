@@ -7,7 +7,7 @@ internal static class TaskTryTpToAethernetDestination
 {
     public static void Enqueue(string targetName)
     {
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.ActiveAetheryte != null)
         {
             P.TaskManager.Enqueue(Process);
@@ -62,7 +62,7 @@ internal static class TaskTryTpToAethernetDestination
                 if(P.ActiveAetheryte != master)
                 {
                     var name = master.Name;
-                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
                         P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
@@ -78,7 +78,7 @@ internal static class TaskTryTpToAethernetDestination
                 if(P.ActiveAetheryte != x)
                 {
                     var name = x.Name;
-                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || P.Config.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
                         P.TaskManager.BeginStack();
                         TaskRemoveAfkStatus.Enqueue();
@@ -89,7 +89,7 @@ internal static class TaskTryTpToAethernetDestination
                 }
             }
 
-            if(P.ActiveAetheryte.Value.ID == 70 && P.Config.Firmament)
+            if(P.ActiveAetheryte.Value.ID == 70 && C.Firmament)
             {
                 var name = "Firmament";
                 if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))

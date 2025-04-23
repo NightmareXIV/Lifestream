@@ -31,7 +31,7 @@ public static class TabTravelBan
                     entry.CharaName = Player.Name;
                     entry.CharaHomeWorld = (int)Player.Object.HomeWorld.RowId;
                 }
-                P.Config.TravelBans.Add(entry);
+                C.TravelBans.Add(entry);
             }
         });
         if(ImGui.BeginTable("Bantable", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
@@ -43,9 +43,9 @@ public static class TabTravelBan
             ImGui.TableSetupColumn("##control");
 
             ImGui.TableHeadersRow();
-            for(var i = 0; i < P.Config.TravelBans.Count; i++)
+            for(var i = 0; i < C.TravelBans.Count; i++)
             {
-                var entry = P.Config.TravelBans[i];
+                var entry = C.TravelBans[i];
                 ImGui.PushID(entry.ID);
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
@@ -81,7 +81,7 @@ public static class TabTravelBan
 
                 if(ImGuiEx.IconButton(FontAwesomeIcon.Trash))
                 {
-                    new TickScheduler(() => P.Config.TravelBans.Remove(entry));
+                    new TickScheduler(() => C.TravelBans.Remove(entry));
                 }
 
                 ImGui.PopID();

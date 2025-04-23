@@ -46,7 +46,7 @@ public static class WotsitEntryGenerator
 
     public static IEnumerable<WotsitEntry> Generate()
     {
-        var includes = P.Config.WotsitIntegrationIncludes;
+        var includes = C.WotsitIntegrationIncludes;
 
         foreach(var entry in Generic(includes))
         {
@@ -228,15 +228,15 @@ public static class WotsitEntryGenerator
             }
             foreach(var aethernetShard in aethernetShards)
             {
-                if(!P.Config.Hidden.Contains(aethernetShard.ID) && (!aethernetShard.Invisible || InvisibleWhitelist.Contains(aethernetShard.ID)))
+                if(!C.Hidden.Contains(aethernetShard.ID) && (!aethernetShard.Invisible || InvisibleWhitelist.Contains(aethernetShard.ID)))
                 {
-                    var name = P.Config.Renames.TryGetValue(aethernetShard.ID, out var value) ? value : aethernetShard.Name;
+                    var name = C.Renames.TryGetValue(aethernetShard.ID, out var value) ? value : aethernetShard.Name;
                     yield return WotsitEntry.AetheryteAethernetTeleport(townName, name, rootAetheryte.ID, aethernetShard.ID);
                 }
             }
 
             // Special case for The Firmament
-            if(P.Config.Firmament && rootAetheryte.TerritoryType == 418)
+            if(C.Firmament && rootAetheryte.TerritoryType == 418)
             {
                 var placeName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(3435).Name.ToDalamudString().TextValue;
                 yield return WotsitEntry.AetheryteAethernetTeleport(townName, placeName, rootAetheryte.ID, TaskAetheryteAethernetTeleport.FirmamentAethernetId);
@@ -246,7 +246,7 @@ public static class WotsitEntryGenerator
 
     private static IEnumerable<WotsitEntry> AddressBook()
     {
-        foreach(var entry in P.Config.AddressBookFolders.SelectMany(folder => folder.Entries))
+        foreach(var entry in C.AddressBookFolders.SelectMany(folder => folder.Entries))
         {
             var searchStr = entry.Name + (!string.IsNullOrEmpty(entry.Alias) && entry.Alias != entry.Name ? " - " + entry.Alias : "");
             yield return new WotsitEntry
@@ -261,7 +261,7 @@ public static class WotsitEntryGenerator
 
     private static IEnumerable<WotsitEntry> CustomAlias()
     {
-        foreach(var alias in P.Config.CustomAliases.Where(a => a.Enabled && !string.IsNullOrEmpty(a.Alias)))
+        foreach(var alias in C.CustomAliases.Where(a => a.Enabled && !string.IsNullOrEmpty(a.Alias)))
         {
             yield return new WotsitEntry
             {

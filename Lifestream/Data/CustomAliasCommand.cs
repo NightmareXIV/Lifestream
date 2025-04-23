@@ -2,6 +2,8 @@
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
@@ -25,6 +27,8 @@ public class CustomAliasCommand
     public float SkipTeleport = 15f;
     public uint DataID = 0;
     public bool UseTA = false;
+    public List<string> SelectOption = [];
+    public bool StopOnScreenFade = false;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -120,6 +124,46 @@ public class CustomAliasCommand
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == DataID)));
+        }
+        else if(Kind == CustomAliasKind.Mount_Up)
+        {
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(TaskMount.MountIfCan);
+        }
+        else if(Kind == CustomAliasKind.Select_Yes)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(StopOnScreenFade && !IsScreenReady()) return true;
+                if(TryGetAddonMaster<AddonMaster.SelectYesno>(out var m) && m.IsAddonReady)
+                {
+                    if(m.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectYesno_{this.ID}", 200))
+                    {
+                        m.Yes();
+                        return true;
+                    }
+                }
+                return false;
+            }, new(abortOnTimeout: false, timeLimitMS: 10000));
+        }
+        else if(Kind == CustomAliasKind.Select_List_Option)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(StopOnScreenFade && !IsScreenReady()) return true;
+                if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
+                {
+                    foreach(var e in m.Entries)
+                    {
+                        if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                        {
+                            e.Select();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }, new(abortOnTimeout: false, timeLimitMS: 10000));
         }
     }
 }

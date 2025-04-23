@@ -81,7 +81,7 @@ internal class DataStore
         {
             ret += x;
         }
-        if(P.Config.Favorites.Contains(id))
+        if(C.Favorites.Contains(id))
         {
             ret -= 10000u;
         }
@@ -93,17 +93,17 @@ internal class DataStore
         BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.Value.DataCenter.Value.RowId);
         if(Player.Available)
         {
-            if(P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
+            if(P.AutoRetainerApi?.Ready == true && C.UseAutoRetainerAccounts)
             {
                 var data = P.AutoRetainerApi.GetOfflineCharacterData(Player.CID);
                 if(data != null)
                 {
-                    P.Config.ServiceAccounts[Player.NameWithWorld] = data.ServiceAccount;
+                    C.ServiceAccounts[Player.NameWithWorld] = data.ServiceAccount;
                 }
             }
-            else if(!P.Config.ServiceAccounts.ContainsKey(Player.NameWithWorld))
+            else if(!C.ServiceAccounts.ContainsKey(Player.NameWithWorld))
             {
-                P.Config.ServiceAccounts[Player.NameWithWorld] = -1;
+                C.ServiceAccounts[Player.NameWithWorld] = -1;
             }
         }
     }

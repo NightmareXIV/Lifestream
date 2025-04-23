@@ -10,6 +10,8 @@ using Aetheryte = Lumina.Excel.Sheets.Aetheryte;
 namespace Lifestream.GUI;
 public static class TabCustomAlias
 {
+    static ImGuiEx.RealtimeDragDrop<CustomAliasCommand> DragDrop = new("CusACmd", x => x.ID);
+
     public static void Draw()
     {
         ImGuiEx.Text(EColor.Orange, "Beta feature, please report bugs.");
@@ -55,24 +57,24 @@ public static class TabCustomAlias
         ImGui.SameLine();
         ImGuiEx.Text("Visualisation:");
         ImGuiEx.PluginAvailabilityIndicator([new("Splatoon")]);
-        for(var i = 0; i < selected.Commands.Count; i++)
+        DragDrop.Begin();
+        if(ImGuiEx.BeginDefaultTable(["Control", "~Command"], false))
         {
-            var x = selected.Commands[i];
-            ImGui.PushID(x.ID);
-            if(ImGui.ArrowButton("##up", ImGuiDir.Up))
+            for(var i = 0; i < selected.Commands.Count; i++)
             {
-                if(i > 0) (selected.Commands[i], selected.Commands[i - 1]) = (selected.Commands[i - 1], selected.Commands[i]);
+                var x = selected.Commands[i];
+                ImGui.TableNextRow();
+                DragDrop.SetRowColor(x.ID);
+                ImGui.TableNextColumn();
+                DragDrop.NextRow();
+                DragDrop.DrawButtonDummy(x, selected.Commands, i);
+                ImGui.TableNextColumn();
+                ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind.ToString().Replace('_', ' ')}###{x.ID}", () => DrawCommand(x, selected), ImGuiTreeNodeFlags.CollapsingHeader);
+                DrawSplatoon(x, i);
             }
-            ImGui.SameLine(0, 1);
-            if(ImGui.ArrowButton("##down", ImGuiDir.Down))
-            {
-                if(i < selected.Commands.Count - 1) (selected.Commands[i], selected.Commands[i + 1]) = (selected.Commands[i + 1], selected.Commands[i]);
-            }
-            ImGui.SameLine(0, 1);
-            ImGui.PopID();
-            ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind}###{x.ID}", () => DrawCommand(x, selected), ImGuiTreeNodeFlags.CollapsingHeader);
-            DrawSplatoon(x, i);
+            ImGui.EndTable();
         }
+        DragDrop.End();
     }
 
     private static void DrawSplatoon(CustomAliasCommand command, int index)
@@ -248,6 +250,38 @@ public static class TabCustomAlias
                 command.DataID = Svc.Targets.Target.DataId;
             }
         }
-        ImGui.PopID();
+        if(command.Kind.EqualsAny(CustomAliasKind.Select_Yes, CustomAliasKind.Select_List_Option))
+        {
+            ImGuiEx.TextWrapped($"List entries that you would like to select/confirm:");
+            if(ImGuiEx.BeginDefaultTable("ItemLst", ["~1", "2"], false))
+            {
+                for(int i = 0; i < command.SelectOption.Count; i++)
+                {
+                    ImGui.PushID(i);
+                    ImGui.TableNextRow();
+                    ImGui.TableNextColumn();
+                    ImGuiEx.SetNextItemFullWidth();
+                    var str = command.SelectOption[i];
+                    if(ImGui.InputText("##selectOpt", ref str, 500))
+                    {
+                        command.SelectOption[i] = str;
+                    }
+                    ImGui.TableNextColumn();
+                    if(ImGuiEx.IconButton(FontAwesomeIcon.Trash))
+                    {
+                        var idx = i;
+                        new TickScheduler(() => command.SelectOption.RemoveAt(idx));
+                    }
+                    ImGui.PopID();
+                }
+                ImGui.EndTable();
+                ImGui.Checkbox("Skip on screen fade", ref command.StopOnScreenFade);
+                if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New Option"))
+                {
+                    command.SelectOption.Add("");
+                }
+            }
+            ImGui.PopID();
+        }
     }
 }

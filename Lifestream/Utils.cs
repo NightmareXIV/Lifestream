@@ -2,10 +2,12 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Gui.Dtr;
 using Dalamud.Memory;
+using Dalamud.Plugin.Services;
 using ECommons.Automation;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
+using ECommons.ExcelServices.Sheets;
 using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.EzEventManager;
 using ECommons.GameHelpers;
@@ -26,7 +28,9 @@ using Lifestream.GUI;
 using Lifestream.Systems.Legacy;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.CrossDC;
+using Lumina.Excel;
 using Lumina.Excel.Sheets;
+using Lumina.Text.ReadOnly;
 using NightmareUI;
 using PInvoke;
 using System.Collections.Specialized;
@@ -37,8 +41,66 @@ using CharaData = (string Name, ushort World);
 
 namespace Lifestream;
 
-internal static unsafe class Utils
+internal static unsafe partial class Utils
 {
+    public static bool WotsitInstalled()
+    {
+        return Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "Dalamud.FindAnything" && x.IsLoaded);
+    }
+
+    public static string ParseSheetPattern(string s)
+    {
+        try
+        {
+            {
+                var match = ParseSheetValueRegex().Match(s);
+                if(match.Success)
+                {
+                    var type = typeof(Addon).Assembly.GetType($"Lumina.Excel.Sheets.{match.Groups[1].Value}", true);
+                    var rowId = uint.Parse(match.Groups[2].Value);
+                    var col = match.Groups[3].Value;
+                    var result = Svc.Data.GetType().GetMethod("GetExcelSheet", ReflectionHelper.AllFlags).MakeGenericMethod([type]).Invoke(Svc.Data, [null, null]).Call("GetRow", [rowId]).GetFoP(col);
+                    if(result is ReadOnlySeString ross)
+                    {
+                        return ross.GetText();
+                    }
+                    return result.ToString();
+                }
+            }
+            {
+                var match = ParseQuestDialogueTextSheetRegex().Match(s);
+                if(match.Success)
+                {
+                    var sheet = Svc.Data.GetExcelSheet<QuestDialogueText>(name: match.Groups[1].Value);
+                    var rowId = uint.Parse(match.Groups[2].Value);
+                    var col = match.Groups[3].Value;
+                    var result = sheet.Call("GetRow", [rowId]).GetFoP(col);
+                    if(result is ReadOnlySeString ross)
+                    {
+                        return ross.GetText();
+                    }
+                    return result.ToString();
+                }
+            }
+            return s;
+        }
+        catch(Exception e)
+        {
+            e.Log();
+            return s;
+        }
+    }
+
+    [GeneratedRegex(@"^<([a-z]+):([0-9]+):([a-z]+)>$", RegexOptions.IgnoreCase)]
+    private static partial Regex ParseSheetValueRegex();
+
+    [GeneratedRegex(@"^<QuestDialogueText:([a-z_/0-9]+):([0-9]+):([a-z]+)>$", RegexOptions.IgnoreCase)]
+    private static partial Regex ParseQuestDialogueTextSheetRegex();
+
+    public static string GetMountName(int id)
+    {
+        return Svc.Data.GetExcelSheet<Mount>().GetRow((uint)id).Singular.ExtractText();
+    }
     public static string GetWorldFromCID(ulong cid)
     {
         return Utils.GetCharaName(cid)?.Split("@").SafeSelect(1);
@@ -106,7 +168,7 @@ internal static unsafe class Utils
 
     public static string GetCharaName(ulong cid)
     {
-        if(P.Config.CharaMap.TryGetValue(cid, out var name)) return name;
+        if(C.CharaMap.TryGetValue(cid, out var name)) return name;
         return $"#{cid:X16}";
     }
 
@@ -204,7 +266,7 @@ internal static unsafe class Utils
 
     public static bool IsTravelBlocked(string charaName, Number charaWorld, Number sourceWorld, Number targetWorld)
     {
-        foreach(var x in P.Config.TravelBans)
+        foreach(var x in C.TravelBans)
         {
             if(x.IsEnabled && x.CharaName == charaName && x.CharaHomeWorld == charaWorld)
             {
@@ -433,7 +495,7 @@ internal static unsafe class Utils
     public static List<HousePathData> GetHousePathDatas()
     {
         if(P.DisableHousePathData) return [];
-        return P.Config.HousePathDatas;
+        return C.HousePathDatas;
     }
 
     public static uint[] AethernetShards = [2000151, 2000153, 2000154, 2000155, 2000156, 2000157, 2003395, 2003396, 2003397, 2003398, 2003399, 2003400, 2003401, 2003402, 2003403, 2003404, 2003405, 2003406, 2003407, 2003408, 2003409, 2003995, 2003996, 2003997, 2003998, 2003999, 2004000, 2004968, 2004969, 2004970, 2004971, 2004972, 2004973, 2004974, 2004976, 2004977, 2004978, 2004979, 2004980, 2004981, 2004982, 2004983, 2004984, 2004985, 2004986, 2004987, 2004988, 2004989, 2007434, 2007435, 2007436, 2007437, 2007438, 2007439, 2007855, 2007856, 2007857, 2007858, 2007859, 2007860, 2007861, 2007862, 2007863, 2007864, 2007865, 2007866, 2007867, 2007868, 2007869, 2007870, 2009421, 2009432, 2009433, 2009562, 2009563, 2009564, 2009565, 2009615, 2009616, 2009617, 2009618, 2009713, 2009714, 2009715, 2009981, 2010135, 2011142, 2011162, 2011163, 2011241, 2011243, 2011373, 2011374, 2011384, 2011385, 2011386, 2011387, 2011388, 2011389, 2011573, 2011574, 2011575, 2011677, 2011678, 2011679, 2011680, 2011681, 2011682, 2011683, 2011684, 2011685, 2011686, 2011687, 2011688, 2011689, 2011690, 2011691, 2011692, 2012252, 2012253, 2011160, 2011572];
@@ -444,7 +506,7 @@ internal static unsafe class Utils
     public static HousePathData GetPrivatePathData() => Utils.GetHousePathDatas().FirstOrDefault(x => x.CID == Player.CID && x.IsPrivate);
     public static HousePathData GetCustomPathData(ResidentialAetheryteKind kind, int ward, int plot)
     {
-        return P.Config.HousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot) ?? P.Config.CustomHousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot);
+        return C.HousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot) ?? C.CustomHousePathDatas.FirstOrDefault(x => x.ResidentialDistrict == kind && x.Ward == ward && x.Plot == plot);
     }
 
     /// <summary>
@@ -482,14 +544,14 @@ internal static unsafe class Utils
 
     public static void DisplayInfo(string s, bool? displayChat = null, bool? displayPopup = null)
     {
-        if(displayChat ?? P.Config.DisplayChatTeleport) ChatPrinter.Green($"[Lifestream] {s}");
-        if(displayPopup ?? P.Config.DisplayPopupNotifications) Notify.Info(s);
+        if(displayChat ?? C.DisplayChatTeleport) ChatPrinter.Green($"[Lifestream] {s}");
+        if(displayPopup ?? C.DisplayPopupNotifications) Notify.Info(s);
     }
 
     public static HouseEnterMode GetHouseEnterMode(this HousePathData data)
     {
         if(data != null && data.EnableHouseEnterModeOverride) return data.EnterModeOverride;
-        return P.Config.HouseEnterMode;
+        return C.HouseEnterMode;
     }
 
     public static bool IsBusy()
@@ -806,7 +868,7 @@ internal static unsafe class Utils
 
     internal static void TryNotify(string s)
     {
-        if(P.Config.EnableNotifications)
+        if(C.EnableNotifications)
         {
             P.NotificationMasterApi.DisplayTrayNotification(P.Name, s);
         }
@@ -1273,7 +1335,7 @@ internal static unsafe class Utils
 
     internal static int GetServiceAccount(string nameWithWorld)
     {
-        if(P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
+        if(P.AutoRetainerApi?.Ready == true && C.UseAutoRetainerAccounts)
         {
             var chars = P.AutoRetainerApi.GetRegisteredCharacters();
             foreach(var c in chars)
@@ -1289,7 +1351,7 @@ internal static unsafe class Utils
                 }
             }
         }
-        if(P.Config.ServiceAccounts.TryGetValue(nameWithWorld, out var ret))
+        if(C.ServiceAccounts.TryGetValue(nameWithWorld, out var ret))
         {
             if(ret > -1) return ret;
         }
@@ -1299,12 +1361,12 @@ internal static unsafe class Utils
     internal static void CheckConfigMigration()
     {
         // int ButtonWidth -> int[3] ButtonWidthArray
-        if(P.Config.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
+        if(C.ButtonWidthArray is null) MigrateConfigButtonWidthToButtonWidthArray();
         EzConfig.Save();
     }
 
     internal static void MigrateConfigButtonWidthToButtonWidthArray()
     {
-        P.Config.ButtonWidthArray = [P.Config.ButtonWidth, P.Config.ButtonWidth, P.Config.ButtonWidth];
+        C.ButtonWidthArray = [C.ButtonWidth, C.ButtonWidth, C.ButtonWidth];
     }
 }

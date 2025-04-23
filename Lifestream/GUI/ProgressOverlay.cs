@@ -59,7 +59,7 @@ internal class ProgressOverlay : Window
 
     public override bool DrawConditions()
     {
-        //return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0)) && !P.Config.NoProgressBar;
-        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || (P.followPath != null && P.followPath.Waypoints.Count > 0)) && !P.Config.NoProgressBar;
+        //return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0)) && !C.NoProgressBar;
+        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || (P.followPath != null && P.followPath.Waypoints.Count > 0)) && !C.NoProgressBar;
     }
 }

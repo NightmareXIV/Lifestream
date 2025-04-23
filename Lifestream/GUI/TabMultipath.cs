@@ -17,7 +17,7 @@ public static class TabMultipath
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add"))
         {
             var x = new MultiPath();
-            P.Config.MultiPathes.Add(x);
+            C.MultiPathes.Add(x);
             Selected = x;
             x.Name = x.GUID.ToString();
         }
@@ -29,7 +29,7 @@ public static class TabMultipath
                 var mp = EzConfig.DefaultSerializationFactory.Deserialize<MultiPath>(Paste());
                 mp.Name += " - copy";
                 mp.GUID = Guid.NewGuid();
-                P.Config.MultiPathes.Add(mp);
+                C.MultiPathes.Add(mp);
                 Selected = mp;
             });
         }
@@ -37,7 +37,7 @@ public static class TabMultipath
         ImGuiEx.SetNextItemFullWidth();
         if(ImGui.BeginCombo($"##select", $"{Selected?.Name ?? "..."}"))
         {
-            foreach(var x in P.Config.MultiPathes)
+            foreach(var x in C.MultiPathes)
             {
                 if(ImGui.Selectable($"{x.Name}##{x.GUID}"))
                 {
@@ -59,7 +59,7 @@ public static class TabMultipath
             ImGui.SameLine();
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Delete", ImGuiEx.Ctrl))
             {
-                new TickScheduler(() => P.Config.MultiPathes.Remove(Selected));
+                new TickScheduler(() => C.MultiPathes.Remove(Selected));
                 Selected = null;
             }
             ImGui.SameLine();

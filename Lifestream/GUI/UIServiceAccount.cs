@@ -5,9 +5,9 @@ internal static class UIServiceAccount
     internal static void Draw()
     {
         ImGuiEx.TextWrapped($"If you own more than 1 service accounts, you must assign each character to the correct service account.\nTo make character appear in this list, please log into it.");
-        ImGui.Checkbox($"Get service account data from AutoRetainer", ref P.Config.UseAutoRetainerAccounts);
+        ImGui.Checkbox($"Get service account data from AutoRetainer", ref C.UseAutoRetainerAccounts);
         List<string> ManagedByAR = [];
-        if(P.AutoRetainerApi?.Ready == true && P.Config.UseAutoRetainerAccounts)
+        if(P.AutoRetainerApi?.Ready == true && C.UseAutoRetainerAccounts)
         {
             var chars = P.AutoRetainerApi.GetRegisteredCharacters();
             foreach(var c in chars)
@@ -24,7 +24,7 @@ internal static class UIServiceAccount
                         {
                             if(ImGui.Selectable($"Service account {i + 1}"))
                             {
-                                P.Config.ServiceAccounts[name] = i;
+                                C.ServiceAccounts[name] = i;
                                 data.ServiceAccount = i;
                                 P.AutoRetainerApi.WriteOfflineCharacterData(data);
                                 Notify.Info($"Setting saved to AutoRetainer");
@@ -37,7 +37,7 @@ internal static class UIServiceAccount
                 }
             }
         }
-        foreach(var x in P.Config.ServiceAccounts)
+        foreach(var x in C.ServiceAccounts)
         {
             if(ManagedByAR.Contains(x.Key)) continue;
             ImGui.SetNextItemWidth(150f.Scale());
@@ -45,14 +45,14 @@ internal static class UIServiceAccount
             {
                 for(var i = 0; i < 10; i++)
                 {
-                    if(ImGui.Selectable($"Service account {i + 1}")) P.Config.ServiceAccounts[x.Key] = i;
+                    if(ImGui.Selectable($"Service account {i + 1}")) C.ServiceAccounts[x.Key] = i;
                 }
                 ImGui.EndCombo();
             }
             ImGui.SameLine();
             if(ImGui.Button("Delete"))
             {
-                new TickScheduler(() => P.Config.ServiceAccounts.Remove(x.Key));
+                new TickScheduler(() => C.ServiceAccounts.Remove(x.Key));
             }
         }
     }

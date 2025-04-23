@@ -40,7 +40,7 @@ public static unsafe class TaskTpAndGoToWard
             }
         }
         P.TaskManager.Enqueue(TaskReturnToGateway.WaitUntilInteractable);
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(() =>
         {
             if(P.Territory != residentialArtheryte.GetTerritory())
@@ -67,7 +67,7 @@ public static unsafe class TaskTpAndGoToWard
                 TaskApproachAndInteractWithApartmentEntrance.Enqueue(true);
                 P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
                 P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
-                if(!P.Config.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
+                if(!C.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
             }
         }
         else
@@ -90,7 +90,7 @@ public static unsafe class TaskTpAndGoToWard
                                 P.TaskManager.Enqueue(Utils.WaitForScreen);
                             }
                         }
-                        if(!P.Config.AddressNoPathing) TaskMoveToHouse.Enqueue(info, ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID));
+                        if(!C.AddressNoPathing) TaskMoveToHouse.Enqueue(info, ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID));
                     }
                     else
                     {
@@ -103,7 +103,7 @@ public static unsafe class TaskTpAndGoToWard
                                 P.TaskManager.Enqueue(Utils.WaitForScreen);
                             }
                         }
-                        if(!P.Config.AddressNoPathing)
+                        if(!C.AddressNoPathing)
                         {
                             TaskMoveToHouse.Enqueue(info, false);
                         }

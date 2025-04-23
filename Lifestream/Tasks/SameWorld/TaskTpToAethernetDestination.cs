@@ -8,7 +8,7 @@ internal static class TaskTpToAethernetDestination
 {
     internal static void Enqueue(WorldChangeAetheryte worldChangeAetheryte)
     {
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination((uint)worldChangeAetheryte));
         P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
         P.TaskManager.Enqueue(WorldChange.WaitUntilNotBusy, TaskSettings.Timeout2M);

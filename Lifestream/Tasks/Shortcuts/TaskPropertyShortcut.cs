@@ -51,7 +51,7 @@ public static unsafe class TaskPropertyShortcut
         {
             if(propertyType == PropertyType.Auto)
             {
-                foreach(var x in P.Config.PropertyPrio)
+                foreach(var x in C.PropertyPrio)
                 {
                     if(x.Enabled)
                     {
@@ -281,7 +281,7 @@ public static unsafe class TaskPropertyShortcut
 
     private static void EnqueueGoToMyApartment(bool? enterApartment)
     {
-        enterApartment ??= P.Config.EnterMyApartment;
+        enterApartment ??= C.EnterMyApartment;
         var a = GetApartmentAetheryteID();
         var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId.EqualsAny(60790u, 60792u) && Vector3.Distance(Player.Position, new(x.X, x.Y, x.Z)) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
         P.TaskManager.BeginStack();
@@ -300,7 +300,7 @@ public static unsafe class TaskPropertyShortcut
     public static (uint ID, uint Sub) GetSharedHouseAetheryteId(out IAetheryteEntry entry)
     {
         entry = default;
-        var pref = P.Config.PreferredSharedEstates.SafeSelect(Player.CID);
+        var pref = C.PreferredSharedEstates.SafeSelect(Player.CID);
         if(pref == (-1, 0, 0)) return default;
         foreach(var x in Svc.AetheryteList)
         {
@@ -373,15 +373,15 @@ public static unsafe class TaskPropertyShortcut
 
     private static uint GetInnTerritoryId()
     {
-        if(P.Config.PreferredInn != 0)
+        if(C.PreferredInn != 0)
         {
-            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().FirstOrNull(x => x.IsAetheryte && x.Territory.RowId == P.Config.PreferredInn);
+            var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().FirstOrNull(x => x.IsAetheryte && x.Territory.RowId == C.PreferredInn);
             if(aetheryte != null && Svc.AetheryteList.Any(a => a.AetheryteId == aetheryte?.RowId))
             {
                 return aetheryte.Value.Territory.RowId;
             }
         }
-        return P.Config.WorldChangeAetheryte.GetTerritory();
+        return C.WorldChangeAetheryte.GetTerritory();
     }
 
     public enum PropertyType

@@ -89,7 +89,7 @@ internal static class TaskAetheryteAethernetTeleport
 
         // Otherwise, open the aethernet menu and select the destination.
         P.TaskManager.Enqueue(WorldChange.SelectAethernet);
-        P.TaskManager.EnqueueDelay(P.Config.SlowTeleport ? P.Config.SlowTeleportThrottle : 0);
+        P.TaskManager.EnqueueDelay(C.SlowTeleport ? C.SlowTeleportThrottle : 0);
         P.TaskManager.Enqueue(() => WorldChange.TeleportToAethernetDestination(aethernetName),
             nameof(WorldChange.TeleportToAethernetDestination));
     }

@@ -14,7 +14,7 @@ public static unsafe class TaskGoToResidentialDistrict
     public static void Enqueue(int ward)
     {
         if(ward < 1 || ward > 30) throw new ArgumentOutOfRangeException(nameof(ward));
-        if(P.Config.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         P.TaskManager.Enqueue(() => Utils.TrySelectSpecificEntry(Lang.ResidentialDistrict, () => EzThrottler.Throttle("SelectResidentialDistrict")), $"TaskGoToResidentialDistrictSelect {Lang.ResidentialDistrict}");
