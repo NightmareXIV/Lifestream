@@ -4,13 +4,15 @@ using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
 using FFXIVClientStructs;
 using Lifestream.Data;
+using Lifestream.Tasks.SameWorld;
+using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
 using Aetheryte = Lumina.Excel.Sheets.Aetheryte;
 
 namespace Lifestream.GUI;
 public static class TabCustomAlias
 {
-    static ImGuiEx.RealtimeDragDrop<CustomAliasCommand> DragDrop = new("CusACmd", x => x.ID);
+    private static ImGuiEx.RealtimeDragDrop<CustomAliasCommand> DragDrop = new("CusACmd", x => x.ID);
 
     public static void Draw()
     {
@@ -38,6 +40,21 @@ public static class TabCustomAlias
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add new"))
         {
             selected.Commands.Add(new());
+        }
+        ImGui.SameLine();
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
+        {
+            try
+            {
+                var result = JsonConvert.DeserializeObject<CustomAliasCommand>(Paste());
+                if(result == null) throw new NullReferenceException();
+                selected.Commands.Add(result);
+            }
+            catch(Exception e)
+            {
+                Notify.Error(e.Message);
+                e.Log();
+            }
         }
         ImGui.SameLine();
         ImGui.Checkbox("##en", ref selected.Enabled);
@@ -114,6 +131,12 @@ public static class TabCustomAlias
         }
     }
 
+
+    private static readonly uint[] Aetherytes = Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray();
+    private static readonly Dictionary<uint, string> AetherytePlaceNames = Aetherytes.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.PlaceName.Value.Name.ToString());
+
+    private static readonly uint[] Aethernet = [.. Utils.GetAllRegisteredAethernetDestinations(), TaskAetheryteAethernetTeleport.FirmamentAethernetId];
+    private static readonly Dictionary<uint, string> AethernetNames = [.. Aethernet.Where(x => Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(x) != null).Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.AethernetName.Value.Name.ToString()), new KeyValuePair<uint, string>(TaskAetheryteAethernetTeleport.FirmamentAethernetId, "Firmament")];
     private static void DrawCommand(CustomAliasCommand command, CustomAlias selected)
     {
         ImGui.PushID(command.ID);
@@ -121,24 +144,21 @@ public static class TabCustomAlias
         {
             Copy(EzConfig.DefaultSerializationFactory.Serialize(command, false));
         }
-        var aetherytes = Ref<uint[]>.Get("Aetherytes", () => Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray());
-        var aetherytePlaceNames = Ref<Dictionary<uint, string>>.Get("Aetherytes", () => aetherytes.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.PlaceName.Value.Name.ToString()));
-
-        var aethernet = Ref<uint[]>.Get("Aethernet", () => Utils.GetAllRegisteredAethernetDestinations().ToArray());
-        var aethernetNames = Ref<Dictionary<uint, string>>.Get("Aethernet", () => aethernet.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.AethernetName.Value.Name.ToString()));
-        ImGui.Separator();
-        ImGui.SetNextItemWidth(150f.Scale());
-        ImGuiEx.EnumCombo("Alias kind", ref command.Kind);
         ImGui.SameLine();
-        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Delete"))
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Delete", ImGuiEx.Ctrl))
         {
             new TickScheduler(() => selected.Commands.Remove(command));
         }
+        ImGuiEx.Tooltip("Press CTRL and click");
+
+        ImGui.Separator();
+        ImGui.SetNextItemWidth(150f.Scale());
+        ImGuiEx.EnumCombo("Alias kind", ref command.Kind);
 
         if(command.Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {
             ImGui.SetNextItemWidth(150f.Scale());
-            ImGuiEx.Combo("Select aetheryte to teleport to", ref command.Aetheryte, aetherytes, names: aetherytePlaceNames);
+            ImGuiEx.Combo("Select aetheryte to teleport to", ref command.Aetheryte, Aetherytes, names: AetherytePlaceNames);
             ImGui.SetNextItemWidth(60f.Scale());
             ImGui.DragFloat("Skip teleport if already at aetheryte within this range", ref command.SkipTeleport, 0.01f);
         }
@@ -166,7 +186,7 @@ public static class TabCustomAlias
         if(command.Kind == CustomAliasKind.Use_Aethernet)
         {
             ImGui.SetNextItemWidth(150f.Scale());
-            ImGuiEx.Combo("Select aethernet shard to teleport to", ref command.Aetheryte, aethernet, names: aethernetNames);
+            ImGuiEx.Combo("Select aethernet shard to teleport to", ref command.Aetheryte, Aethernet, names: AethernetNames);
         }
 
         if(command.Kind == CustomAliasKind.Circular_movement)
@@ -255,7 +275,7 @@ public static class TabCustomAlias
             ImGuiEx.TextWrapped($"List entries that you would like to select/confirm:");
             if(ImGuiEx.BeginDefaultTable("ItemLst", ["~1", "2"], false))
             {
-                for(int i = 0; i < command.SelectOption.Count; i++)
+                for(var i = 0; i < command.SelectOption.Count; i++)
                 {
                     ImGui.PushID(i);
                     ImGui.TableNextRow();
@@ -281,7 +301,7 @@ public static class TabCustomAlias
                     command.SelectOption.Add("");
                 }
             }
-            ImGui.PopID();
         }
+        ImGui.PopID();
     }
 }
