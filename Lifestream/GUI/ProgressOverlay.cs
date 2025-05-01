@@ -54,6 +54,13 @@ internal class ProgressOverlay : Window
         ImGui.PushStyleColor(ImGuiCol.PlotHistogram, col);
         ImGui.ProgressBar(percent, new(ImGui.GetContentRegionAvail().X, 20), overlay);
         ImGui.PopStyleColor();
+        // Toggle ProgressOverlay position logic
+        if (C.ProgressOverlayToTop)
+        {
+            Position = new(0, 0);
+        }
+        else
+        {
         Position = new(0, ImGuiHelpers.MainViewport.Size.Y - ImGui.GetWindowSize().Y);
     }
 
