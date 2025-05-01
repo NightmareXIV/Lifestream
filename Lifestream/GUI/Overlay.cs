@@ -76,6 +76,8 @@ internal class Overlay : Window
         }
     }
 
+    string Pad => (C.LeftAlignPadding > 0 ? " ".Repeat(C.LeftAlignPadding) : null);
+
     public override void Draw()
     {
         RespectCloseHotkey = C.AllowClosingESC2;
@@ -140,7 +142,7 @@ internal class Overlay : Window
                     {
                         ImGui.TableNextColumn();
                         var num = i * 3 + q + 1;
-                        if(ImGui.Button($"{num}", buttonSize))
+                        if(ImGui.Button($"{Pad}{num}", buttonSize))
                         {
                             TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(P.Territory).Value, num - 1, false, false, false);
                         }
@@ -149,7 +151,7 @@ internal class Overlay : Window
                     {
                         ImGui.TableNextColumn();
                         var num = i * 3 + q + 30 + 1;
-                        if(ImGui.Button($"{num}", buttonSize))
+                        if(ImGui.Button($"{Pad}{num}", buttonSize))
                         {
                             TaskTpAndGoToWard.EnqueueFromResidentialAetheryte(Utils.GetResidentialAetheryteByTerritoryType(P.Territory).Value, num - 1, false, false, false);
                         }
@@ -168,9 +170,9 @@ internal class Overlay : Window
         if(!C.Hidden.Contains(master.ID))
         {
             var name = (C.Favorites.Contains(master.ID) ? "★ " : "") + (C.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
-            ResizeButton(name);
+            ResizeButton($"{Pad}{name}");
             var md = P.ActiveAetheryte == master;
-            if(ImGuiEx.Button(name, ButtonSizeAetheryte, !md))
+            if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !md))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskAethernetTeleport.Enqueue(master);
@@ -183,9 +185,9 @@ internal class Overlay : Window
             if(!C.Hidden.Contains(x.ID))
             {
                 var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
-                ResizeButton(name);
+                ResizeButton($"{Pad}{name}");
                 var d = P.ActiveAetheryte == x;
-                if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
+                if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
                 {
                     TaskRemoveAfkStatus.Enqueue();
                     TaskAethernetTeleport.Enqueue(x);
@@ -197,8 +199,8 @@ internal class Overlay : Window
         if(P.ActiveAetheryte.Value.ID == 70 && C.Firmament)
         {
             var name = "Firmament";
-            ResizeButton(name);
-            if(ImGui.Button(name, ButtonSizeAetheryte))
+            ResizeButton($"{Pad}{name}");
+            if(ImGui.Button($"{Pad}{name}", ButtonSizeAetheryte))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskFirmanentTeleport.Enqueue();
@@ -222,7 +224,7 @@ internal class Overlay : Window
                     var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = P.ResidentialAethernet.ActiveAetheryte == x;
-                    if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
+                    if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
                     {
                         TaskRemoveAfkStatus.Enqueue();
                         TaskAethernetTeleport.Enqueue(x.Name);
@@ -248,7 +250,7 @@ internal class Overlay : Window
                     var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = P.CustomAethernet.ActiveAetheryte == x;
-                    if(ImGuiEx.Button(name, ButtonSizeAetheryte, !d))
+                    if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
                     {
                         TaskRemoveAfkStatus.Enqueue();
                         TaskAethernetTeleport.Enqueue(x.Name);
@@ -268,7 +270,7 @@ internal class Overlay : Window
                 var name = $"Instance {TaskChangeInstance.InstanceNumbers[i]}";
                 ResizeButton(name);
                 var d = S.InstanceHandler.GetInstance() == i;
-                if(ImGuiEx.Button(name, ButtonSizeInstance, !d))
+                if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeInstance, !d))
                 {
                     TaskRemoveAfkStatus.Enqueue();
                     TaskChangeInstance.Enqueue(i);
@@ -324,10 +326,10 @@ internal class Overlay : Window
         var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.ValueNullable?.Name.ToString();
         foreach(var x in P.DataStore.Worlds)
         {
-            ResizeButton(x);
+            ResizeButton($"{Pad}{x}");
             var isHomeWorld = x == Player.HomeWorld;
             var d = x == cWorld || Utils.IsDisallowedToChangeWorld();
-            if(ImGuiEx.Button((isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "") + x, ButtonSizeWorld, !d))
+            if(ImGuiEx.Button($"{Pad}{(isHomeWorld ? (Lang.Symbols.HomeWorld + " ") : "")}{x}", ButtonSizeWorld, !d))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskChangeWorld.Enqueue(x);
@@ -345,9 +347,9 @@ internal class Overlay : Window
     {
         for(var i = 1; i <= 30; i++)
         {
-            ResizeButton($"{i}");
+            ResizeButton($"{Pad}{i}");
             var buttonSize = new Vector2((ButtonSizeInstance.X - ImGui.GetStyle().ItemSpacing.X * 2) / 3, ButtonSizeWorld.Y);
-            if(ImGuiEx.Button($"{i}##ward", buttonSize))
+            if(ImGuiEx.Button($"{Pad}{i}##ward", buttonSize))
             {
                 TaskRemoveAfkStatus.Enqueue();
                 TaskGoToResidentialDistrict.Enqueue(i);

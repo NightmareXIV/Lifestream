@@ -36,7 +36,7 @@ public static unsafe class TaskMoveToHouse
             {
                 if(EzThrottler.Throttle("ExecSpritAction"))
                 {
-                    Chat.Instance.ExecuteCommand($"/action \"{Svc.Data.GetExcelSheet<Action>().GetRow(ability).Name.GetText()}\"");
+                    Chat.ExecuteCommand($"/action \"{Svc.Data.GetExcelSheet<Action>().GetRow(ability).Name.GetText()}\"");
                     return true;
                 }
             }

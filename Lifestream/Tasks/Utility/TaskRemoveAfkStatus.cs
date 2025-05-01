@@ -16,15 +16,15 @@ internal static class TaskRemoveAfkStatus
             {
                 if(EzThrottler.Throttle("RemoveAfk"))
                 {
-                    Chat.Instance.SendMessage("/afk off");
+                    Chat.SendMessage("/afk off");
                     P.TaskManager.InsertTask(new(() => Player.Object.OnlineStatus.RowId != 17, "WaitUntilNotAfk"));
                 }
             }
             if(MoveCancelConditions.Select(x => Svc.Condition[x]).Any(x => x))
             {
                 P.TaskManager.InsertMulti(
-                    new(() => Chat.Instance.ExecuteCommand("/automove on"), "Enable automove (AntiEmote)"),
-                    new(() => Chat.Instance.ExecuteCommand("/automove off"), "Disable automove (AntiEmote)"),
+                    new(() => Chat.ExecuteCommand("/automove on"), "Enable automove (AntiEmote)"),
+                    new(() => Chat.ExecuteCommand("/automove off"), "Disable automove (AntiEmote)"),
                     new(() => !MoveCancelConditions.Select(x => Svc.Condition[x]).Any(x => x), "WaitUntilNotEmoting")
                     );
             }

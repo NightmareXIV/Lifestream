@@ -45,7 +45,7 @@ public unsafe static class TaskMount
             }
             if(!Player.IsAnimationLocked && EzThrottler.Throttle("SummonMount"))
             {
-                Chat.Instance.ExecuteCommand($"/mount \"{Utils.GetMountName(mount)}\"");
+                Chat.ExecuteCommand($"/mount \"{Utils.GetMountName(mount)}\"");
             }
         }
         else

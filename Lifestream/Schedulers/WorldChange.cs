@@ -248,7 +248,7 @@ internal static unsafe class WorldChange
         if(!Player.Available) return false;
         if(Svc.Targets.Target != null && EzThrottler.Throttle("LockOn", 200))
         {
-            Chat.Instance.SendMessage("/lockon");
+            Chat.SendMessage("/lockon");
             return true;
         }
         return false;
@@ -259,7 +259,7 @@ internal static unsafe class WorldChange
         if(!Player.Available) return false;
         if(EzThrottler.Throttle("EnableAutomove", 200))
         {
-            Chat.Instance.SendMessage("/automove on");
+            Chat.SendMessage("/automove on");
             return true;
         }
         return false;
@@ -276,7 +276,7 @@ internal static unsafe class WorldChange
         if(!Player.Available) return false;
         if(EzThrottler.Throttle("DisableAutomove", 200))
         {
-            Chat.Instance.SendMessage("/automove off");
+            Chat.SendMessage("/automove off");
             return true;
         }
         return false;
@@ -288,7 +288,7 @@ internal static unsafe class WorldChange
         if(Svc.Party.Length < 2) return true;
         if(EzThrottler.Throttle("LeaveParty", 200))
         {
-            Chat.Instance.SendMessage("/leave");
+            Chat.SendMessage("/leave");
             return true;
         }
         return false;
@@ -344,7 +344,7 @@ internal static unsafe class WorldChange
         if(Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]) return true;
         if(EzThrottler.Throttle("LeaveParty", 200))
         {
-            Chat.Instance.SendMessage("/leave");
+            Chat.SendMessage("/leave");
             return true;
         }
         return false;

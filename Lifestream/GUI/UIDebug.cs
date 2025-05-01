@@ -176,7 +176,7 @@ internal static unsafe class UIDebug
                 }
                 if(ImGui.Button("Begin path calculation"))
                 {
-                    Chat.Instance.ExecuteCommand("/clearlog");
+                    Chat.ExecuteCommand("/clearlog");
                     var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
                     if(aetheryte != null)
                     {
@@ -230,7 +230,7 @@ internal static unsafe class UIDebug
                         {
                             LastPlot = -1;
                             doCurPlot = false;
-                            Chat.Instance.ExecuteCommand("/clearlog");
+                            Chat.ExecuteCommand("/clearlog");
                             DuoLog.Information($"For plot {index + 1}");
                             plot.Front = Player.Object.Position;
                             var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && P.ResidentialAethernet.GetFromIGameObject(x) != null);
@@ -339,6 +339,22 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        ImGuiEx.Text($"Active aetheryte: {P.ActiveAetheryte}");
+        if(ImGui.CollapsingHeader("Chat"))
+        {
+            if(ImGui.Button("Send message (echo)")) Chat.ExecuteCommand($"/e Test test test {Random.Shared.Next()}");
+            if(ImGui.Button("Send message (current channel)")) Chat.SendMessage($"Password: {Random.Shared.Next()}");
+            if(ImGui.Button("Use sprint")) Chat.ExecuteAction(3);
+            if(ImGui.Button("Use jump")) Chat.ExecuteGeneralAction(2);
+            try
+            {
+                if(ImGui.Button("Try invalid string")) Chat.ExecuteCommand("/e \u000012345");
+            }
+            catch(Exception e)
+            {
+                e.Log();
+            }
+        }
         ImGui.Text(Utils.ParseSheetPattern("<Addon:10:Text>"));
         ImGui.Text(Utils.ParseSheetPattern("<Addon:10:RowId>"));
         if(ImGui.CollapsingHeader("DawnStory"))

@@ -34,7 +34,7 @@ internal static unsafe class DCChange
         {
             DCRethrottle();
             PluginLog.Debug($"[DCChange] Sending logout command");
-            Chat.Instance.SendMessage("/logout");
+            Chat.SendMessage("/logout");
             return true;
         }
         return false;

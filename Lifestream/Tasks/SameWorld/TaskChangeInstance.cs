@@ -40,7 +40,7 @@ public static unsafe class TaskChangeInstance
                 }
                 if(EzThrottler.Throttle("DropFlight", 1000))
                 {
-                    Chat.Instance.ExecuteCommand($"/generalaction {Svc.Data.GetExcelSheet<GeneralAction>().GetRow(23).Name}");
+                    Chat.ExecuteCommand($"/generalaction {Svc.Data.GetExcelSheet<GeneralAction>().GetRow(23).Name}");
                 }
                 return false;
             });

@@ -121,6 +121,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
                 /li w|world|open|select - open world travel window
                 /li island - go to island sanctuary
+                /li cosmic|moon|ardorum - go to Sinus Ardorum
                 """);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() =>
@@ -224,7 +225,7 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Home);
         }
-        else if(arguments.EqualsIgnoreCaseAny("fc", "free", "company", "company", "free company"))
+        else if(arguments.EqualsIgnoreCaseAny("fc", "free", "company", "free company"))
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC);
         }
@@ -421,6 +422,17 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         x.Enqueue();
                         return;
+                    }
+                }
+
+                foreach(var x in (string[])[
+                    ..Utils.LifestreamNativeCommands, 
+                    ..C.CustomAliases.Where(x => x.Enabled && x.Alias != "").Select(x => x.Alias), 
+                    ..C.AddressBookFolders.SelectMany(x => x.Entries).Where(x => x.AliasEnabled && x.Alias != "").Select(x => x.Alias)])
+                {
+                    if(arguments.EndsWith($" {x}", StringComparison.OrdinalIgnoreCase))
+                    {
+                        arguments = arguments[0..(arguments.Length - x.Length)] + $",{x}";
                     }
                 }
 

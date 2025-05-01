@@ -35,7 +35,7 @@ public static class TaskApproachHousingAetheryte
         }
         else if(P.Territory.EqualsAny(ResidentalAreas.Shirogane, ResidentalAreas.The_Lavender_Beds))
         {
-            Chat.Instance.ExecuteCommand("/automove on");
+            Chat.ExecuteCommand("/automove on");
         }
     }
 

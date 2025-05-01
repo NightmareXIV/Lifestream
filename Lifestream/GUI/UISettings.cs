@@ -292,6 +292,11 @@ internal static unsafe class UISettings
                 ImGui.Unindent();
 
                 ImGui.Checkbox("Left-align text on buttons", ref C.LeftAlignButtons);
+                if(C.LeftAlignButtons)
+                {
+                    ImGui.SetNextItemWidth(100f);
+                    ImGui.DragInt("Left padding, spaces", ref C.LeftAlignPadding, 0.1f, 0, 20);
+                }
             }
         })
 

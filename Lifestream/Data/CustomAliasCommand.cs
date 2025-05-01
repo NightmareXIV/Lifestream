@@ -108,7 +108,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Use_Aethernet)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            var aethernetPoint = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte).AethernetName.Value.Name.GetText();
+            var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
             TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
             P.TaskManager.Enqueue(() => !IsScreenReady());
             P.TaskManager.Enqueue(() => IsScreenReady());
@@ -151,14 +151,29 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() =>
             {
                 if(StopOnScreenFade && !IsScreenReady()) return true;
-                if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
                 {
-                    foreach(var e in m.Entries)
+                    if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
                     {
-                        if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                        foreach(var e in m.Entries)
                         {
-                            e.Select();
-                            return true;
+                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                            {
+                                e.Select();
+                                return true;
+                            }
+                        }
+                    }
+                }
+                {
+                    if(TryGetAddonMaster<AddonMaster.SelectIconString>(out var m) && m.IsAddonReady)
+                    {
+                        foreach(var e in m.Entries)
+                        {
+                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                            {
+                                e.Select();
+                                return true;
+                            }
                         }
                     }
                 }

@@ -50,7 +50,7 @@ public static unsafe class TaskMultipathExecute
                 {
                     if(EzThrottler.Throttle("UseSprint", 250))
                     {
-                        Chat.Instance.ExecuteCommand("/action Sprint");
+                        Chat.ExecuteCommand("/action Sprint");
                     }
                 }
             }

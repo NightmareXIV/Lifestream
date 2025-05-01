@@ -28,6 +28,7 @@ using Lifestream.GUI;
 using Lifestream.Systems.Legacy;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.CrossDC;
+using Lifestream.Tasks.SameWorld;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
@@ -43,6 +44,14 @@ namespace Lifestream;
 
 internal static unsafe partial class Utils
 {
+    public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+    
+    public static string GetAethernetNameWithOverrides(uint id)
+    {
+        if(id == TaskAetheryteAethernetTeleport.FirmamentAethernetId) return "Firmament";
+        return Svc.Data.GetExcelSheet<Aetheryte>().GetRow(id).AethernetName.Value.Name.GetText();
+    }
+
     public static bool WotsitInstalled()
     {
         return Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "Dalamud.FindAnything" && x.IsLoaded);
@@ -207,7 +216,7 @@ internal static unsafe partial class Utils
             EzThrottler.Throttle("PlayerMounted", 200, true);
             if(EzThrottler.Throttle("DismountPlayer", 1000))
             {
-                Chat.Instance.ExecuteGeneralAction(23);
+                Chat.ExecuteGeneralAction(23);
             }
             return false;
         }

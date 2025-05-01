@@ -84,6 +84,7 @@ public class Config : IEzConfig
     public bool EnableDtrBar = false;
     public Dictionary<ulong, (int Territory, int Ward, int Plot)> PreferredSharedEstates = [];
     public bool LeftAlignButtons = false;
+    public int LeftAlignPadding = 0;
     public LiCommandBehavior LiCommandBehavior = LiCommandBehavior.Return_to_Home_World;
     public bool EnableNotifications = true;
 }

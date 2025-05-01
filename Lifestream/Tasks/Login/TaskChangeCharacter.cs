@@ -76,7 +76,7 @@ public static unsafe class TaskChangeCharacter
 
         if(Player.Interactable && !Player.IsAnimationLocked && Utils.GenericThrottle && EzThrottler.Throttle("InitiateLogout"))
         {
-            Chat.Instance.ExecuteCommand("/logout");
+            Chat.ExecuteCommand("/logout");
             return false;
         }
         return false;
