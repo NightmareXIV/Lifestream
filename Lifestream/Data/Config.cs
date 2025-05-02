@@ -87,4 +87,5 @@ public class Config : IEzConfig
     public int LeftAlignPadding = 0;
     public LiCommandBehavior LiCommandBehavior = LiCommandBehavior.Return_to_Home_World;
     public bool EnableNotifications = true;
+    public bool ProgressOverlayToTop = false;
 }

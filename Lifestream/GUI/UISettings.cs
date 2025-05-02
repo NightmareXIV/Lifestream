@@ -443,6 +443,7 @@ internal static unsafe class UISettings
             ImGui.Checkbox($"Hide progress bar", ref C.NoProgressBar);
             ImGuiEx.HelpMarker($"Hiding progress bar leaves you with no way to stop Lifestream from executing it's tasks.");
             ImGuiEx.CheckboxInverted($"Don't walk to nearby aetheryte on world change command from greater distance", ref C.WalkToAetheryte);
+            ImGui.Checkbox($"Progress overlay at top of the sreen", ref C.ProgressOverlayToTop);
         })
         .Draw();
     }
