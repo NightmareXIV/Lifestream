@@ -339,6 +339,16 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("IPC debug"))
+        {
+            ref var id = ref Ref<int>.Get("aetheryteId");
+            ImGui.InputInt("aetheryte id", ref id);
+            if(ImGui.Button("AethernetTeleportById")) DuoLog.Information($"{P.IPCProvider.AethernetTeleportById((uint)id)}");
+            if(ImGui.Button("HousingAethernetTeleportById")) DuoLog.Information($"{P.IPCProvider.HousingAethernetTeleportById((uint)id)}");
+            if(ImGui.Button("AethernetTeleportToFirmament")) DuoLog.Information($"{P.IPCProvider.AethernetTeleportToFirmament()}");
+            if(ImGui.Button("GetActiveAetheryte")) DuoLog.Information($"{P.IPCProvider.GetActiveAetheryte()}");
+            if(ImGui.Button("GetActiveResidentialAetheryte")) DuoLog.Information($"{P.IPCProvider.GetActiveResidentialAetheryte()}");
+        }
         ImGuiEx.Text($"Active aetheryte: {P.ActiveAetheryte}");
         if(ImGui.CollapsingHeader("Chat"))
         {

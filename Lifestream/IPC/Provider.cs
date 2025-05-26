@@ -6,6 +6,7 @@ using Lifestream.GUI;
 using Lifestream.Tasks;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
+using Lumina.Excel.Sheets;
 
 namespace Lifestream.IPC;
 public class Provider
@@ -99,12 +100,97 @@ public class Provider
         return false;
     }
 
+    /// <summary>
+    /// Requests Lifestream to change world of current character to a different one.
+    /// </summary>
+    /// <param name="worldId"></param>
+    /// <returns></returns>
+    [EzIPC]
+    public bool ChangeWorldById(uint worldId)
+    {
+        if(Svc.Data.GetExcelSheet<World>().TryGetRow(worldId, out var sheet))
+        {
+            return ChangeWorld(sheet.Name.GetText());
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Requests aethernet teleport to be executed by name, if possible. Must be within an aetheryte or aetheryte shard range.
+    /// </summary>
+    /// <param name="destination"></param>
+    /// <returns></returns>
     [EzIPC]
     public bool AethernetTeleport(string destination)
     {
         if(IsBusy()) return false;
         TaskTryTpToAethernetDestination.Enqueue(destination);
         return true;
+    }
+
+    /// <summary>
+    /// Requests aethernet teleport to be executed by ID from <see cref="Aetheryte"/> sheet, if possible. Must be within an aetheryte or aetheryte shard range. 
+    /// </summary>
+    /// <param name="aethernetSheetRowId"></param>
+    /// <returns></returns>
+    [EzIPC]
+    public bool AethernetTeleportById(uint aethernetSheetRowId)
+    {
+        var name = Utils.GetAethernetNameWithOverrides(aethernetSheetRowId);
+        if(name == null) return false;
+        return AethernetTeleport(name);
+    }
+
+    /// <summary>
+    /// Requests aethernet teleport to be executed by ID from <see cref="HousingAethernet"/> sheet, if possible. Must be within an aetheryte shard range. 
+    /// </summary>
+    /// <returns></returns>
+    [EzIPC]
+    public bool HousingAethernetTeleportById(uint housingAethernetSheetRow)
+    {
+        if(Svc.Data.GetExcelSheet<HousingAethernet>().TryGetRow(housingAethernetSheetRow, out var row))
+        {
+            return AethernetTeleport(row.PlaceName.Value.Name.GetText());
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Requests aethernet teleport to Firmament. Must be within a Foundation aetheryte range. 
+    /// </summary>
+    /// <returns></returns>
+    [EzIPC]
+    public bool AethernetTeleportToFirmament()
+    {
+        return AethernetTeleport(Utils.GetAethernetNameWithOverrides(uint.MaxValue));
+    }
+
+    /// <summary>
+    /// Retrieves active aetheryte/aetheryte shard ID if present
+    /// </summary>
+    /// <returns></returns>
+    [EzIPC]
+    public uint GetActiveAetheryte()
+    {
+        if(P.ActiveAetheryte != null)
+        {
+            return P.ActiveAetheryte.Value.ID;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// Retrieves active housing aetheryte shard ID if present
+    /// </summary>
+    /// <returns></returns>
+    [EzIPC]
+    public uint GetActiveResidentialAetheryte()
+    {
+        if(P.ResidentialAethernet.ActiveAetheryte != null)
+        {
+            return P.ResidentialAethernet.ActiveAetheryte.Value.ID;
+        }
+        return 0;
     }
 
     [EzIPC]
@@ -282,5 +368,5 @@ public class Provider
         return P.Territory;
     }
 
-    [EzIPCEvent] public Action OnHouseEnterError;
+    [EzIPCEvent] public System.Action OnHouseEnterError;
 }

@@ -29,6 +29,7 @@ public class CustomAliasCommand
     public bool UseTA = false;
     public List<string> SelectOption = [];
     public bool StopOnScreenFade = false;
+    public bool NoDisableYesAlready = false;
 
     public void Enqueue(List<Vector3> appendMovement)
     {

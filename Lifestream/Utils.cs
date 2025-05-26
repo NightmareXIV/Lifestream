@@ -49,7 +49,7 @@ internal static unsafe partial class Utils
     public static string GetAethernetNameWithOverrides(uint id)
     {
         if(id == TaskAetheryteAethernetTeleport.FirmamentAethernetId) return "Firmament";
-        return Svc.Data.GetExcelSheet<Aetheryte>().GetRow(id).AethernetName.Value.Name.GetText();
+        return Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(id)?.AethernetName.Value.Name.GetText();
     }
 
     public static bool WotsitInstalled()
