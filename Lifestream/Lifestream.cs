@@ -118,6 +118,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li home|house|private - go to your private estate
                 /li fc|free|company|free company - go to your free company estate
                 /li apartment|apt - go to your apartment
+                /li shared - go to your shared estate
 
                 /li w|world|open|select - open world travel window
                 /li island - go to island sanctuary
