@@ -129,6 +129,21 @@ public class Provider
     }
 
     /// <summary>
+    /// Requests aethernet teleport to be executed by Place Name ID from <see cref="PlaceName"/> sheet, if possible. Must be within an aetheryte or aetheryte shard range. 
+    /// </summary>
+    /// <param name="placeNameRowId"></param>
+    /// <returns></returns>
+    [EzIPC]
+    public bool AethernetTeleportByPlaceNameId(uint placeNameRowId)
+    {
+        if(Svc.Data.GetExcelSheet<PlaceName>().TryGetRow(placeNameRowId, out var row))
+        {
+            return AethernetTeleport(row.Name.GetText());
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Requests aethernet teleport to be executed by ID from <see cref="Aetheryte"/> sheet, if possible. Must be within an aetheryte or aetheryte shard range. 
     /// </summary>
     /// <param name="aethernetSheetRowId"></param>
