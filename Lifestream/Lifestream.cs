@@ -108,10 +108,10 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li <address> - go to specified plot in current world, where address - plot adddress formatted in "residential district, ward, plot" format (without quotes)
                 /li <worldname> <address> - go to specified plot in specified world
 
-                /li gc|hc - go to your grand company (vnavmesh plugin required)
-                /li gc|hc <company name> - go to specified grand company (vnavmesh plugin required)
-                /li gcc|hcc - go to your grand company's fc chest (vnavmesh plugin required)
-                /li gcc|hcc <company name> - go to specified grand company's fc chest (vnavmesh plugin required)
+                /li gc|hc - go to your grand company 
+                /li gc|hc <company name> - go to specified grand company 
+                /li gcc|hcc - go to your grand company's fc chest 
+                /li gcc|hcc <company name> - go to specified grand company's fc chest
                 ...where "gc" or "gcc" will move you to grand company in current world while "hc" or "hcc" will return you to home world first
 
                 /li auto - go to your private estate, free company estate or apartment, whatever is found in this order
@@ -123,6 +123,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 /li w|world|open|select - open world travel window
                 /li island - go to island sanctuary
                 /li cosmic|moon|ardorum - go to Sinus Ardorum
+                /li occult - go to Occult Crescent
                 """);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() =>
@@ -323,6 +324,17 @@ public unsafe class Lifestream : IDalamudPlugin
                 Notify.Error("Lifestream is busy");
             }
         }
+        else if(arguments.EqualsIgnoreCase("occult"))
+        {
+            if(!Utils.IsBusy())
+            {
+                StaticAlias.OccultCrescent.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
         else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
         {
             var destination = arguments[(arguments.IndexOf("tp") + 2)..].Trim();
@@ -427,8 +439,8 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
 
                 foreach(var x in (string[])[
-                    ..Utils.LifestreamNativeCommands, 
-                    ..C.CustomAliases.Where(x => x.Enabled && x.Alias != "").Select(x => x.Alias), 
+                    ..Utils.LifestreamNativeCommands,
+                    ..C.CustomAliases.Where(x => x.Enabled && x.Alias != "").Select(x => x.Alias),
                     ..C.AddressBookFolders.SelectMany(x => x.Entries).Where(x => x.AliasEnabled && x.Alias != "").Select(x => x.Alias)])
                 {
                     if(arguments.EndsWith($" {x}", StringComparison.OrdinalIgnoreCase))
@@ -621,6 +633,10 @@ public unsafe class Lifestream : IDalamudPlugin
             if(TryGetAddonByName<AtkUnitBase>("Trade", out var trade))
             {
                 Callback.Fire(trade, true, -1);
+            }
+            if(TryGetAddonMaster<AddonMaster.Talk>("Talk", out var m) && m.IsAddonReady)
+            {
+                m.Click();
             }
         }
         if(TabUtility.TargetWorldID != 0)

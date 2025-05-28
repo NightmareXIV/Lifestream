@@ -20,8 +20,9 @@ public sealed class CustomAethernet
     public static readonly uint BaseEurekaId = 69420100;
     public static readonly uint BaseBozjaId = 69420200;
     public static readonly uint BaseZandorId = 69420300;
+    public static readonly uint BaseOccultId = 69420400;
 
-    public readonly uint[] QuasiAethernetZones = [920, 975, 732, 763, 795, 827];
+    public readonly uint[] QuasiAethernetZones = [920, 975, 732, 763, 795, 827, 1252];
 
     public readonly Dictionary<uint, float> MaxDistance = new()
     {
@@ -32,6 +33,7 @@ public sealed class CustomAethernet
         [763] = 4.6f,
         [795] = 4.6f,
         [827] = 4.6f,
+        [1252] = 4.6f,
     };
 
     public readonly Dictionary<uint, List<CustomAetheryte>> ZoneInfo = new()
@@ -79,6 +81,13 @@ public sealed class CustomAethernet
             new(new(-61.7f, -875.6f), 827, GetPlaceName(2876), BaseEurekaId+30), //Central Point (2876),  (0), 
             new(new(-587.3f, -148.4f), 827, GetPlaceName(2891), BaseEurekaId+31), //The West Val River Bank (2877), Unverified Research (2891), 
             new(new(781.1f, -417.5f), 827, GetPlaceName(2892), BaseEurekaId+32), //The East Val River Bank (2879), Dormitory (2892),
+            ],
+        [1252] = [
+            new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId), //Southdown Heath (4934), Expedition Base Camp (4944),
+            new(new(-173.0f, -611.1f), 1252, GetPlaceName(4936), BaseOccultId+1), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
+            new(new(-358.1f, -121.0f), 1252, GetPlaceName(4939), BaseOccultId+2), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
+            new(new(306.9f, 305.7f), 1252, GetPlaceName(4940), BaseOccultId+3), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
+            new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId+4), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
             ]
     };
 
