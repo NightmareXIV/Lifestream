@@ -25,7 +25,7 @@ public static class TabUtility
                 WorldSelector.Draw(ref TargetWorldID);
             })
             .Section("Import house listings from PaissaDB")
-            .Widget(() => 
+            .Widget(() =>
             {
                 ImGuiEx.SetNextItemFullWidth();
                 PaissaImporter.Draw();

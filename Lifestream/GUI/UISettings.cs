@@ -82,7 +82,8 @@ internal static unsafe class UISettings
                 }
                 ImGui.EndCombo();
             }
-            if(Player.CID != 0) {
+            if(Player.CID != 0)
+            {
                 ImGui.SetNextItemWidth(150f.Scale());
                 var pref = C.PreferredSharedEstates.SafeSelect(Player.CID);
                 var name = pref switch
@@ -99,7 +100,7 @@ internal static unsafe class UISettings
                         {
                             C.PreferredSharedEstates.Remove(Player.CID);
                         }
-                        if(ImGui.RadioButton("Disable", pref == (-1,0,0)))
+                        if(ImGui.RadioButton("Disable", pref == (-1, 0, 0)))
                         {
                             C.PreferredSharedEstates[Player.CID] = (-1, 0, 0);
                         }
@@ -169,7 +170,7 @@ internal static unsafe class UISettings
         .Checkbox("Use Mount when auto-moving", () => ref C.UseMount)
         .Widget(() =>
         {
-            Dictionary<int, string> mounts = [new KeyValuePair<int, string>(0, "Random unlocked"), ..Svc.Data.GetExcelSheet<Mount>().Where(x => x.Singular != "").ToDictionary(x => (int)x.RowId, x => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.Singular.GetText()))];
+            Dictionary<int, string> mounts = [new KeyValuePair<int, string>(0, "Random unlocked"), .. Svc.Data.GetExcelSheet<Mount>().Where(x => x.Singular != "").ToDictionary(x => (int)x.RowId, x => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.Singular.GetText()))];
             ImGui.SetNextItemWidth(200f);
             ImGuiEx.Combo("Preferred Mount", ref C.Mount, mounts.Keys, names: mounts);
         })

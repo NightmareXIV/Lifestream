@@ -155,7 +155,7 @@ public class CustomAliasCommand
                 if(TryGetAddonMaster<AddonMaster.SelectYesno>(out var m) && m.IsAddonReady)
                 {
                     //PluginLog.Debug($"Parsed text: [{m.Text}], options: {SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern).Print("\n")}");
-                    if(m.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectYesno_{this.ID}", 200))
+                    if(m.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectYesno_{ID}", 200))
                     {
                         m.Yes();
                         return true;
@@ -174,7 +174,7 @@ public class CustomAliasCommand
                     {
                         foreach(var e in m.Entries)
                         {
-                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
                             {
                                 e.Select();
                                 return true;
@@ -187,7 +187,7 @@ public class CustomAliasCommand
                     {
                         foreach(var e in m.Entries)
                         {
-                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{this.ID}", 200))
+                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
                             {
                                 e.Select();
                                 return true;
@@ -200,13 +200,13 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Confirm_Contents_Finder)
         {
-            P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle($"CustomCommandCFCConfirm_{this.ID}", 1000, true)));
+            P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle($"CustomCommandCFCConfirm_{ID}", 1000, true)));
             P.TaskManager.Enqueue(() =>
             {
                 if(StopOnScreenFade && !IsScreenReady()) return true;
                 if(TryGetAddonMaster<AddonMaster.ContentsFinderConfirm>(out var m) && m.IsAddonReady)
                 {
-                    if(EzThrottler.Throttle($"CustomCommandCFCConfirm_{this.ID}", 2000))
+                    if(EzThrottler.Throttle($"CustomCommandCFCConfirm_{ID}", 2000))
                     {
                         m.Commence();
                         return true;

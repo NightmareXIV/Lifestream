@@ -162,7 +162,7 @@ public static unsafe class UIHouseReg
                 {
                     ImGuiEx.TextV($"{fc.PathToWorkshop.Count} points");
                     ImGui.TableNextColumn();
-                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcWorkshopPath", enabled:ImGuiEx.Ctrl))
+                    if(ImGuiEx.IconButton((FontAwesomeIcon)'\ue566', "DeleFcWorkshopPath", enabled: ImGuiEx.Ctrl))
                     {
                         fc.PathToWorkshop.Clear();
                     }
@@ -201,7 +201,7 @@ public static unsafe class UIHouseReg
         }
     }
 
-    static void ImportFromClipboard(ulong cid, bool isPrivate)
+    private static void ImportFromClipboard(ulong cid, bool isPrivate)
     {
         new TickScheduler(() =>
         {
@@ -226,7 +226,7 @@ public static unsafe class UIHouseReg
                 }
                 else
                 {
-                    Notify.Error($"A different {(isPrivate?"private house plot":"FC house plot")} is already registered for this character. If you want to override it, hold CTRL and click paste button.");
+                    Notify.Error($"A different {(isPrivate ? "private house plot" : "FC house plot")} is already registered for this character. If you want to override it, hold CTRL and click paste button.");
                 }
             }
             catch(Exception e)

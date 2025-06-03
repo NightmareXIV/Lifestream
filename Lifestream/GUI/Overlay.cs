@@ -76,7 +76,7 @@ internal class Overlay : Window
         }
     }
 
-    string Pad => (C.LeftAlignPadding > 0 ? " ".Repeat(C.LeftAlignPadding) : null);
+    private string Pad => (C.LeftAlignPadding > 0 ? " ".Repeat(C.LeftAlignPadding) : null);
 
     public override void Draw()
     {

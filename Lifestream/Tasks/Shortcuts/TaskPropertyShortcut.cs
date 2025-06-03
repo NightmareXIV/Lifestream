@@ -86,7 +86,7 @@ public static unsafe class TaskPropertyShortcut
                 var e = GetSharedHouseAetheryteId(out var entry);
                 if(e.ID != 0)
                 {
-                    var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward-1, entry.Plot-1);
+                    var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward - 1, entry.Plot - 1);
                     ExecuteTpAndPathfind(e.ID, e.Sub, data, mode);
                 }
                 else
@@ -132,7 +132,7 @@ public static unsafe class TaskPropertyShortcut
         else if(type == PropertyType.Shared_Estate && GetSharedHouseAetheryteId(out var sharedAetheryte).ID != 0)
         {
             var s = GetSharedHouseAetheryteId(out var entry);
-            var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward-1, entry.Plot-1);
+            var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward - 1, entry.Plot - 1);
             ExecuteTpAndPathfind(s.ID, s.Sub, data, mode);
             return true;
         }
@@ -318,7 +318,7 @@ public static unsafe class TaskPropertyShortcut
                 return (x.AetheryteId, x.SubIndex);
             }
         }
-        return (0,0);
+        return (0, 0);
     }
 
     public static uint GetPrivateHouseAetheryteID()

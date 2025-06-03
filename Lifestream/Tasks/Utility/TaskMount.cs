@@ -1,12 +1,12 @@
 ﻿using ECommons.Automation;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lumina.Excel.Sheets;
 
 namespace Lifestream.Tasks.Utility;
-public unsafe static class TaskMount
+public static unsafe class TaskMount
 {
     public static bool MountIfCan()
     {

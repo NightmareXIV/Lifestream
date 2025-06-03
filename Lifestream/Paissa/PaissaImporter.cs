@@ -34,7 +34,7 @@ public class PaissaImporter
         var isDisabled = buttonDisabled;
         if(isDisabled) ImGui.BeginDisabled();
 
-        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Download, "Import from PaissaDB", enabled:Player.Available))
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Download, "Import from PaissaDB", enabled: Player.Available))
         {
             PluginLog.Debug("PaissaDB import process initiated!");
             buttonDisabled = true;
@@ -83,7 +83,7 @@ public class PaissaImporter
 
             var newFolder = PaissaUtils.GetAddressBookFolderFromPaissaResponse(responseObject);
 
-            new TickScheduler(() => 
+            new TickScheduler(() =>
             {
                 if(Player.Available)
                 {
