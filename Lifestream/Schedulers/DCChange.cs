@@ -1,6 +1,4 @@
-﻿
-using Dalamud.Memory;
-using Dalamud.Utility;
+﻿using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
 using ECommons.ExcelServices;

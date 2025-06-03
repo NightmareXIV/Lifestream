@@ -1,12 +1,6 @@
 ﻿using Dalamud.Game.Gui.Dtr;
 using Dalamud.Game.Text.SeStringHandling;
 using ECommons.EzEventManager;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Services;
 public class DtrManager : IDisposable

@@ -1,6 +1,4 @@
 ﻿using ECommons.ExcelServices;
-using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lifestream.Schedulers;
 using Lifestream.Tasks.Login;
 
 namespace Lifestream.Tasks.CrossDC;

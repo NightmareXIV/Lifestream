@@ -1,5 +1,4 @@
 ﻿using Lifestream.Data;
-using System.Net.Http;
 using static Lifestream.Paissa.PaissaData;
 
 namespace Lifestream.Paissa;

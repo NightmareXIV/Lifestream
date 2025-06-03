@@ -6,9 +6,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lifestream.Data;
 using Lifestream.Enums;
-using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
-using Lumina.Excel.Sheets;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream.Tasks.Shortcuts;

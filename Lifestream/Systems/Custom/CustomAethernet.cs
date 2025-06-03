@@ -1,14 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
-using ECommons.ExcelServices;
 using ECommons.MathHelpers;
-using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
-using Lifestream.Systems.Residential;
 using Lumina.Excel.Sheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.Systems.Custom;
 /// <summary>

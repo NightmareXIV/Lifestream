@@ -1,10 +1,4 @@
-﻿using Lifestream.Schedulers;
-using NightmareUI.ImGuiElements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NightmareUI.ImGuiElements;
 
 namespace Lifestream.GUI.Windows;
 public class GameCloseWindow : Window

@@ -1,7 +1,5 @@
-﻿using ECommons;
-using ECommons.Configuration;
+﻿using ECommons.Configuration;
 using ECommons.ExcelServices;
-using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
 using ECommons.SplatoonAPI;
@@ -9,7 +7,6 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Services;
-using Lumina.Excel.Sheets;
 using NightmareUI;
 using NightmareUI.ImGuiElements;
 using NightmareUI.PrimaryUI;

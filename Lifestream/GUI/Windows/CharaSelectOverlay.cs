@@ -3,7 +3,6 @@ using ECommons.SimpleGui;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Systems;
 using Lifestream.Tasks.Login;
-using System.Xml.Serialization;
 using World = Lumina.Excel.Sheets.World;
 
 namespace Lifestream.GUI.Windows;

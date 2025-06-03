@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lifestream.Systems.Custom;
+﻿namespace Lifestream.Systems.Custom;
 public struct CustomAetheryte : IAetheryte, IEquatable<CustomAetheryte>
 {
     public Vector2 Position { get; set; }

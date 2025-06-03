@@ -1,9 +1,7 @@
 ﻿using ECommons.Configuration;
 using ECommons.GameHelpers;
-using JetBrains.Annotations;
 using Lifestream.Data;
 using Lifestream.GUI;
-using OtterGui;
 using static Lifestream.Paissa.PaissaData;
 
 namespace Lifestream.Paissa;

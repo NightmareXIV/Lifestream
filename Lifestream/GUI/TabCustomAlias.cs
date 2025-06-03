@@ -2,7 +2,6 @@
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
-using FFXIVClientStructs;
 using Lifestream.Data;
 using Lifestream.Tasks.SameWorld;
 using Newtonsoft.Json;
