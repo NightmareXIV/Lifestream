@@ -7,6 +7,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
+using System.ComponentModel;
 using Action = System.Action;
 
 namespace Lifestream.Data;
@@ -30,6 +31,22 @@ public class CustomAliasCommand
     public List<string> SelectOption = [];
     public bool StopOnScreenFade = false;
     public bool NoDisableYesAlready = false;
+
+    public bool ShouldSerializePoint() => Point != default;
+    public bool ShouldSerializeAetheryte() => Aetheryte != default;
+    public bool ShouldSerializeWorld() => World != default;
+    public bool ShouldSerializeCenterPoint() => CenterPoint != default;
+    public bool ShouldSerializeCircularExitPoint() => CircularExitPoint != default;
+    public bool ShouldSerializeClamp() => Clamp != default;
+    public bool ShouldSerializePrecision() => Precision != default;
+    public bool ShouldSerializeTolerance() => Tolerance != default;
+    public bool ShouldSerializeWalkToExit() => WalkToExit != default;
+    public bool ShouldSerializeSkipTeleport() => SkipTeleport != default;
+    public bool ShouldSerializeDataID() => DataID != default;
+    public bool ShouldSerializeUseTA() => UseTA != default;
+    public bool ShouldSerializeSelectOption() => SelectOption.Count > 0;
+    public bool ShouldSerializeStopOnScreenFade() => StopOnScreenFade != default;
+    public bool ShouldSerializeNoDisableYesAlready() => NoDisableYesAlready != default;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -138,6 +155,7 @@ public class CustomAliasCommand
                 if(StopOnScreenFade && !IsScreenReady()) return true;
                 if(TryGetAddonMaster<AddonMaster.SelectYesno>(out var m) && m.IsAddonReady)
                 {
+                    //PluginLog.Debug($"Parsed text: [{m.Text}], options: {SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern).Print("\n")}");
                     if(m.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectYesno_{this.ID}", 200))
                     {
                         m.Yes();
@@ -180,6 +198,23 @@ public class CustomAliasCommand
                 }
                 return false;
             }, new(abortOnTimeout: false, timeLimitMS: 10000));
+        }
+        else if(Kind == CustomAliasKind.Confirm_Contents_Finder)
+        {
+            P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle($"CustomCommandCFCConfirm_{this.ID}", 1000, true)));
+            P.TaskManager.Enqueue(() =>
+            {
+                if(StopOnScreenFade && !IsScreenReady()) return true;
+                if(TryGetAddonMaster<AddonMaster.ContentsFinderConfirm>(out var m) && m.IsAddonReady)
+                {
+                    if(EzThrottler.Throttle($"CustomCommandCFCConfirm_{this.ID}", 2000))
+                    {
+                        m.Commence();
+                        return true;
+                    }
+                }
+                return false;
+            }, new(abortOnTimeout: false, timeLimitMS: 20000));
         }
     }
 }

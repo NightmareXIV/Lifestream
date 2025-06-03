@@ -84,9 +84,9 @@ public sealed class CustomAethernet
             ],
         [1252] = [
             new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId), //Southdown Heath (4934), Expedition Base Camp (4944),
-            new(new(-173.0f, -611.1f), 1252, GetPlaceName(4936), BaseOccultId+1), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
-            new(new(-358.1f, -121.0f), 1252, GetPlaceName(4939), BaseOccultId+2), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
-            new(new(306.9f, 305.7f), 1252, GetPlaceName(4940), BaseOccultId+3), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
+            new(new(-173.0f, -611.1f), 1252, GetPlaceName(4928), BaseOccultId+1), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
+            new(new(-358.1f, -121.0f), 1252, GetPlaceName(4929), BaseOccultId+2), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
+            new(new(306.9f, 305.7f), 1252, GetPlaceName(4930), BaseOccultId+3), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
             new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId+4), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
             ]
     };

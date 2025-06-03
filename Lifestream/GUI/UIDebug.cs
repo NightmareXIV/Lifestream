@@ -3,6 +3,7 @@ using ECommons.Automation;
 using ECommons.Automation.UIInput;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
+using ECommons.ExcelServices.Sheets;
 using ECommons.EzSharedDataManager;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
@@ -26,6 +27,7 @@ using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
+using System.Text.RegularExpressions;
 using Path = System.IO.Path;
 
 namespace Lifestream.GUI;

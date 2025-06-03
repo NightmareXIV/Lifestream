@@ -295,12 +295,15 @@ public static class TabCustomAlias
                     ImGui.PopID();
                 }
                 ImGui.EndTable();
-                ImGui.Checkbox("Skip on screen fade", ref command.StopOnScreenFade);
                 if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add New Option"))
                 {
                     command.SelectOption.Add("");
                 }
             }
+        }
+        if(command.Kind.EqualsAny(CustomAliasKind.Select_Yes, CustomAliasKind.Select_List_Option, CustomAliasKind.Confirm_Contents_Finder))
+        {
+            ImGui.Checkbox("Skip on screen fade", ref command.StopOnScreenFade);
         }
         ImGui.PopID();
     }
