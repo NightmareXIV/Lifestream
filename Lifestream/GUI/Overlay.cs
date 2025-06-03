@@ -1,3 +1,4 @@
+using ECommons.Configuration;
 using ECommons.EzEventManager;
 using ECommons.GameHelpers;
 using Lifestream.Enums;
@@ -301,8 +302,9 @@ internal class Overlay : Window
             {
                 PluginLog.Debug($"Rebuilding data store");
                 P.DataStore = new();
+                EzConfig.Save();
             }
-            ImGuiEx.CollectionCheckbox("Hidden", x.ID, C.Hidden);
+            if(ImGuiEx.CollectionCheckbox("Hidden", x.ID, C.Hidden)) EzConfig.Save();
             var newName = C.Renames.TryGetValue(x.ID, out var value) ? value : "";
             ImGuiEx.Text($"Rename:");
             ImGui.SetNextItemWidth(200f.Scale());
@@ -316,6 +318,7 @@ internal class Overlay : Window
                 {
                     C.Renames[x.ID] = newName;
                 }
+                EzConfig.Save();
             }
             ImGui.EndPopup();
         }

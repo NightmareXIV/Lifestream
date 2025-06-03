@@ -170,7 +170,7 @@ internal static unsafe class UISettings
         .Checkbox("Use Mount when auto-moving", () => ref C.UseMount)
         .Widget(() =>
         {
-            Dictionary<int, string> mounts = [new KeyValuePair<int, string>(0, "Random unlocked"), .. Svc.Data.GetExcelSheet<Mount>().Where(x => x.Singular != "").ToDictionary(x => (int)x.RowId, x => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.Singular.GetText()))];
+            Dictionary<int, string> mounts = [new KeyValuePair<int, string>(0, "Mount roulette"), .. Svc.Data.GetExcelSheet<Mount>().Where(x => x.Singular != "").ToDictionary(x => (int)x.RowId, x => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.Singular.GetText()))];
             ImGui.SetNextItemWidth(200f);
             ImGuiEx.Combo("Preferred Mount", ref C.Mount, mounts.Keys, names: mounts);
         })
@@ -444,6 +444,10 @@ internal static unsafe class UISettings
             ImGuiEx.HelpMarker($"Hiding progress bar leaves you with no way to stop Lifestream from executing it's tasks.");
             ImGuiEx.CheckboxInverted($"Don't walk to nearby aetheryte on world change command from greater distance", ref C.WalkToAetheryte);
             ImGui.Checkbox($"Progress overlay at top of the sreen", ref C.ProgressOverlayToTop);
+            ImGui.Checkbox("Allow custom alias and house alias to override built-in commands", ref C.AllowCustomOverrides);
+            ImGui.Indent();
+            ImGuiEx.TextWrapped(EColor.RedBright, "Warning! Other plugins may rely on built-in commands. Ensure that it is not the case if you decide to enable this option and override commands.");
+            ImGui.Unindent();
         })
         .Draw();
     }

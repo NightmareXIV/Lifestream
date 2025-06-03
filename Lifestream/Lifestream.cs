@@ -200,6 +200,13 @@ public unsafe class Lifestream : IDalamudPlugin
             followPath?.Stop();
             TabUtility.TargetWorldID = 0;
         }
+        else if(arguments != "" && C.AllowCustomOverrides)
+        {
+            if(ProcessCustomShortcuts(arguments))
+            {
+                return;
+            }
+        }
         else if(arguments.Length == 1 && int.TryParse(arguments, out var val) && val.InRange(1, 9))
         {
             if(S.InstanceHandler.GetInstance() == val)
@@ -417,25 +424,9 @@ public unsafe class Lifestream : IDalamudPlugin
                         return;
                     }
                 }
-                foreach(var b in Config.AddressBookFolders)
+                if(ProcessCustomShortcuts(arguments))
                 {
-                    foreach(var e in b.Entries)
-                    {
-                        if(e.AliasEnabled && e.Alias != "" && e.Alias.EqualsIgnoreCase(arguments))
-                        {
-                            e.GoTo();
-                            return;
-                        }
-                    }
-                }
-                foreach(var x in Config.CustomAliases)
-                {
-                    if(!x.Enabled || x.Alias == "") continue;
-                    if(x.Alias.EqualsIgnoreCase(arguments))
-                    {
-                        x.Enqueue();
-                        return;
-                    }
+                    return;
                 }
 
                 foreach(var x in (string[])[
@@ -714,5 +705,30 @@ public unsafe class Lifestream : IDalamudPlugin
                 Overlay.IsOpen = true;
             }
         }
+    }
+
+    private bool ProcessCustomShortcuts(string arguments)
+    {
+        foreach(var b in Config.AddressBookFolders)
+        {
+            foreach(var e in b.Entries)
+            {
+                if(e.AliasEnabled && e.Alias != "" && e.Alias.EqualsIgnoreCase(arguments))
+                {
+                    e.GoTo();
+                    return true;
+                }
+            }
+        }
+        foreach(var x in Config.CustomAliases)
+        {
+            if(!x.Enabled || x.Alias == "") continue;
+            if(x.Alias.EqualsIgnoreCase(arguments))
+            {
+                x.Enqueue();
+                return true;
+            }
+        }
+        return false;
     }
 }

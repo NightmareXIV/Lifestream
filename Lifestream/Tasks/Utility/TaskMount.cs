@@ -28,9 +28,16 @@ public static unsafe class TaskMount
                 var mounts = Svc.Data.GetExcelSheet<Mount>().Where(x => x.Singular != "" && PlayerState.Instance()->IsMountUnlocked(x.RowId));
                 if(mounts.Any())
                 {
-                    var newMount = (int)mounts.GetRandom().RowId;
-                    PluginLog.Warning($"Mount {Utils.GetMountName(mount)} is not unlocked. Randomly selecting {Utils.GetMountName(newMount)}.");
-                    mount = newMount;
+                    if(mounts.Count() == 1)
+                    {
+                        var newMount = (int)mounts.First().RowId;
+                        PluginLog.Warning($"Mount {Utils.GetMountName(mount)} is not unlocked. Selecting {Utils.GetMountName(newMount)}.");
+                        mount = newMount;
+                    }
+                    else
+                    {
+                        mount = 0;
+                    }
                 }
                 else
                 {
@@ -40,7 +47,14 @@ public static unsafe class TaskMount
             }
             if(!Player.IsAnimationLocked && EzThrottler.Throttle("SummonMount"))
             {
-                Chat.ExecuteCommand($"/mount \"{Utils.GetMountName(mount)}\"");
+                if(mount == 0)
+                {
+                    Chat.ExecuteGeneralAction(9);
+                }
+                else
+                {
+                    Chat.ExecuteCommand($"/mount \"{Utils.GetMountName(mount)}\"");
+                }
             }
         }
         else

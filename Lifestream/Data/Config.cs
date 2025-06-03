@@ -88,4 +88,5 @@ public class Config : IEzConfig
     public LiCommandBehavior LiCommandBehavior = LiCommandBehavior.Return_to_Home_World;
     public bool EnableNotifications = true;
     public bool ProgressOverlayToTop = false;
+    public bool AllowCustomOverrides = false;
 }
