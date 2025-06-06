@@ -72,6 +72,25 @@ public sealed class CustomAethernet
             ], [Lang.AethernetShardTooltipPlaceholder])
     };
 
+    public Dictionary<uint, string> CustomAetheryteNames
+    {
+        get
+        {
+            if(field == null)
+            {
+                field = [];
+                foreach(var x in P.CustomAethernet.ZoneInfo)
+                {
+                    foreach(var a in x.Value.Aetherytes)
+                    {
+                        field.Add(a.ID, a.Name);
+                    }
+                }
+            }
+            return field;
+        }
+    }
+
     public static string GetPlaceName(uint id)
     {
         return Svc.Data.GetExcelSheet<PlaceName>().GetRow(id).Name.GetText();

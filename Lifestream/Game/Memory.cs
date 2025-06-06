@@ -27,6 +27,10 @@ internal unsafe class Memory : IDisposable
     [EzHook("40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 84 C0 74 07 C6 83 ?? ?? ?? ?? ?? 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53", false)]
     internal EzHook<OpenPartyFinderInfoDelegate> OpenPartyFinderInfoHook;
 
+    internal delegate nint IsFlightProhibitedDelegate(nint a1);
+    internal IsFlightProhibitedDelegate IsFlightProhibited = EzDelegate.Get<IsFlightProhibitedDelegate>("40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 85 DB 0F 84 ?? ?? ?? ?? 80 3D");
+    internal nint FlightAddr = Svc.SigScanner.TryScanText("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 11", out var result) ? result : default;
+
     internal byte OpenPartyFinderInfoDetour(void* agentLfg, ulong contentId)
     {
         PluginLog.Information($"{((nint)agentLfg):X16}, {contentId:X16}");

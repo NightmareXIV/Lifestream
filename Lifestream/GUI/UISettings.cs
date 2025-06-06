@@ -175,7 +175,8 @@ internal static unsafe class UISettings
             ImGui.SetNextItemWidth(200f);
             ImGuiEx.Combo("Preferred Mount", ref C.Mount, mounts.Keys, names: mounts);
         })
-        .Checkbox("Use Sprint and Peloton when auto-moving", () => ref C.UseSprintPeloton)
+        .Checkbox("Use Sprint when auto-moving", () => ref C.UseSprintPeloton)
+        .Checkbox("Use Peloton when auto-moving", () => ref C.UseSprintPeloton)
 
         .Section("Character Select Menu")
         .Checkbox("Enable Data center and World visit from Character Select Menu", () => ref C.AllowDCTravelFromCharaSelect)

@@ -30,7 +30,9 @@ public class CustomAliasCommand
     public List<string> SelectOption = [];
     public bool StopOnScreenFade = false;
     public bool NoDisableYesAlready = false;
+    public bool UseFlight = false;
 
+    public bool ShouldSerializeUseFlight() => UseFlight != default;
     public bool ShouldSerializePoint() => Point != default;
     public bool ShouldSerializeAetheryte() => Aetheryte != default;
     public bool ShouldSerializeWorld() => World != default;
@@ -65,9 +67,10 @@ public class CustomAliasCommand
                 }
             }
         }
-        else if(Kind == CustomAliasKind.Walk_to_point)
+        else if(Kind == CustomAliasKind.Move_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            if(this.UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([Point, .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
@@ -93,9 +96,10 @@ public class CustomAliasCommand
             }
             else
             {
+                if(this.UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
                 P.TaskManager.Enqueue(() =>
                 {
-                    var task = P.VnavmeshManager.Pathfind(Player.Position, Point, false);
+                    var task = P.VnavmeshManager.Pathfind(Player.Position, Point, this.UseFlight);
                     P.TaskManager.InsertMulti(
                         new(() => task.IsCompleted),
                         new(() => TaskMoveToHouse.UseSprint(false)),
@@ -111,7 +115,7 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() =>
             {
                 var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte);
-                var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte());
+                var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte() && Utils.IsAetheryteEligibleForCustomAlias(x));
                 if(nearestAetheryte == null || P.Territory != aetheryte.Territory.RowId || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
                 {
                     P.TaskManager.InsertMulti(
@@ -126,7 +130,19 @@ public class CustomAliasCommand
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
-            TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
+            P.TaskManager.Enqueue(() =>
+            {
+                P.TaskManager.BeginStack();
+                try
+                {
+                    TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
+                }
+                catch(Exception e)
+                {
+                    e.Log();
+                }
+                P.TaskManager.InsertStack();
+            });
             P.TaskManager.Enqueue(() => !IsScreenReady());
             P.TaskManager.Enqueue(() => IsScreenReady());
         }

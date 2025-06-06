@@ -20,6 +20,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.Systems.Custom;
 using Lifestream.Systems.Legacy;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.CrossDC;
@@ -39,6 +40,71 @@ internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
 
+    public static Dictionary<uint, string> KnownAetherytes
+    {
+        get
+        {
+            if(field == null)
+            {
+                field = [];
+                foreach(var x in KnownAetherytesByCategories)
+                {
+                    foreach(var v in x.Value)
+                    {
+                        field[v.Key] = v.Value;
+                    }
+                }
+            }
+            return field;
+        }
+    }
+
+    public static Dictionary<string, Dictionary<uint, string>> KnownAetherytesByCategories
+    {
+        get
+        {
+            if(field == null)
+            {
+                field = [];
+                foreach(var x in P.DataStore.Aetherytes)
+                {
+                    var dict = new Dictionary<uint, string>()
+                    {
+                        [x.Key.ID] = x.Key.Name,
+                    };
+                    field[x.Key.Name] = dict;
+                    foreach(var v in x.Value)
+                    {
+                        dict[v.ID] = v.Name;
+                    }
+                    if(x.Key.ID == 70)
+                    {
+                        dict[CustomAethernet.BaseFirmamentId] = "Firmament";
+                    }
+                }
+                foreach(var x in P.ResidentialAethernet.ZoneInfo)
+                {
+                    var dict = new Dictionary<uint, string>();
+                    field[ExcelTerritoryHelper.GetName(x.Key)] = dict;
+                    foreach(var v in x.Value.Aetherytes)
+                    {
+                        dict[v.ID] = v.Name;
+                    }
+                }
+                foreach(var x in P.CustomAethernet.ZoneInfo)
+                {
+                    var dict = new Dictionary<uint, string>();
+                    field[ExcelTerritoryHelper.GetName(x.Key)] = dict;
+                    foreach(var v in x.Value.Aetherytes)
+                    {
+                        dict[v.ID] = v.Name;
+                    }
+                }
+            }
+            return field;
+        }
+    } = null;
+
     public static bool ApproachConditionIsMet()
     {
         return (P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null;
@@ -46,7 +112,7 @@ internal static unsafe partial class Utils
 
     public static string GetAethernetNameWithOverrides(uint id)
     {
-        if(id == TaskAetheryteAethernetTeleport.FirmamentAethernetId) return "Firmament";
+        if(Utils.KnownAetherytes.TryGetValue(id, out var ret)) return ret;
         return Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(id)?.AethernetName.Value.Name.GetText();
     }
 
@@ -505,6 +571,15 @@ internal static unsafe partial class Utils
         return C.HousePathDatas;
     }
 
+    public static bool IsAetheryteEligibleForCustomAlias(IGameObject go)
+    {
+        if(go.ObjectKind == ObjectKind.Aetheryte && TryGetTinyAetheryteFromIGameObject(go, out var tiny))
+        {
+            return tiny.Value.ID == P.DataStore.GetMaster(tiny.Value).ID;
+        }
+        return true;
+    }
+
     public static uint[] AethernetShards = [2000151, 2000153, 2000154, 2000155, 2000156, 2000157, 2003395, 2003396, 2003397, 2003398, 2003399, 2003400, 2003401, 2003402, 2003403, 2003404, 2003405, 2003406, 2003407, 2003408, 2003409, 2003995, 2003996, 2003997, 2003998, 2003999, 2004000, 2004968, 2004969, 2004970, 2004971, 2004972, 2004973, 2004974, 2004976, 2004977, 2004978, 2004979, 2004980, 2004981, 2004982, 2004983, 2004984, 2004985, 2004986, 2004987, 2004988, 2004989, 2007434, 2007435, 2007436, 2007437, 2007438, 2007439, 2007855, 2007856, 2007857, 2007858, 2007859, 2007860, 2007861, 2007862, 2007863, 2007864, 2007865, 2007866, 2007867, 2007868, 2007869, 2007870, 2009421, 2009432, 2009433, 2009562, 2009563, 2009564, 2009565, 2009615, 2009616, 2009617, 2009618, 2009713, 2009714, 2009715, 2009981, 2010135, 2011142, 2011162, 2011163, 2011241, 2011243, 2011373, 2011374, 2011384, 2011385, 2011386, 2011387, 2011388, 2011389, 2011573, 2011574, 2011575, 2011677, 2011678, 2011679, 2011680, 2011681, 2011682, 2011683, 2011684, 2011685, 2011686, 2011687, 2011688, 2011689, 2011690, 2011691, 2011692, 2012252, 2012253, 2011160, 2011572, 2014664, 2014744, 2014665, 2014666, 2014667,];
 
     public static uint[] HousingAethernet = [MainCities.Limsa_Lominsa_Lower_Decks, MainCities.Uldah_Steps_of_Nald, MainCities.New_Gridania, MainCities.Foundation, MainCities.Kugane];
@@ -565,6 +640,8 @@ internal static unsafe partial class Utils
     {
         return P.TaskManager.IsBusy || P.followPath?.waypointsInternal.Count > 0;
     }
+
+    public static bool CanFly() => P.Memory.FlightAddr != 0 && P.Memory.IsFlightProhibited(P.Memory.FlightAddr) == 0;
 
     public static bool TryGetWorldFromDataCenter(string s, out string world, out uint dataCenter)
     {

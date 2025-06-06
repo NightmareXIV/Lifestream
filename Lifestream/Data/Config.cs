@@ -54,6 +54,7 @@ public class Config : IEzConfig
     public bool InstanceSwitcherRepeat = true;
     public int InstanceButtonHeight = 10;
     public bool UseSprintPeloton = true;
+    public bool UsePeloton = true;
     public bool EnableFlydownInstance = true;
     public bool DisplayChatTeleport = false;
     public bool DisplayPopupNotifications = true;

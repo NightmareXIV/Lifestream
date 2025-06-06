@@ -27,9 +27,11 @@ public static unsafe class TaskMoveToHouse
                 return false;
             }
         }
-        if(!C.UseSprintPeloton) return true;
-        if(Player.Object.StatusList.Any(x => x.StatusId.EqualsAny<uint>(50, 1199))) return true;
-        uint[] abilities = [3, 7557];
+        if(!C.UseSprintPeloton && !C.UsePeloton) return true;
+        if(Player.Object.StatusList.Any(x => x.StatusId.EqualsAny<uint>(50, 1199, 4209))) return true;
+        List<uint> abilities = [];
+        if(C.UseSprintPeloton) abilities.Add(3);
+        if(C.UsePeloton) abilities.Add(7557);
         foreach(var ability in abilities)
         {
             if(ActionManager.Instance()->GetActionStatus(ActionType.Action, ability) == 0)
