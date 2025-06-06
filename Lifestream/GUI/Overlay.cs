@@ -243,7 +243,7 @@ internal class Overlay : Window
         Draw(false);
         void Draw(bool favorites)
         {
-            foreach(var x in zinfo)
+            foreach(var x in zinfo.Aetherytes)
             {
                 if(C.Favorites.Contains(x.ID) != favorites) continue;
                 if(!C.Hidden.Contains(x.ID))

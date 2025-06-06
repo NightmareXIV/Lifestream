@@ -15,4 +15,5 @@ public static class Service
     public static HttpClientProvider HttpClientProvider;
     public static DtrManager DtrManager;
     public static WotsitManager WotsitManager;
+    public static MapHanderService MapHanderService;
 }

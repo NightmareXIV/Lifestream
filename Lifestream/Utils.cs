@@ -1269,7 +1269,7 @@ internal static unsafe partial class Utils
                 var d2d = Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2());
                 var d3d = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
                 if(P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
-                if(P.CustomAethernet.MaxDistance.TryGetValue(P.Territory, out var distance) && d3d > distance) continue;
+                if(P.CustomAethernet.ZoneInfo.TryGetValue(P.Territory, out var zinfo) && d3d > zinfo.MaxInteractionDistance) continue;
 
                 if(d2d < 11f
                     && d3d < 15f

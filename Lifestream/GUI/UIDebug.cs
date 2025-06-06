@@ -338,6 +338,17 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Agent Map debug"))
+        {
+            if(TryGetAddonByName<AddonAreaMap>("AreaMap", out var addon))
+            {
+                ImGuiEx.Text($"{addon->HoveredCoords} - press ctrl to copy");
+                if(ImGuiEx.Ctrl && EzThrottler.Throttle("Copy") && !CSFramework.Instance()->WindowInactive)
+                {
+                    Copy($", new({addon->HoveredCoords.X}f, {addon->HoveredCoords.Y}f)");
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("IPC debug"))
         {
             ref var id = ref Ref<int>.Get("aetheryteId");

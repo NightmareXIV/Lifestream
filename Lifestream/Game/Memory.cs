@@ -12,11 +12,6 @@ namespace Lifestream.Game;
 
 internal unsafe class Memory : IDisposable
 {
-    private delegate long AddonAreaMap_ReceiveEvent(long a1, ushort a2, uint a3, long a4, long a5);
-    [Signature("40 55 56 57 48 8B EC 48 83 EC 70 0F B7 C2", DetourName = nameof(AddonAreaMap_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
-    private Hook<AddonAreaMap_ReceiveEvent> AddonAreaMap_ReceiveEventHook = null!;
-    private bool IsLeftMouseHeld = false;
-
     internal delegate void AddonDKTWorldList_ReceiveEventDelegate(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5);
     [Signature("48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? F6 81", DetourName = nameof(AddonDKTWorldList_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]
     internal Hook<AddonDKTWorldList_ReceiveEventDelegate> AddonDKTWorldList_ReceiveEventHook;
@@ -104,88 +99,11 @@ internal unsafe class Memory : IDisposable
     {
         SignatureHelper.Initialise(this);
         EzSignatureHelper.Initialize(this);
-        AddonAreaMap_ReceiveEventHook.Enable();
         //AddonDKTWorldList_ReceiveEventHook.Enable();
-    }
-
-    private long AddonAreaMap_ReceiveEventDetour(long a1, ushort a2, uint a3, long a4, long a5)
-    {
-        //DuoLog.Information($"{a1}, {a2}, {a3}, {a4}, {a5}");
-        try
-        {
-            if((P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null || P.CustomAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
-            {
-                if(a2 == 3)
-                {
-                    IsLeftMouseHeld = Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LButton), 15);
-                }
-                if(a2 == 4 && IsLeftMouseHeld)
-                {
-                    IsLeftMouseHeld = false;
-                    if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))
-                    {
-                        if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addon) && IsAddonReady(addon) && addon->IsVisible)
-                        {
-                            var node = addon->UldManager.NodeList[2]->GetAsAtkTextNode();
-                            var text = GenericHelpers.ReadSeString(&node->NodeText).GetText();
-                            if(P.ActiveAetheryte != null)
-                            {
-                                var master = Utils.GetMaster();
-                                foreach(var x in P.DataStore.Aetherytes[master])
-                                {
-                                    if(x.Name == text)
-                                    {
-                                        TaskAethernetTeleport.Enqueue(x);
-                                        break;
-                                    }
-                                }
-                            }
-                            if(P.ResidentialAethernet.ActiveAetheryte != null)
-                            {
-                                var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
-                                if(zone != null)
-                                {
-                                    foreach(var x in zone.Aetherytes)
-                                    {
-                                        if(x.Name == text)
-                                        {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            if(P.CustomAethernet.ActiveAetheryte != null)
-                            {
-                                var zone = P.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
-                                if(zone != null)
-                                {
-                                    foreach(var x in zone)
-                                    {
-                                        if(x.Name.StartsWith(text))
-                                        {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch(Exception e)
-        {
-            e.Log();
-        }
-        return AddonAreaMap_ReceiveEventHook!.Original(a1, a2, a3, a4, a5);
     }
 
     public void Dispose()
     {
-        AddonAreaMap_ReceiveEventHook?.Disable();
-        AddonAreaMap_ReceiveEventHook?.Dispose();
         AddonDKTWorldList_ReceiveEventHook?.Disable();
         AddonDKTWorldList_ReceiveEventHook?.Dispose();
         AtkComponentTreeList_vf31Hook?.Disable();

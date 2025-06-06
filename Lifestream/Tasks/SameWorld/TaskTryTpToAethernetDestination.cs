@@ -14,7 +14,7 @@ internal static class TaskTryTpToAethernetDestination
         }
         else if(P.CustomAethernet.ActiveAetheryte != null)
         {
-            foreach(var x in P.CustomAethernet.ZoneInfo[P.Territory])
+            foreach(var x in P.CustomAethernet.ZoneInfo[P.Territory].Aetherytes)
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {

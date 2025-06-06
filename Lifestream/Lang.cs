@@ -101,4 +101,6 @@ internal static class Lang
     public static readonly string[] UnableToSelectWorldForDcv = [
         "Unable to select", "で選択したワールド", "Die für die", "pas être choisi comme destination pour"
         ];
+
+    public static readonly string AethernetShardTooltipPlaceholder = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();
 }
