@@ -43,7 +43,7 @@ public static unsafe class TaskTpAndGoToWard
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         P.TaskManager.Enqueue(() =>
         {
-            if(P.Territory != residentialArtheryte.GetTerritory())
+            if(P.Territory != residentialArtheryte.GetTerritory() || !Utils.ApproachConditionIsMet())
             {
                 TaskTpToResidentialAetheryte.Insert(residentialArtheryte);
             }

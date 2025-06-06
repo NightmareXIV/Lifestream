@@ -137,6 +137,7 @@ internal static unsafe class UISettings
         .Widget(() =>
         {
             ImGui.Checkbox("Click Aethernet Shard on map for quick teleport", ref C.UseMapTeleport);
+            ImGui.Checkbox("Only process when next to aetheryte in the same map", ref C.DisableMapClickOtherTerritory);
         })
 
         .Section("Cross-Datacenter")

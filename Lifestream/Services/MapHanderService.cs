@@ -7,6 +7,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
+using Lifestream.Systems.Residential;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.Sheets;
 using PInvoke;
@@ -32,7 +33,7 @@ public unsafe class MapHanderService : IDisposable
 
     private void OnMapReceivedEvent(AddonEvent type, AddonArgs args)
     {
-        if(args is AddonReceiveEventArgs evt && TryGetAddonByName<AddonAreaMap>("AreaMap", out var addon) && addon->AtkUnitBase.IsReady())
+        if(args is AddonReceiveEventArgs evt && TryGetAddonByName<AddonAreaMap>("AreaMap", out var addon) && addon->AtkUnitBase.IsReady() && !Utils.IsBusy())
         {
             /*var atkEvent = (AtkEvent*)evt.AtkEvent;
             var data = MemoryHelper.ReadRaw(evt.Data, 40);
@@ -46,7 +47,7 @@ public unsafe class MapHanderService : IDisposable
                 CursorTarget: {(addon->CursorTarget == null?"-": addon->CursorTarget->NodeId)}
                 """);*/
             var isLeftClicked = *(byte*)(evt.Data + 6) == 0;
-            if(evt.AtkEventType == (int)AtkEventType.MouseUp && (P.ActiveAetheryte != null || P.ResidentialAethernet.ActiveAetheryte != null || P.CustomAethernet.ActiveAetheryte != null) && Utils.CanUseAetheryte() != AetheryteUseState.None)
+            if(evt.AtkEventType == (int)AtkEventType.MouseUp)
             {
                 if(isLeftClicked)
                 {
@@ -63,8 +64,15 @@ public unsafe class MapHanderService : IDisposable
                                 {
                                     if(x.Name == text)
                                     {
-                                        TaskAethernetTeleport.Enqueue(x);
-                                        break;
+                                        if(P.ActiveAetheryte.Value.ID == x.ID)
+                                        {
+                                            Notify.Error("You are already here!");
+                                        }
+                                        else
+                                        {
+                                            TaskAethernetTeleport.Enqueue(x);
+                                        }
+                                        return;
                                     }
                                 }
                             }
@@ -77,8 +85,15 @@ public unsafe class MapHanderService : IDisposable
                                     {
                                         if(x.Name == text)
                                         {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                            break;
+                                            if(P.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
+                                            {
+                                                Notify.Error("You are already here!");
+                                            }
+                                            else
+                                            {
+                                                TaskAethernetTeleport.Enqueue(x.Name);
+                                            }
+                                            return;
                                         }
                                     }
                                 }
@@ -92,14 +107,35 @@ public unsafe class MapHanderService : IDisposable
                                     {
                                         if(x.Name.StartsWith(text))
                                         {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                            break;
+                                            if(P.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
+                                            {
+                                                Notify.Error("You are already here!");
+                                            }
+                                            else
+                                            {
+                                                TaskAethernetTeleport.Enqueue(x.Name);
+                                            }
+                                            return;
                                         }
                                     }
                                     if(zone.GenericAetheryteNames.Contains(text))
                                     {
                                         var target = zone.Aetherytes.MinBy(x => Vector2.Distance(x.MapPosition.Value, addon->HoveredCoords));
                                         TaskAethernetTeleport.Enqueue(target.Name);
+                                    }
+                                }
+                            }
+                            if(!C.DisableMapClickOtherTerritory)
+                            {
+                                foreach(var x in P.DataStore.Aetherytes)
+                                {
+                                    foreach(var a in x.Value)
+                                    {
+                                        if(a.Name == text)
+                                        {
+                                            TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
+                                            return;
+                                        }
                                     }
                                 }
                             }

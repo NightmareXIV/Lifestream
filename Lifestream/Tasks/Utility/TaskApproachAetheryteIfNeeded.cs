@@ -11,7 +11,7 @@ public static class TaskApproachAetheryteIfNeeded
     {
         P.TaskManager.Enqueue(() =>
         {
-            if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null)
+            if(Utils.ApproachConditionIsMet())
             {
                 P.TaskManager.InsertMulti(
                     C.WaitForScreenReady ? new(Utils.WaitForScreen) : null,

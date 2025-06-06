@@ -89,4 +89,5 @@ public class Config : IEzConfig
     public bool EnableNotifications = true;
     public bool ProgressOverlayToTop = false;
     public bool AllowCustomOverrides = false;
+    public bool DisableMapClickOtherTerritory = false;
 }

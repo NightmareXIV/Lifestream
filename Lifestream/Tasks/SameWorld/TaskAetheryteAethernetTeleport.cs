@@ -45,7 +45,7 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
-        DuoLog.Information($"Teleporting to {aethernetName}");
+        //DuoLog.Information($"Teleporting to {aethernetName}");
         TaskRemoveAfkStatus.Enqueue();
 
         // Teleport to the root aetheryte unless we're already close to it.

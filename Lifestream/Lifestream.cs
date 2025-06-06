@@ -200,12 +200,9 @@ public unsafe class Lifestream : IDalamudPlugin
             followPath?.Stop();
             TabUtility.TargetWorldID = 0;
         }
-        else if(arguments != "" && C.AllowCustomOverrides)
+        else if(arguments != "" && C.AllowCustomOverrides && ProcessCustomShortcuts(arguments))
         {
-            if(ProcessCustomShortcuts(arguments))
-            {
-                return;
-            }
+            return;
         }
         else if(arguments.Length == 1 && int.TryParse(arguments, out var val) && val.InRange(1, 9))
         {
