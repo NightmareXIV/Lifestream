@@ -13,6 +13,8 @@ public class PaissaUtils
         {
             foreach(var plot in district.OpenPlots)
             {
+                if (plot.LottoPhase != 1) continue;
+
                 // Increment numbers by 1 because PaissaDB has them 0-indexed
                 var wardStr = (plot.WardNumber + 1).ToString();
                 var plotStr = (plot.PlotNumber + 1).ToString();
