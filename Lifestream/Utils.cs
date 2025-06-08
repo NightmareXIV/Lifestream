@@ -79,7 +79,7 @@ internal static unsafe partial class Utils
                     }
                     if(x.Key.ID == 70)
                     {
-                        dict[CustomAethernet.BaseFirmamentId] = "Firmament";
+                        dict[TaskAetheryteAethernetTeleport.FirmamentAethernetId] = "Firmament";
                     }
                 }
                 foreach(var x in P.ResidentialAethernet.ZoneInfo)

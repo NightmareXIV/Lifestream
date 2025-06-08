@@ -3,6 +3,7 @@ using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.Systems.Custom;
 using Lifestream.Tasks;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
@@ -177,7 +178,7 @@ public class Provider
     [EzIPC]
     public bool AethernetTeleportToFirmament()
     {
-        return AethernetTeleport(Utils.GetAethernetNameWithOverrides(uint.MaxValue));
+        return AethernetTeleport(Utils.GetAethernetNameWithOverrides(TaskAetheryteAethernetTeleport.FirmamentAethernetId));
     }
 
     /// <summary>
