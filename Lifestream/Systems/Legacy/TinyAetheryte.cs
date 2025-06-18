@@ -21,7 +21,7 @@ public struct TinyAetheryte : IEquatable<TinyAetheryte>, IAetheryte
         TerritoryType = territoryType;
         ID = iD;
         Group = group;
-        Name = Ref.AethernetName.Value.Name.ToDalamudString().TextValue;
+        Name = Ref.AethernetName.Value.Name.ToDalamudString().GetText();
         IsAetheryte = Ref.IsAetheryte;
         Invisible = Ref.Invisible;
     }

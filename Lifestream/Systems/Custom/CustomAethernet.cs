@@ -64,7 +64,7 @@ public sealed class CustomAethernet
             new(new(781.1f, -417.5f), 827, GetPlaceName(2892), BaseEurekaId+32), //The East Val River Bank (2879), Dormitory (2892),
             ]),
         [1252] = new([
-            new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId, new(6.2f, 6.5f)), //Southdown Heath (4934), Expedition Base Camp (4944),
+            new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId, new(38.0f, 7.5f)), //Southdown Heath (4934), Expedition Base Camp (4944),
             new(new(-173.0f, -611.1f), 1252, GetPlaceName(4928), BaseOccultId+1, new(18f, 9.2f)), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
             new(new(-358.1f, -121.0f), 1252, GetPlaceName(4929), BaseOccultId+2, new(14.2f, 19f)), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
             new(new(306.9f, 305.7f), 1252, GetPlaceName(4930), BaseOccultId+3, new(27.6f, 27.5f)), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0

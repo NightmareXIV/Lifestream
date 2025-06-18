@@ -1,4 +1,6 @@
-﻿using Dalamud.Utility;
+﻿using Dalamud.Game;
+using Dalamud.Plugin.Ipc.Exceptions;
+using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
 using ECommons.Configuration;
@@ -338,6 +340,22 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("ApproachConditionIsMet"))
+        {
+            ImGuiEx.Text($"ApproachConditionIsMet: {Utils.ApproachConditionIsMet()}");
+            ImGuiEx.Text($"IsAetheryte: {P.ActiveAetheryte?.IsAetheryte}");
+            ImGuiEx.Text($"GetReachableAetheryte: {Utils.GetReachableAetheryte(x => x.IsAetheryte())}");
+        }
+        if(ImGui.CollapsingHeader("DataStore.Aetherytes"))
+        {
+            foreach(var x in P.DataStore.Aetherytes)
+            {
+                ImGuiEx.Text($"{x.Key.Name} ({Svc.Data.GetExcelSheet<Aetheryte>(ClientLanguage.English).GetRowOrDefault(x.Key.ID).Value.AethernetName.Value.Name.GetText()})");
+                ImGui.Indent();
+                ImGuiEx.Text($"{x.Value.Select(s => $"{s.Name} ({Svc.Data.GetExcelSheet<Aetheryte>(ClientLanguage.English).GetRowOrDefault(s.ID).Value.AethernetName.Value.Name.GetText()})").Print("\n")}");
+                ImGui.Unindent();
+            }
+        }
         if(ImGui.CollapsingHeader("Agent Map debug"))
         {
             if(TryGetAddonByName<AddonAreaMap>("AreaMap", out var addon))

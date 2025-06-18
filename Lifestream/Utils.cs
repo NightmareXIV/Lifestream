@@ -72,7 +72,7 @@ internal static unsafe partial class Utils
                     {
                         [x.Key.ID] = x.Key.Name,
                     };
-                    field[x.Key.Name] = dict;
+                    field[ExcelTerritoryHelper.GetName(x.Key.TerritoryType)] = dict;
                     foreach(var v in x.Value)
                     {
                         dict[v.ID] = v.Name;
@@ -107,7 +107,7 @@ internal static unsafe partial class Utils
 
     public static bool ApproachConditionIsMet()
     {
-        return (P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null;
+        return (P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.IsAetheryte()) != null;
     }
 
     public static string GetAethernetNameWithOverrides(uint id)

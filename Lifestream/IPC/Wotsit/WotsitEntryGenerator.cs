@@ -224,7 +224,7 @@ public static class WotsitEntryGenerator
             string townName = null;
             if(AetheryteToTownPlaceName.TryGetValue(rootAetheryte.ID, out var placeId))
             {
-                townName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(placeId).Name.ToDalamudString().TextValue;
+                townName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(placeId).Name.ToDalamudString().GetText();
             }
             foreach(var aethernetShard in aethernetShards)
             {
@@ -238,7 +238,7 @@ public static class WotsitEntryGenerator
             // Special case for The Firmament
             if(C.Firmament && rootAetheryte.TerritoryType == 418)
             {
-                var placeName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(3435).Name.ToDalamudString().TextValue;
+                var placeName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(3435).Name.ToDalamudString().GetText();
                 yield return WotsitEntry.AetheryteAethernetTeleport(townName, placeName, rootAetheryte.ID, TaskAetheryteAethernetTeleport.FirmamentAethernetId);
             }
         }
