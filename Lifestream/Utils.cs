@@ -1140,7 +1140,12 @@ internal static unsafe partial class Utils
 
     internal static TinyAetheryte GetMaster()
     {
-        return P.ActiveAetheryte.Value.IsAetheryte ? P.ActiveAetheryte.Value : P.DataStore.GetMaster(P.ActiveAetheryte.Value);
+        return P.ActiveAetheryte.Value.GetMaster();
+    }
+
+    internal static TinyAetheryte GetMaster(this TinyAetheryte a)
+    {
+        return a.IsAetheryte ? a : P.DataStore.GetMaster(a);
     }
 
     internal static bool IsWorldChangeAetheryte(this TinyAetheryte t)

@@ -7,7 +7,7 @@ public unsafe class TeleportService
 {
     private TeleportService() { }
 
-    public bool TeleportToAetheryte(uint id, uint sub = 0)
+    public bool TeleportToAetheryte(uint id, uint sub = 0, bool wait = false)
     {
         if(!CanTeleport(out var err))
         {
@@ -19,6 +19,13 @@ public unsafe class TeleportService
             if(x.AetheryteId == id && x.SubIndex == sub)
             {
                 Telepo.Instance()->Teleport(id, (byte)sub);
+                if(wait)
+                {
+                    P.TaskManager.InsertMulti(
+                        new(() => !IsScreenReady()),
+                        new(() => IsScreenReady() && Player.Interactable)
+                        );
+                }
                 return true;
             }
         }

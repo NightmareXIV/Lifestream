@@ -161,6 +161,9 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
+        var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var primary = argsSplit.SafeSelect(0) ?? "";
+        var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
         if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
         {
             var args = arguments.Split(" ");
@@ -341,7 +344,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
         {
-            var destination = arguments[(arguments.IndexOf("tp") + 2)..].Trim();
+            var destination = primary[(primary.IndexOf("tp") + 2)..].Trim();
             if(destination == null || destination == "")
             {
                 DuoLog.Error($"Please type something");
@@ -354,10 +357,11 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         if(x.AetheryteData.Value.AethernetName.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait:!additionalCommand.IsNullOrEmpty()))
                             {
                                 ChatPrinter.Green($"[Lifestream] Destination (Aethernet): {x.AetheryteData
                                     .Value.AethernetName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                ProcessAdditionalCommand(additionalCommand);
                                 return;
                             }
                         }
@@ -366,10 +370,11 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         if(x.AetheryteData.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
                             {
                                 ChatPrinter.Green($"[Lifestream] Destination (Place): {x.AetheryteData
                                     .Value.PlaceName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                ProcessAdditionalCommand(additionalCommand);
                                 return;
                             }
                         }
@@ -378,10 +383,11 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         if(x.AetheryteData.Value.Territory.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId))
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
                             {
                                 ChatPrinter.Green($"[Lifestream] Destination (Zone): {x.AetheryteData
                                     .Value.Territory.Value.PlaceName.Value.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                                ProcessAdditionalCommand(additionalCommand);
                                 return;
                             }
                         }
@@ -421,8 +427,9 @@ public unsafe class Lifestream : IDalamudPlugin
                         return;
                     }
                 }
-                if(ProcessCustomShortcuts(arguments))
+                if(ProcessCustomShortcuts(primary))
                 {
+                    ProcessAdditionalCommand(additionalCommand);
                     return;
                 }
 
@@ -436,10 +443,6 @@ public unsafe class Lifestream : IDalamudPlugin
                         arguments = arguments[0..(arguments.Length - x.Length)] + $",{x}";
                     }
                 }
-
-                var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                var primary = argsSplit.SafeSelect(0) ?? "";
-                var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
                 WorldChangeAetheryte? gateway = null;
                 if(additionalCommand == "mb")
                 {
@@ -463,15 +466,20 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 else
                 {
-                    TaskTryTpToAethernetDestination.Enqueue(primary);
+                    TaskTryTpToAethernetDestination.Enqueue(primary, true);
                 }
 
-                if(additionalCommand != null)
-                {
-                    TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-                    TaskManager.Enqueue(() => Svc.Framework.RunOnTick(() => Svc.Commands.ProcessCommand($"/li {additionalCommand}"), delayTicks: 1));
-                }
+                ProcessAdditionalCommand(additionalCommand);
             }
+        }
+    }
+
+    private void ProcessAdditionalCommand(string additionalCommand)
+    {
+        if(additionalCommand != null)
+        {
+            TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            TaskManager.Enqueue(() => Svc.Framework.RunOnTick(() => Svc.Commands.ProcessCommand($"/li {additionalCommand}"), delayTicks: 1));
         }
     }
 

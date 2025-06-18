@@ -1,16 +1,20 @@
 ﻿using ECommons.Automation.NeoTaskManager.Tasks;
+using ECommons.ChatMethods;
+using ECommons.ExcelServices;
 using Lifestream.Schedulers;
+using Lifestream.Systems.Legacy;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Lifestream.Tasks.SameWorld;
 
 internal static class TaskTryTpToAethernetDestination
 {
-    public static void Enqueue(string targetName)
+    public static void Enqueue(string targetName, bool allowPartial = false)
     {
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.ActiveAetheryte != null)
         {
-            P.TaskManager.Enqueue(Process);
+            P.TaskManager.Enqueue(process);
         }
         else if(P.CustomAethernet.ActiveAetheryte != null)
         {
@@ -48,14 +52,55 @@ internal static class TaskTryTpToAethernetDestination
                         new(WorldChange.WaitUntilMasterAetheryteExists),
                         new(WorldChange.DisableAutomove)
                         );
+                    enqueueWaiters();
                 }
+                else if(P.ActiveAetheryte == null)
+                {
+                    if(allowPartial && processPartial())
+                    {
+                        return;
+                    }
+                    DuoLog.Error("Destination could not be found");
+                }
+                return;
             }, "ConditionalLockonTask");
-            P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
-            P.TaskManager.EnqueueDelay(10, true);
-            P.TaskManager.Enqueue(Process);
+
+            void enqueueWaiters()
+            {
+                P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
+                P.TaskManager.EnqueueDelay(10, true);
+                P.TaskManager.Enqueue(process);
+            }
         }
 
-        void Process()
+        bool processPartial()
+        {
+            PluginLog.Debug($"Processing partial command");
+            foreach(var x in P.DataStore.Aetherytes)
+            {
+                foreach(var a in (TinyAetheryte[])[x.Key, .. x.Value])
+                {
+                    if(a.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ChatPrinter.Green($"[Lifestream] Destination: {ExcelTerritoryHelper.GetName(x.Key.TerritoryType)} - {a.Name}");
+                        P.TaskManager.BeginStack();
+                        try
+                        {
+                            TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
+                        }
+                        catch(Exception e)
+                        {
+                            e.Log();
+                        }
+                        P.TaskManager.InsertStack();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        void process()
         {
             var master = Utils.GetMaster();
             {
@@ -100,6 +145,11 @@ internal static class TaskTryTpToAethernetDestination
                     P.TaskManager.InsertStack();
                     return;
                 }
+            }
+
+            if(allowPartial && processPartial())
+            {
+                return;
             }
             Notify.Error($"No destination {targetName} found");
             return;
