@@ -32,6 +32,7 @@ using PInvoke;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Action = System.Action;
 using CharaData = (string Name, ushort World);
 
 namespace Lifestream;
@@ -39,6 +40,50 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+    public static bool TryFindEqualsOrContains<T>(IEnumerable<T> haystack, Func<T, string> haystackConverterToString, string needle, out T result)
+    {
+        return TryFindEqualsOrContains(haystack, haystackConverterToString, [needle], out result);
+    }
+
+    public static bool TryFindEqualsOrContains<T>(IEnumerable<T> haystack, Func<T, string> haystackConverterToString, IEnumerable<string> needles, out T result)
+    {
+        foreach(var x in haystack)
+        {
+            foreach(var n in needles)
+            {
+                if(haystackConverterToString(x).EqualsIgnoreCase(n))
+                {
+                    result = x;
+                    return true;
+                }
+            }
+        }
+        foreach(var x in haystack)
+        {
+            foreach(var n in needles)
+            {
+                if(haystackConverterToString(x).StartsWith(n, StringComparison.OrdinalIgnoreCase))
+                {
+                    result = x;
+                    return true;
+                }
+            }
+        }
+        foreach(var x in haystack)
+        {
+            foreach(var n in needles)
+            {
+                if(haystackConverterToString(x).Contains(n, StringComparison.OrdinalIgnoreCase))
+                {
+                    result = x;
+                    return true;
+                }
+            }
+        }
+        result = default;
+        return false;
+    }
 
     public static Dictionary<uint, string> KnownAetherytes
     {

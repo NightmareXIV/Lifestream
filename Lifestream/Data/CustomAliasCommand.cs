@@ -188,26 +188,20 @@ public class CustomAliasCommand
                 {
                     if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
                     {
-                        foreach(var e in m.Entries)
+                        if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
                         {
-                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
-                            {
-                                e.Select();
-                                return true;
-                            }
+                            e.Select();
+                            return true;
                         }
                     }
                 }
                 {
                     if(TryGetAddonMaster<AddonMaster.SelectIconString>(out var m) && m.IsAddonReady)
                     {
-                        foreach(var e in m.Entries)
+                        if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
                         {
-                            if(e.Text.ContainsAny(SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern)) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
-                            {
-                                e.Select();
-                                return true;
-                            }
+                            e.Select();
+                            return true;
                         }
                     }
                 }

@@ -27,12 +27,13 @@ public static unsafe class TaskGoToResidentialDistrict
 
     public static bool ConfirmYesNoGoToWard()
     {
+        if(Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51]) return true;
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.TravelTo);
         if(x != null)
         {
             if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmTravelTo"))
             {
-                new SelectYesnoMaster(x).Yes();
+                new AddonMaster.SelectYesno(x).Yes();
                 return true;
             }
         }

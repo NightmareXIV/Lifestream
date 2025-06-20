@@ -18,23 +18,21 @@ internal static class TaskTryTpToAethernetDestination
         }
         else if(P.CustomAethernet.ActiveAetheryte != null)
         {
-            foreach(var x in P.CustomAethernet.ZoneInfo[P.Territory].Aetherytes)
+            if(Utils.TryFindEqualsOrContains(P.CustomAethernet.ZoneInfo[P.Territory].Aetherytes, x => x.Name, targetName, out var x))
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {
                     TaskAethernetTeleport.Enqueue(x.Name);
-                    break;
                 }
             }
         }
         else if(P.ResidentialAethernet.ActiveAetheryte != null)
         {
-            foreach(var x in P.ResidentialAethernet.ZoneInfo[P.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes)
+            if(Utils.TryFindEqualsOrContains(P.ResidentialAethernet.ZoneInfo[P.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes, x=>x.Name, targetName, out var x))
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {
                     TaskAethernetTeleport.Enqueue(x.Name);
-                    break;
                 }
             }
         }
@@ -63,7 +61,7 @@ internal static class TaskTryTpToAethernetDestination
                     DuoLog.Error("Destination could not be found");
                 }
                 return;
-            }, "ConditionalLockonTask");
+            }, $"ConditionalLockonTask");
 
             void enqueueWaiters()
             {
@@ -117,7 +115,7 @@ internal static class TaskTryTpToAethernetDestination
                     }
                 }
             }
-
+            
             foreach(var x in P.DataStore.Aetherytes[master])
             {
                 if(P.ActiveAetheryte != x)

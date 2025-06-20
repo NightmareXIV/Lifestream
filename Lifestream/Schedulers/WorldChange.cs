@@ -184,15 +184,12 @@ internal static unsafe class WorldChange
         }
         else if(P.CustomAethernet.QuasiAethernetZones.Contains(P.Territory) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
         {
-            foreach(var x in m.Entries)
+            if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, name, out var entry))
             {
-                if(x.Text.Contains(name))
+                if(EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
                 {
-                    if(EzThrottler.Throttle("TeleportToAethernetDestination", 2000))
-                    {
-                        x.Select();
-                        return true;
-                    }
+                    entry.Select();
+                    return true;
                 }
             }
         }
