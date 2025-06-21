@@ -11,13 +11,13 @@ using Lumina.Excel.Sheets;
 namespace Lifestream.Tasks.Login;
 public static unsafe class TaskChangeCharacter
 {
-    public static void Enqueue(string currentWorld, string charaName, string charaWorld, int account)
+    public static void Enqueue(string currentLoginWorld, string charaName, string charaWorld, int account)
     {
         if(Svc.ClientState.IsLoggedIn)
         {
             EnqueueLogout();
         }
-        EnqueueLogin(currentWorld, charaName, charaWorld, account);
+        EnqueueLogin(currentLoginWorld, charaName, charaWorld, account);
     }
 
     public static void EnqueueLogout()
@@ -26,10 +26,10 @@ public static unsafe class TaskChangeCharacter
         P.TaskManager.Enqueue(SelectYesLogout, new(timeLimitMS: 100000));
     }
 
-    public static void EnqueueLogin(string currentWorld, string charaName, string charaWorld, int account)
+    public static void EnqueueLogin(string currentLoginWorld, string charaName, string homeWorld, int account)
     {
-        ConnectToDc(currentWorld, account);
-        P.TaskManager.Enqueue(() => SelectCharacter(charaName, charaWorld), $"Select chara {charaName}@{charaWorld}", new(timeLimitMS: 1000000));
+        ConnectToDc(currentLoginWorld, account);
+        P.TaskManager.Enqueue(() => SelectCharacter(charaName, homeWorld, currentLoginWorld), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 1000000));
         P.TaskManager.Enqueue(ConfirmLogin);
     }
 
@@ -161,8 +161,9 @@ public static unsafe class TaskChangeCharacter
         return false;
     }
 
-    public static bool? SelectCharacter(string name, string world, bool callContextMenu = false)
+    public static bool? SelectCharacter(string name, string homeWorld, string currentLoginWorld, bool callContextMenu = false, bool onlyChangeWorld = false)
     {
+        currentLoginWorld ??= homeWorld;
         if(TryGetAddonByName<AtkUnitBase>("SelectYesno", out _))
         {
             Utils.RethrottleGeneric();
@@ -184,17 +185,24 @@ public static unsafe class TaskChangeCharacter
             if(mw.Worlds.Length == 0) return false;
             foreach(var c in m.Characters)
             {
-                if(c.Name == name && ExcelWorldHelper.GetName(c.HomeWorld) == world)
+                if(c.Name == name && ExcelWorldHelper.GetName(c.HomeWorld) == homeWorld)
                 {
                     if(Utils.GenericThrottle && EzThrottler.Throttle("SelectChara"))
                     {
-                        if(!callContextMenu)
+                        if(onlyChangeWorld)
                         {
-                            c.Login();
+                            return true;
                         }
                         else
                         {
-                            c.OpenContextMenu();
+                            if(!callContextMenu)
+                            {
+                                c.Login();
+                            }
+                            else
+                            {
+                                c.OpenContextMenu();
+                            }
                         }
                     }
                     return false;
@@ -202,7 +210,7 @@ public static unsafe class TaskChangeCharacter
             }
             foreach(var w in mw.Worlds)
             {
-                if(w.Name == world)
+                if(w.Name == currentLoginWorld)
                 {
                     if(Utils.GenericThrottle && EzThrottler.Throttle("SelectWorld"))
                     {

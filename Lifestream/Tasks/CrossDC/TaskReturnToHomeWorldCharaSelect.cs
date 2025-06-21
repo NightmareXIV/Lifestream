@@ -7,10 +7,10 @@ using Lifestream.Schedulers;
 namespace Lifestream.Tasks.CrossDC;
 public static unsafe class TaskReturnToHomeWorldCharaSelect
 {
-    public static void Enqueue(string charaName, uint charaWorld)
+    public static void Enqueue(string charaName, uint charaWorld, uint currentLoginWorld)
     {
         PluginLog.Debug($"Beginning returning home process.");
-        P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaWorld), nameof(DCChange.OpenContextMenuForChara), TaskSettings.Timeout5M);
+        P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaWorld, currentLoginWorld), nameof(DCChange.OpenContextMenuForChara), TaskSettings.Timeout5M);
         P.TaskManager.Enqueue(DCChange.SelectReturnToHomeWorld);
         P.TaskManager.Enqueue(ConfirmReturnToHomeWorld, TaskSettings.Timeout2M);
         P.TaskManager.Enqueue(DCChange.SelectOk, TaskSettings.TimeoutInfinite);

@@ -41,6 +41,11 @@ internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
 
+    public static IGameObject GetWorkshopEntrance()
+    {
+        return Svc.Objects.FirstOrDefault(x => x.IsTargetable && x.Name.ToString().EqualsIgnoreCaseAny(Lang.AdditionalChambersEntrance));
+    }
+
     public static bool TryFindEqualsOrContains<T>(IEnumerable<T> haystack, Func<T, string> haystackConverterToString, string needle, out T result)
     {
         return TryFindEqualsOrContains(haystack, haystackConverterToString, [needle], out result);

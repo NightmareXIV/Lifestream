@@ -152,7 +152,7 @@ internal static unsafe class DCChange
         return false;
     }
 
-    internal static bool? OpenContextMenuForChara(string name, uint world)
+    internal static bool? OpenContextMenuForChara(string name, uint homeWorld, uint currentLoginWorld)
     {
         if(TryGetAddonByName<AddonContextMenu>("ContextMenu", out var m) && IsAddonReady(&m->AtkUnitBase))
         {
@@ -161,7 +161,7 @@ internal static unsafe class DCChange
         }
         if(TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && IsAddonReady(addon))
         {
-            TaskChangeCharacter.SelectCharacter(name, ExcelWorldHelper.GetName(world), true);
+            TaskChangeCharacter.SelectCharacter(name, ExcelWorldHelper.GetName(homeWorld), ExcelWorldHelper.GetName(currentLoginWorld), true);
         }
         else
         {
@@ -389,7 +389,7 @@ internal static unsafe class DCChange
         return false;
     }
 
-    internal static bool? ConfirmDcVisit2(string destination, string charaName, uint charaWorld)
+    internal static bool? ConfirmDcVisit2(string destination, string charaName, uint charaWorld, uint currentLoginWorld)
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTCheckExec", out var addon) && IsAddonReady(addon))
         {
@@ -411,7 +411,7 @@ internal static unsafe class DCChange
         {
             DCRethrottle();
         }
-        if(destination != null) TaskChangeDatacenter.ProcessUnableDialogue(destination, charaName, charaWorld);
+        if(destination != null) TaskChangeDatacenter.ProcessUnableDialogue(destination, charaName, charaWorld, currentLoginWorld);
         return false;
     }
 

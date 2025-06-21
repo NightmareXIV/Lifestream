@@ -1,13 +1,17 @@
-﻿using ECommons.EzIpcManager;
+﻿using ECommons.ExcelServices;
+using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.GUI.Windows;
 using Lifestream.Systems.Custom;
 using Lifestream.Tasks;
+using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
+using static FFXIVClientStructs.FFXIV.Client.UI.Misc.BannerHelper.Delegates;
 
 namespace Lifestream.IPC;
 public class Provider
@@ -382,6 +386,47 @@ public class Provider
     public uint GetRealTerritoryType()
     {
         return P.Territory;
+    }
+
+    [EzIPC]
+    public bool CanAutoLogin() => Utils.CanAutoLogin();
+
+    [EzIPC]
+    public bool ConnectAndOpenCharaSelect(string charaName, string charaHomeWorld)
+    {
+        if(IsBusy())
+        {
+            return false;
+        }
+        return TaskConnectAndOpenCharaSelect.Enqueue(charaName, charaHomeWorld);
+    }
+
+    [EzIPC]
+    public bool InitiateTravelFromCharaSelectScreen(string charaName, string charaHomeWorld, string destination, bool noLogin)
+    {
+        if(IsBusy())
+        {
+            return false;
+        }
+        return IpcUtils.InitiateTravelFromCharaSelectScreenInternal(charaName, charaHomeWorld, destination, noLogin);
+    }
+
+    [EzIPC]
+    public bool CanInitiateTravelFromCharaSelectList()
+    {
+        return CharaSelectOverlay.TryGetValidCharaSelectListMenu(out var m);
+    }
+
+    [EzIPC]
+    public bool ConnectAndTravel(string charaName, string charaHomeWorld, string destination, bool noLogin)
+    {
+        if(IsBusy() || !CanAutoLogin())
+        {
+            return false;
+        }
+        ConnectAndOpenCharaSelect(charaName, charaHomeWorld);
+        P.TaskManager.Enqueue(() => IpcUtils.InitiateTravelFromCharaSelectScreenInternal(charaName, charaHomeWorld, destination, noLogin));
+        return true;
     }
 
     [EzIPCEvent] public System.Action OnHouseEnterError;

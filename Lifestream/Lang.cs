@@ -1,6 +1,7 @@
 ﻿using Dalamud.Utility;
 using Lifestream.Enums;
 using Lumina.Excel.Sheets;
+using System.Text.RegularExpressions;
 
 namespace Lifestream;
 
@@ -34,6 +35,7 @@ internal static class Lang
     /li home → go to your private estate, alias: /li home|house|private
     /li fc → go to your FC estate, alias: /li fc|free|company|free company
     /li apt → go to your apartment, alias: /li apt|apartment
+    /li ws → go to your FC's workshop, alias: /li ws|workshop
 
     /li <district> <ward> <plot> → go to specified plot in current world
     /li <world> <district> <ward> <plot> → go to specified plot of specified world
@@ -54,6 +56,13 @@ internal static class Lang
     /li w → open world travel window, alias: /li w|world|open|select
     /lifestream → open plugin configuration 
     """;
+    internal static string[] AdditionalChambersEntrance =>
+    [
+        Svc.Data.GetExcelSheet<EObjName>().GetRow(2004353).Singular.GetText(),
+        Regex.Replace(Svc.Data.GetExcelSheet<EObjName>().GetRow(2004353).Singular.GetText(), @"\[.*?\]", "")
+    ];
+
+    internal static readonly string[] EnterWorkshop = ["Move to the company workshop", "地下工房に移動する", "移动到部队工房", "移動到部隊工房", "Die Gesellschaftswerkstätte betreten", "Aller dans l'atelier de compagnie", "지하공방으로 이동"];
 
     internal static Dictionary<WorldChangeAetheryte, string> WorldChangeAetherytes = new()
     {

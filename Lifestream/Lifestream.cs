@@ -213,6 +213,10 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC);
         }
+        else if(arguments.EqualsIgnoreCaseAny("ws", "workshop"))
+        {
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC, workshop:true);
+        }
         else if(arguments.EqualsIgnoreCaseAny("apartment", "apt"))
         {
             TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.Apartment);
@@ -538,17 +542,17 @@ public unsafe class Lifestream : IDalamudPlugin
                     if(!Player.IsInHomeWorld) TaskTPAndChangeWorld.Enqueue(Player.HomeWorld, gateway.Value.AdjustGateway(), false);
                     TaskWaitUntilInHomeWorld.Enqueue();
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.HomeToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.HomeToGuest(destinationWorld, Player.Name, Player.HomeWorldId, Player.HomeWorldId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else if(type == DCVType.GuestToHome)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.GuestToHome(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.GuestToHome(destinationWorld, Player.Name, Player.HomeWorldId, Player.CurrentWorldId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else if(type == DCVType.GuestToGuest)
                 {
                     TaskLogoutAndRelog.Enqueue(Player.NameWithWorld);
-                    CharaSelectVisit.GuestToGuest(destinationWorld, Player.Name, Player.Object.HomeWorld.RowId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
+                    CharaSelectVisit.GuestToGuest(destinationWorld, Player.Name, Player.HomeWorldId, Player.CurrentWorldId, secondaryTeleport, noSecondaryTeleport, gateway, doNotify, returnToGateway);
                 }
                 else
                 {

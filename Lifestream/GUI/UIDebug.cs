@@ -340,6 +340,22 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("IPC test - travel from chara select screen"))
+        {
+            ref var name = ref Ref<string>.Get("name");
+            ref var world = ref Ref<string>.Get("world");
+            ref var dest = ref Ref<string>.Get("dest");
+            ref var nologin = ref Ref<bool>.Get("nologin");
+            ImGui.InputText("Chara name", ref name, 100);
+            ImGui.InputText("Chara world", ref world, 100);
+            ImGui.InputText("Destination", ref dest, 100);
+            ImGui.Checkbox("No login", ref nologin);
+            ImGuiEx.Text($"CanInitiateTravelFromCharaSelectList: {P.IPCProvider.CanInitiateTravelFromCharaSelectList()}");
+            ImGuiEx.Text($"CanAutoLogin: {P.IPCProvider.CanAutoLogin()}");
+            if(ImGui.Button("ConnectAndOpenCharaSelect")) DuoLog.Information($"{P.IPCProvider.ConnectAndOpenCharaSelect(name, world)}");
+            if(ImGui.Button("InitiateTravelFromCharaSelectScreen")) DuoLog.Information($"{P.IPCProvider.InitiateTravelFromCharaSelectScreen(name, world, dest, nologin)}");
+            if(ImGui.Button("ConnectAndTravel")) DuoLog.Information($"{P.IPCProvider.ConnectAndTravel(name, world, dest, nologin)}");
+        }
         if(ImGui.CollapsingHeader("ApproachConditionIsMet"))
         {
             ImGuiEx.Text($"ApproachConditionIsMet: {Utils.ApproachConditionIsMet()}");
@@ -691,7 +707,7 @@ internal static unsafe class UIDebug
             }
             if(ImGui.Button("Context"))
             {
-                DCChange.OpenContextMenuForChara(CharaName, (uint)WorldSel);
+                DCChange.OpenContextMenuForChara(CharaName, (uint)WorldSel, (uint)WorldSel);
             }
             var agent = AgentLobby.Instance();
             ImGuiEx.Text($"Active: {agent->IsAgentActive()}");
@@ -815,7 +831,7 @@ internal static unsafe class UIDebug
             ImGui.SameLine();
             ImGui.InputText($"w name", ref str3, 100);
             if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit()}");
-            if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2(default, default, default)}");
+            if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisit2)}")) PluginLog.Information($"{DCChange.ConfirmDcVisit2(default, default, default, default)}");
             if(ImGui.Button($"{nameof(DCChange.SelectOk)}")) PluginLog.Information($"{DCChange.SelectOk()}");
             if(ImGui.Button($"{nameof(DCChange.ConfirmDcVisitIntention)}")) PluginLog.Information($"{DCChange.ConfirmDcVisitIntention()}");
             if(ImGui.Button($"{nameof(DCChange.SelectYesLogin)}")) PluginLog.Information($"{DCChange.SelectYesLogin()}");
