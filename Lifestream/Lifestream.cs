@@ -98,33 +98,8 @@ public unsafe class Lifestream : IDalamudPlugin
             EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
-            EzCmd.Add("/lifestream", ProcessCommand, "Open plugin configuration");
-            EzCmd.Add("/li", ProcessCommand, """
-                return to your home world
-                /li <worldname> - go to specified world
-                /li <dataCenterName> - go to random world in specified Data Center
-                /li <aethernetName> - go to specified aethernet destination if you are next to any supported aetheryte
-
-                /li <address> - go to specified plot in current world, where address - plot adddress formatted in "residential district, ward, plot" format (without quotes)
-                /li <worldname> <address> - go to specified plot in specified world
-
-                /li gc|hc - go to your grand company 
-                /li gc|hc <company name> - go to specified grand company 
-                /li gcc|hcc - go to your grand company's fc chest 
-                /li gcc|hcc <company name> - go to specified grand company's fc chest
-                ...where "gc" or "gcc" will move you to grand company in current world while "hc" or "hcc" will return you to home world first
-
-                /li auto - go to your private estate, free company estate or apartment, whatever is found in this order
-                /li home|house|private - go to your private estate
-                /li fc|free|company|free company - go to your free company estate
-                /li apartment|apt - go to your apartment
-                /li shared - go to your shared estate
-
-                /li w|world|open|select - open world travel window
-                /li island - go to island sanctuary
-                /li cosmic|moon|ardorum - go to Sinus Ardorum
-                /li occult - go to Occult Crescent
-                """);
+            EzCmd.Add("/lifestream", ProcessCommand, null);
+            EzCmd.Add("/li", ProcessCommand, "\n"+Lang.Help);
             DataStore = new();
             ProperOnLogin.RegisterAvailable(() =>
             {
