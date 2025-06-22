@@ -192,7 +192,11 @@ public class Provider
     [EzIPC]
     public uint GetActiveAetheryte()
     {
-        if(P.ActiveAetheryte != null)
+        if (P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory))
+        {
+            return P.CustomAethernet.ActiveAetheryte.Value.ID;
+        }
+        else if (P.ActiveAetheryte != null)
         {
             return P.ActiveAetheryte.Value.ID;
         }
