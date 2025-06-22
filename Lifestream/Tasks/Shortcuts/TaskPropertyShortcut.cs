@@ -205,20 +205,17 @@ public static unsafe class TaskPropertyShortcut
                             P.TaskManager.Enqueue(() => P.FollowPath.Move(data.PathToWorkshop, true), $"Move to path: {data.PathToWorkshop.Print()}");
                             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0, "Wait until movement completes");
                         }
-                        else
+                        P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(Utils.GetWorkshopEntrance));
+                        P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(Utils.GetWorkshopEntrance));
+                        P.TaskManager.Enqueue(() =>
                         {
-                            P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(Utils.GetWorkshopEntrance));
-                            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(Utils.GetWorkshopEntrance));
-                            P.TaskManager.Enqueue(() =>
+                            if(Utils.TrySelectSpecificEntry(Lang.EnterWorkshop, () => EzThrottler.Throttle("HET.SelectEnterWorkshop")))
                             {
-                                if(Utils.TrySelectSpecificEntry(Lang.EnterWorkshop, () => EzThrottler.Throttle("HET.SelectEnterWorkshop")))
-                                {
-                                    PluginLog.Debug("Confirmed going to workhop");
-                                    return true;
-                                }
-                                return false;
-                            });
-                        }
+                                PluginLog.Debug("Confirmed going to workhop");
+                                return true;
+                            }
+                            return false;
+                        });
 
                     }
                 }
@@ -251,7 +248,7 @@ public static unsafe class TaskPropertyShortcut
             {
                 var aethernetDest = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.GetText();
                 PluginLog.Debug($"Inn aethernet destination: {aethernetDest} at {aetheryte.AethernetName.Value.Name}");
-                P.TaskManager.InsertStackSafely(() =>
+                P.TaskManager.InsertStack(() =>
                 {
                     TaskTryTpToAethernetDestination.Enqueue(aethernetDest);
                 });

@@ -1,4 +1,5 @@
-﻿using ECommons.Automation.NeoTaskManager.Tasks;
+﻿using ECommons.Automation.NeoTaskManager;
+using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ChatMethods;
 using ECommons.ExcelServices;
 using Lifestream.Schedulers;
@@ -11,6 +12,7 @@ internal static class TaskTryTpToAethernetDestination
 {
     public static void Enqueue(string targetName, bool allowPartial = false)
     {
+        TaskManagerTask[] waiters = [new(WorldChange.WaitUntilMasterAetheryteExists), new FrameDelayTask(10), new(process)];
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.ActiveAetheryte != null)
         {
@@ -42,15 +44,15 @@ internal static class TaskTryTpToAethernetDestination
             {
                 if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
-                    P.TaskManager.InsertMulti(
+                    P.TaskManager.InsertMulti([
                         new FrameDelayTask(10),
                         new(WorldChange.TargetReachableWorldChangeAetheryte),
                         new(WorldChange.LockOn),
                         new(WorldChange.EnableAutomove),
                         new(WorldChange.WaitUntilMasterAetheryteExists),
-                        new(WorldChange.DisableAutomove)
-                        );
-                    enqueueWaiters();
+                        new(WorldChange.DisableAutomove),
+                        ..waiters
+                        ]);
                 }
                 else if(P.ActiveAetheryte == null)
                 {
@@ -63,12 +65,6 @@ internal static class TaskTryTpToAethernetDestination
                 return;
             }, $"ConditionalLockonTask");
 
-            void enqueueWaiters()
-            {
-                P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
-                P.TaskManager.EnqueueDelay(10, true);
-                P.TaskManager.Enqueue(process);
-            }
         }
 
         bool processPartial()

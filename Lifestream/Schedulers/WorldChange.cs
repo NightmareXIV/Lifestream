@@ -228,6 +228,7 @@ internal static unsafe class WorldChange
     {
         if(!Player.Available) return false;
         var a = aetheryteFunc(false);
+        if(a.IsTarget()) return true;
         if(a != null)
         {
             if(!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))

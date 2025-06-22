@@ -128,23 +128,17 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Use_Aethernet)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "Wait until screen ready");
             P.TaskManager.Enqueue(() =>
             {
-                P.TaskManager.BeginStack();
-                try
+                P.TaskManager.InsertStack(() =>
                 {
+                    var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
                     TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
-                }
-                catch(Exception e)
-                {
-                    e.Log();
-                }
-                P.TaskManager.InsertStack();
-            });
-            P.TaskManager.Enqueue(() => !IsScreenReady());
-            P.TaskManager.Enqueue(() => IsScreenReady());
+                });
+            }, "Teleport to aethernet destination");
+            P.TaskManager.Enqueue(() => !IsScreenReady(), "Wait until screen is not ready");
+            P.TaskManager.Enqueue(IsScreenReady, "Wait until screen is ready");
         }
         else if(Kind == CustomAliasKind.Circular_movement)
         {
