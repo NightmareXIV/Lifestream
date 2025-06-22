@@ -30,7 +30,7 @@ internal static class TaskTryTpToAethernetDestination
         }
         else if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
-            if(Utils.TryFindEqualsOrContains(S.Data.ResidentialAethernet.ZoneInfo[S.Data.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes, x=>x.Name, targetName, out var x))
+            if(Utils.TryFindEqualsOrContains(S.Data.ResidentialAethernet.ZoneInfo[S.Data.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes, x => x.Name, targetName, out var x))
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -111,7 +111,7 @@ internal static class TaskTryTpToAethernetDestination
                     }
                 }
             }
-            
+
             foreach(var x in S.Data.DataStore.Aetherytes[master])
             {
                 if(P.ActiveAetheryte != x)

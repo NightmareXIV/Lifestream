@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.Tasks.Login;
-public unsafe static class TaskConnectAndOpenCharaSelect
+public static unsafe class TaskConnectAndOpenCharaSelect
 {
     public static bool Enqueue(string charaName, string homeWorld)
     {
@@ -15,7 +15,7 @@ public unsafe static class TaskConnectAndOpenCharaSelect
         if(Utils.CanAutoLogin())
         {
             TaskChangeCharacter.ConnectToDc(homeWorld, account);
-            P.TaskManager.Enqueue(() => TaskChangeCharacter.SelectCharacter(charaName, homeWorld, homeWorld, onlyChangeWorld:true), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 5.Minutes()));
+            P.TaskManager.Enqueue(() => TaskChangeCharacter.SelectCharacter(charaName, homeWorld, homeWorld, onlyChangeWorld: true), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 5.Minutes()));
             return true;
         }
         PluginLog.Error("Can not log in now");

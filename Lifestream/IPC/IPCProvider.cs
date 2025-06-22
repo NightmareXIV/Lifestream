@@ -15,7 +15,7 @@ public class IPCProvider
 {
     private IPCProvider()
     {
-        EzIPC.Init(this, reducedLogging:true);
+        EzIPC.Init(this, reducedLogging: true);
     }
 
     [EzIPC]

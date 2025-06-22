@@ -120,14 +120,14 @@ public static class TabCustomAlias
                 ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind.ToString().Replace('_', ' ')}{GetExtraText(x)}###{x.ID}", () => DrawCommand(x, selected), ImGuiTreeNodeFlags.CollapsingHeader);
                 DrawSplatoon(x, i);
 
-                
+
             }
             ImGui.EndTable();
         }
         DragDrop.End();
     }
 
-    static string GetExtraText(CustomAliasCommand x)
+    private static string GetExtraText(CustomAliasCommand x)
     {
         if(x.Kind == CustomAliasKind.Move_to_point)
         {

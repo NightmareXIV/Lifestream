@@ -70,7 +70,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Move_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            if(this.UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
+            if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([Point, .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
@@ -96,10 +96,10 @@ public class CustomAliasCommand
             }
             else
             {
-                if(this.UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
+                if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
                 P.TaskManager.Enqueue(() =>
                 {
-                    var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, this.UseFlight);
+                    var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, UseFlight);
                     P.TaskManager.InsertMulti(
                         new(() => task.IsCompleted),
                         new(() => TaskMoveToHouse.UseSprint(false)),

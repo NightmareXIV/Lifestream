@@ -13,8 +13,8 @@ using ECommons.Singletons;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Game;
@@ -84,11 +84,11 @@ public unsafe class Lifestream : IDalamudPlugin
             Config = EzConfig.Init<Config>();
             Utils.CheckConfigMigration();
             EzConfigGui.Init(MainGui.Draw);
-            TaskManager = new(new(showDebug:true));
+            TaskManager = new(new(showDebug: true));
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
             EzCmd.Add("/lifestream", ProcessCommand, null);
-            EzCmd.Add("/li", ProcessCommand, "\n"+Lang.Help);
+            EzCmd.Add("/li", ProcessCommand, "\n" + Lang.Help);
             ProperOnLogin.RegisterAvailable(() =>
             {
                 Config.CharaMap[Player.CID] = Player.NameWithWorld;
@@ -143,12 +143,12 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments == "debug WotsitManager clear")
         {
-             S.Ipc.WotsitManager.TryClearWotsit();
+            S.Ipc.WotsitManager.TryClearWotsit();
             Notify.Info("WotsitManager cleared, see logs for details");
         }
         else if(arguments == "debug WotsitManager init")
         {
-             S.Ipc.WotsitManager.MaybeTryInit();
+            S.Ipc.WotsitManager.MaybeTryInit();
             Notify.Info("WotsitManager reinitialized, see logs for details");
         }
         else if(arguments == "stop")
@@ -195,7 +195,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments.EqualsIgnoreCaseAny("ws", "workshop"))
         {
-            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC, workshop:true);
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC, workshop: true);
         }
         else if(arguments.EqualsIgnoreCaseAny("apartment", "apt"))
         {
@@ -316,7 +316,7 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         if(x.AetheryteData.Value.AethernetName.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait:!additionalCommand.IsNullOrEmpty()))
+                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
                             {
                                 ChatPrinter.Green($"[Lifestream] Destination (Aethernet): {x.AetheryteData
                                     .Value.AethernetName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
@@ -675,34 +675,34 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         try
         {
-            if (S.SearchHelper == null) return;
-            
+            if(S.SearchHelper == null) return;
+
             var component = GetActiveTextInput();
-            if (component == null)
+            if(component == null)
             {
-                if (S.SearchHelper.IsOpen)
+                if(S.SearchHelper.IsOpen)
                 {
                     S.SearchHelper.IsOpen = false;
                 }
                 return;
             }
-            
+
             var addon = component->ContainingAddon;
-            if (addon == null) addon = component->ContainingAddon2;
-            if (addon == null || addon->NameString != "ChatLog")
+            if(addon == null) addon = component->ContainingAddon2;
+            if(addon == null || addon->NameString != "ChatLog")
             {
-                if (S.SearchHelper.IsOpen)
+                if(S.SearchHelper.IsOpen)
                 {
                     S.SearchHelper.IsOpen = false;
                 }
                 return;
             }
-            
+
             var currentText = component->UnkText1.ToString();
-            
-                        if (currentText.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
+
+            if(currentText.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
             {
-                if (currentText.Length >= 3)
+                if(currentText.Length >= 3)
                 {
                     S.SearchHelper.UpdateFilter(currentText);
                     S.SearchHelper.IsOpen = true;
@@ -710,15 +710,15 @@ public unsafe class Lifestream : IDalamudPlugin
             }
             else
             {
-                if (S.SearchHelper.IsOpen)
+                if(S.SearchHelper.IsOpen)
                 {
                     S.SearchHelper.IsOpen = false;
                 }
             }
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-            if (EzThrottler.Throttle("ChatMonitorError", 5000))
+            if(EzThrottler.Throttle("ChatMonitorError", 5000))
             {
                 PluginLog.Debug($"Chat monitor error: {ex.Message}");
             }
@@ -730,10 +730,10 @@ public unsafe class Lifestream : IDalamudPlugin
         try
         {
             var mod = RaptureAtkModule.Instance();
-            if (mod == null) return null;
+            if(mod == null) return null;
 
             var basePtr = mod->TextInput.TargetTextInputEventInterface;
-            if (basePtr == null) return null;
+            if(basePtr == null) return null;
 
             // Memory signature from Dalamud's Completion.cs (line 102)
             // Used to identify the correct text input component vtable
@@ -742,7 +742,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 4);
 
             var vtblPtr = *(nint*)basePtr;
-            if (vtblPtr != wantedVtblPtr) return null;
+            if(vtblPtr != wantedVtblPtr) return null;
 
             return (AtkComponentTextInput*)((AtkComponentInputBase*)basePtr - 1);
         }

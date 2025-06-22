@@ -74,7 +74,7 @@ public class DataStore
             }
         }
 
-        ProperOnLogin.RegisterAvailable(this.BuildWorlds);
+        ProperOnLogin.RegisterAvailable(BuildWorlds);
     }
 
     internal uint GetAetheryteSortOrder(uint id)

@@ -245,8 +245,8 @@ internal static unsafe class UISettings
             if(anyChanged)
             {
                 PluginLog.Debug("Wotsit integration settings changed, re-initializing immediately");
-                 S.Ipc.WotsitManager.TryClearWotsit();
-                 S.Ipc.WotsitManager.MaybeTryInit(true);
+                S.Ipc.WotsitManager.TryClearWotsit();
+                S.Ipc.WotsitManager.MaybeTryInit(true);
             }
         })
 

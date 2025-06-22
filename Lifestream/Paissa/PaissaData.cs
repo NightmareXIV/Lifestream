@@ -88,7 +88,8 @@ public static class PaissaData
     public static PaissaAddressBookEntry ToPaissa(this AddressBookEntry entry)
     {
         var tuple = entry.AsTuple();
-        return new PaissaAddressBookEntry {
+        return new PaissaAddressBookEntry
+        {
             Name = tuple.Name,
             World = tuple.World,
             City = (ResidentialAetheryteKind)tuple.City,

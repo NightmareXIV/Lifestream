@@ -50,7 +50,7 @@ public class PaissaImporter
 
         if(isDisabled) ImGui.EndDisabled();
 
-        if (_importTask != null && _importTask.IsCompleted)
+        if(_importTask != null && _importTask.IsCompleted)
         {
             try
             {
@@ -58,7 +58,7 @@ public class PaissaImporter
                 folderText = result.FolderText;
                 status = result.Status;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 PluginLog.Error($"PaissaDB import failed: {ex}");
                 status = PaissaStatus.Error;
@@ -85,7 +85,7 @@ public class PaissaImporter
         {
             ImGuiEx.Text("No houses are currently available for bidding!");
         }
-        else if (ImGui.BeginTable($"##addressbook", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        else if(ImGui.BeginTable($"##addressbook", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("Size");
@@ -98,22 +98,22 @@ public class PaissaImporter
             ImGui.TableHeadersRow();
 
             List<PaissaAddressBookEntry> entryArray;
-            if (book.SortMode.EqualsAny(SortMode.Name, SortMode.NameReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName()).ThenBy(x => x.Ward).ThenBy(x => x.Plot)];
-            else if (book.SortMode.EqualsAny(SortMode.World, SortMode.WorldReversed)) entryArray = [.. book.Entries.OrderBy(x => ExcelWorldHelper.GetName(x.World)).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
-            else if (book.SortMode.EqualsAny(SortMode.Ward, SortMode.WardReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Ward).ThenBy(x => x.Plot).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
-            else if (book.SortMode.EqualsAny(SortMode.Plot, SortMode.PlotReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Plot).ThenBy(x => x.Ward).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+            if(book.SortMode.EqualsAny(SortMode.Name, SortMode.NameReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName()).ThenBy(x => x.Ward).ThenBy(x => x.Plot)];
+            else if(book.SortMode.EqualsAny(SortMode.World, SortMode.WorldReversed)) entryArray = [.. book.Entries.OrderBy(x => ExcelWorldHelper.GetName(x.World)).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+            else if(book.SortMode.EqualsAny(SortMode.Ward, SortMode.WardReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Ward).ThenBy(x => x.Plot).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
+            else if(book.SortMode.EqualsAny(SortMode.Plot, SortMode.PlotReversed)) entryArray = [.. book.Entries.OrderBy(x => x.Plot).ThenBy(x => x.Ward).ThenBy(x => x.Name.NullWhenEmpty() ?? x.GetAutoName())];
             else entryArray = [.. book.Entries];
-            if (book.SortMode.EqualsAny(SortMode.PlotReversed, SortMode.NameReversed, SortMode.WardReversed, SortMode.WorldReversed))
+            if(book.SortMode.EqualsAny(SortMode.PlotReversed, SortMode.NameReversed, SortMode.WardReversed, SortMode.WorldReversed))
             {
                 entryArray.Reverse();
             }
 
-            for (var i = 0; i < entryArray.Count; i++)
+            for(var i = 0; i < entryArray.Count; i++)
             {
                 var entry = entryArray[i];
                 ImGui.PushID($"House{entry.GUID}");
                 ImGui.TableNextRow();
-                if (CurrentDrag == entry.GUID)
+                if(CurrentDrag == entry.GUID)
                 {
                     var color = GradientColor.Get(EColor.Green, EColor.Green with { W = EColor.Green.W / 4 }, 500).ToUint();
                     ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, color);
@@ -125,41 +125,41 @@ public class PaissaImporter
                 ImGui.PushStyleColor(ImGuiCol.Button, 0);
                 ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, Vector2.Zero);
                 var col = entry.IsHere();
-                if (col) ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
-                if (ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry", bsize))
+                if(col) ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.HealerGreen);
+                if(ImGui.Button($"{entry.Name.NullWhenEmpty() ?? entry.GetAutoName()}###entry", bsize))
                 {
-                    if (Player.Interactable && !P.TaskManager.IsBusy)
+                    if(Player.Interactable && !P.TaskManager.IsBusy)
                     {
                         entry.GoTo();
                     }
                 }
-                if (col) ImGui.PopStyleColor();
-                if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                if(col) ImGui.PopStyleColor();
+                if(ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 {
                     ImGui.OpenPopup($"ABMenu {entry.GUID}");
                 }
-                if (ImGui.BeginPopup($"ABMenu {entry.GUID}"))
+                if(ImGui.BeginPopup($"ABMenu {entry.GUID}"))
                 {
-                    if (ImGui.MenuItem("Copy chat-friendly name to clipboard"))
+                    if(ImGui.MenuItem("Copy chat-friendly name to clipboard"))
                     {
                         Copy(entry.GetAddressString());
                     }
                     ImGui.Separator();
-                    if (ImGui.MenuItem("Export to Clipboard"))
+                    if(ImGui.MenuItem("Export to Clipboard"))
                     {
                         Copy(EzConfig.DefaultSerializationFactory.Serialize(entry, false));
                     }
-                    if (entry.Alias != "")
+                    if(entry.Alias != "")
                     {
                         ImGui.MenuItem($"Enable Alias: {entry.Alias}", null, ref entry.AliasEnabled);
                     }
-                    if (ImGui.MenuItem("Edit..."))
+                    if(ImGui.MenuItem("Edit..."))
                     {
                         InputWardDetailDialog.Entry = entry;
                     }
-                    if (ImGui.MenuItem("Delete"))
+                    if(ImGui.MenuItem("Delete"))
                     {
-                        if (ImGuiEx.Ctrl)
+                        if(ImGuiEx.Ctrl)
                         {
                             new TickScheduler(() => book.Entries.Remove(entry));
                         }
@@ -171,12 +171,12 @@ public class PaissaImporter
                     ImGuiEx.Tooltip($"Hold CTRL and click to delete");
                     ImGui.EndPopup();
                 }
-                if (ImGui.BeginDragDropSource())
+                if(ImGui.BeginDragDropSource())
                 {
                     ImGuiDragDrop.SetDragDropPayload("MoveRule", entry.GUID);
                     CurrentDrag = entry.GUID;
                     InternalLog.Verbose($"DragDropSource = {entry.GUID}");
-                    if (book.SortMode == SortMode.Manual)
+                    if(book.SortMode == SortMode.Manual)
                     {
                         ImGui.SetTooltip("Reorder or move to other folder");
                     }
@@ -186,13 +186,13 @@ public class PaissaImporter
                     }
                     ImGui.EndDragDropSource();
                 }
-                else if (CurrentDrag == entry.GUID)
+                else if(CurrentDrag == entry.GUID)
                 {
                     InternalLog.Verbose($"Current drag reset!");
                     CurrentDrag = Guid.Empty;
                 }
 
-                if (entry.IsQuickTravelAvailable())
+                if(entry.IsQuickTravelAvailable())
                 {
                     ImGui.PushFont(UiBuilder.IconFont);
                     var size = ImGui.CalcTextSize(FontAwesomeIcon.BoltLightning.ToIconString());
@@ -201,7 +201,7 @@ public class PaissaImporter
                     ImGuiEx.Text(ImGuiColors.DalamudYellow, FontAwesomeIcon.BoltLightning.ToIconString());
                     ImGui.PopFont();
                 }
-                else if (entry.AliasEnabled)
+                else if(entry.AliasEnabled)
                 {
                     var size = ImGui.CalcTextSize(entry.Alias);
                     ImGui.SameLine(0, 0);
@@ -210,12 +210,13 @@ public class PaissaImporter
                 }
 
                 var moveItemIndex = i;
-                MoveCommands.Add((rowPos, () => {
-                    if (book.SortMode == SortMode.Manual)
+                MoveCommands.Add((rowPos, () =>
+                {
+                    if(book.SortMode == SortMode.Manual)
                     {
-                        if (ImGui.BeginDragDropTarget())
+                        if(ImGui.BeginDragDropTarget())
                         {
-                            if (ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload, ImGuiDragDropFlags.AcceptBeforeDelivery | ImGuiDragDropFlags.AcceptNoDrawDefaultRect))
+                            if(ImGuiDragDrop.AcceptDragDropPayload("MoveRule", out Guid payload, ImGuiDragDropFlags.AcceptBeforeDelivery | ImGuiDragDropFlags.AcceptNoDrawDefaultRect))
                             {
                                 MoveItemToPosition(book.Entries, (x) => x.GUID == payload, moveItemIndex);
                             }
@@ -255,20 +256,20 @@ public class PaissaImporter
                 ImGui.TableNextColumn();
 
                 var wcol = ImGuiColors.DalamudGrey;
-                if (Player.Available && Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId == ExcelWorldHelper.Get((uint)entry.World)?.DataCenter.RowId)
+                if(Player.Available && Player.Object.CurrentWorld.ValueNullable?.DataCenter.RowId == ExcelWorldHelper.Get((uint)entry.World)?.DataCenter.RowId)
                 {
                     wcol = ImGuiColors.DalamudGrey;
                 }
                 else
                 {
-                    if (!S.Data.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World))) wcol = ImGuiColors.DalamudGrey3;
+                    if(!S.Data.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World))) wcol = ImGuiColors.DalamudGrey3;
                 }
-                if (Player.Available && Player.Object.CurrentWorld.RowId == entry.World) wcol = new Vector4(0.9f, 0.9f, 0.9f, 1f);
+                if(Player.Available && Player.Object.CurrentWorld.RowId == entry.World) wcol = new Vector4(0.9f, 0.9f, 0.9f, 1f);
 
                 ImGuiEx.TextV(wcol, ExcelWorldHelper.GetName(entry.World));
 
                 ImGui.TableNextColumn();
-                if (entry.City.RenderIcon())
+                if(entry.City.RenderIcon())
                 {
                     ImGuiEx.Tooltip($"{TabAddressBook.ResidentialNames.SafeSelect(entry.City)}");
                     ImGui.SameLine(0, 1);
@@ -278,16 +279,16 @@ public class PaissaImporter
 
                 ImGui.TableNextColumn();
 
-                if (entry.PropertyType == PropertyType.House)
+                if(entry.PropertyType == PropertyType.House)
                 {
                     ImGuiEx.Text(Colors.TabGreen, Lang.SymbolPlot);
                     ImGuiEx.Tooltip("Plot");
                     ImGui.SameLine(0, 0);
                     ImGuiEx.Text($"{entry.Plot.FancyDigits()}");
                 }
-                if (entry.PropertyType == PropertyType.Apartment)
+                if(entry.PropertyType == PropertyType.Apartment)
                 {
-                    if (!entry.ApartmentSubdivision)
+                    if(!entry.ApartmentSubdivision)
                     {
                         ImGuiEx.Text(Colors.TabYellow, Lang.SymbolApartment);
                         ImGuiEx.Tooltip("Apartment");

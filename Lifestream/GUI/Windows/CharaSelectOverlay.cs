@@ -111,11 +111,11 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
 
     public static bool TryGetValidCharaSelectListMenu(out AddonMaster._CharaSelectListMenu m)
     {
-        return TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out m) 
-            && !Utils.IsAddonVisible("SelectYesno") 
-            && !Utils.IsAddonVisible("SelectOk") 
-            && !Utils.IsAddonVisible("ContextMenu") 
-            && !Utils.IsAddonVisible("_CharaSelectWorldServer") 
+        return TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out m)
+            && !Utils.IsAddonVisible("SelectYesno")
+            && !Utils.IsAddonVisible("SelectOk")
+            && !Utils.IsAddonVisible("ContextMenu")
+            && !Utils.IsAddonVisible("_CharaSelectWorldServer")
             && !Utils.IsAddonVisible("AddonContextSub");
     }
 

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Lifestream.IPC;
-public unsafe static class IpcUtils
+public static unsafe class IpcUtils
 {
     public static bool InitiateTravelFromCharaSelectScreenInternal(string charaName, string charaHomeWorld, string destination, bool noLogin)
     {

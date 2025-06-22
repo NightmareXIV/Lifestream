@@ -150,7 +150,7 @@ public static unsafe class TaskPropertyShortcut
     private static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null, bool workshop = false)
     {
         mode ??= data?.GetHouseEnterMode() ?? HouseEnterMode.None;
-        if(workshop) mode = HouseEnterMode.Enter_house; 
+        if(workshop) mode = HouseEnterMode.Enter_house;
         PluginLog.Information($"id={id}, data={data}, mode={mode}, cnt={data?.PathToEntrance.Count}");
         P.TaskManager.BeginStack();
         try

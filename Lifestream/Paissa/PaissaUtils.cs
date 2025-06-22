@@ -12,7 +12,7 @@ public class PaissaUtils
         {
             var responseData = await GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
 
-            if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
+            if(responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
             {
                 PluginLog.Error($"Error retrieving data: {responseData}");
                 return new PaissaResult
@@ -23,7 +23,7 @@ public class PaissaUtils
             }
 
             var responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
-            if (responseObject == null)
+            if(responseObject == null)
             {
                 PluginLog.Error("Failed to deserialize PaissaResponse.");
                 return new PaissaResult
@@ -35,21 +35,24 @@ public class PaissaUtils
 
             var newFolder = GetAddressBookFolderFromPaissaResponse(responseObject);
 
-            new TickScheduler(() => {
-                if (Player.Available)
+            new TickScheduler(() =>
+            {
+                if(Player.Available)
                 {
                     PaissaImporter.Folders[Player.CurrentWorld] = newFolder;
                 }
             });
-            return new PaissaResult {
+            return new PaissaResult
+            {
                 FolderText = "Success!",
                 Status = PaissaStatus.Success
             }; ;
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             PluginLog.Error($"Exception in import task: {ex.Message}");
-            return new PaissaResult {
+            return new PaissaResult
+            {
                 FolderText = $"Error: {ex.Message}",
                 Status = PaissaStatus.Error
             };
@@ -64,7 +67,7 @@ public class PaissaUtils
         {
             foreach(var plot in district.OpenPlots)
             {
-                if (plot.LottoPhase != 1) continue;
+                if(plot.LottoPhase != 1) continue;
 
                 // Increment numbers by 1 because PaissaDB has them 0-indexed
                 var wardStr = (plot.WardNumber + 1).ToString();
@@ -102,9 +105,9 @@ public class PaissaUtils
         var baseEntry = Utils.BuildAddressBookEntry(worldStr, cityStr, wardNum, plotApartmentNum, isApartment, isSubdivision, name);
         var entry = baseEntry.ToPaissa();
 
-        if (size != null) entry.Size = size.Value;
-        if (bids != null) entry.Bids = bids.Value;
-        if (allowedTenants != null) entry.AllowedTenants = allowedTenants.Value;
+        if(size != null) entry.Size = size.Value;
+        if(bids != null) entry.Bids = bids.Value;
+        if(allowedTenants != null) entry.AllowedTenants = allowedTenants.Value;
 
         return entry;
     }
@@ -181,7 +184,8 @@ public class PaissaUtils
 
     public static string GetAllowedTenantsStringFromPurchaseSystem(int purchaseSystem)
     {
-        return purchaseSystem switch {
+        return purchaseSystem switch
+        {
             3 => "Free Company",
             5 => "Individual",
             7 => "Unrestricted",

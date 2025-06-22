@@ -18,7 +18,7 @@ internal static unsafe class MainGui
             );
     }
 
-    static void DrawHelp()
+    private static void DrawHelp()
     {
         ImGuiEx.TextWrapped(Lang.Help);
     }
