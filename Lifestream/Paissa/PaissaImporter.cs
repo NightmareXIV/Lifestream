@@ -8,7 +8,7 @@ using static Lifestream.Paissa.PaissaData;
 
 namespace Lifestream.Paissa;
 
-public unsafe class PaissaImporter
+public class PaissaImporter
 {
     private static Guid CurrentDrag = Guid.Empty;
     private string ID;
