@@ -8,11 +8,11 @@ public static class TaskGeneratePath
 {
     public static void Enqueue(int plotNum, PlotInfo info)
     {
-        P.TaskManager.Enqueue(() => !P.VnavmeshManager.PathfindInProgress());
+        P.TaskManager.Enqueue(() => !S.Ipc.VnavmeshIPC.PathfindInProgress());
         P.TaskManager.Enqueue(() =>
         {
             DuoLog.Information($"Pathfind begin for {plotNum + 1} from aetheryte {Svc.Data.GetExcelSheet<HousingAethernet>().GetRow(info.AethernetID).PlaceName.Value.Name}");
-            var task = P.VnavmeshManager.Pathfind(Player.Object.Position, info.Front, false);
+            var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Object.Position, info.Front, false);
             P.TaskManager.InsertMulti(
                 new(() => task.IsCompleted),
                 new(() =>
@@ -36,10 +36,10 @@ public static class TaskGeneratePath
 
     public static void EnqueueValidate(int plotNum, PlotInfo info, ResidentialAetheryte aetheryte)
     {
-        P.TaskManager.Enqueue(() => !P.VnavmeshManager.PathfindInProgress());
+        P.TaskManager.Enqueue(() => !S.Ipc.VnavmeshIPC.PathfindInProgress());
         P.TaskManager.Enqueue(() =>
         {
-            var task = P.VnavmeshManager.Pathfind(Player.Object.Position, info.Front, false);
+            var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Object.Position, info.Front, false);
             P.TaskManager.InsertMulti(
                 new(() => task.IsCompleted),
                 new(() =>

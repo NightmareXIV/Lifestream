@@ -5,13 +5,14 @@ using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
+using static ECommons.Singletons.SingletonServiceManager;
 using Path = System.IO.Path;
 
 namespace Lifestream.Systems.Legacy;
 
-internal class DataStore
+public class DataStore
 {
-    internal const string FileName = "StaticData.json";
+    internal string FileName = "StaticData.json";
     internal uint[] Territories;
     internal Dictionary<TinyAetheryte, List<TinyAetheryte>> Aetherytes = [];
     internal string[] Worlds = Array.Empty<string>();
@@ -28,7 +29,7 @@ internal class DataStore
         return default;
     }
 
-    internal DataStore()
+    public DataStore()
     {
         var terr = new List<uint>();
         StaticData = EzConfig.LoadConfiguration<StaticData>(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, FileName), false);
@@ -72,6 +73,8 @@ internal class DataStore
                 IslandNPCs.Add(npc, [row.Singular.ToString(), row.Title.ToString()]);
             }
         }
+
+        ProperOnLogin.RegisterAvailable(this.BuildWorlds);
     }
 
     internal uint GetAetheryteSortOrder(uint id)

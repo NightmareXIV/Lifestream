@@ -57,11 +57,11 @@ public class CustomAliasCommand
             if(World != Player.Object.CurrentWorld.RowId)
             {
                 var world = ExcelWorldHelper.GetName(World);
-                if(P.IPCProvider.CanVisitCrossDC(world))
+                if(S.Ipc.IPCProvider.CanVisitCrossDC(world))
                 {
                     P.TPAndChangeWorld(world, true, skipChecks: true);
                 }
-                else if(P.IPCProvider.CanVisitSameDC(world))
+                else if(S.Ipc.IPCProvider.CanVisitSameDC(world))
                 {
                     P.TPAndChangeWorld(world, false, skipChecks: true);
                 }
@@ -77,19 +77,19 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && P.VnavmeshManager.IsReady() == true);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true);
             if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
                 P.TaskManager.Enqueue(() =>
                 {
-                    S.TextAdvanceIPC.EnqueueMoveTo2DPoint(new()
+                    S.Ipc.TextAdvanceIPC.EnqueueMoveTo2DPoint(new()
                     {
                         Position = Point,
                         NoInteract = true,
                     }, 5f);
                 });
-                P.TaskManager.Enqueue(S.TextAdvanceIPC.IsBusy, new(abortOnTimeout: false, timeLimitMS: 5000));
-                P.TaskManager.Enqueue(() => !S.TextAdvanceIPC.IsBusy(), new(timeLimitMS: 1000 * 60 * 5));
+                P.TaskManager.Enqueue(S.Ipc.TextAdvanceIPC.IsBusy, new(abortOnTimeout: false, timeLimitMS: 5000));
+                P.TaskManager.Enqueue(() => !S.Ipc.TextAdvanceIPC.IsBusy(), new(timeLimitMS: 1000 * 60 * 5));
                 P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true));
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
                 P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
@@ -99,7 +99,7 @@ public class CustomAliasCommand
                 if(this.UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
                 P.TaskManager.Enqueue(() =>
                 {
-                    var task = P.VnavmeshManager.Pathfind(Player.Position, Point, this.UseFlight);
+                    var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, this.UseFlight);
                     P.TaskManager.InsertMulti(
                         new(() => task.IsCompleted),
                         new(() => TaskMoveToHouse.UseSprint(false)),

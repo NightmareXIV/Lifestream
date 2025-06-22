@@ -77,7 +77,7 @@ public static class TabMultipath
             }
             else
             {
-                if(!P.TaskManager.IsBusy) P.SplatoonManager.RenderPath(currentPath.Points, false);
+                if(!P.TaskManager.IsBusy) S.Ipc.SplatoonManager.RenderPath(currentPath.Points, false);
                 if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add at current position", EditMode))
                 {
                     currentPath.Points.Add(Player.Object.Position);

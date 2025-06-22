@@ -1,24 +1,27 @@
-﻿using ECommons.ExcelServices;
-using ECommons.EzIpcManager;
+﻿using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.GUI.Windows;
-using Lifestream.Systems.Custom;
 using Lifestream.Tasks;
 using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
-using static FFXIVClientStructs.FFXIV.Client.UI.Misc.BannerHelper.Delegates;
 
 namespace Lifestream.IPC;
-public class Provider
+public class IPCProvider
 {
-    public Provider()
+    private IPCProvider()
     {
-        EzIPC.Init(this);
+        EzIPC.Init(this, reducedLogging:true);
+    }
+
+    [EzIPC]
+    public IDalamudPlugin Instance()
+    {
+        return P;
     }
 
     [EzIPC]
@@ -67,13 +70,13 @@ public class Provider
     [EzIPC]
     public bool CanVisitSameDC(string world)
     {
-        return P.DataStore.Worlds.Contains(world);
+        return S.Data.DataStore.Worlds.Contains(world);
     }
 
     [EzIPC]
     public bool CanVisitCrossDC(string world)
     {
-        return P.DataStore.DCWorlds.Contains(world);
+        return S.Data.DataStore.DCWorlds.Contains(world);
     }
 
     [EzIPC]
@@ -206,9 +209,9 @@ public class Provider
     [EzIPC]
     public uint GetActiveResidentialAetheryte()
     {
-        if(P.ResidentialAethernet.ActiveAetheryte != null)
+        if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
-            return P.ResidentialAethernet.ActiveAetheryte.Value.ID;
+            return S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID;
         }
         return 0;
     }

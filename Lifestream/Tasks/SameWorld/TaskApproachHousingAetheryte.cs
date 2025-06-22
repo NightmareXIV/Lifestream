@@ -22,7 +22,7 @@ public static class TaskApproachHousingAetheryte
             new(TargetNearestShard),
             new(WorldChange.LockOn),
             new(WorldChange.EnableAutomove),
-            new(() => P.ResidentialAethernet.ActiveAetheryte != null, "Wait until residential aetheryte exists"),
+            new(() => S.Data.ResidentialAethernet.ActiveAetheryte != null, "Wait until residential aetheryte exists"),
             new(WorldChange.DisableAutomove)
             );
     }

@@ -122,10 +122,10 @@ public static unsafe class TaskISShortcut
                     return true;
                 }
             });
-            P.TaskManager.Enqueue(P.VnavmeshManager.IsReady);
+            P.TaskManager.Enqueue(S.Ipc.VnavmeshIPC.IsReady);
             P.TaskManager.Enqueue(() =>
             {
-                var task = P.VnavmeshManager.Pathfind(Player.Position, point, false);
+                var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, point, false);
                 P.TaskManager.Enqueue(() =>
                 {
                     if(!task.IsCompleted) return false;

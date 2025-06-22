@@ -164,7 +164,7 @@ public static unsafe class TaskPropertyShortcut
                 {
                     if(Vector3.Distance(Player.Position, Utils.GetPlotEntrance(data.ResidentialDistrict.GetResidentialTerritory(), data.Plot).Value) > 10f)
                     {
-                        P.IPCProvider.OnHouseEnterError();
+                        S.Ipc.IPCProvider.OnHouseEnterError();
                         throw new InvalidOperationException("Could not validate your position. Check if your house registration is correct and if it is, please report this error to developer");
                     }
                 }, "ValidateHousingPosition");

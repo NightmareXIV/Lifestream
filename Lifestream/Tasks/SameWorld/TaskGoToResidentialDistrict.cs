@@ -22,7 +22,7 @@ public static unsafe class TaskGoToResidentialDistrict
         if(ward > 1) P.TaskManager.Enqueue(() => SelectWard(ward));
         P.TaskManager.Enqueue(GoToWard);
         P.TaskManager.Enqueue(ConfirmYesNoGoToWard);
-        P.TaskManager.EnqueueTask(new(() => Player.Interactable && P.ResidentialAethernet.IsInResidentialZone(), "Wait until player arrives"));
+        P.TaskManager.EnqueueTask(new(() => Player.Interactable && S.Data.ResidentialAethernet.IsInResidentialZone(), "Wait until player arrives"));
     }
 
     public static bool ConfirmYesNoGoToWard()

@@ -38,7 +38,7 @@ public class FollowPath : IDisposable
         {
             if(waypointsInternal.Count > MaxWaypoints) MaxWaypoints = waypointsInternal.Count;
             if(TimeoutAt == 0) TimeoutAt = Environment.TickCount64 + 30000;
-            if(P.VnavmeshManager.IsRunning())
+            if(S.Ipc.VnavmeshIPC.IsRunning())
             {
                 waypointsInternal.Clear();
                 DuoLog.Error($"Detected vnavmesh movement, Lifestream will abort all tasks now.");

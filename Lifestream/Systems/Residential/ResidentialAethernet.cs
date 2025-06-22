@@ -94,7 +94,7 @@ public sealed class ResidentialAethernet : IDisposable
             {
                 if(ActiveAetheryte == null)
                 {
-                    P.Overlay.IsOpen = true;
+                    S.Gui.Overlay.IsOpen = true;
                 }
                 ActiveAetheryte = aetheryte;
             }

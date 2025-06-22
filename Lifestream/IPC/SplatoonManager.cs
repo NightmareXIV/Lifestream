@@ -7,7 +7,7 @@ public class SplatoonManager
     private ulong Frame = 0;
     private SplatoonCache Cache = new();
 
-    public SplatoonManager()
+    private SplatoonManager()
     {
         Splatoon.SetOnConnect(Reset);
         if(Splatoon.IsConnected()) Reset();

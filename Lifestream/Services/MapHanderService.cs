@@ -60,7 +60,7 @@ public unsafe class MapHanderService : IDisposable
                             if(P.ActiveAetheryte != null)
                             {
                                 var master = Utils.GetMaster();
-                                foreach(var x in P.DataStore.Aetherytes[master])
+                                foreach(var x in S.Data.DataStore.Aetherytes[master])
                                 {
                                     if(x.Name == text)
                                     {
@@ -76,16 +76,16 @@ public unsafe class MapHanderService : IDisposable
                                     }
                                 }
                             }
-                            if(P.ResidentialAethernet.ActiveAetheryte != null)
+                            if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
                             {
-                                var zone = P.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
+                                var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
                                 if(zone != null)
                                 {
                                     foreach(var x in zone.Aetherytes)
                                     {
                                         if(x.Name == text)
                                         {
-                                            if(P.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
+                                            if(S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
                                             {
                                                 Notify.Error("You are already here!");
                                             }
@@ -98,16 +98,16 @@ public unsafe class MapHanderService : IDisposable
                                     }
                                 }
                             }
-                            if(P.CustomAethernet.ActiveAetheryte != null)
+                            if(S.Data.CustomAethernet.ActiveAetheryte != null)
                             {
-                                var zone = P.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
+                                var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
                                 if(zone != null)
                                 {
                                     foreach(var x in zone.Aetherytes)
                                     {
                                         if(x.Name.StartsWith(text))
                                         {
-                                            if(P.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
+                                            if(S.Data.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
                                             {
                                                 Notify.Error("You are already here!");
                                             }
@@ -127,7 +127,7 @@ public unsafe class MapHanderService : IDisposable
                             }
                             if(!C.DisableMapClickOtherTerritory)
                             {
-                                foreach(var x in P.DataStore.Aetherytes)
+                                foreach(var x in S.Data.DataStore.Aetherytes)
                                 {
                                     foreach(var a in x.Value)
                                     {

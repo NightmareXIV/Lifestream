@@ -1,11 +1,13 @@
-﻿using ECommons.SplatoonAPI;
+﻿using ECommons.SimpleGui;
+using ECommons.SplatoonAPI;
 
 namespace Lifestream.GUI;
 
-internal class ProgressOverlay : Window
+public class ProgressOverlay : Window
 {
     public ProgressOverlay() : base("Lifestream progress overlay", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.AlwaysAutoResize, true)
     {
+        EzConfigGui.WindowSystem.AddWindow(this);
         IsOpen = true;
         RespectCloseHotkey = false;
     }
@@ -42,7 +44,7 @@ internal class ProgressOverlay : Window
             overlay = $"Lifestream Movement: {P.FollowPath.MaxWaypoints - P.FollowPath.Waypoints.Count}/{P.FollowPath.MaxWaypoints}";
             if(Splatoon.IsConnected())
             {
-                P.SplatoonManager.RenderPath(P.FollowPath.Waypoints);
+                S.Ipc.SplatoonManager.RenderPath(P.FollowPath.Waypoints);
             }
         }
         else

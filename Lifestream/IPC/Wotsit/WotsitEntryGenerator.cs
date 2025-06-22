@@ -101,7 +101,7 @@ public static class WotsitEntryGenerator
                 DisplayName = "Open world select window",
                 SearchString = "open world select window - open travel window",
                 IconId = 55,
-                Callback = () => S.SelectWorldWindow.IsOpen = true,
+                Callback = () => S.Gui.SelectWorldWindow.IsOpen = true,
             };
         }
         if(includes.PropertyAuto)
@@ -213,7 +213,7 @@ public static class WotsitEntryGenerator
             }
         }
 
-        foreach(var (rootAetheryte, aethernetShards) in P.DataStore.Aetherytes)
+        foreach(var (rootAetheryte, aethernetShards) in S.Data.DataStore.Aetherytes)
         {
             if(visibleAetheryteIds.Length > 0 && !visibleAetheryteIds.Contains(rootAetheryte.ID))
             {

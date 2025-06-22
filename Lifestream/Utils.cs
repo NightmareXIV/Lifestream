@@ -116,7 +116,7 @@ internal static unsafe partial class Utils
             if(field == null)
             {
                 field = [];
-                foreach(var x in P.DataStore.Aetherytes)
+                foreach(var x in S.Data.DataStore.Aetherytes)
                 {
                     var dict = new Dictionary<uint, string>()
                     {
@@ -132,7 +132,7 @@ internal static unsafe partial class Utils
                         dict[TaskAetheryteAethernetTeleport.FirmamentAethernetId] = "Firmament";
                     }
                 }
-                foreach(var x in P.ResidentialAethernet.ZoneInfo)
+                foreach(var x in S.Data.ResidentialAethernet.ZoneInfo)
                 {
                     var dict = new Dictionary<uint, string>();
                     field[ExcelTerritoryHelper.GetName(x.Key)] = dict;
@@ -141,7 +141,7 @@ internal static unsafe partial class Utils
                         dict[v.ID] = v.Name;
                     }
                 }
-                foreach(var x in P.CustomAethernet.ZoneInfo)
+                foreach(var x in S.Data.CustomAethernet.ZoneInfo)
                 {
                     var dict = new Dictionary<uint, string>();
                     field[ExcelTerritoryHelper.GetName(x.Key)] = dict;
@@ -568,7 +568,7 @@ internal static unsafe partial class Utils
 
     public static IEnumerable<uint> GetAllRegisteredAethernetDestinations()
     {
-        foreach(var x in P.DataStore.Aetherytes)
+        foreach(var x in S.Data.DataStore.Aetherytes)
         {
             yield return x.Key.ID;
             foreach(var v in x.Value)
@@ -625,7 +625,7 @@ internal static unsafe partial class Utils
     {
         if(go.ObjectKind == ObjectKind.Aetheryte && TryGetTinyAetheryteFromIGameObject(go, out var tiny))
         {
-            return tiny.Value.ID == P.DataStore.GetMaster(tiny.Value).ID;
+            return tiny.Value.ID == S.Data.DataStore.GetMaster(tiny.Value).ID;
         }
         return true;
     }
@@ -649,7 +649,7 @@ internal static unsafe partial class Utils
     /// <returns></returns>
     public static Vector3? GetPlotEntrance(uint territory, int plot)
     {
-        if(P.ResidentialAethernet.HousingData.Data.TryGetValue(territory, out var data) && data.Count > plot && data[plot].Path.Count > 0) return data[plot].Path[^1];
+        if(S.Data.ResidentialAethernet.HousingData.Data.TryGetValue(territory, out var data) && data.Count > plot && data[plot].Path.Count > 0) return data[plot].Path[^1];
         return null;
     }
 
@@ -691,7 +691,7 @@ internal static unsafe partial class Utils
         return P.TaskManager.IsBusy || P.followPath?.waypointsInternal.Count > 0;
     }
 
-    public static bool CanFly() => P.Memory.FlightAddr != 0 && P.Memory.IsFlightProhibited(P.Memory.FlightAddr) == 0;
+    public static bool CanFly() => S.Memory.FlightAddr != 0 && S.Memory.IsFlightProhibited(S.Memory.FlightAddr) == 0;
 
     public static bool TryGetWorldFromDataCenter(string s, out string world, out uint dataCenter)
     {
@@ -705,7 +705,7 @@ internal static unsafe partial class Utils
                 {
                     world = worlds[Random.Shared.Next(worlds.Length)].Name.ToString();
                     dataCenter = x.RowId;
-                    if(P.DataStore.Worlds.Contains(world) || P.DataStore.DCWorlds.Contains(world))
+                    if(S.Data.DataStore.Worlds.Contains(world) || S.Data.DataStore.DCWorlds.Contains(world))
                     {
                         return true;
                     }
@@ -882,9 +882,9 @@ internal static unsafe partial class Utils
 
     public static bool IsQuickTravelAvailable(this AddressBookEntry entry)
     {
-        if(P.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward - 1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
+        if(S.Data.ResidentialAethernet.HousingData.Data.SafeSelect(entry.City.GetResidentialTerritory())?.SafeSelect(entry.Ward - 1)?.AethernetID.EqualsAny(ResidentialAethernet.StartingAetherytes) != false) return false;
         var h = HousingManager.Instance();
-        return h != null && entry.City.GetResidentialTerritory() == P.Territory && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && P.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.RowId;
+        return h != null && entry.City.GetResidentialTerritory() == P.Territory && Player.Available && h->GetCurrentWard() == entry.Ward - 1 && S.Data.ResidentialAethernet.ActiveAetheryte != null && entry.World == Player.Object.CurrentWorld.RowId;
     }
 
     public static void GoTo(this AddressBookEntry entry)
@@ -894,7 +894,7 @@ internal static unsafe partial class Utils
             Notify.Error($"Can not travel while character is not available");
             return;
         }
-        if(!P.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !P.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        if(!S.Data.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
         {
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;
@@ -930,7 +930,7 @@ internal static unsafe partial class Utils
 
     public static void SaveGeneratedHousingData()
     {
-        EzConfig.SaveConfiguration(P.ResidentialAethernet.HousingData, "GeneratedHousingData.json", false);
+        EzConfig.SaveConfiguration(S.Data.ResidentialAethernet.HousingData, "GeneratedHousingData.json", false);
     }
 
     public static float CalculatePathDistance(Vector3[] vectors)
@@ -1182,9 +1182,9 @@ internal static unsafe partial class Utils
     internal static AetheryteUseState CanUseAetheryte()
     {
         if(P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
-        if(P.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
-        if(P.ResidentialAethernet.IsInResidentialZone() && P.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
-        if(P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory) && P.CustomAethernet.ActiveAetheryte != null) return AetheryteUseState.Custom;
+        if(S.Data.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
+        if(S.Data.ResidentialAethernet.IsInResidentialZone() && S.Data.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
+        if(S.Data.CustomAethernet.ZoneInfo.ContainsKey(P.Territory) && S.Data.CustomAethernet.ActiveAetheryte != null) return AetheryteUseState.Custom;
         return AetheryteUseState.None;
     }
 
@@ -1195,7 +1195,7 @@ internal static unsafe partial class Utils
 
     internal static TinyAetheryte GetMaster(this TinyAetheryte a)
     {
-        return a.IsAetheryte ? a : P.DataStore.GetMaster(a);
+        return a.IsAetheryte ? a : S.Data.DataStore.GetMaster(a);
     }
 
     internal static bool IsWorldChangeAetheryte(this TinyAetheryte t)
@@ -1289,7 +1289,7 @@ internal static unsafe partial class Utils
         if(a.ObjectKind == ObjectKind.Aetheryte)
         {
             var pos2 = a.Position.ToVector2();
-            foreach(var x in P.DataStore.Aetherytes)
+            foreach(var x in S.Data.DataStore.Aetherytes)
             {
                 if(x.Key.TerritoryType == TerritoryType && Vector2.Distance(x.Key.Position, pos2) < 10)
                 {
@@ -1405,8 +1405,8 @@ internal static unsafe partial class Utils
             {
                 var d2d = Vector2.Distance(Svc.ClientState.LocalPlayer.Position.ToVector2(), x.Position.ToVector2());
                 var d3d = Vector3.Distance(Svc.ClientState.LocalPlayer.Position, x.Position);
-                if(P.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
-                if(P.CustomAethernet.ZoneInfo.TryGetValue(P.Territory, out var zinfo) && d3d > zinfo.MaxInteractionDistance) continue;
+                if(S.Data.ResidentialAethernet.IsInResidentialZone() && d3d > 4.6f) continue;
+                if(S.Data.CustomAethernet.ZoneInfo.TryGetValue(P.Territory, out var zinfo) && d3d > zinfo.MaxInteractionDistance) continue;
 
                 if(d2d < 11f
                     && d3d < 15f

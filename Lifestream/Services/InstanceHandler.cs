@@ -38,7 +38,7 @@ public unsafe class InstanceHandler : IDisposable
             && (m.Entries.Any(x => x.Text.ContainsAny(Lang.TravelToInstancedArea)) || m.Text == Lang.ToReduceCongestion)
             )
         {
-            var inst = *P.Memory.MaxInstances;
+            var inst = *S.Memory.MaxInstances;
             if(inst < 2 || inst > 9)
             {
                 if(EzThrottler.Throttle("InstanceWarning", 5000)) PluginLog.Warning($"Instance count is wrong, received {inst}, please report to developer");

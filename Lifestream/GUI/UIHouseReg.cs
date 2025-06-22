@@ -488,12 +488,12 @@ public static unsafe class UIHouseReg
         }
         PathDragDrop.End();
 
-        P.SplatoonManager.RenderPath(path, false, true);
+        S.Ipc.SplatoonManager.RenderPath(path, false, true);
     }
 
     private static bool IsOutside()
     {
-        return P.ResidentialAethernet.ZoneInfo.ContainsKey(P.Territory);
+        return S.Data.ResidentialAethernet.ZoneInfo.ContainsKey(P.Territory);
     }
 
     public static bool TryGetCurrentPlotInfo(out ResidentialAetheryteKind kind, out int ward, out int plot)

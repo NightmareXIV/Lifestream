@@ -30,11 +30,11 @@ public static unsafe class TaskTpAndGoToWard
         var gateway = DetermineGatewayAetheryte(residentialArtheryte);
         if(Player.CurrentWorld != world)
         {
-            if(P.DataStore.Worlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var w))
+            if(S.Data.DataStore.Worlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var w))
             {
                 P.TPAndChangeWorld(w, false, null, true, gateway, false, gateway != null);
             }
-            else if(P.DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var dcw))
+            else if(S.Data.DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(world == "" ? Player.HomeWorld : world, StringComparison.OrdinalIgnoreCase), out var dcw))
             {
                 P.TPAndChangeWorld(dcw, true, null, true, gateway, false, gateway != null);
             }
@@ -59,7 +59,7 @@ public static unsafe class TaskTpAndGoToWard
     {
         if(isApartment)
         {
-            var target = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory());
+            var target = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory());
             if(target != null && target.Aetherytes.TryGetFirst(x => (isApartmentSubdivision ? ResidentialAethernet.ApartmentSubdivisionAetherytes : ResidentialAethernet.ApartmentAetherytes).Contains(x.ID), out var aetheryte))
             {
                 TaskApproachHousingAetheryte.Enqueue();
@@ -72,12 +72,12 @@ public static unsafe class TaskTpAndGoToWard
         }
         else
         {
-            if(P.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
+            if(S.Data.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
             {
                 var info = plotInfos.SafeSelect(plot);
                 if(info != null)
                 {
-                    var aetheryte = P.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
+                    var aetheryte = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);
                     if(fromStart)
                     {
                         if(!ResidentialAethernet.StartingAetherytes.Contains(info.AethernetID))
@@ -94,7 +94,7 @@ public static unsafe class TaskTpAndGoToWard
                     }
                     else
                     {
-                        if(info.AethernetID != P.ResidentialAethernet.ActiveAetheryte.Value.ID)
+                        if(info.AethernetID != S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID)
                         {
                             if(aetheryte != null)
                             {

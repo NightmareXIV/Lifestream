@@ -45,9 +45,6 @@ public unsafe class Lifestream : IDalamudPlugin
     internal static Lifestream P;
     internal static Config C => P.Config;
     private Config Config;
-    internal DataStore DataStore;
-    internal Memory Memory;
-    internal Overlay Overlay;
 
     internal TinyAetheryte? ActiveAetheryte = null;
     internal AutoRetainerApi AutoRetainerApi;
@@ -56,10 +53,7 @@ public unsafe class Lifestream : IDalamudPlugin
 
     public TaskManager TaskManager;
 
-    public ResidentialAethernet ResidentialAethernet;
-    public CustomAethernet CustomAethernet;
     internal FollowPath followPath = null;
-    public Provider IPCProvider;
     public static IDtrBarEntry? Entry;
 
     public FollowPath FollowPath
@@ -70,8 +64,6 @@ public unsafe class Lifestream : IDalamudPlugin
             return followPath;
         }
     }
-    public VnavmeshManager VnavmeshManager;
-    public SplatoonManager SplatoonManager;
     public bool DisableHousePathData = false;
     public CharaSelectOverlay CharaSelectOverlay;
 
@@ -92,34 +84,19 @@ public unsafe class Lifestream : IDalamudPlugin
             Config = EzConfig.Init<Config>();
             Utils.CheckConfigMigration();
             EzConfigGui.Init(MainGui.Draw);
-            Overlay = new();
-            TaskManager = new();
-            TaskManager.DefaultConfiguration.ShowDebug = true;
-            EzConfigGui.WindowSystem.AddWindow(Overlay);
-            EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
+            TaskManager = new(new(showDebug:true));
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
-            S.SearchHelper = new();
-            EzConfigGui.WindowSystem.AddWindow(S.SearchHelper);
             EzCmd.Add("/lifestream", ProcessCommand, null);
             EzCmd.Add("/li", ProcessCommand, "\n"+Lang.Help);
-            DataStore = new();
             ProperOnLogin.RegisterAvailable(() =>
             {
-                DataStore.BuildWorlds();
                 Config.CharaMap[Player.CID] = Player.NameWithWorld;
             });
             Svc.Framework.Update += Framework_Update;
-            Memory = new();
-            //EqualStrings.RegisterEquality("Guilde des aventuriers (Guildes des armuriers & forgeron...", "Guilde des aventuriers (Guildes des armuriers & forgerons/Maelstrom)");
             Svc.Toasts.ErrorToast += Toasts_ErrorToast;
             AutoRetainerApi = new();
             NotificationMasterApi = new(Svc.PluginInterface);
-            ResidentialAethernet = new();
-            CustomAethernet = new();
-            VnavmeshManager = new();
-            SplatoonManager = new();
-            IPCProvider = new();
             SingletonServiceManager.Initialize(typeof(Service));
         });
     }
@@ -166,12 +143,12 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments == "debug WotsitManager clear")
         {
-            S.WotsitManager.TryClearWotsit();
+             S.Ipc.WotsitManager.TryClearWotsit();
             Notify.Info("WotsitManager cleared, see logs for details");
         }
         else if(arguments == "debug WotsitManager init")
         {
-            S.WotsitManager.MaybeTryInit();
+             S.Ipc.WotsitManager.MaybeTryInit();
             Notify.Info("WotsitManager reinitialized, see logs for details");
         }
         else if(arguments == "stop")
@@ -202,7 +179,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w", "world", "travel"))
         {
-            S.SelectWorldWindow.IsOpen = true;
+            S.Gui.SelectWorldWindow.IsOpen = true;
         }
         else if(arguments == "auto")
         {
@@ -291,7 +268,7 @@ public unsafe class Lifestream : IDalamudPlugin
             else
             {
                 var name = arglist[1];
-                if(DataStore.IslandNPCs.TryGetFirst(x => x.Value.Any(y => y.Contains(name, StringComparison.OrdinalIgnoreCase)), out var npc))
+                if(S.Data.DataStore.IslandNPCs.TryGetFirst(x => x.Value.Any(y => y.Contains(name, StringComparison.OrdinalIgnoreCase)), out var npc))
                     TaskISShortcut.Enqueue(npc.Key);
                 else
                     DuoLog.Error($"Could not parse input: {name}");
@@ -396,7 +373,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 {
                     if(Config.LiCommandBehavior == LiCommandBehavior.Open_World_Change_Menu)
                     {
-                        S.SelectWorldWindow.IsOpen = true;
+                        S.Gui.SelectWorldWindow.IsOpen = true;
                         return;
                     }
                     else if(Config.LiCommandBehavior == LiCommandBehavior.Open_Configuration)
@@ -431,12 +408,12 @@ public unsafe class Lifestream : IDalamudPlugin
                     gateway = WorldChangeAetheryte.Uldah;
                 }
 
-                if(DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
+                if(S.Data.DataStore.Worlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var w))
                 {
                     PluginLog.Information($"Same dc/{primary}/{w}");
                     TPAndChangeWorld(w, false, gateway: gateway);
                 }
-                else if(DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
+                else if(S.Data.DataStore.DCWorlds.TryGetFirst(x => x.StartsWith(primary == "" ? Player.HomeWorld : primary, StringComparison.OrdinalIgnoreCase), out var dcw))
                 {
                     PluginLog.Information($"Cross dc/{primary}/{w}");
                     TPAndChangeWorld(dcw, true, gateway: gateway);
@@ -585,7 +562,7 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         YesAlreadyManager.Tick();
         followPath?.Update();
-        if(Svc.ClientState.LocalPlayer != null && DataStore.Territories.Contains(P.Territory))
+        if(Svc.ClientState.LocalPlayer != null && S.Data.DataStore.Territories.Contains(P.Territory))
         {
             UpdateActiveAetheryte();
         }
@@ -593,8 +570,8 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             ActiveAetheryte = null;
         }
-        ResidentialAethernet.Tick();
-        CustomAethernet.Tick();
+        S.Data.ResidentialAethernet.Tick();
+        S.Data.CustomAethernet.Tick();
         MonitorChatInput();
         if(!Svc.ClientState.IsLoggedIn)
         {
@@ -645,7 +622,6 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         Svc.Framework.Update -= Framework_Update;
         Svc.Toasts.ErrorToast -= Toasts_ErrorToast;
-        Memory.Dispose();
         followPath?.Dispose();
         ECommonsMain.Dispose();
         P = null;
@@ -657,13 +633,13 @@ public unsafe class Lifestream : IDalamudPlugin
         if(a != null)
         {
             var pos2 = a.Position.ToVector2();
-            foreach(var x in DataStore.Aetherytes)
+            foreach(var x in S.Data.DataStore.Aetherytes)
             {
                 if(x.Key.TerritoryType == P.Territory && Vector2.Distance(x.Key.Position, pos2) < 10)
                 {
                     if(ActiveAetheryte == null)
                     {
-                        Overlay.IsOpen = true;
+                        S.Gui.Overlay.IsOpen = true;
                     }
                     ActiveAetheryte = x.Key;
                     return;
@@ -674,7 +650,7 @@ public unsafe class Lifestream : IDalamudPlugin
                     {
                         if(ActiveAetheryte == null)
                         {
-                            Overlay.IsOpen = true;
+                            S.Gui.Overlay.IsOpen = true;
                         }
                         ActiveAetheryte = l;
                         return;
@@ -686,11 +662,11 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             ActiveAetheryte = null;
         }
-        if(!Overlay.IsOpen)
+        if(!S.Gui.Overlay.IsOpen)
         {
             if(C.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
             {
-                Overlay.IsOpen = true;
+                S.Gui.Overlay.IsOpen = true;
             }
         }
     }

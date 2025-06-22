@@ -4,6 +4,8 @@ using Dalamud.Memory;
 using System.Text.RegularExpressions;
 using ECommons.DalamudServices;
 using Dalamud.Utility;
+using ECommons.Configuration;
+using ECommons.SimpleGui;
 
 namespace Lifestream.GUI;
 
@@ -18,11 +20,12 @@ public unsafe class SearchHelper : Window
     public SearchHelper() : base("##LifestreamSearchHelper", 
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | 
         ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize |
-        ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus)
+        ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoSavedSettings)
     {
         ParseCommandDescriptions();
         RefreshSuggestions();
         IsOpen = false;
+        EzConfigGui.WindowSystem.AddWindow(this);
     }
 
     private void ParseCommandDescriptions()
@@ -134,17 +137,17 @@ public unsafe class SearchHelper : Window
             }
         }
 
-        if (P.DataStore?.Worlds != null)
+        if (S.Data.DataStore?.Worlds != null)
         {
-            foreach (var world in P.DataStore.Worlds)
+            foreach (var world in S.Data.DataStore.Worlds)
             {
                 AddUniqueSuggestion(world, "World", $"Travel to {world}");
             }
         }
 
-        if (P.DataStore?.DCWorlds != null)
+        if (S.Data.DataStore?.DCWorlds != null)
         {
-            foreach (var world in P.DataStore.DCWorlds)
+            foreach (var world in S.Data.DataStore.DCWorlds)
             {
                 AddUniqueSuggestion(world, "DC World", $"Travel to {world} (cross-DC)");
             }
@@ -182,8 +185,7 @@ public unsafe class SearchHelper : Window
 
     public override void PreDraw()
     {
-        var chatAddon = GetChatLogAddon();
-        if (chatAddon != null)
+        if (TryGetAddonByName<AtkUnitBase>("ChatLog", out var chatAddon))
         {
             var chatPos = new Vector2(chatAddon->X, chatAddon->Y);
             var suggestionsPos = new Vector2(chatPos.X, chatPos.Y - 220);
@@ -272,11 +274,6 @@ public unsafe class SearchHelper : Window
         ImGui.PopStyleColor();
     }
 
-    private unsafe AtkUnitBase* GetChatLogAddon()
-    {
-        return (AtkUnitBase*)Svc.GameGui.GetAddonByName("ChatLog");
-    }
-
     private void CompleteCommand(string command)
     {
         try
@@ -299,7 +296,17 @@ public unsafe class SearchHelper : Window
         IsOpen = false;
     }
 
-    private static nint wantedVtblPtr = 0;
+    private static nint WantedVtblPtr
+    {
+        get
+        {
+            if(field == 0)
+            {
+                field = Svc.SigScanner.GetStaticAddressFromSig("48 89 01 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B 48 68", 4);
+            }
+            return field;
+        }
+    } = 0;
 
     private unsafe AtkComponentTextInput* GetActiveTextInput()
     {
@@ -309,17 +316,8 @@ public unsafe class SearchHelper : Window
         var basePtr = mod->TextInput.TargetTextInputEventInterface;
         if (basePtr == null) return null;
 
-        if (wantedVtblPtr == 0)
-        {
-            // Memory signature from Dalamud's Completion.cs (line 102)
-            // Used to identify the correct text input component vtable
-            wantedVtblPtr = Svc.SigScanner.GetStaticAddressFromSig(
-                "48 89 01 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B 48 68",
-                4);
-        }
-
         var vtblPtr = *(nint*)basePtr;
-        if (vtblPtr != wantedVtblPtr) return null;
+        if (vtblPtr != WantedVtblPtr) return null;
 
         return (AtkComponentTextInput*)((AtkComponentInputBase*)basePtr - 1);
     }

@@ -89,9 +89,9 @@ internal static unsafe class UIDebug
         if(ImGui.Button("Load from config folder"))
         {
             var d = EzConfig.LoadConfiguration<HousingData>("GeneratedHousingData.json", true);
-            if(d != null) P.ResidentialAethernet.HousingData = d;
+            if(d != null) S.Data.ResidentialAethernet.HousingData = d;
         }
-        var data = P.ResidentialAethernet.HousingData.Data;
+        var data = S.Data.ResidentialAethernet.HousingData.Data;
         if(ImGui.CollapsingHeader("Autotest"))
         {
             if(DoAutotest)
@@ -152,14 +152,14 @@ internal static unsafe class UIDebug
                 ImGui.Checkbox("Show first point", ref ShowFirstPoint);
                 if(ShowPathes)
                 {
-                    var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
+                    var aetheryte = S.Data.ResidentialAethernet.ActiveAetheryte ?? S.Data.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
                     if(aetheryte != null)
                     {
                         foreach(var x in plots)
                         {
                             if(x.AethernetID == aetheryte.Value.ID && x.Path.Count > 0)
                             {
-                                P.SplatoonManager.RenderPath(ShowFirstPoint ? x.Path : x.Path[1..]);
+                                S.Ipc.SplatoonManager.RenderPath(ShowFirstPoint ? x.Path : x.Path[1..]);
                             }
                         }
                     }
@@ -178,11 +178,11 @@ internal static unsafe class UIDebug
                 if(ImGui.Button("Begin path calculation"))
                 {
                     Chat.ExecuteCommand("/clearlog");
-                    var aetheryte = P.ResidentialAethernet.ActiveAetheryte ?? P.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
+                    var aetheryte = S.Data.ResidentialAethernet.ActiveAetheryte ?? S.Data.ResidentialAethernet.GetFromIGameObject(Svc.Targets.Target);
                     if(aetheryte != null)
                     {
-                        P.TaskManager.Enqueue(() => P.VnavmeshManager.Rebuild());
-                        P.TaskManager.Enqueue(() => P.VnavmeshManager.IsReady(), TaskSettings.TimeoutInfinite);
+                        P.TaskManager.Enqueue(() => S.Ipc.VnavmeshIPC.Rebuild());
+                        P.TaskManager.Enqueue(() => S.Ipc.VnavmeshIPC.IsReady(), TaskSettings.TimeoutInfinite);
                         for(var i = 0; i < plots.Count; i++)
                         {
                             var x = plots[i];
@@ -234,15 +234,15 @@ internal static unsafe class UIDebug
                             Chat.ExecuteCommand("/clearlog");
                             DuoLog.Information($"For plot {index + 1}");
                             plot.Front = Player.Object.Position;
-                            var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && P.ResidentialAethernet.GetFromIGameObject(x) != null);
+                            var candidates = Svc.Objects.Where(x => x.DataId.EqualsAny(Utils.AethernetShards) && Vector3.Distance(plot.Front, x.Position) < 100f && S.Data.ResidentialAethernet.GetFromIGameObject(x) != null);
                             Task.Run(() =>
                             {
                                 var currentDistance = float.MaxValue;
                                 var currentAetheryte = -1;
                                 foreach(var x in candidates)
                                 {
-                                    DuoLog.Information($"Candidate: {P.ResidentialAethernet.GetFromIGameObject(x).Value.Name}");
-                                    var path = P.VnavmeshManager.Pathfind(plot.Front, x.Position, false);
+                                    DuoLog.Information($"Candidate: {S.Data.ResidentialAethernet.GetFromIGameObject(x).Value.Name}");
+                                    var path = S.Ipc.VnavmeshIPC.Pathfind(plot.Front, x.Position, false);
                                     path.Wait();
                                     if(path.Result != null)
                                     {
@@ -251,7 +251,7 @@ internal static unsafe class UIDebug
                                         if(distance < currentDistance)
                                         {
                                             currentDistance = distance;
-                                            currentAetheryte = (int)P.ResidentialAethernet.GetFromIGameObject(x).Value.ID;
+                                            currentAetheryte = (int)S.Data.ResidentialAethernet.GetFromIGameObject(x).Value.ID;
                                         }
                                     }
                                     else
@@ -272,7 +272,7 @@ internal static unsafe class UIDebug
                         ImGuiEx.Text($"Points: {plot.Path.Count}, Distance: {Utils.CalculatePathDistance([Player.Object.Position, .. plot.Path])}");
                         if(ImGui.IsItemHovered())
                         {
-                            P.SplatoonManager.RenderPath(plot.Path);
+                            S.Ipc.SplatoonManager.RenderPath(plot.Path);
                         }
                     })
                     );
@@ -350,11 +350,11 @@ internal static unsafe class UIDebug
             ImGui.InputText("Chara world", ref world, 100);
             ImGui.InputText("Destination", ref dest, 100);
             ImGui.Checkbox("No login", ref nologin);
-            ImGuiEx.Text($"CanInitiateTravelFromCharaSelectList: {P.IPCProvider.CanInitiateTravelFromCharaSelectList()}");
-            ImGuiEx.Text($"CanAutoLogin: {P.IPCProvider.CanAutoLogin()}");
-            if(ImGui.Button("ConnectAndOpenCharaSelect")) DuoLog.Information($"{P.IPCProvider.ConnectAndOpenCharaSelect(name, world)}");
-            if(ImGui.Button("InitiateTravelFromCharaSelectScreen")) DuoLog.Information($"{P.IPCProvider.InitiateTravelFromCharaSelectScreen(name, world, dest, nologin)}");
-            if(ImGui.Button("ConnectAndTravel")) DuoLog.Information($"{P.IPCProvider.ConnectAndTravel(name, world, dest, nologin)}");
+            ImGuiEx.Text($"CanInitiateTravelFromCharaSelectList: {S.Ipc.IPCProvider.CanInitiateTravelFromCharaSelectList()}");
+            ImGuiEx.Text($"CanAutoLogin: {S.Ipc.IPCProvider.CanAutoLogin()}");
+            if(ImGui.Button("ConnectAndOpenCharaSelect")) DuoLog.Information($"{S.Ipc.IPCProvider.ConnectAndOpenCharaSelect(name, world)}");
+            if(ImGui.Button("InitiateTravelFromCharaSelectScreen")) DuoLog.Information($"{S.Ipc.IPCProvider.InitiateTravelFromCharaSelectScreen(name, world, dest, nologin)}");
+            if(ImGui.Button("ConnectAndTravel")) DuoLog.Information($"{S.Ipc.IPCProvider.ConnectAndTravel(name, world, dest, nologin)}");
         }
         if(ImGui.CollapsingHeader("ApproachConditionIsMet"))
         {
@@ -362,9 +362,9 @@ internal static unsafe class UIDebug
             ImGuiEx.Text($"IsAetheryte: {P.ActiveAetheryte?.IsAetheryte}");
             ImGuiEx.Text($"GetReachableAetheryte: {Utils.GetReachableAetheryte(x => x.IsAetheryte())}");
         }
-        if(ImGui.CollapsingHeader("DataStore.Aetherytes"))
+        if(ImGui.CollapsingHeader("S.Data.DataStore.Aetherytes"))
         {
-            foreach(var x in P.DataStore.Aetherytes)
+            foreach(var x in S.Data.DataStore.Aetherytes)
             {
                 ImGuiEx.Text($"{x.Key.Name} ({Svc.Data.GetExcelSheet<Aetheryte>(ClientLanguage.English).GetRowOrDefault(x.Key.ID).Value.AethernetName.Value.Name.GetText()})");
                 ImGui.Indent();
@@ -387,12 +387,12 @@ internal static unsafe class UIDebug
         {
             ref var id = ref Ref<int>.Get("aetheryteId");
             ImGui.InputInt("aetheryte id", ref id);
-            if(ImGui.Button("AethernetTeleportById")) DuoLog.Information($"{P.IPCProvider.AethernetTeleportById((uint)id)}");
-            if(ImGui.Button("HousingAethernetTeleportById")) DuoLog.Information($"{P.IPCProvider.HousingAethernetTeleportById((uint)id)}");
-            if(ImGui.Button("AethernetTeleportByPlaceNameId")) DuoLog.Information($"{P.IPCProvider.AethernetTeleportByPlaceNameId((uint)id)}");
-            if(ImGui.Button("AethernetTeleportToFirmament")) DuoLog.Information($"{P.IPCProvider.AethernetTeleportToFirmament()}");
-            if(ImGui.Button("GetActiveAetheryte")) DuoLog.Information($"{P.IPCProvider.GetActiveAetheryte()}");
-            if(ImGui.Button("GetActiveResidentialAetheryte")) DuoLog.Information($"{P.IPCProvider.GetActiveResidentialAetheryte()}");
+            if(ImGui.Button("AethernetTeleportById")) DuoLog.Information($"{S.Ipc.IPCProvider.AethernetTeleportById((uint)id)}");
+            if(ImGui.Button("HousingAethernetTeleportById")) DuoLog.Information($"{S.Ipc.IPCProvider.HousingAethernetTeleportById((uint)id)}");
+            if(ImGui.Button("AethernetTeleportByPlaceNameId")) DuoLog.Information($"{S.Ipc.IPCProvider.AethernetTeleportByPlaceNameId((uint)id)}");
+            if(ImGui.Button("AethernetTeleportToFirmament")) DuoLog.Information($"{S.Ipc.IPCProvider.AethernetTeleportToFirmament()}");
+            if(ImGui.Button("GetActiveAetheryte")) DuoLog.Information($"{S.Ipc.IPCProvider.GetActiveAetheryte()}");
+            if(ImGui.Button("GetActiveResidentialAetheryte")) DuoLog.Information($"{S.Ipc.IPCProvider.GetActiveResidentialAetheryte()}");
         }
         ImGuiEx.Text($"Active aetheryte: {P.ActiveAetheryte}");
         if(ImGui.CollapsingHeader("Chat"))
@@ -495,14 +495,14 @@ internal static unsafe class UIDebug
                     new(new({Svc.Targets.Target.Position.X:F1}f, {Svc.Targets.Target.Position.Z:F1}f), {P.Territory}, GetPlaceName({pname}), Base), //{Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname)?.Name.GetText()} ({pname}), {Svc.Data.GetExcelSheet<PlaceName>().GetRowOrDefault(pname2)?.Name.GetText()} ({pname2}), 
                     """);
             }
-            ImGuiEx.Text($"Active: {P.CustomAethernet.ActiveAetheryte}");
+            ImGuiEx.Text($"Active: {S.Data.CustomAethernet.ActiveAetheryte}");
             ImGuiEx.Text($"Valid: {Utils.GetValidAetheryte()}");
-            if(Utils.GetValidAetheryte() != null) ImGuiEx.Text($"FromIGameObject: {P.CustomAethernet.GetFromIGameObject(Utils.GetValidAetheryte())}");
+            if(Utils.GetValidAetheryte() != null) ImGuiEx.Text($"FromIGameObject: {S.Data.CustomAethernet.GetFromIGameObject(Utils.GetValidAetheryte())}");
         }
         if(ImGui.Button("Get file list")) Utils.ReadClipboardFiles();
         if(ImGui.Button("Open PF self"))
         {
-            P.Memory.OpenPartyFinderInfoDetour(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID);
+            S.Memory.OpenPartyFinderInfoDetour(AgentModule.Instance()->GetAgentByInternalId(AgentId.LookingForGroup), Player.CID);
         }
         if(ImGui.CollapsingHeader("Lobby2"))
         {
@@ -565,7 +565,7 @@ internal static unsafe class UIDebug
             if(list != null)
             {
                 ImGuiEx.Text($"List: {list.Print()}");
-                P.SplatoonManager.RenderPath(list, false, true);
+                S.Ipc.SplatoonManager.RenderPath(list, false, true);
             }
             if(listList != null)
             {
@@ -574,7 +574,7 @@ internal static unsafe class UIDebug
                     ImGuiEx.Text($"Candidate: {x.Print()}");
                     if(ImGui.IsItemHovered())
                     {
-                        P.SplatoonManager.RenderPath(x, false, true);
+                        S.Ipc.SplatoonManager.RenderPath(x, false, true);
                     }
                 }
             }
@@ -657,10 +657,10 @@ internal static unsafe class UIDebug
         if(ImGui.CollapsingHeader("Instance"))
         {
             ImGuiEx.Text($"""
-                Max instances: {*P.Memory.MaxInstances}
+                Max instances: {*S.Memory.MaxInstances}
                 Initialized: {S.InstanceHandler.InstancesInitizliaed(out var maxInstances)} {maxInstances}
                 GetInstance: {S.InstanceHandler.GetInstance()}
-                DrawConditions: {P.Overlay.DrawConditions()}
+                DrawConditions: {S.Gui.Overlay.DrawConditions()}
                 """);
             if(ImGui.Button("instance data reset")) C.PublicInstances.Clear();
             if(ImGui.Button("game version reset")) C.GameVersion = "";
@@ -671,7 +671,7 @@ internal static unsafe class UIDebug
         ImGuiEx.Text($"Casting: {Player.Object?.IsCasting}");
         if(ImGui.CollapsingHeader("Data test"))
         {
-            foreach(var x in P.DataStore.Aetherytes)
+            foreach(var x in S.Data.DataStore.Aetherytes)
             {
                 ImGuiEx.Text($"""
                     Key:
@@ -785,12 +785,12 @@ internal static unsafe class UIDebug
         if(ImGui.CollapsingHeader("State"))
         {
             ImGuiEx.Text($"CanUseAetheryte = {Utils.CanUseAetheryte()}");
-            ImGuiEx.Text($"ResidentialAethernet.ActiveAetheryte = {P.ResidentialAethernet.ActiveAetheryte}");
+            ImGuiEx.Text($"ResidentialAethernet.ActiveAetheryte = {S.Data.ResidentialAethernet.ActiveAetheryte}");
             ImGuiEx.Text($"GetValidAetheryte = {Utils.GetValidAetheryte()}");
         }
         if(ImGui.CollapsingHeader("Housing aethernet"))
         {
-            foreach(var x in P.ResidentialAethernet.ZoneInfo)
+            foreach(var x in S.Data.ResidentialAethernet.ZoneInfo)
             {
                 if(ImGuiEx.TreeNode($"{x}"))
                 {
@@ -807,18 +807,18 @@ internal static unsafe class UIDebug
             if(ImGui.Button("Unlock all worlds")) UnlockAllWorlds();
             if(ImGui.Button("Enable AtkComponentTreeList_vf31Hook hook"))
             {
-                P.Memory.AtkComponentTreeList_vf31Hook.Enable();
+                S.Memory.AtkComponentTreeList_vf31Hook.Enable();
             }
             {
                 if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && ImGui.Button("Try event"))
                 {
-                    //P.Memory.ConstructEvent(addon);
+                    //S.Memory.ConstructEvent(addon);
                     ImGuiEx.Text($"PTR: {(nint)(addon->UldManager.NodeList[7]->GetAsAtkComponentList() + 456):X16}");
                 }
             }
             if(ImGui.Button($"{nameof(DCChange.Logout)}")) PluginLog.Information($"{DCChange.Logout()}");
             if(ImGui.Button($"{nameof(DCChange.SelectYesLogout)}")) PluginLog.Information($"{DCChange.SelectYesLogout()}");
-            if(ImGui.Button($"Enable AddonDKTWorldCheck_ReceiveEventHook")) P.Memory.AddonDKTWorldList_ReceiveEventHook.Enable();
+            if(ImGui.Button($"Enable AddonDKTWorldCheck_ReceiveEventHook")) S.Memory.AddonDKTWorldList_ReceiveEventHook.Enable();
             if(ImGui.Button($"{nameof(DCChange.TitleScreenClickStart)}")) PluginLog.Information($"{DCChange.TitleScreenClickStart()}");
             //if (ImGui.Button($"{nameof(DCChange.OpenContextMenuForChara)}")) PluginLog.Information($"{DCChange.OpenContextMenuForChara(str)}");
             ImGui.SameLine();
@@ -879,10 +879,10 @@ internal static unsafe class UIDebug
         var bsize = ImGuiHelpers.GetButtonSize("A") with { X = 280 };
         if(ImGui.Button("Save"))
         {
-            ImGui.SetClipboardText(JsonConvert.SerializeObject(P.DataStore.StaticData));
-            P.DataStore.StaticData.SaveConfiguration(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, DataStore.FileName));
+            ImGui.SetClipboardText(JsonConvert.SerializeObject(S.Data.DataStore.StaticData));
+            S.Data.DataStore.StaticData.SaveConfiguration(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, S.Data.DataStore.FileName));
         }
-        foreach(var x in P.DataStore.Aetherytes)
+        foreach(var x in S.Data.DataStore.Aetherytes)
         {
             ImGui.Separator();
             if(ImGui.Button($"{x.Key.Name}", bsize))
@@ -892,12 +892,12 @@ internal static unsafe class UIDebug
             {
                 {
                     ImGui.SameLine();
-                    if(!P.DataStore.StaticData.SortOrder.ContainsKey(x.Key.ID)) P.DataStore.StaticData.SortOrder[x.Key.ID] = 0;
-                    var d = (int)P.DataStore.StaticData.SortOrder[x.Key.ID];
+                    if(!S.Data.DataStore.StaticData.SortOrder.ContainsKey(x.Key.ID)) S.Data.DataStore.StaticData.SortOrder[x.Key.ID] = 0;
+                    var d = (int)S.Data.DataStore.StaticData.SortOrder[x.Key.ID];
                     ImGui.SetNextItemWidth(100f.Scale());
                     if(ImGui.InputInt($"##{x.Key.Name}{x.Key.ID}sort", ref d))
                     {
-                        P.DataStore.StaticData.SortOrder[x.Key.ID] = (uint)d;
+                        S.Data.DataStore.StaticData.SortOrder[x.Key.ID] = (uint)d;
                     }
                 }
                 if(ImGui.GetIO().KeyCtrl)
@@ -910,7 +910,7 @@ internal static unsafe class UIDebug
                     ImGui.SameLine();
                     if(ImGui.Button("Pos##" + x.Key.ID))
                     {
-                        P.DataStore.StaticData.CustomPositions[x.Key.ID] = Svc.Targets.Target.Position;
+                        S.Data.DataStore.StaticData.CustomPositions[x.Key.ID] = Svc.Targets.Target.Position;
                         DuoLog.Information($"Written {Svc.Targets.Target.Position} for {x.Key.ID}");
                     }
                 }
@@ -921,12 +921,12 @@ internal static unsafe class UIDebug
                 {
                     {
                         ImGui.SameLine();
-                        if(!P.DataStore.StaticData.SortOrder.ContainsKey(l.ID)) P.DataStore.StaticData.SortOrder[l.ID] = 0;
-                        var d = (int)P.DataStore.StaticData.SortOrder[l.ID];
+                        if(!S.Data.DataStore.StaticData.SortOrder.ContainsKey(l.ID)) S.Data.DataStore.StaticData.SortOrder[l.ID] = 0;
+                        var d = (int)S.Data.DataStore.StaticData.SortOrder[l.ID];
                         ImGui.SetNextItemWidth(100f.Scale());
                         if(ImGui.InputInt($"##{l.Name}{l.ID}sort", ref d))
                         {
-                            P.DataStore.StaticData.SortOrder[l.ID] = (uint)d;
+                            S.Data.DataStore.StaticData.SortOrder[l.ID] = (uint)d;
                         }
                     }
                     if(ImGui.GetIO().KeyCtrl)
@@ -939,7 +939,7 @@ internal static unsafe class UIDebug
                         ImGui.SameLine();
                         if(ImGui.Button("Pos##" + l.ID))
                         {
-                            P.DataStore.StaticData.CustomPositions[l.ID] = Svc.Targets.Target.Position;
+                            S.Data.DataStore.StaticData.CustomPositions[l.ID] = Svc.Targets.Target.Position;
                             DuoLog.Information($"Written {Svc.Targets.Target.Position} for {l.ID}");
                         }
                     }

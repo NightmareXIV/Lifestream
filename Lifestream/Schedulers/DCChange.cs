@@ -255,7 +255,7 @@ internal static unsafe class DCChange
                             if(text == name && DCThrottle && EzThrottler.Throttle("SelectTargetDataCenter"))
                             {
                                 PluginLog.Debug($"[DCChange] Selecting Target DC {name} index {addonItem} list {listIndex}");
-                                P.Memory.ConstructEvent(addon, category, 1, 7, categoryIndex, addonItem);
+                                S.Memory.ConstructEvent(addon, category, 1, 7, categoryIndex, addonItem);
                                 DCRethrottle();
                                 return false;
                             }
@@ -297,7 +297,7 @@ internal static unsafe class DCChange
                     if(text == name && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                     {
                         PluginLog.Debug($"[DCChange] Selecting target world {name} index {i}");
-                        P.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i - 2);
+                        S.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i - 2);
                         DCRethrottle();
                         return false;
                     }
@@ -315,7 +315,7 @@ internal static unsafe class DCChange
                         if(text.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString())) && DCThrottle && EzThrottler.Throttle("SelectTargetWorld"))
                         {
                             PluginLog.Debug($"[DCChange] Selecting alternative target world {name} index {i}");
-                            P.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i - 2);
+                            S.Memory.ConstructEvent(addon, 0, 2, 6, i - 2, i - 2);
                             DCRethrottle();
                             return false;
                         }

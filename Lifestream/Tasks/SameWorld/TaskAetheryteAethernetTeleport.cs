@@ -26,11 +26,11 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
-        if(!P.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
+        if(!S.Data.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
         {
             throw new Exception($"Root aetheryte {rootAetheryteId} not found");
         }
-        if(!P.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
+        if(!S.Data.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
         {
             throw new Exception($"Aethernet {aethernetId} not found under root aetheryte {rootAetheryteId}");
         }

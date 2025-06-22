@@ -106,7 +106,7 @@ internal static unsafe class WorldChange
         if (!Player.Available) return false;
         if (TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
         {
-            if (P.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
+            if (S.Data.DataStore.StaticData.Callback.TryGetValue(t.ID, out var callback))
             {
                 if (Utils.GetAvailableAethernetDestinations().Any(x => x.Equals(t.Name)))
                 {
@@ -182,7 +182,7 @@ internal static unsafe class WorldChange
                 }
             }
         }
-        else if(P.CustomAethernet.QuasiAethernetZones.Contains(P.Territory) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
+        else if(S.Data.CustomAethernet.QuasiAethernetZones.Contains(P.Territory) && TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
         {
             if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, name, out var entry))
             {
@@ -210,7 +210,7 @@ internal static unsafe class WorldChange
     internal static bool? WaitUntilNotBusy()
     {
         if(!Player.Available) return false;
-        return P.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable;
+        return S.Data.DataStore.Territories.Contains(P.Territory) && Player.Object.CastActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable;
     }
 
 
@@ -310,7 +310,7 @@ internal static unsafe class WorldChange
         {
             if(Utils.GenericThrottle)
             {
-                P.Memory.OpenPartyFinderInfoDetour(AgentLookingForGroup.Instance(), Player.CID);
+                S.Memory.OpenPartyFinderInfoDetour(AgentLookingForGroup.Instance(), Player.CID);
                 return true;
             }
         }

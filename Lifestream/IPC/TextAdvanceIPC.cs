@@ -50,7 +50,7 @@ public class TextAdvanceIPC
 
     private TextAdvanceIPC()
     {
-        EzIPC.Init(this, "TextAdvance", SafeWrapper.AnyException);
+        EzIPC.Init(this, "TextAdvance", SafeWrapper.AnyException, reducedLogging: true);
     }
 
     public class MoveData

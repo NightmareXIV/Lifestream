@@ -18,9 +18,9 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(process);
         }
-        else if(P.CustomAethernet.ActiveAetheryte != null)
+        else if(S.Data.CustomAethernet.ActiveAetheryte != null)
         {
-            if(Utils.TryFindEqualsOrContains(P.CustomAethernet.ZoneInfo[P.Territory].Aetherytes, x => x.Name, targetName, out var x))
+            if(Utils.TryFindEqualsOrContains(S.Data.CustomAethernet.ZoneInfo[P.Territory].Aetherytes, x => x.Name, targetName, out var x))
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -28,9 +28,9 @@ internal static class TaskTryTpToAethernetDestination
                 }
             }
         }
-        else if(P.ResidentialAethernet.ActiveAetheryte != null)
+        else if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
-            if(Utils.TryFindEqualsOrContains(P.ResidentialAethernet.ZoneInfo[P.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes, x=>x.Name, targetName, out var x))
+            if(Utils.TryFindEqualsOrContains(S.Data.ResidentialAethernet.ZoneInfo[S.Data.ResidentialAethernet.ActiveAetheryte.Value.TerritoryType].Aetherytes, x=>x.Name, targetName, out var x))
             {
                 if(x.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -70,7 +70,7 @@ internal static class TaskTryTpToAethernetDestination
         bool processPartial()
         {
             PluginLog.Debug($"Processing partial command");
-            foreach(var x in P.DataStore.Aetherytes)
+            foreach(var x in S.Data.DataStore.Aetherytes)
             {
                 foreach(var a in (TinyAetheryte[])[x.Key, .. x.Value])
                 {
@@ -112,7 +112,7 @@ internal static class TaskTryTpToAethernetDestination
                 }
             }
             
-            foreach(var x in P.DataStore.Aetherytes[master])
+            foreach(var x in S.Data.DataStore.Aetherytes[master])
             {
                 if(P.ActiveAetheryte != x)
                 {

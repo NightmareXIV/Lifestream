@@ -12,7 +12,7 @@ public class SelectWorldWindow : Window
 
     public override void Draw()
     {
-        var worlds = P.DataStore.DCWorlds.Concat(P.DataStore.Worlds).Select(x => ExcelWorldHelper.Get(x)).OrderBy(x => x?.Name.ToString());
+        var worlds = S.Data.DataStore.DCWorlds.Concat(S.Data.DataStore.Worlds).Select(x => ExcelWorldHelper.Get(x)).OrderBy(x => x?.Name.ToString());
         if(!worlds.Any())
         {
             ImGuiEx.Text($"No available destinations");

@@ -79,7 +79,7 @@ public sealed class CustomAethernet
             if(field == null)
             {
                 field = [];
-                foreach(var x in P.CustomAethernet.ZoneInfo)
+                foreach(var x in S.Data.CustomAethernet.ZoneInfo)
                 {
                     foreach(var a in x.Value.Aetherytes)
                     {
@@ -120,7 +120,7 @@ public sealed class CustomAethernet
             {
                 if(ActiveAetheryte == null)
                 {
-                    P.Overlay.IsOpen = true;
+                    S.Gui.Overlay.IsOpen = true;
                 }
                 ActiveAetheryte = aetheryte;
             }

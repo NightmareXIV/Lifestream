@@ -2,7 +2,7 @@
 
 namespace Lifestream.IPC;
 #pragma warning disable CS8632
-public class VnavmeshManager
+public class VnavmeshIPC
 {
     [EzIPC("Nav.IsReady", wrapper: SafeWrapper.None)] private readonly Func<bool> IsReadyNoWrapper;
     public bool? IsReady()
@@ -41,8 +41,8 @@ public class VnavmeshManager
     /// </summary>
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, bool, float, Vector3?> PointOnFloor;
 
-    public VnavmeshManager()
+    public VnavmeshIPC()
     {
-        EzIPC.Init(this, "vnavmesh", SafeWrapper.AnyException);
+        EzIPC.Init(this, "vnavmesh", SafeWrapper.AnyException, reducedLogging: true);
     }
 }

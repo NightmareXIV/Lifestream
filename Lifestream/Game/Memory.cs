@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Lifestream.Game;
 
-internal unsafe class Memory : IDisposable
+public unsafe class Memory : IDisposable
 {
     internal delegate void AddonDKTWorldList_ReceiveEventDelegate(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5);
     [Signature("48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? F6 81", DetourName = nameof(AddonDKTWorldList_ReceiveEventDetour), Fallibility = Fallibility.Fallible)]

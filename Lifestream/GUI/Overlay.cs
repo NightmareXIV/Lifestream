@@ -1,6 +1,7 @@
 using ECommons.Configuration;
 using ECommons.EzEventManager;
 using ECommons.GameHelpers;
+using ECommons.SimpleGui;
 using Lifestream.Enums;
 using Lifestream.Systems;
 using Lifestream.Tasks;
@@ -10,10 +11,11 @@ using Lifestream.Tasks.SameWorld;
 
 namespace Lifestream.GUI;
 
-internal class Overlay : Window
+public class Overlay : Window
 {
-    public Overlay() : base("Lifestream Overlay", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing, true)
+    private Overlay() : base("Lifestream Overlay", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing, true)
     {
+        EzConfigGui.WindowSystem.AddWindow(this);
         IsOpen = true;
         new EzTerritoryChanged((x) => IsOpen = true);
     }
@@ -83,7 +85,7 @@ internal class Overlay : Window
     {
         RespectCloseHotkey = C.AllowClosingESC2;
         List<Action> actions = [];
-        if(P.ResidentialAethernet.IsInResidentialZone())
+        if(S.Data.ResidentialAethernet.IsInResidentialZone())
         {
             if(C.ShowAethernet)
             {
@@ -91,7 +93,7 @@ internal class Overlay : Window
                 actions.Add(() => DrawResidentialAethernet(true));
             }
         }
-        else if(P.CustomAethernet.ZoneInfo.ContainsKey(P.Territory))
+        else if(S.Data.CustomAethernet.ZoneInfo.ContainsKey(P.Territory))
         {
             if(C.ShowAethernet) actions.Add(DrawCustomAethernet);
         }
@@ -124,7 +126,7 @@ internal class Overlay : Window
             }
         }
 
-        if(C.ShowPlots && P.ResidentialAethernet.ActiveAetheryte != null)
+        if(C.ShowPlots && S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
             if(ImGui.BeginTable("##plots", 6, ImGuiTableFlags.SizingFixedSame))
             {
@@ -181,7 +183,7 @@ internal class Overlay : Window
             Popup(master);
         }
 
-        foreach(var x in P.DataStore.Aetherytes[master])
+        foreach(var x in S.Data.DataStore.Aetherytes[master])
         {
             if(!C.Hidden.Contains(x.ID))
             {
@@ -211,7 +213,7 @@ internal class Overlay : Window
 
     private void DrawResidentialAethernet(bool? subdivision = null)
     {
-        var zinfo = P.ResidentialAethernet.ZoneInfo[P.Territory];
+        var zinfo = S.Data.ResidentialAethernet.ZoneInfo[P.Territory];
         Draw(true);
         Draw(false);
         void Draw(bool favorites)
@@ -224,7 +226,7 @@ internal class Overlay : Window
                 {
                     var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
-                    var d = P.ResidentialAethernet.ActiveAetheryte == x;
+                    var d = S.Data.ResidentialAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
                     {
                         TaskRemoveAfkStatus.Enqueue();
@@ -238,7 +240,7 @@ internal class Overlay : Window
 
     private void DrawCustomAethernet()
     {
-        var zinfo = P.CustomAethernet.ZoneInfo[P.Territory];
+        var zinfo = S.Data.CustomAethernet.ZoneInfo[P.Territory];
         Draw(true);
         Draw(false);
         void Draw(bool favorites)
@@ -250,7 +252,7 @@ internal class Overlay : Window
                 {
                     var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
-                    var d = P.CustomAethernet.ActiveAetheryte == x;
+                    var d = S.Data.CustomAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
                     {
                         TaskRemoveAfkStatus.Enqueue();
@@ -301,7 +303,7 @@ internal class Overlay : Window
             if(ImGuiEx.CollectionCheckbox("Favorite", x.ID, C.Favorites))
             {
                 PluginLog.Debug($"Rebuilding data store");
-                P.DataStore = new();
+                S.Data.DataStore = new();
                 EzConfig.Save();
             }
             if(ImGuiEx.CollectionCheckbox("Hidden", x.ID, C.Hidden)) EzConfig.Save();
@@ -327,7 +329,7 @@ internal class Overlay : Window
     private void DrawWorldVisit()
     {
         var cWorld = Svc.ClientState.LocalPlayer?.CurrentWorld.ValueNullable?.Name.ToString();
-        foreach(var x in P.DataStore.Worlds)
+        foreach(var x in S.Data.DataStore.Worlds)
         {
             ResizeButton($"{Pad}{x}");
             var isHomeWorld = x == Player.HomeWorld;

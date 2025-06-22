@@ -142,17 +142,17 @@ public static class TabCustomAlias
         if(command.Kind == CustomAliasKind.Circular_movement)
         {
             {
-                var point = P.SplatoonManager.GetNextPoint($"{index + 1}: Circular movement");
+                var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Circular movement");
                 point.SetRefCoord(command.CenterPoint.ToVector3());
                 Splatoon.DisplayOnce(point);
             }
             {
-                var point = P.SplatoonManager.GetNextPoint($"{index + 1}: Circular exit");
+                var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Circular exit");
                 point.SetRefCoord(command.CircularExitPoint);
                 Splatoon.DisplayOnce(point);
             }
             {
-                var point = P.SplatoonManager.GetNextPoint();
+                var point = S.Ipc.SplatoonManager.GetNextPoint();
                 point.SetRefCoord(command.CenterPoint.ToVector3());
                 point.Filled = false;
                 point.radius = command.Clamp == null ? Math.Clamp(Player.DistanceTo(command.CenterPoint), 1f, 10f) : (command.Clamp.Value.Min + command.Clamp.Value.Max) / 2f;
@@ -161,13 +161,13 @@ public static class TabCustomAlias
         }
         else if(command.Kind == CustomAliasKind.Move_to_point)
         {
-            var point = P.SplatoonManager.GetNextPoint($"{index + 1}: Walk to");
+            var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Walk to");
             point.SetRefCoord(command.Point);
             Splatoon.DisplayOnce(point);
         }
         else if(command.Kind == CustomAliasKind.Navmesh_to_point)
         {
-            var point = P.SplatoonManager.GetNextPoint($"{index + 1}: Navmesh to");
+            var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Navmesh to");
             point.SetRefCoord(command.Point);
             Splatoon.DisplayOnce(point);
         }
