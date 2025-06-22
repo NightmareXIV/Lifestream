@@ -1,13 +1,64 @@
-﻿using Lifestream.Data;
+﻿using ECommons.Configuration;
+using ECommons.GameHelpers;
 using static Lifestream.Paissa.PaissaData;
 
 namespace Lifestream.Paissa;
 
 public class PaissaUtils
 {
-    public static AddressBookFolder GetAddressBookFolderFromPaissaResponse(PaissaResponse paissaData)
+    public static async Task<PaissaResult> ImportFromPaissaDBAsync()
     {
-        List<AddressBookEntry> entries = [];
+        try
+        {
+            var responseData = await GetListingsForHomeWorldAsync((int)Player.HomeWorldId);
+
+            if (responseData.StartsWith("Error") || responseData.StartsWith("Exception"))
+            {
+                PluginLog.Error($"Error retrieving data: {responseData}");
+                return new PaissaResult
+                {
+                    FolderText = "Error: Unable to retrieve listings. See log for details.",
+                    Status = PaissaStatus.Error
+                };
+            }
+
+            var responseObject = EzConfig.DefaultSerializationFactory.Deserialize<PaissaResponse>(responseData);
+            if (responseObject == null)
+            {
+                PluginLog.Error("Failed to deserialize PaissaResponse.");
+                return new PaissaResult
+                {
+                    FolderText = "Error: Invalid response format.",
+                    Status = PaissaStatus.Error
+                };
+            }
+
+            var newFolder = GetAddressBookFolderFromPaissaResponse(responseObject);
+
+            new TickScheduler(() => {
+                if (Player.Available)
+                {
+                    PaissaImporter.Folders[Player.CurrentWorld] = newFolder;
+                }
+            });
+            return new PaissaResult {
+                FolderText = "Success!",
+                Status = PaissaStatus.Success
+            }; ;
+        }
+        catch (Exception ex)
+        {
+            PluginLog.Error($"Exception in import task: {ex.Message}");
+            return new PaissaResult {
+                FolderText = $"Error: {ex.Message}",
+                Status = PaissaStatus.Error
+            };
+        }
+    }
+
+    public static PaissaAddressBookFolder GetAddressBookFolderFromPaissaResponse(PaissaResponse paissaData)
+    {
+        List<PaissaAddressBookEntry> entries = [];
 
         foreach(var district in paissaData.Districts)
         {
@@ -18,7 +69,7 @@ public class PaissaUtils
                 // Increment numbers by 1 because PaissaDB has them 0-indexed
                 var wardStr = (plot.WardNumber + 1).ToString();
                 var plotStr = (plot.PlotNumber + 1).ToString();
-                var entry = Utils.BuildAddressBookEntry
+                var entry = BuildPaissaAddressBookEntry
                 (
                     paissaData.Name,
                     district.Name,
@@ -26,13 +77,16 @@ public class PaissaUtils
                     plotStr,
                     false,
                     false,
-                    $"{district.Name} Ward {wardStr} Plot {plotStr} ({GetSizeString(plot.Size)})"
+                    $"{district.Name} Ward {wardStr} Plot {plotStr} ({GetCostString(plot.Price)})",
+                    plot.Size,
+                    plot.LottoEntries,
+                    plot.PurchaseSystem
                 );
                 entries.Add(entry);
             }
         }
 
-        AddressBookFolder folder = new()
+        PaissaAddressBookFolder folder = new()
         {
             ExportedName = "House Listings",
             Entries = entries,
@@ -41,6 +95,18 @@ public class PaissaUtils
         };
 
         return folder;
+    }
+
+    public static PaissaAddressBookEntry BuildPaissaAddressBookEntry(string worldStr, string cityStr, string wardNum, string plotApartmentNum, bool isApartment, bool isSubdivision, string name = null, int? size = null, int? bids = null, int? allowedTenants = null)
+    {
+        var baseEntry = Utils.BuildAddressBookEntry(worldStr, cityStr, wardNum, plotApartmentNum, isApartment, isSubdivision, name);
+        var entry = baseEntry.ToPaissa();
+
+        if (size != null) entry.Size = size.Value;
+        if (bids != null) entry.Bids = bids.Value;
+        if (allowedTenants != null) entry.AllowedTenants = allowedTenants.Value;
+
+        return entry;
     }
 
     public static async Task<string> GetListingsForHomeWorldAsync(int worldId)
@@ -98,13 +164,28 @@ public class PaissaUtils
         };
     }
 
-    private static string GetSizeString(int size)
+    public static string GetSizeString(int size)
     {
         return size switch
         {
             0 => "Small",
             1 => "Medium",
             _ => "Large"
+        };
+    }
+
+    private static string GetCostString(int cost)
+    {
+        return cost.ToString("N0") + "g";
+    }
+
+    public static string GetAllowedTenantsStringFromPurchaseSystem(int purchaseSystem)
+    {
+        return purchaseSystem switch {
+            3 => "Free Company",
+            5 => "Individual",
+            7 => "Unrestricted",
+            _ => "N/A"
         };
     }
 }
