@@ -14,6 +14,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.Game;
@@ -98,6 +99,8 @@ public unsafe class Lifestream : IDalamudPlugin
             EzConfigGui.WindowSystem.AddWindow(new ProgressOverlay());
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
+            S.SearchHelper = new();
+            EzConfigGui.WindowSystem.AddWindow(S.SearchHelper);
             EzCmd.Add("/lifestream", ProcessCommand, null);
             EzCmd.Add("/li", ProcessCommand, "\n"+Lang.Help);
             DataStore = new();
@@ -592,6 +595,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         ResidentialAethernet.Tick();
         CustomAethernet.Tick();
+        MonitorChatInput();
         if(!Svc.ClientState.IsLoggedIn)
         {
             if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && m.IsAddonReady)
@@ -688,6 +692,87 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 Overlay.IsOpen = true;
             }
+        }
+    }
+
+    private unsafe void MonitorChatInput()
+    {
+        try
+        {
+            if (S.SearchHelper == null) return;
+            
+            var component = GetActiveTextInput();
+            if (component == null)
+            {
+                if (S.SearchHelper.IsOpen)
+                {
+                    S.SearchHelper.IsOpen = false;
+                }
+                return;
+            }
+            
+            var addon = component->ContainingAddon;
+            if (addon == null) addon = component->ContainingAddon2;
+            if (addon == null || addon->NameString != "ChatLog")
+            {
+                if (S.SearchHelper.IsOpen)
+                {
+                    S.SearchHelper.IsOpen = false;
+                }
+                return;
+            }
+            
+            var currentText = component->UnkText1.ToString();
+            
+                        if (currentText.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
+            {
+                if (currentText.Length >= 3)
+                {
+                    S.SearchHelper.UpdateFilter(currentText);
+                    S.SearchHelper.IsOpen = true;
+                }
+            }
+            else
+            {
+                if (S.SearchHelper.IsOpen)
+                {
+                    S.SearchHelper.IsOpen = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (EzThrottler.Throttle("ChatMonitorError", 5000))
+            {
+                PluginLog.Debug($"Chat monitor error: {ex.Message}");
+            }
+        }
+    }
+
+    private unsafe AtkComponentTextInput* GetActiveTextInput()
+    {
+        try
+        {
+            var mod = RaptureAtkModule.Instance();
+            if (mod == null) return null;
+
+            var basePtr = mod->TextInput.TargetTextInputEventInterface;
+            if (basePtr == null) return null;
+
+            // Memory signature from Dalamud's Completion.cs (line 102)
+            // Used to identify the correct text input component vtable
+            var wantedVtblPtr = Svc.SigScanner.GetStaticAddressFromSig(
+                "48 89 01 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B 48 68",
+                4);
+
+            var vtblPtr = *(nint*)basePtr;
+            if (vtblPtr != wantedVtblPtr) return null;
+
+            return (AtkComponentTextInput*)((AtkComponentInputBase*)basePtr - 1);
+        }
+        catch
+        {
+            return null;
         }
     }
 
