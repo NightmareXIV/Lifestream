@@ -1,0 +1,333 @@
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using Dalamud.Memory;
+using System.Text.RegularExpressions;
+using ECommons.DalamudServices;
+using Dalamud.Utility;
+
+namespace Lifestream.GUI;
+
+public unsafe class SearchHelper : Window
+{
+    private List<CommandSuggestion> suggestions = new();
+    private List<CommandSuggestion> filteredSuggestions = new();
+    private string currentInput = "";
+    private string filterText = "";
+    private Dictionary<string, string> commandDescriptions = new();
+
+    public SearchHelper() : base("##LifestreamSearchHelper", 
+        ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | 
+        ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize |
+        ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus)
+    {
+        ParseCommandDescriptions();
+        RefreshSuggestions();
+        IsOpen = false;
+    }
+
+    private void ParseCommandDescriptions()
+    {
+        commandDescriptions.Clear();
+        
+        var helpLines = Lang.Help.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var line in helpLines)
+        {
+            if (line.StartsWith("--") || string.IsNullOrWhiteSpace(line))
+                continue;
+                
+            var match = Regex.Match(line.Trim(), @"/li\s+(\w+).*?→\s*(.+)");
+            if (match.Success)
+            {
+                var command = match.Groups[1].Value;
+                var description = match.Groups[2].Value.Trim();
+                
+                var aliasMatch = Regex.Match(description, @"alias:\s*/li\s+(.+)");
+                if (aliasMatch.Success)
+                {
+                    var aliases = aliasMatch.Groups[1].Value.Split('|');
+                    foreach (var alias in aliases)
+                    {
+                        var cleanAlias = alias.Trim();
+                        if (!commandDescriptions.ContainsKey(cleanAlias))
+                        {
+                            commandDescriptions[cleanAlias] = description.Replace(aliasMatch.Groups[0].Value, "").Trim();
+                        }
+                    }
+                }
+                
+                if (!commandDescriptions.ContainsKey(command))
+                {
+                    commandDescriptions[command] = description;
+                }
+            }
+            
+            var basicMatch = Regex.Match(line.Trim(), @"/li\s*→\s*(.+)");
+            if (basicMatch.Success && !commandDescriptions.ContainsKey(""))
+            {
+                commandDescriptions[""] = basicMatch.Groups[1].Value.Trim();
+            }
+        }
+        
+        var additionalDescriptions = new Dictionary<string, string>
+        {
+            ["help"] = "Show command help",
+            ["?"] = "Show command help",
+            ["commands"] = "Show command help",
+            ["stop"] = "Stop all tasks"
+        };
+        
+        foreach (var kvp in additionalDescriptions)
+        {
+            if (!commandDescriptions.ContainsKey(kvp.Key))
+            {
+                commandDescriptions[kvp.Key] = kvp.Value;
+            }
+        }
+    }
+
+    private void RefreshSuggestions()
+    {
+        suggestions.Clear();
+        var addedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        
+        void AddUniqueSuggestion(string command, string type, string description)
+        {
+            if (!addedCommands.Contains(command))
+            {
+                addedCommands.Add(command);
+                suggestions.Add(new CommandSuggestion(command, type, description));
+            }
+        }
+        
+        foreach (var cmd in Utils.LifestreamNativeCommands)
+        {
+            var description = commandDescriptions.TryGetValue(cmd, out var desc) 
+                ? desc 
+                : "Built-in command";
+            AddUniqueSuggestion(cmd, "Built-in", description);
+        }
+        
+        var specialCommands = new[] { "help", "?", "commands", "stop" };
+        foreach (var cmd in specialCommands)
+        {
+            if (commandDescriptions.TryGetValue(cmd, out var desc))
+            {
+                AddUniqueSuggestion(cmd, "System", desc);
+            }
+        }
+        
+        foreach (var alias in C.CustomAliases.Where(x => x.Enabled && !string.IsNullOrEmpty(x.Alias)))
+        {
+            var stepCount = alias.Commands?.Count ?? 0;
+            var desc = stepCount > 0 
+                ? $"Custom sequence with {stepCount} step{(stepCount != 1 ? "s" : "")}"
+                : "Custom alias";
+            AddUniqueSuggestion(alias.Alias, "Custom Alias", desc);
+        }
+        
+        foreach (var folder in C.AddressBookFolders)
+        {
+            foreach (var entry in folder.Entries.Where(x => x.AliasEnabled && !string.IsNullOrEmpty(x.Alias)))
+            {
+                AddUniqueSuggestion(entry.Alias, "Address Book", entry.GetAddressString());
+            }
+        }
+
+        if (P.DataStore?.Worlds != null)
+        {
+            foreach (var world in P.DataStore.Worlds)
+            {
+                AddUniqueSuggestion(world, "World", $"Travel to {world}");
+            }
+        }
+
+        if (P.DataStore?.DCWorlds != null)
+        {
+            foreach (var world in P.DataStore.DCWorlds)
+            {
+                AddUniqueSuggestion(world, "DC World", $"Travel to {world} (cross-DC)");
+            }
+        }
+    }
+
+    public void UpdateFilter(string input)
+    {
+        currentInput = input;
+        
+        if (input.StartsWith("/li ", StringComparison.OrdinalIgnoreCase))
+        {
+            filterText = input.Substring(4);
+        }
+        else if (input.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
+        {
+            filterText = input.Substring(3);
+        }
+        else
+        {
+            filterText = "";
+        }
+
+        RefreshSuggestions();
+
+        filteredSuggestions = suggestions.Where(s => 
+            string.IsNullOrEmpty(filterText) || 
+            s.Command.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(s => s.Command.StartsWith(filterText, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .ThenBy(s => s.Command.Length)
+            .ThenBy(s => s.Command)
+            .Take(12)
+            .ToList();
+    }
+
+    public override void PreDraw()
+    {
+        var chatAddon = GetChatLogAddon();
+        if (chatAddon != null)
+        {
+            var chatPos = new Vector2(chatAddon->X, chatAddon->Y);
+            var suggestionsPos = new Vector2(chatPos.X, chatPos.Y - 220);
+            ImGui.SetNextWindowPos(suggestionsPos);
+        }
+
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.One * 6);
+        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, Vector2.One * 3);
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, 0xE0000000);
+        ImGui.PushStyleColor(ImGuiCol.Border, 0xFF404040);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1f);
+    }
+
+    public override void PostDraw()
+    {
+        ImGui.PopStyleVar(3);
+        ImGui.PopStyleColor(2);
+    }
+
+    public override void Draw()
+    {
+        if (filteredSuggestions.Count == 0)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, 0xFF808080);
+            ImGui.Text("No matching commands found");
+            ImGui.PopStyleColor();
+            return;
+        }
+
+        ImGui.PushStyleColor(ImGuiCol.Text, 0xFFFFFFFF);
+        ImGui.Text($"Lifestream Commands{(string.IsNullOrEmpty(filterText) ? "" : $" matching '{filterText}'")}:");
+        ImGui.PopStyleColor();
+        ImGui.Separator();
+
+        for (int i = 0; i < filteredSuggestions.Count; i++)
+        {
+            var suggestion = filteredSuggestions[i];
+            
+            var displayText = $"/li {suggestion.Command}";
+            var typeText = $"[{suggestion.Type}]";
+            var totalText = $"{displayText} {typeText}";
+            var textSize = ImGui.CalcTextSize(totalText);
+            var available = ImGui.GetContentRegionAvail();
+            var buttonSize = new Vector2(Math.Max(available.X, textSize.X + 20), textSize.Y + 4);
+            
+            if (ImGui.InvisibleButton($"##suggest{i}", buttonSize))
+            {
+                CompleteCommand(suggestion.Command);
+            }
+            
+            if (ImGui.IsItemHovered())
+            {
+                var drawList = ImGui.GetWindowDrawList();
+                var min = ImGui.GetItemRectMin();
+                var max = ImGui.GetItemRectMax();
+                drawList.AddRectFilled(min, max, 0x40FFFFFF);
+            }
+            
+            ImGui.SetCursorPos(ImGui.GetCursorPos() - new Vector2(0, buttonSize.Y));
+            
+            ImGui.PushStyleColor(ImGuiCol.Text, 0xFF00DD00);
+            ImGui.Text(displayText);
+            ImGui.PopStyleColor();
+            
+            ImGui.SameLine();
+            
+            var typeColor = suggestion.Type switch
+            {
+                "Built-in" => 0xFF4080FF,
+                "System" => 0xFF8040FF,
+                "Custom Alias" => 0xFFFF6000,
+                "Address Book" => 0xFFFF0080,
+                "World" => 0xFFFFD000,
+                "DC World" => 0xFFFF4080,
+                _ => 0xFF808080
+            };
+            
+            ImGui.PushStyleColor(ImGuiCol.Text, typeColor);
+            ImGui.Text(typeText);
+            ImGui.PopStyleColor();
+        }
+        
+        ImGui.Separator();
+        ImGui.PushStyleColor(ImGuiCol.Text, 0xFF808080);
+        ImGui.Text("Click to complete");
+        ImGui.PopStyleColor();
+    }
+
+    private unsafe AtkUnitBase* GetChatLogAddon()
+    {
+        return (AtkUnitBase*)Svc.GameGui.GetAddonByName("ChatLog");
+    }
+
+    private void CompleteCommand(string command)
+    {
+        try
+        {
+            var component = GetActiveTextInput();
+            if (component != null)
+            {
+                var fullCommand = string.IsNullOrEmpty(command) ? "/li" : $"/li {command}";
+                component->SetText(fullCommand);
+                
+                var finalCommand = string.IsNullOrEmpty(command) ? fullCommand : $"{fullCommand} ";
+                component->SetText(finalCommand);
+            }
+        }
+        catch (Exception ex)
+        {
+            PluginLog.Error($"Error completing command: {ex}");
+        }
+        
+        IsOpen = false;
+    }
+
+    private static nint wantedVtblPtr = 0;
+
+    private unsafe AtkComponentTextInput* GetActiveTextInput()
+    {
+        var mod = RaptureAtkModule.Instance();
+        if (mod == null) return null;
+
+        var basePtr = mod->TextInput.TargetTextInputEventInterface;
+        if (basePtr == null) return null;
+
+        if (wantedVtblPtr == 0)
+        {
+            // Memory signature from Dalamud's Completion.cs (line 102)
+            // Used to identify the correct text input component vtable
+            wantedVtblPtr = Svc.SigScanner.GetStaticAddressFromSig(
+                "48 89 01 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8B 48 68",
+                4);
+        }
+
+        var vtblPtr = *(nint*)basePtr;
+        if (vtblPtr != wantedVtblPtr) return null;
+
+        return (AtkComponentTextInput*)((AtkComponentInputBase*)basePtr - 1);
+    }
+
+    public override bool DrawConditions()
+    {
+        return IsOpen && filteredSuggestions.Count > 0;
+    }
+}
+
+public record CommandSuggestion(string Command, string Type, string Description); 

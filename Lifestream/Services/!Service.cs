@@ -1,12 +1,13 @@
-﻿using Lifestream.GUI.Windows;
+﻿using Lifestream.GUI;
+using Lifestream.GUI.Windows;
 using Lifestream.IPC;
 
 namespace Lifestream.Services;
+
 public static class Service
 {
     public static SelectWorldWindow SelectWorldWindow;
     public static TeleportService TeleportService;
-    //public static NetworkDebugger NetworkDebugger;
     public static InstanceHandler InstanceHandler;
     public static ContextMenuManager ContextMenuManager;
     public static AddressBookFileSystemManager AddressBookFileSystemManager;
@@ -16,4 +17,5 @@ public static class Service
     public static DtrManager DtrManager;
     public static WotsitManager WotsitManager;
     public static MapHanderService MapHanderService;
+    public static SearchHelper SearchHelper;
 }
