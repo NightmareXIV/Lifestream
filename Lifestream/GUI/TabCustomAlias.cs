@@ -163,6 +163,7 @@ public static class TabCustomAlias
         {
             var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Walk to");
             point.SetRefCoord(command.Point);
+            point.radius = command.Scatter;
             Splatoon.DisplayOnce(point);
         }
         else if(command.Kind == CustomAliasKind.Navmesh_to_point)
@@ -205,7 +206,13 @@ public static class TabCustomAlias
 
         if(command.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point))
         {
-            Utils.DrawVector3Selector("walktopoint", ref command.Point);
+            Utils.DrawVector3Selector($"walktopoint{command.ID}", ref command.Point);
+            ImGui.SameLine();
+            ImGuiEx.Text(UiBuilder.IconFont, FontAwesomeIcon.ArrowsLeftRight.ToIconString());
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(50f);
+            ImGui.SliderFloat($"##scatter", ref command.Scatter, 0f, 2f);
+            ImGuiEx.Tooltip("Scatter");
         }
 
         if(command.Kind.EqualsAny(CustomAliasKind.Move_to_point))
@@ -291,7 +298,7 @@ public static class TabCustomAlias
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"Exit point: ");
                 ImGui.TableNextColumn();
-                Utils.DrawVector3Selector("exit", ref command.CircularExitPoint);
+                Utils.DrawVector3Selector($"exit{command.ID}", ref command.CircularExitPoint);
                 ImGui.Checkbox("Finish by walking to exit point", ref command.WalkToExit);
 
                 ImGui.TableNextColumn();

@@ -10,6 +10,10 @@ public class CustomAlias : IFileSystemStorage
     public bool Enabled = true;
     public List<CustomAliasCommand> Commands = [];
 
+    public bool ShouldSerializeAlias() => Alias.Length > 0;
+    public bool ShouldSerializeEnabled() => Enabled != true;
+    public bool ShouldSerializeGUID() => GUID != Guid.Empty;
+
     public string GetCustomName() => null;
     public void SetCustomName(string s) { }
 
@@ -25,7 +29,8 @@ public class CustomAlias : IFileSystemStorage
                 {
                     while(Commands.SafeSelect(i + 1)?.Kind == CustomAliasKind.Move_to_point)
                     {
-                        append.Add(Commands[i + 1].Point);
+                        var c = Commands[i + 1];
+                        append.Add(c.Point.Scatter(c.Scatter));
                         i++;
                     }
                 }

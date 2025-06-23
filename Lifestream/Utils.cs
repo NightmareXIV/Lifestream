@@ -13,6 +13,7 @@ using ECommons.MathHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using FFXIVClientStructs;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -29,6 +30,7 @@ using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
 using NightmareUI;
 using PInvoke;
+using System;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -41,6 +43,25 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+    public static Vector3 Scatter(this Vector3 point, float radius)
+    {
+        if(radius > 0)
+        {
+            var angle = Random.Shared.NextDouble() * Math.PI * 2;
+
+            var distance = Math.Sqrt(Random.Shared.NextDouble()) * radius;
+
+            var offsetX = (float)(Math.Cos(angle) * distance);
+            var offsetZ = (float)(Math.Sin(angle) * distance);
+
+            return new Vector3(point.X + offsetX, point.Y, point.Z + offsetZ);
+        }
+        else
+        {
+            return point;
+        }
+    }
 
     public static bool EnqueueTeleport(string destination, string additionalCommand)
     {

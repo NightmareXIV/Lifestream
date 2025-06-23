@@ -13,6 +13,8 @@ namespace Lifestream.Data;
 [Serializable]
 public class CustomAliasCommand
 {
+    private static readonly CustomAliasCommand Default = new();
+
     internal string ID = Guid.NewGuid().ToString();
     public CustomAliasKind Kind;
     public Vector3 Point;
@@ -31,23 +33,25 @@ public class CustomAliasCommand
     public bool StopOnScreenFade = false;
     public bool NoDisableYesAlready = false;
     public bool UseFlight = false;
+    public float Scatter = 0f;
 
-    public bool ShouldSerializeUseFlight() => UseFlight != default;
-    public bool ShouldSerializePoint() => Point != default;
-    public bool ShouldSerializeAetheryte() => Aetheryte != default;
-    public bool ShouldSerializeWorld() => World != default;
-    public bool ShouldSerializeCenterPoint() => CenterPoint != default;
-    public bool ShouldSerializeCircularExitPoint() => CircularExitPoint != default;
-    public bool ShouldSerializeClamp() => Clamp != default;
-    public bool ShouldSerializePrecision() => Precision != default;
-    public bool ShouldSerializeTolerance() => Tolerance != default;
-    public bool ShouldSerializeWalkToExit() => WalkToExit != default;
-    public bool ShouldSerializeSkipTeleport() => SkipTeleport != default;
-    public bool ShouldSerializeDataID() => DataID != default;
-    public bool ShouldSerializeUseTA() => UseTA != default;
+    public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
+    public bool ShouldSerializeUseFlight() => Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point) && UseFlight != Default.UseFlight;
+    public bool ShouldSerializePoint() => Point != Default.Point;
+    public bool ShouldSerializeAetheryte() => Aetheryte != Default.Aetheryte;
+    public bool ShouldSerializeWorld() => World != Default.World;
+    public bool ShouldSerializeCenterPoint() => CenterPoint != Default.CenterPoint;
+    public bool ShouldSerializeCircularExitPoint() => CircularExitPoint != Default.CircularExitPoint;
+    public bool ShouldSerializeClamp() => Clamp != Default.Clamp;
+    public bool ShouldSerializePrecision() => Precision != Default.Precision;
+    public bool ShouldSerializeTolerance() => Tolerance != Default.Tolerance;
+    public bool ShouldSerializeWalkToExit() => WalkToExit != Default.WalkToExit;
+    public bool ShouldSerializeSkipTeleport() => SkipTeleport != Default.SkipTeleport;
+    public bool ShouldSerializeDataID() => DataID != Default.DataID;
+    public bool ShouldSerializeUseTA() => UseTA != Default.UseTA;
     public bool ShouldSerializeSelectOption() => SelectOption.Count > 0;
-    public bool ShouldSerializeStopOnScreenFade() => StopOnScreenFade != default;
-    public bool ShouldSerializeNoDisableYesAlready() => NoDisableYesAlready != default;
+    public bool ShouldSerializeStopOnScreenFade() => StopOnScreenFade != Default.StopOnScreenFade;
+    public bool ShouldSerializeNoDisableYesAlready() => NoDisableYesAlready != Default.NoDisableYesAlready;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -72,7 +76,7 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
-            P.TaskManager.Enqueue(() => P.FollowPath.Move([Point, .. appendMovement], true));
+            P.TaskManager.Enqueue(() => P.FollowPath.Move([Point.Scatter(Scatter), .. appendMovement], true));
             P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
