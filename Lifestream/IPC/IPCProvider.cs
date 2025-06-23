@@ -203,6 +203,20 @@ public class IPCProvider
     }
 
     /// <summary>
+    /// Retrieves active custom aetheryte ID if present
+    /// </summary>
+    /// <returns></returns>
+    [EzIPC]
+    public uint GetActiveCustomAetheryte()
+    {
+        if(S.Data.CustomAethernet.ActiveAetheryte != null)
+        {
+            return S.Data.CustomAethernet.ActiveAetheryte.Value.ID;
+        }
+        return 0;
+    }
+
+    /// <summary>
     /// Retrieves active housing aetheryte shard ID if present
     /// </summary>
     /// <returns></returns>
