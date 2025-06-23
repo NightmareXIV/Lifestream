@@ -44,5 +44,5 @@ public static class Service
     public static HttpClientProvider HttpClientProvider;
     public static DtrManager DtrManager;
     public static MapHanderService MapHanderService;
-    public static SearchHelper SearchHelper;
+    public static SearchHelperOverlay SearchHelperOverlay;
 }

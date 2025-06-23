@@ -9,15 +9,15 @@ using System.Text.RegularExpressions;
 
 namespace Lifestream.GUI;
 
-public unsafe class SearchHelper : Window
+public unsafe class SearchHelperOverlay : Window
 {
-    private List<CommandSuggestion> suggestions = [];
-    private List<CommandSuggestion> filteredSuggestions = [];
-    private string currentInput = "";
-    private string filterText = "";
-    private Dictionary<string, string> commandDescriptions = [];
+    private List<CommandSuggestion> Suggestions = [];
+    private List<CommandSuggestion> FilteredSuggestions = [];
+    private string CurrentInput = "";
+    private string FilterText = "";
+    private Dictionary<string, string> CommandDescriptions = [];
 
-    public SearchHelper() : base("##LifestreamSearchHelper",
+    public SearchHelperOverlay() : base("##LifestreamSearchHelper",
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
         ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize |
         ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoSavedSettings)
@@ -30,7 +30,7 @@ public unsafe class SearchHelper : Window
 
     private void ParseCommandDescriptions()
     {
-        commandDescriptions.Clear();
+        CommandDescriptions.Clear();
 
         var helpLines = Lang.Help.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
@@ -52,23 +52,23 @@ public unsafe class SearchHelper : Window
                     foreach(var alias in aliases)
                     {
                         var cleanAlias = alias.Trim();
-                        if(!commandDescriptions.ContainsKey(cleanAlias))
+                        if(!CommandDescriptions.ContainsKey(cleanAlias))
                         {
-                            commandDescriptions[cleanAlias] = description.Replace(aliasMatch.Groups[0].Value, "").Trim();
+                            CommandDescriptions[cleanAlias] = description.Replace(aliasMatch.Groups[0].Value, "").Trim();
                         }
                     }
                 }
 
-                if(!commandDescriptions.ContainsKey(command))
+                if(!CommandDescriptions.ContainsKey(command))
                 {
-                    commandDescriptions[command] = description;
+                    CommandDescriptions[command] = description;
                 }
             }
 
             var basicMatch = Regex.Match(line.Trim(), @"/li\s*→\s*(.+)");
-            if(basicMatch.Success && !commandDescriptions.ContainsKey(""))
+            if(basicMatch.Success && !CommandDescriptions.ContainsKey(""))
             {
-                commandDescriptions[""] = basicMatch.Groups[1].Value.Trim();
+                CommandDescriptions[""] = basicMatch.Groups[1].Value.Trim();
             }
         }
 
@@ -82,16 +82,16 @@ public unsafe class SearchHelper : Window
 
         foreach(var kvp in additionalDescriptions)
         {
-            if(!commandDescriptions.ContainsKey(kvp.Key))
+            if(!CommandDescriptions.ContainsKey(kvp.Key))
             {
-                commandDescriptions[kvp.Key] = kvp.Value;
+                CommandDescriptions[kvp.Key] = kvp.Value;
             }
         }
     }
 
     private void RefreshSuggestions()
     {
-        suggestions.Clear();
+        Suggestions.Clear();
         var addedCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         void AddUniqueSuggestion(string command, string type, string description)
@@ -99,13 +99,13 @@ public unsafe class SearchHelper : Window
             if(!addedCommands.Contains(command))
             {
                 addedCommands.Add(command);
-                suggestions.Add(new CommandSuggestion(command, type, description));
+                Suggestions.Add(new CommandSuggestion(command, type, description));
             }
         }
 
         foreach(var cmd in Utils.LifestreamNativeCommands)
         {
-            var description = commandDescriptions.TryGetValue(cmd, out var desc)
+            var description = CommandDescriptions.TryGetValue(cmd, out var desc)
                 ? desc
                 : "Built-in command";
             AddUniqueSuggestion(cmd, "Built-in", description);
@@ -114,7 +114,7 @@ public unsafe class SearchHelper : Window
         var specialCommands = new[] { "help", "?", "commands", "stop" };
         foreach(var cmd in specialCommands)
         {
-            if(commandDescriptions.TryGetValue(cmd, out var desc))
+            if(CommandDescriptions.TryGetValue(cmd, out var desc))
             {
                 AddUniqueSuggestion(cmd, "System", desc);
             }
@@ -156,27 +156,27 @@ public unsafe class SearchHelper : Window
 
     public void UpdateFilter(string input)
     {
-        currentInput = input;
+        CurrentInput = input;
 
         if(input.StartsWith("/li ", StringComparison.OrdinalIgnoreCase))
         {
-            filterText = input.Substring(4);
+            FilterText = input.Substring(4);
         }
         else if(input.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
         {
-            filterText = input.Substring(3);
+            FilterText = input.Substring(3);
         }
         else
         {
-            filterText = "";
+            FilterText = "";
         }
 
         RefreshSuggestions();
 
-        filteredSuggestions = suggestions.Where(s =>
-            string.IsNullOrEmpty(filterText) ||
-            s.Command.Contains(filterText, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(s => s.Command.StartsWith(filterText, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+        FilteredSuggestions = Suggestions.Where(s =>
+            string.IsNullOrEmpty(FilterText) ||
+            s.Command.Contains(FilterText, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(s => s.Command.StartsWith(FilterText, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
             .ThenBy(s => s.Command.Length)
             .ThenBy(s => s.Command)
             .Take(12)
@@ -207,7 +207,7 @@ public unsafe class SearchHelper : Window
 
     public override void Draw()
     {
-        if(filteredSuggestions.Count == 0)
+        if(FilteredSuggestions.Count == 0)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, 0xFF808080);
             ImGui.Text("No matching commands found");
@@ -216,13 +216,13 @@ public unsafe class SearchHelper : Window
         }
 
         ImGui.PushStyleColor(ImGuiCol.Text, 0xFFFFFFFF);
-        ImGui.Text($"Lifestream Commands{(string.IsNullOrEmpty(filterText) ? "" : $" matching '{filterText}'")}:");
+        ImGui.Text($"Lifestream Commands{(string.IsNullOrEmpty(FilterText) ? "" : $" matching '{FilterText}'")}:");
         ImGui.PopStyleColor();
         ImGui.Separator();
 
-        for(var i = 0; i < filteredSuggestions.Count; i++)
+        for(var i = 0; i < FilteredSuggestions.Count; i++)
         {
-            var suggestion = filteredSuggestions[i];
+            var suggestion = FilteredSuggestions[i];
 
             var displayText = $"/li {suggestion.Command}";
             var typeText = $"[{suggestion.Type}]";
@@ -324,8 +324,7 @@ public unsafe class SearchHelper : Window
 
     public override bool DrawConditions()
     {
-        return IsOpen && filteredSuggestions.Count > 0;
+        return IsOpen && FilteredSuggestions.Count > 0;
     }
+    public record CommandSuggestion(string Command, string Type, string Description);
 }
-
-public record CommandSuggestion(string Command, string Type, string Description);

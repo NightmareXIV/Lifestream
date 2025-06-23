@@ -91,4 +91,5 @@ public class Config : IEzConfig
     public bool ProgressOverlayToTop = false;
     public bool AllowCustomOverrides = false;
     public bool DisableMapClickOtherTerritory = false;
+    public bool EnableAutoCompletion = false;
 }

@@ -26,16 +26,29 @@ internal static class TaskAetheryteAethernetTeleport
             return;
         }
 
-        if(!S.Data.DataStore.Aetherytes.Keys.FindFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
+        if(!S.Data.DataStore.Aetherytes.Keys.TryGetFirst(a => a.ID == rootAetheryteId, out var rootAetheryte))
         {
             throw new Exception($"Root aetheryte {rootAetheryteId} not found");
         }
-        if(!S.Data.DataStore.Aetherytes[rootAetheryte].FindFirst(a => a.ID == aethernetId, out var aethernet))
+        if(S.Data.DataStore.Aetherytes[rootAetheryte].TryGetFirst(a => a.ID == aethernetId, out var aethernet))
         {
-            throw new Exception($"Aethernet {aethernetId} not found under root aetheryte {rootAetheryteId}");
+            EnqueueInner(rootAetheryte.ID, rootAetheryte.TerritoryType, aethernet.Name);
         }
-
-        EnqueueInner(rootAetheryte.ID, rootAetheryte.TerritoryType, aethernet.Name);
+        else
+        {
+            if(Svc.ClientState.TerritoryType != rootAetheryte.TerritoryType || Utils.GetReachableAetheryte(x => Utils.TryGetTinyAetheryteFromIGameObject(x, out var ae) && ae.HasValue && ae.Value.ID == rootAetheryteId) == null)
+            {
+                P.TaskManager.InsertMulti(
+                    new(() => S.TeleportService.TeleportToAetheryte(rootAetheryteId), "TeleportToRootAetheryte"),
+                    new(Utils.WaitForScreenFalse),
+                    new(Utils.WaitForScreen)
+                    );
+            }
+            else
+            {
+                throw new Exception($"Could not find aetheryte {aethernetId} under root aetheryte {rootAetheryteId}");
+            }
+        }
     }
 
     private static void EnqueueInner(uint rootAetheryteId, uint territoryId, string aethernetName)

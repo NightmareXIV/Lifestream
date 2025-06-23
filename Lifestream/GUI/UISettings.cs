@@ -140,6 +140,13 @@ internal static unsafe class UISettings
             ImGui.Checkbox("Only process when next to aetheryte in the same map", ref C.DisableMapClickOtherTerritory);
         })
 
+        .Section("Command completion")
+        .Widget(() =>
+        {
+            ImGuiEx.Text($"Suggest autocompletion when typing Lifestream commands in chat");
+            ImGui.Checkbox("Enable", ref C.EnableAutoCompletion);
+        })
+
         .Section("Cross-Datacenter")
         .Widget(() =>
         {

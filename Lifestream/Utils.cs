@@ -32,6 +32,7 @@ using PInvoke;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonAirShipExploration;
 using Action = System.Action;
 using CharaData = (string Name, ushort World);
 
@@ -40,6 +41,47 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+    public static bool EnqueueTeleport(string destination, string additionalCommand)
+    {
+        foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid))
+        {
+            if(x.AetheryteData.Value.AethernetName.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+            {
+                if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
+                {
+                    ChatPrinter.Green($"[Lifestream] Destination (Aethernet): {x.AetheryteData
+                        .Value.AethernetName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                    return true;
+                }
+            }
+        }
+        foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.PlaceName.IsValid))
+        {
+            if(x.AetheryteData.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+            {
+                if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
+                {
+                    ChatPrinter.Green($"[Lifestream] Destination (Place): {x.AetheryteData
+                        .Value.PlaceName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                    return true;
+                }
+            }
+        }
+        foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.Territory.IsValid && s.AetheryteData.Value.Territory.Value.PlaceName.IsValid))
+        {
+            if(x.AetheryteData.Value.Territory.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
+            {
+                if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
+                {
+                    ChatPrinter.Green($"[Lifestream] Destination (Zone): {x.AetheryteData
+                        .Value.Territory.Value.PlaceName.Value.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public static IGameObject GetWorkshopEntrance()
     {

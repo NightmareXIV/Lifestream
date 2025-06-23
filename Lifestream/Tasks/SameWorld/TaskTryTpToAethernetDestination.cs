@@ -2,15 +2,17 @@
 using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ChatMethods;
 using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonAirShipExploration;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Lifestream.Tasks.SameWorld;
 
 internal static class TaskTryTpToAethernetDestination
 {
-    public static void Enqueue(string targetName, bool allowPartial = false)
+    public static void Enqueue(string targetName, bool allowPartial = false, bool allowTpFallback = false)
     {
         TaskManagerTask[] waiters = [new(WorldChange.WaitUntilMasterAetheryteExists), new FrameDelayTask(10), new(process)];
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
@@ -60,7 +62,20 @@ internal static class TaskTryTpToAethernetDestination
                     {
                         return;
                     }
-                    DuoLog.Error("Destination could not be found");
+                    if(allowTpFallback)
+                    {
+                        P.TaskManager.InsertStack(() =>
+                        {
+                            if(!Utils.EnqueueTeleport(targetName, null))
+                            {
+                                DuoLog.Error("Destination could not be found");
+                            }
+                        });
+                    }
+                    else
+                    {
+                        DuoLog.Error("Destination could not be found");
+                    }
                 }
                 return;
             }, $"ConditionalLockonTask");
@@ -133,10 +148,11 @@ internal static class TaskTryTpToAethernetDestination
                 var name = "Firmament";
                 if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                 {
-                    P.TaskManager.BeginStack();
-                    TaskRemoveAfkStatus.Enqueue();
-                    TaskFirmanentTeleport.Enqueue();
-                    P.TaskManager.InsertStack();
+                    P.TaskManager.InsertStack(() =>
+                    {
+                        TaskRemoveAfkStatus.Enqueue();
+                        TaskFirmanentTeleport.Enqueue();
+                    });
                     return;
                 }
             }
@@ -145,6 +161,19 @@ internal static class TaskTryTpToAethernetDestination
             {
                 return;
             }
+
+            if(allowTpFallback)
+            {
+                P.TaskManager.InsertStack(() =>
+                {
+                    if(!Utils.EnqueueTeleport(targetName, null))
+                    {
+                        DuoLog.Error("Destination could not be found");
+                    }
+                });
+                return;
+            }
+
             Notify.Error($"No destination {targetName} found");
             return;
         }

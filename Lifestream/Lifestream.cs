@@ -312,49 +312,12 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 if(!P.TaskManager.IsBusy && Player.Interactable)
                 {
-                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid))
+                    if(Utils.EnqueueTeleport(destination, additionalCommand))
                     {
-                        if(x.AetheryteData.Value.AethernetName.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
-                            {
-                                ChatPrinter.Green($"[Lifestream] Destination (Aethernet): {x.AetheryteData
-                                    .Value.AethernetName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
-                                ProcessAdditionalCommand(additionalCommand);
-                                return;
-                            }
-                        }
+                        ProcessAdditionalCommand(additionalCommand);
                     }
-                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.PlaceName.IsValid))
-                    {
-                        if(x.AetheryteData.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
-                            {
-                                ChatPrinter.Green($"[Lifestream] Destination (Place): {x.AetheryteData
-                                    .Value.PlaceName.ValueNullable?.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
-                                ProcessAdditionalCommand(additionalCommand);
-                                return;
-                            }
-                        }
-                    }
-                    foreach(var x in Svc.AetheryteList.Where(s => s.AetheryteData.IsValid && s.AetheryteData.Value.Territory.IsValid && s.AetheryteData.Value.Territory.Value.PlaceName.IsValid))
-                    {
-                        if(x.AetheryteData.Value.Territory.Value.PlaceName.Value.Name.ToString().Contains(destination, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if(S.TeleportService.TeleportToAetheryte(x.AetheryteId, wait: !additionalCommand.IsNullOrEmpty()))
-                            {
-                                ChatPrinter.Green($"[Lifestream] Destination (Zone): {x.AetheryteData
-                                    .Value.Territory.Value.PlaceName.Value.Name} at {ExcelTerritoryHelper.GetName(x.AetheryteData.Value.Territory.RowId)}");
-                                ProcessAdditionalCommand(additionalCommand);
-                                return;
-                            }
-                        }
-                    }
-                    DuoLog.Error($"Could not parse {destination}");
                 }
             }
-
         }
         else if(Utils.TryParseAddressBookEntry(arguments, out var entry))
         {
@@ -425,7 +388,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 }
                 else
                 {
-                    TaskTryTpToAethernetDestination.Enqueue(primary, true);
+                    TaskTryTpToAethernetDestination.Enqueue(primary, true, true);
                 }
 
                 ProcessAdditionalCommand(additionalCommand);
@@ -675,14 +638,23 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         try
         {
-            if(S.SearchHelper == null) return;
+            if(S.SearchHelperOverlay == null) return;
+
+            if(!C.EnableAutoCompletion)
+            {
+                if(S.SearchHelperOverlay.IsOpen)
+                {
+                    S.SearchHelperOverlay.IsOpen = false;
+                }
+                return;
+            }
 
             var component = GetActiveTextInput();
             if(component == null)
             {
-                if(S.SearchHelper.IsOpen)
+                if(S.SearchHelperOverlay.IsOpen)
                 {
-                    S.SearchHelper.IsOpen = false;
+                    S.SearchHelperOverlay.IsOpen = false;
                 }
                 return;
             }
@@ -691,9 +663,9 @@ public unsafe class Lifestream : IDalamudPlugin
             if(addon == null) addon = component->ContainingAddon2;
             if(addon == null || addon->NameString != "ChatLog")
             {
-                if(S.SearchHelper.IsOpen)
+                if(S.SearchHelperOverlay.IsOpen)
                 {
-                    S.SearchHelper.IsOpen = false;
+                    S.SearchHelperOverlay.IsOpen = false;
                 }
                 return;
             }
@@ -704,15 +676,15 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 if(currentText.Length >= 3)
                 {
-                    S.SearchHelper.UpdateFilter(currentText);
-                    S.SearchHelper.IsOpen = true;
+                    S.SearchHelperOverlay.UpdateFilter(currentText);
+                    S.SearchHelperOverlay.IsOpen = true;
                 }
             }
             else
             {
-                if(S.SearchHelper.IsOpen)
+                if(S.SearchHelperOverlay.IsOpen)
                 {
-                    S.SearchHelper.IsOpen = false;
+                    S.SearchHelperOverlay.IsOpen = false;
                 }
             }
         }
