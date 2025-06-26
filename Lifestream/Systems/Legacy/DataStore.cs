@@ -6,6 +6,7 @@ using Lifestream.Data;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
 using static ECommons.Singletons.SingletonServiceManager;
+using Map = Lumina.Excel.Sheets.Map;
 using Path = System.IO.Path;
 
 namespace Lifestream.Systems.Legacy;
