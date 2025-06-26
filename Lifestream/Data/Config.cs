@@ -92,4 +92,8 @@ public class Config : IEzConfig
     public bool AllowCustomOverrides = false;
     public bool DisableMapClickOtherTerritory = false;
     public bool EnableAutoCompletion = false;
+    public bool AutoCompletionFixedWindow = false;
+    public bool AutoCompletionWindowBottom = false;
+    public bool AutoCompletionWindowRight = false;
+    public Vector2 AutoCompletionWindowOffset = Vector2.Zero;
 }

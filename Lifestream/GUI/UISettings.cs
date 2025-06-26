@@ -145,6 +145,13 @@ internal static unsafe class UISettings
         {
             ImGuiEx.Text($"Suggest autocompletion when typing Lifestream commands in chat");
             ImGui.Checkbox("Enable", ref C.EnableAutoCompletion);
+            ImGui.Checkbox("Display popup window at fixed position", ref C.AutoCompletionFixedWindow);
+            ImGui.Indent();
+            ImGui.SetNextItemWidth(200f.Scale());
+            ImGui.DragFloat2("Position", ref C.AutoCompletionWindowOffset, 1f);
+            ImGuiEx.RadioButtonBool("From bottom", "From top", ref C.AutoCompletionWindowBottom, sameLine: true, inverted: true);
+            ImGuiEx.RadioButtonBool("From right", "From left", ref C.AutoCompletionWindowRight, sameLine: true, inverted: true);
+            ImGui.Unindent();
         })
 
         .Section("Cross-Datacenter")

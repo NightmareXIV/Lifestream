@@ -16,11 +16,12 @@ public unsafe class SearchHelperOverlay : Window
     private string CurrentInput = "";
     private string FilterText = "";
     private Dictionary<string, string> CommandDescriptions = [];
+    private Vector2 WindowSize;
 
     public SearchHelperOverlay() : base("##LifestreamSearchHelper",
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
         ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize |
-        ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoSavedSettings)
+        ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoSavedSettings, true)
     {
         ParseCommandDescriptions();
         RefreshSuggestions();
@@ -185,11 +186,21 @@ public unsafe class SearchHelperOverlay : Window
 
     public override void PreDraw()
     {
-        if(TryGetAddonByName<AtkUnitBase>("ChatLog", out var chatAddon))
+        if(C.AutoCompletionFixedWindow)
         {
-            var chatPos = new Vector2(chatAddon->X, chatAddon->Y);
-            var suggestionsPos = new Vector2(chatPos.X, chatPos.Y - 220);
-            ImGui.SetNextWindowPos(suggestionsPos);
+            ImGuiHelpers.SetNextWindowPosRelativeMainViewport(new(
+                    C.AutoCompletionWindowRight ? ImGuiHelpers.MainViewport.Size.X - C.AutoCompletionWindowOffset.X - WindowSize.X : C.AutoCompletionWindowOffset.X,
+                    C.AutoCompletionWindowBottom ? ImGuiHelpers.MainViewport.Size.Y - C.AutoCompletionWindowOffset.Y - WindowSize.Y : C.AutoCompletionWindowOffset.Y
+                    ));
+        }
+        else
+        {
+            if(TryGetAddonByName<AtkUnitBase>("ChatLog", out var chatAddon))
+            {
+                var chatPos = new Vector2(chatAddon->X, chatAddon->Y);
+                var suggestionsPos = new Vector2(chatPos.X, chatPos.Y - 220);
+                ImGuiHelpers.SetNextWindowPosRelativeMainViewport(suggestionsPos);
+            }
         }
 
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.One * 6);
@@ -272,6 +283,7 @@ public unsafe class SearchHelperOverlay : Window
         ImGui.PushStyleColor(ImGuiCol.Text, 0xFF808080);
         ImGui.Text("Click to complete");
         ImGui.PopStyleColor();
+        WindowSize = ImGui.GetWindowSize();
     }
 
     private void CompleteCommand(string command)
