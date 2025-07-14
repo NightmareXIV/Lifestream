@@ -34,6 +34,7 @@ public class CustomAliasCommand
     public bool NoDisableYesAlready = false;
     public bool UseFlight = false;
     public float Scatter = 0f;
+    public bool MountUpConditional = false;
 
     public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
     public bool ShouldSerializeUseFlight() => Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point) && UseFlight != Default.UseFlight;
@@ -52,6 +53,7 @@ public class CustomAliasCommand
     public bool ShouldSerializeSelectOption() => SelectOption.Count > 0;
     public bool ShouldSerializeStopOnScreenFade() => StopOnScreenFade != Default.StopOnScreenFade;
     public bool ShouldSerializeNoDisableYesAlready() => NoDisableYesAlready != Default.NoDisableYesAlready;
+    public bool ShouldSerializeMountUpConditional() => MountUpConditional != Default.MountUpConditional;
 
     public void Enqueue(List<Vector3> appendMovement)
     {
@@ -153,13 +155,16 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Interact)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && Utils.DismountIfNeeded());
             P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == DataID)));
         }
         else if(Kind == CustomAliasKind.Mount_Up)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            P.TaskManager.Enqueue(TaskMount.MountIfCan);
+            if(!MountUpConditional || C.UseMount)
+            {
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+                P.TaskManager.Enqueue(TaskMount.MountIfCan);
+            }
         }
         else if(Kind == CustomAliasKind.Select_Yes)
         {

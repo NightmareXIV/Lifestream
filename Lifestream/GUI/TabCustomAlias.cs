@@ -363,6 +363,10 @@ public static class TabCustomAlias
                 command.DataID = Svc.Targets.Target.DataId;
             }
         }
+        if(command.Kind == CustomAliasKind.Mount_Up)
+        {
+            ImGui.Checkbox("Only mount up if enabled in configuration", ref command.MountUpConditional);
+        }
         if(command.Kind.EqualsAny(CustomAliasKind.Select_Yes, CustomAliasKind.Select_List_Option))
         {
             ImGuiEx.TextWrapped($"List entries that you would like to select/confirm:");

@@ -391,8 +391,9 @@ internal static unsafe partial class Utils
         if(Utils.IsMountedEx())
         {
             EzThrottler.Throttle("PlayerMounted", 200, true);
-            if(EzThrottler.Throttle("DismountPlayer", 1000))
+            if(Svc.Condition[ConditionFlag.Mounted] && EzThrottler.Throttle("DismountPlayer", 1000))
             {
+                PluginLog.Information("Dismounting...");
                 Chat.ExecuteGeneralAction(23);
             }
             return false;

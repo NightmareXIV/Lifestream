@@ -116,6 +116,17 @@ public unsafe class Lifestream : IDalamudPlugin
 
     internal void ProcessCommand(string command, string arguments)
     {
+        foreach(var x in (string[])[
+                    ..Utils.LifestreamNativeCommands,
+                    ..C.CustomAliases.Where(x => x.Enabled && x.Alias != "").Select(x => x.Alias),
+                    ..C.AddressBookFolders.SelectMany(x => x.Entries).Where(x => x.AliasEnabled && x.Alias != "").Select(x => x.Alias)])
+        {
+            if(arguments.EndsWith($" {x}", StringComparison.OrdinalIgnoreCase))
+            {
+                arguments = arguments[0..(arguments.Length - x.Length)] + $",{x}";
+                PluginLog.Information($"New args: {arguments}");
+            }
+        }
         var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var primary = argsSplit.SafeSelect(0) ?? "";
         var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
@@ -355,16 +366,6 @@ public unsafe class Lifestream : IDalamudPlugin
                     return;
                 }
 
-                foreach(var x in (string[])[
-                    ..Utils.LifestreamNativeCommands,
-                    ..C.CustomAliases.Where(x => x.Enabled && x.Alias != "").Select(x => x.Alias),
-                    ..C.AddressBookFolders.SelectMany(x => x.Entries).Where(x => x.AliasEnabled && x.Alias != "").Select(x => x.Alias)])
-                {
-                    if(arguments.EndsWith($" {x}", StringComparison.OrdinalIgnoreCase))
-                    {
-                        arguments = arguments[0..(arguments.Length - x.Length)] + $",{x}";
-                    }
-                }
                 WorldChangeAetheryte? gateway = null;
                 if(additionalCommand == "mb")
                 {
