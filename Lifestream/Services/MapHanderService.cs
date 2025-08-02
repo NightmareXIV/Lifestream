@@ -47,95 +47,95 @@ public unsafe class MapHanderService : IDisposable
                 CursorTarget: {(addon->CursorTarget == null?"-": addon->CursorTarget->NodeId)}
                 """);*/
             var isLeftClicked = *(byte*)(evt.Data + 6) == 0;
-            if(evt.AtkEventType == (int)AtkEventType.MouseUp)
+            var isGamePadClick = *(byte*)(evt.Data + 17) == 1;
+            var isGamePadInput = evt.AtkEventType == (int)AtkEventType.InputBaseInputReceived;
+            var isMouseUp = evt.AtkEventType == (int)AtkEventType.MouseUp;
+            if (isMouseUp && isLeftClicked || isGamePadInput && isGamePadClick)
             {
-                if(isLeftClicked)
+                if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))
                 {
-                    if(!Bitmask.IsBitSet(User32.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(User32.GetKeyState((int)Keys.RControlKey), 15))
+                    if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) && IsAddonReady(addonTooltip) && addonTooltip->IsVisible)
                     {
-                        if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) && IsAddonReady(addonTooltip) && addonTooltip->IsVisible)
+                        var node = addonTooltip->UldManager.NodeList[2]->GetAsAtkTextNode();
+                        var text = GenericHelpers.ReadSeString(&node->NodeText).GetText();
+                        if(P.ActiveAetheryte != null)
                         {
-                            var node = addonTooltip->UldManager.NodeList[2]->GetAsAtkTextNode();
-                            var text = GenericHelpers.ReadSeString(&node->NodeText).GetText();
-                            if(P.ActiveAetheryte != null)
+                            var master = Utils.GetMaster();
+                            foreach(var x in S.Data.DataStore.Aetherytes[master])
                             {
-                                var master = Utils.GetMaster();
-                                foreach(var x in S.Data.DataStore.Aetherytes[master])
+                                if(x.Name == text)
+                                {
+                                    if(P.ActiveAetheryte.Value.ID == x.ID)
+                                    {
+                                        Notify.Error("You are already here!");
+                                    }
+                                    else
+                                    {
+                                        TaskAethernetTeleport.Enqueue(x);
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                        if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
+                        {
+                            var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
+                            if(zone != null)
+                            {
+                                foreach(var x in zone.Aetherytes)
                                 {
                                     if(x.Name == text)
                                     {
-                                        if(P.ActiveAetheryte.Value.ID == x.ID)
+                                        if(S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
                                         {
                                             Notify.Error("You are already here!");
                                         }
                                         else
                                         {
-                                            TaskAethernetTeleport.Enqueue(x);
+                                            TaskAethernetTeleport.Enqueue(x.Name);
                                         }
                                         return;
                                     }
                                 }
                             }
-                            if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
+                        }
+                        if(S.Data.CustomAethernet.ActiveAetheryte != null)
+                        {
+                            var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
+                            if(zone != null)
                             {
-                                var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
-                                if(zone != null)
+                                foreach(var x in zone.Aetherytes)
                                 {
-                                    foreach(var x in zone.Aetherytes)
+                                    if(x.Name.StartsWith(text))
                                     {
-                                        if(x.Name == text)
+                                        if(S.Data.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
                                         {
-                                            if(S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
-                                            {
-                                                Notify.Error("You are already here!");
-                                            }
-                                            else
-                                            {
-                                                TaskAethernetTeleport.Enqueue(x.Name);
-                                            }
-                                            return;
+                                            Notify.Error("You are already here!");
                                         }
+                                        else
+                                        {
+                                            TaskAethernetTeleport.Enqueue(x.Name);
+                                        }
+                                        return;
                                     }
                                 }
-                            }
-                            if(S.Data.CustomAethernet.ActiveAetheryte != null)
-                            {
-                                var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
-                                if(zone != null)
+                                if(zone.GenericAetheryteNames.Contains(text))
                                 {
-                                    foreach(var x in zone.Aetherytes)
-                                    {
-                                        if(x.Name.StartsWith(text))
-                                        {
-                                            if(S.Data.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
-                                            {
-                                                Notify.Error("You are already here!");
-                                            }
-                                            else
-                                            {
-                                                TaskAethernetTeleport.Enqueue(x.Name);
-                                            }
-                                            return;
-                                        }
-                                    }
-                                    if(zone.GenericAetheryteNames.Contains(text))
-                                    {
-                                        var target = zone.Aetherytes.MinBy(x => Vector2.Distance(x.MapPosition.Value, addon->HoveredCoords));
-                                        TaskAethernetTeleport.Enqueue(target.Name);
-                                    }
+                                    var target = zone.Aetherytes.MinBy(x => Vector2.Distance(x.MapPosition.Value, addon->HoveredCoords));
+                                    TaskAethernetTeleport.Enqueue(target.Name);
                                 }
                             }
-                            if(!C.DisableMapClickOtherTerritory)
+                        }
+                        if(!C.DisableMapClickOtherTerritory)
+                        {
+                            foreach(var x in S.Data.DataStore.Aetherytes)
                             {
-                                foreach(var x in S.Data.DataStore.Aetherytes)
+                                foreach(var a in x.Value)
                                 {
-                                    foreach(var a in x.Value)
+                                    if(a.Name == text)
                                     {
-                                        if(a.Name == text)
-                                        {
-                                            TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
-                                            return;
-                                        }
+                                        TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
+                                        return;
                                     }
                                 }
                             }
