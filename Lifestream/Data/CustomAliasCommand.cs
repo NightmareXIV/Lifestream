@@ -35,7 +35,9 @@ public class CustomAliasCommand
     public bool UseFlight = false;
     public float Scatter = 0f;
     public bool MountUpConditional = false;
+    public bool RequireTerritoryChange = false;
 
+    public bool ShouldSerializeRequireTerritoryChange() => Kind.EqualsAny(CustomAliasKind.Wait_for_Transition);
     public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
     public bool ShouldSerializeUseFlight() => Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point) && UseFlight != Default.UseFlight;
     public bool ShouldSerializePoint() => Point != Default.Point;
@@ -59,7 +61,7 @@ public class CustomAliasCommand
     {
         if(Kind == CustomAliasKind.Change_world)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             if(World != Player.Object.CurrentWorld.RowId)
             {
                 var world = ExcelWorldHelper.GetName(World);
@@ -75,15 +77,16 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Move_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-            if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
-            P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
-            P.TaskManager.Enqueue(() => P.FollowPath.Move([Point.Scatter(Scatter), .. appendMovement], true));
-            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
+            if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan, $"{Kind}: Fly if can");
+            P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false), $"{Kind}: use sprint");
+            P.TaskManager.Enqueue(() => P.FollowPath.Move([Point.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
+            P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied");
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS:5*60*1000));
             if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
                 P.TaskManager.Enqueue(() =>
@@ -93,12 +96,9 @@ public class CustomAliasCommand
                         Position = Point,
                         NoInteract = true,
                     }, 5f);
-                });
-                P.TaskManager.Enqueue(S.Ipc.TextAdvanceIPC.IsBusy, new(abortOnTimeout: false, timeLimitMS: 5000));
-                P.TaskManager.Enqueue(() => !S.Ipc.TextAdvanceIPC.IsBusy(), new(timeLimitMS: 1000 * 60 * 5));
-                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true));
-                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
-                P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+                }, $"{Kind}: Move to 2d point via TX");
+                P.TaskManager.Enqueue(S.Ipc.TextAdvanceIPC.IsBusy, $"{Kind}: wait until movement starts", new(abortOnTimeout: false, timeLimitMS: 5000));
+                P.TaskManager.Enqueue(() => !S.Ipc.TextAdvanceIPC.IsBusy(), $"{Kind}: wait until movement ends", new(timeLimitMS: 1000 * 60 * 5));
             }
             else
             {
@@ -113,11 +113,22 @@ public class CustomAliasCommand
                         new(() => P.FollowPath.Waypoints.Count == 0)
                         );
                 });
+
+                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true), $"{Kind}: Move");
+                P.TaskManager.Enqueue(() =>
+                {
+                    if(!IsScreenReady())
+                    {
+                        P.FollowPath.Stop();
+                    }
+                    return WaitForMoveEndOrOccupied();
+                }, $"{Kind}: Wait until move ends/occupied");
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             }
         }
         else if(Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             P.TaskManager.Enqueue(() =>
             {
                 var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(Aetheryte);
@@ -130,11 +141,11 @@ public class CustomAliasCommand
                         new(() => IsScreenReady())
                         );
                 }
-            });
+            }, $"{Kind}: Teleport to aetheryte {this.Aetheryte}");
         }
         else if(Kind == CustomAliasKind.Use_Aethernet)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "Wait until screen ready");
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             P.TaskManager.Enqueue(() =>
             {
                 P.TaskManager.InsertStack(() =>
@@ -142,9 +153,9 @@ public class CustomAliasCommand
                     var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
                     TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
                 });
-            }, "Teleport to aethernet destination");
-            P.TaskManager.Enqueue(() => !IsScreenReady(), "Wait until screen is not ready");
-            P.TaskManager.Enqueue(IsScreenReady, "Wait until screen is ready");
+            }, $"{Kind}: Teleport to aethernet destination");
+            P.TaskManager.Enqueue(() => !IsScreenReady(), $"{Kind}: Wait until screen is not ready");
+            P.TaskManager.Enqueue(IsScreenReady, $"{Kind}: Wait until screen is ready");
         }
         else if(Kind == CustomAliasKind.Circular_movement)
         {
@@ -185,31 +196,50 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Select_List_Option)
         {
+            var gId = Guid.NewGuid();
             P.TaskManager.Enqueue(() =>
             {
                 if(StopOnScreenFade && !IsScreenReady()) return true;
+                ref var clicked = ref Ref<bool>.Get($"{ID}_{gId}", false);
+                var visible = false;
                 {
-                    if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
+                    if(TryGetAddonMaster<AddonMaster.SelectString>(out var m))
                     {
-                        if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
+                        if(m.IsAddonReady)
                         {
-                            e.Select();
-                            return true;
+                            if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e))
+                            {
+                                visible = true;
+                                if(EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
+                                {
+                                    e.Select();
+                                    clicked = true;
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
                 {
-                    if(TryGetAddonMaster<AddonMaster.SelectIconString>(out var m) && m.IsAddonReady)
+                    if(TryGetAddonMaster<AddonMaster.SelectIconString>(out var m))
                     {
-                        if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e) && EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
+                        if(m.IsAddonReady)
                         {
-                            e.Select();
-                            return true;
+                            if(Utils.TryFindEqualsOrContains(m.Entries, e => e.Text, SelectOption.Where(x => x.Length > 0).Select(Utils.ParseSheetPattern), out var e))
+                            {
+                                visible = true;
+                                if(EzThrottler.Throttle($"CustomCommandSelectString_{ID}", 200))
+                                {
+                                    e.Select();
+                                    clicked = true;
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
-                return false;
-            }, new(abortOnTimeout: false, timeLimitMS: 10000));
+                return clicked && !visible;
+            }, $"{Kind}: {this.SelectOption.Print()}", new(abortOnTimeout: false, timeLimitMS: 10000));
         }
         else if(Kind == CustomAliasKind.Confirm_Contents_Finder)
         {
@@ -228,5 +258,26 @@ public class CustomAliasCommand
                 return false;
             }, new(abortOnTimeout: false, timeLimitMS: 20000));
         }
+        else if(Kind == CustomAliasKind.Wait_for_Transition)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                var territory = Svc.ClientState.TerritoryType;
+                P.TaskManager.InsertStack(() =>
+                {
+                    P.TaskManager.Enqueue(() => !IsScreenReady(), $"{Kind}: Wait for screen not ready");
+                    P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && (!this.RequireTerritoryChange || Svc.ClientState.TerritoryType != territory), $"{Kind}: Wait for screen ready {ExcelTerritoryHelper.GetName(territory, true)}");
+                });
+            }, $"{Kind}: Wait for transition");
+        }
+    }
+
+    private bool? WaitForMoveEndOrOccupied()
+    {
+        if(Svc.Condition[ConditionFlag.Occupied33])
+        {
+            P.FollowPath.Stop();
+        }
+        return P.FollowPath.Waypoints.Count == 0;
     }
 }

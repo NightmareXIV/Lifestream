@@ -117,7 +117,8 @@ public static class TabCustomAlias
                     });
                 }
 
-                ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind.ToString().Replace('_', ' ')}{GetExtraText(x)}###{x.ID}", () => DrawCommand(x, selected), ImGuiTreeNodeFlags.CollapsingHeader);
+                var index = i;
+                ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind.ToString().Replace('_', ' ')}{GetExtraText(x)}###{x.ID}", () => DrawCommand(x, selected, i), ImGuiTreeNodeFlags.CollapsingHeader);
                 DrawSplatoon(x, i);
 
 
@@ -178,7 +179,7 @@ public static class TabCustomAlias
     private static readonly uint[] Aetherytes = Svc.Data.GetExcelSheet<Aetheryte>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().IsNullOrEmpty() == false && x.IsAetheryte).Select(x => x.RowId).ToArray();
     private static readonly Dictionary<uint, string> AetherytePlaceNames = Aetherytes.Select(Svc.Data.GetExcelSheet<Aetheryte>().GetRow).ToDictionary(x => x.RowId, x => x.PlaceName.Value.Name.ToString());
 
-    private static void DrawCommand(CustomAliasCommand command, CustomAlias selected)
+    private static void DrawCommand(CustomAliasCommand command, CustomAlias selected, int index)
     {
         ImGui.PushID(command.ID);
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Copy, "Copy"))
@@ -191,6 +192,17 @@ public static class TabCustomAlias
             new TickScheduler(() => selected.Commands.Remove(command));
         }
         ImGuiEx.Tooltip("Press CTRL and click");
+
+        ImGui.SameLine();
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Run", enabled: !Utils.IsBusy()))
+        {
+            selected.Enqueue(inclusiveStart: index, exclusiveEnd: index + 1);
+        }
+        ImGui.SameLine();
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.AngleDoubleDown, "Run and continue", enabled: !Utils.IsBusy()))
+        {
+            selected.Enqueue(inclusiveStart: index);
+        }
 
         ImGui.Separator();
         ImGui.SetNextItemWidth(150f.Scale());
@@ -401,6 +413,11 @@ public static class TabCustomAlias
         if(command.Kind.EqualsAny(CustomAliasKind.Select_Yes, CustomAliasKind.Select_List_Option, CustomAliasKind.Confirm_Contents_Finder))
         {
             ImGui.Checkbox("Skip on screen fade", ref command.StopOnScreenFade);
+        }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Wait_for_Transition))
+        {
+            ImGui.Checkbox("Require territory change", ref command.RequireTerritoryChange);
         }
         ImGui.PopID();
     }

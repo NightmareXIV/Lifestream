@@ -17,19 +17,29 @@ public class CustomAlias : IFileSystemStorage
     public string GetCustomName() => null;
     public void SetCustomName(string s) { }
 
-    public void Enqueue(bool force = false)
+    public void Enqueue(bool force = false, int? inclusiveStart = null, int? exclusiveEnd = null)
     {
         if(force || !Utils.IsBusy())
         {
-            for(var i = 0; i < Commands.Count; i++)
+            var cmds = Commands;
+            if(inclusiveStart.HasValue && inclusiveStart.Value > 0 && inclusiveStart.Value < cmds.Count)
+            {
+                cmds = [.. cmds.Skip(inclusiveStart.Value)];
+            }
+
+            if(exclusiveEnd.HasValue && exclusiveEnd.Value > 0 && exclusiveEnd.Value < cmds.Count)
+            {
+                cmds = [.. cmds.Take(exclusiveEnd.Value - (inclusiveStart ?? 0))];
+            }
+            for(var i = 0; i < cmds.Count; i++)
             {
                 List<Vector3> append = [];
-                var cmd = Commands[i];
+                var cmd = cmds[i];
                 if(cmd.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement) == true)
                 {
-                    while(Commands.SafeSelect(i + 1)?.Kind == CustomAliasKind.Move_to_point)
+                    while(cmds.SafeSelect(i + 1)?.Kind == CustomAliasKind.Move_to_point)
                     {
-                        var c = Commands[i + 1];
+                        var c = cmds[i + 1];
                         append.Add(c.Point.Scatter(c.Scatter));
                         i++;
                     }
