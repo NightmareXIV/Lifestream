@@ -355,6 +355,8 @@ internal static unsafe class UIDebug
             if(ImGui.Button("ConnectAndOpenCharaSelect")) DuoLog.Information($"{S.Ipc.IPCProvider.ConnectAndOpenCharaSelect(name, world)}");
             if(ImGui.Button("InitiateTravelFromCharaSelectScreen")) DuoLog.Information($"{S.Ipc.IPCProvider.InitiateTravelFromCharaSelectScreen(name, world, dest, nologin)}");
             if(ImGui.Button("ConnectAndTravel")) DuoLog.Information($"{S.Ipc.IPCProvider.ConnectAndTravel(name, world, dest, nologin)}");
+            if(ImGui.Button("ConnectAndLogin")) DuoLog.Information($"{S.Ipc.IPCProvider.ConnectAndLogin(name, world)}");
+            if(ImGui.Button("InitiateLoginFromCharaSelectScreen")) DuoLog.Information($"{S.Ipc.IPCProvider.InitiateLoginFromCharaSelectScreen(name, world)}");
         }
         if(ImGui.CollapsingHeader("ApproachConditionIsMet"))
         {

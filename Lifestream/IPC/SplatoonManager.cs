@@ -38,7 +38,7 @@ public class SplatoonManager
             {
                 var point = GetNextPoint(addNumbers ? (i + 1).ToString() : "");
                 point.SetRefCoord(path[i]);
-                var line = GetNextLine();
+                var line = GetNextLine(EColor.Red, 1);
                 line.SetRefCoord(path[i]);
                 line.SetOffCoord(prev ?? Player.Object.Position);
                 line.color = (prev != null ? ImGuiColors.DalamudYellow : ImGuiColors.HealerGreen).ToUint();
@@ -52,7 +52,7 @@ public class SplatoonManager
         }
     }
 
-    public Element GetNextLine()
+    public Element GetNextLine(Vector4 color, float thickness)
     {
         ResetOnFrameChange();
         Element ret;
@@ -70,6 +70,8 @@ public class SplatoonManager
             Cache.WaymarkLineCache.Add(ret);
         }
         Cache.WaymarkLinePos++;
+        ret.color = color.ToUint();
+        ret.thicc = thickness;
         return ret;
     }
 

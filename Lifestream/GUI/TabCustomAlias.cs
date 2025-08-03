@@ -41,6 +41,7 @@ public static class TabCustomAlias
     private static void DrawAlias(CustomAlias selected)
     {
         AssignAllChainGroups(selected);
+        DrawSplatoon(selected);
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add new"))
         {
             selected.Commands.Add(new() { Territory = Player.Available ? Player.Territory : 0 });
@@ -180,6 +181,31 @@ public static class TabCustomAlias
             return $" [{x.DataID}]";
         }
         return "";
+    }
+
+    private static void DrawSplatoon(CustomAlias alias)
+    {
+        if(!Splatoon.IsConnected()) return;
+        {
+            var lines = Utils.GenerateGroupConnectionLines(alias);
+            foreach(var x in lines)
+            {
+                var line = S.Ipc.SplatoonManager.GetNextLine(EColor.GreenBright, 1f);
+                line.SetRefCoord(x.Start);
+                line.SetOffCoord(x.End);
+                Splatoon.DisplayOnce(line);
+            }
+        }
+        {
+            var lines = Utils.GenerateGroupConnectionLines(alias, 0.25f);
+            foreach(var x in lines)
+            {
+                var line = S.Ipc.SplatoonManager.GetNextLine(EColor.YellowBright, 1f);
+                line.SetRefCoord(x.Start);
+                line.SetOffCoord(x.End);
+                Splatoon.DisplayOnce(line);
+            }
+        }
     }
 
     private static void DrawSplatoon(CustomAliasCommand command, int index)
@@ -341,6 +367,39 @@ public static class TabCustomAlias
             {
                 drawFlight();
             }
+        }
+
+        if(command.Kind == CustomAliasKind.Move_to_point)
+        {
+            if(command.ExtraPoints.Count > 0)
+            {
+                ImGuiEx.Text("Extra Points:");
+            }
+            ImGui.Indent();
+            for(var i = 0; i < command.ExtraPoints.Count; i++)
+            {
+                var pointIndex = i;
+                ImGui.PushID($"Point{i}");
+                var x = command.ExtraPoints[i];
+                Utils.DrawVector3Selector($"walktopointextra{i}{command.ID}", ref x);
+                if(x != command.ExtraPoints[i])
+                {
+                    command.ExtraPoints[i] = x;
+                }
+                ImGui.SameLine(0, 1);
+                if(ImGuiEx.IconButton(FontAwesomeIcon.Trash))
+                {
+                    new TickScheduler(() => command.ExtraPoints.RemoveAt(pointIndex));
+                }
+                ImGui.PopID();
+            }
+            ImGui.Unindent();
+
+            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add Extra Point"))
+            {
+                command.ExtraPoints.Add(new());
+            }
+            ImGuiEx.Tooltip("Random point will be selected. Scatter will remain the same across all points.");
         }
 
         void drawFlight()

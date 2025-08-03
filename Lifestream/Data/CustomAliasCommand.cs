@@ -19,6 +19,7 @@ public class CustomAliasCommand
     internal int ChainGroup = 0;
     public CustomAliasKind Kind;
     public Vector3 Point;
+    public List<Vector3> ExtraPoints = [];
     public uint Aetheryte;
     public int World;
     public Vector2 CenterPoint;
@@ -39,6 +40,7 @@ public class CustomAliasCommand
     public bool RequireTerritoryChange = false;
     public uint Territory = 0;
 
+    public bool ShouldSerializeExtraPoints() => ExtraPoints.Count > 0;
     public bool ShouldSerializeTerritory() => Territory != 0;
     public bool ShouldSerializeRequireTerritoryChange() => Kind.EqualsAny(CustomAliasKind.Wait_for_Transition);
     public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
@@ -80,17 +82,18 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Move_to_point)
         {
+            var selectedPoint = GenericHelpers.GetRandom([Point, .. ExtraPoints]);
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
             if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan, $"{Kind}: Fly if can");
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false), $"{Kind}: use sprint");
-            P.TaskManager.Enqueue(() => P.FollowPath.Move([Point.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
+            P.TaskManager.Enqueue(() => P.FollowPath.Move([selectedPoint.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
             P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied");
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS:5*60*1000));
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS: 5 * 60 * 1000));
             P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
             if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
@@ -139,7 +142,7 @@ public class CustomAliasCommand
                         new(() => IsScreenReady())
                         );
                 }
-            }, $"{Kind}: Teleport to aetheryte {this.Aetheryte}");
+            }, $"{Kind}: Teleport to aetheryte {Aetheryte}");
         }
         else if(Kind == CustomAliasKind.Use_Aethernet)
         {
@@ -237,7 +240,7 @@ public class CustomAliasCommand
                     }
                 }
                 return clicked && !visible;
-            }, $"{Kind}: {this.SelectOption.Print()}", new(abortOnTimeout: false, timeLimitMS: 10000));
+            }, $"{Kind}: {SelectOption.Print()}", new(abortOnTimeout: false, timeLimitMS: 10000));
         }
         else if(Kind == CustomAliasKind.Confirm_Contents_Finder)
         {
@@ -264,7 +267,7 @@ public class CustomAliasCommand
                 P.TaskManager.InsertStack(() =>
                 {
                     P.TaskManager.Enqueue(() => !IsScreenReady(), $"{Kind}: Wait for screen not ready");
-                    P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && (!this.RequireTerritoryChange || Svc.ClientState.TerritoryType != territory), $"{Kind}: Wait for screen ready {ExcelTerritoryHelper.GetName(territory, true)}");
+                    P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && (!RequireTerritoryChange || Svc.ClientState.TerritoryType != territory), $"{Kind}: Wait for screen ready {ExcelTerritoryHelper.GetName(territory, true)}");
                 });
             }, $"{Kind}: Wait for transition");
         }

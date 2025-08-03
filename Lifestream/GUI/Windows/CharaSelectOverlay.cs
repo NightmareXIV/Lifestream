@@ -2,6 +2,7 @@
 using ECommons.SimpleGui;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Systems;
+using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.Login;
 using World = Lumina.Excel.Sheets.World;
 
@@ -119,82 +120,96 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
             && !Utils.IsAddonVisible("AddonContextSub");
     }
 
-    public static void ReconnectToValidDC(string charaName, uint currentWorld, uint homeWorld, World world, bool noLogin)
+    public static void ReconnectToValidDC(string charaName, uint currentWorld, uint homeWorld, World? world, bool noLogin)
     {
-        try
+        if(world.HasValue)
         {
-            Utils.AssertCanTravel(charaName, homeWorld, currentWorld, world.RowId);
-        }
-        catch(Exception e)
-        {
-            e.Log();
-            return;
+            try
+            {
+                Utils.AssertCanTravel(charaName, homeWorld, currentWorld, world.Value.RowId);
+            }
+            catch(Exception e)
+            {
+                e.Log();
+                return;
+            }
         }
         P.TaskManager.Enqueue(TaskChangeCharacter.CloseCharaSelect);
         P.TaskManager.Enqueue(() => TaskChangeCharacter.ConnectToDc(ExcelWorldHelper.GetName(currentWorld), Utils.GetServiceAccount($"{charaName}@{ExcelWorldHelper.GetName(homeWorld)}")));
         P.TaskManager.Enqueue(() => Command(charaName, currentWorld, homeWorld, world, noLogin));
     }
 
-    public static void Command(string charaName, uint currentWorld, uint homeWorld, World targetWorld, bool noLogin)
+    public static void Command(string charaName, uint currentWorld, uint homeWorld, World? targetWorld, bool noLogin)
     {
         var charaCurrentWorld = ExcelWorldHelper.Get(currentWorld);
         var charaHomeWorld = ExcelWorldHelper.Get(homeWorld);
-        try
+        if(targetWorld.HasValue)
         {
-            Utils.AssertCanTravel(charaName, homeWorld, currentWorld, targetWorld.RowId);
-        }
-        catch(Exception e)
-        {
-            e.Log();
-            return;
+            try
+            {
+                Utils.AssertCanTravel(charaName, homeWorld, currentWorld, targetWorld.Value.RowId);
+            }
+            catch(Exception e)
+            {
+                e.Log();
+                return;
+            }
         }
         var isInHomeDc = charaCurrentWorld?.DataCenter.RowId == charaHomeWorld?.DataCenter.RowId;
-        if(targetWorld.RowId == charaHomeWorld?.RowId)
+        if(targetWorld.HasValue)
         {
-            //returning home
-            if(isInHomeDc)
+            if(targetWorld.Value.RowId == charaHomeWorld?.RowId)
             {
-                PluginLog.Information($"CharaSelectVisit: Return - HomeToHome (1)");
-                CharaSelectVisit.HomeToHome(targetWorld.Name.ToString(), charaName, homeWorld, homeWorld, noLogin: noLogin);
+                //returning home
+                if(isInHomeDc)
+                {
+                    PluginLog.Information($"CharaSelectVisit: Return - HomeToHome (1)");
+                    CharaSelectVisit.HomeToHome(targetWorld.Value.Name.ToString(), charaName, homeWorld, homeWorld, noLogin: noLogin);
+                }
+                else
+                {
+                    PluginLog.Information($"CharaSelectVisit: Return - GuestToHome (2)");
+                    CharaSelectVisit.GuestToHome(targetWorld.Value.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin);
+                }
             }
             else
             {
-                PluginLog.Information($"CharaSelectVisit: Return - GuestToHome (2)");
-                CharaSelectVisit.GuestToHome(targetWorld.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin);
+                if(targetWorld.Value.DataCenter.RowId != charaCurrentWorld?.DataCenter.RowId)
+                {
+                    //visiting another DC
+                    if(charaCurrentWorld?.RowId == charaHomeWorld?.RowId)
+                    {
+                        PluginLog.Information($"CharaSelectVisit: Visit DC - HomeToGuest (3)");
+                        CharaSelectVisit.HomeToGuest(targetWorld.Value.Name.ToString(), charaName, homeWorld, homeWorld, noLogin: noLogin);
+                    }
+                    else
+                    {
+                        PluginLog.Information($"CharaSelectVisit: Visit DC - GuestToGuest (5)");
+                        CharaSelectVisit.GuestToGuest(targetWorld.Value.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin, useSameWorldReturnHome: isInHomeDc);
+                    }
+                }
+                else
+                {
+                    //teleporting to the other world's same dc
+                    if(isInHomeDc || C.UseGuestWorldTravel)
+                    {
+                        //just log in and use world visit
+                        PluginLog.Information($"CharaSelectVisit: Visit World - GuestToHome (6)");
+                        CharaSelectVisit.GuestToHome(targetWorld.Value.Name.ToString(), charaName, homeWorld, currentWorld, skipReturn: true, noLogin: noLogin);
+                    }
+                    else
+                    {
+                        //special guest to guest sequence
+                        PluginLog.Information($"CharaSelectVisit: Visit World - GuestToGuest (7)");
+                        CharaSelectVisit.GuestToGuest(targetWorld.Value.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin);
+                    }
+                }
             }
         }
         else
         {
-            if(targetWorld.DataCenter.RowId != charaCurrentWorld?.DataCenter.RowId)
-            {
-                //visiting another DC
-                if(charaCurrentWorld?.RowId == charaHomeWorld?.RowId)
-                {
-                    PluginLog.Information($"CharaSelectVisit: Visit DC - HomeToGuest (3)");
-                    CharaSelectVisit.HomeToGuest(targetWorld.Name.ToString(), charaName, homeWorld, homeWorld, noLogin: noLogin);
-                }
-                else
-                {
-                    PluginLog.Information($"CharaSelectVisit: Visit DC - GuestToGuest (5)");
-                    CharaSelectVisit.GuestToGuest(targetWorld.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin, useSameWorldReturnHome: isInHomeDc);
-                }
-            }
-            else
-            {
-                //teleporting to the other world's same dc
-                if(isInHomeDc || C.UseGuestWorldTravel)
-                {
-                    //just log in and use world visit
-                    PluginLog.Information($"CharaSelectVisit: Visit World - GuestToHome (6)");
-                    CharaSelectVisit.GuestToHome(targetWorld.Name.ToString(), charaName, homeWorld, currentWorld, skipReturn: true, noLogin: noLogin);
-                }
-                else
-                {
-                    //special guest to guest sequence
-                    PluginLog.Information($"CharaSelectVisit: Visit World - GuestToGuest (7)");
-                    CharaSelectVisit.GuestToGuest(targetWorld.Name.ToString(), charaName, homeWorld, currentWorld, noLogin: noLogin);
-                }
-            }
+            PluginLog.Information($"CharaSelectVisit: Log In (8)");
+            TaskSelectChara.Enqueue(charaName, homeWorld, currentWorld);
         }
     }
 

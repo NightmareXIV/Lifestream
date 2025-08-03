@@ -1,6 +1,7 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Memory;
+using ECommons;
 using ECommons.Automation;
 using ECommons.ChatMethods;
 using ECommons.Configuration;
@@ -44,6 +45,92 @@ internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
 
+    public static List<(Vector3 Start, Vector3 End)> GenerateGroupConnectionLines(this CustomAlias alias, float extraScatter = 0f)
+    {
+        var commands = alias.Commands;
+        List<(Vector3 Start, Vector3 End)> lines = new();
+
+        var grouped = commands
+            .Where(c => c.ChainGroup > 0)
+            .GroupBy(c => c.ChainGroup)
+            .OrderBy(g => g.Key);
+
+        foreach(var group in grouped)
+        {
+            var groupCommands = group.ToList(); 
+            if(!groupCommands[0].Territory.EqualsAny<uint>(0, Player.Territory)) continue;
+
+            Vector3? previousPoint = null;
+            float previousRadius = 0f;
+
+            int i = 0;
+
+            if(groupCommands[0].Kind == CustomAliasKind.Circular_movement && groupCommands[0].WalkToExit)
+            {
+                previousPoint = groupCommands[0].CircularExitPoint;
+                previousRadius = groupCommands[0].Scatter + extraScatter;
+                i = 1;
+            }
+            else
+            {
+                while(i < groupCommands.Count)
+                {
+                    var cmd = groupCommands[i];
+                    if(cmd.Kind != CustomAliasKind.Circular_movement)
+                    {
+                        previousPoint = cmd.Point;
+                        previousRadius = cmd.Scatter + extraScatter;
+                        i++;
+                        break;
+                    }
+                    i++;
+                }
+            }
+
+            if(!previousPoint.HasValue)
+            {
+                continue;
+            }
+
+            for(; i < groupCommands.Count; i++)
+            {
+                var current = groupCommands[i];
+
+                if(current.Kind == CustomAliasKind.Circular_movement)
+                {
+                    continue;
+                }
+
+                var currentPoint = current.Point;
+                float currentRadius = current.Scatter + extraScatter;
+
+                Vector3 dir = Vector3.Normalize(currentPoint - previousPoint.Value);
+                Vector3 right = Vector3.Normalize(Vector3.Cross(dir, Vector3.UnitY));
+
+                if(previousRadius == 0f && currentRadius == 0f)
+                {
+                    lines.Add((previousPoint.Value, currentPoint));
+                }
+                else
+                {
+                    Vector3 prevA = previousPoint.Value + right * previousRadius;
+                    Vector3 prevB = previousPoint.Value - right * previousRadius;
+
+                    Vector3 currA = currentPoint + right * currentRadius;
+                    Vector3 currB = currentPoint - right * currentRadius;
+
+                    lines.Add((prevA, currA));
+                    lines.Add((prevB, currB));
+                }
+
+                previousPoint = currentPoint;
+                previousRadius = currentRadius;
+            }
+        }
+
+        return lines;
+    }
+
     public static bool IsChainedWithNext(this CustomAlias alias, int index)
     {
         if(index < 0 || index >= alias.Commands.Count - 1)
@@ -71,14 +158,14 @@ internal static unsafe partial class Utils
             return;
         }
 
-        int range = rangeOneBased - 1;
+        var range = rangeOneBased - 1;
 
-        int start = Math.Min(currentIndex, range);
-        int end = Math.Max(currentIndex, range);
+        var start = Math.Min(currentIndex, range);
+        var end = Math.Max(currentIndex, range);
 
-        uint territory = commands[currentIndex].Territory;
+        var territory = commands[currentIndex].Territory;
 
-        for(int i = start; i <= end; i++)
+        for(var i = start; i <= end; i++)
         {
             if(i >= 0 && i < commands.Count)
             {
@@ -638,6 +725,37 @@ internal static unsafe partial class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("To map flag");
+
+        ImGui.SameLine(0, 1);
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Brush, $"splatoon{id}"))
+        {
+            try
+            {
+                if(DalamudReflector.TryGetDalamudPlugin("Splatoon", out var instance, true, true))
+                {
+                    var element = instance.GetStaticFoP("Splatoon.ConfigGui.CGuiLayouts.LayoutDrawSelector", "CurrentElement");
+                    if(element != null)
+                    {
+                        var v = new Vector3(element.GetFoP<float>("refX"), element.GetFoP<float>("refZ"), element.GetFoP<float>("refY"));
+                        value = v.ToVector2();
+                    }
+                    else
+                    {
+                        Notify.Error("Element is not selected");
+                    }
+                }
+                else
+                {
+                    Notify.Error("Splatoon is not installed");
+                }
+            }
+            catch(Exception e)
+            {
+                e.Log();
+                Notify.Error("An error occurred while retrieving element coordinates");
+            }
+        }
+        ImGuiEx.Tooltip("From selected Splatoon element");
     }
 
     public static void DrawVector3Selector(string id, ref Vector3 value)
@@ -671,6 +789,37 @@ internal static unsafe partial class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("To map flag");
+
+        ImGui.SameLine(0, 1);
+        if(ImGuiEx.IconButton(FontAwesomeIcon.Brush, $"splatoon{id}"))
+        {
+            try
+            {
+                if(DalamudReflector.TryGetDalamudPlugin("Splatoon", out var instance, true, true))
+                {
+                    var element = instance.GetStaticFoP("Splatoon.ConfigGui.CGuiLayouts.LayoutDrawSelector", "CurrentElement");
+                    if(element != null)
+                    {
+                        var v = new Vector3(element.GetFoP<float>("refX"), element.GetFoP<float>("refZ"), element.GetFoP<float>("refY"));
+                        value = v;
+                    }
+                    else
+                    {
+                        Notify.Error("Element is not selected");
+                    }
+                }
+                else
+                {
+                    Notify.Error("Splatoon is not installed");
+                }
+            }
+            catch(Exception e)
+            {
+                e.Log();
+                Notify.Error("An error occurred while retrieving element coordinates");
+            }
+        }
+        ImGuiEx.Tooltip("From selected Splatoon element");
     }
 
     public static IEnumerable<uint> GetAllRegisteredAethernetDestinations()

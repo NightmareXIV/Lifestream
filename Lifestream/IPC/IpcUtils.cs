@@ -1,10 +1,5 @@
 ﻿using ECommons.ExcelServices;
 using Lifestream.GUI.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lifestream.IPC;
 public static unsafe class IpcUtils
@@ -39,6 +34,37 @@ public static unsafe class IpcUtils
             {
                 //PluginLog.Error($"Destination {destination} is unavailable for specified character");
                 return false;
+            }
+        }
+        else
+        {
+            //PluginLog.Error($"Can not initiate travel from current state");
+            return false;
+        }
+    }
+
+    public static bool InitiateLoginFromCharaSelectScreenInternal(string charaName, string charaHomeWorld)
+    {
+        var homeWorldData = ExcelWorldHelper.Get(charaHomeWorld) ?? throw new NullReferenceException($"Invalid home world specified: {charaHomeWorld}");
+        if(CharaSelectOverlay.TryGetValidCharaSelectListMenu(out var m))
+        {
+            var chara = m.Characters.FirstOrDefault(x => x.Name == charaName && x.HomeWorld == homeWorldData.RowId);
+            if(chara == null)
+            {
+                //PluginLog.Error($"Character not found: {charaName}@{charaHomeWorld}");
+                return false;
+            }
+
+            var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).ToArray();
+            if(chara.IsVisitingAnotherDC)
+            {
+                CharaSelectOverlay.ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, null, false);
+                return true;
+            }
+            else
+            {
+                CharaSelectOverlay.Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, null, false);
+                return true;
             }
         }
         else

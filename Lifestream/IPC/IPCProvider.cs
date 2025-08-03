@@ -446,5 +446,27 @@ public class IPCProvider
         return true;
     }
 
+    [EzIPC]
+    public bool InitiateLoginFromCharaSelectScreen(string charaName, string charaHomeWorld)
+    {
+        if(IsBusy())
+        {
+            return false;
+        }
+        return IpcUtils.InitiateLoginFromCharaSelectScreenInternal(charaName, charaHomeWorld);
+    }
+
+    [EzIPC]
+    public bool ConnectAndLogin(string charaName, string charaHomeWorld)
+    {
+        if(IsBusy() || !CanAutoLogin())
+        {
+            return false;
+        }
+        ConnectAndOpenCharaSelect(charaName, charaHomeWorld);
+        P.TaskManager.Enqueue(() => IpcUtils.InitiateLoginFromCharaSelectScreenInternal(charaName, charaHomeWorld));
+        return true;
+    }
+
     [EzIPCEvent] public System.Action OnHouseEnterError;
 }
