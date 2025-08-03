@@ -1,10 +1,13 @@
 ﻿using ECommons.Configuration;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using ECommons.ImGuiMethods.TerritorySelection;
 using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
 using Lifestream.Data;
 using Lifestream.Tasks.SameWorld;
 using Newtonsoft.Json;
+using NightmareUI;
 using NightmareUI.ImGuiElements;
 using Aetheryte = Lumina.Excel.Sheets.Aetheryte;
 
@@ -12,6 +15,7 @@ namespace Lifestream.GUI;
 public static class TabCustomAlias
 {
     private static ImGuiEx.RealtimeDragDrop<CustomAliasCommand> DragDrop = new("CusACmd", x => x.ID);
+    private static readonly Vector4[] ChainColors = [ImGuiColors.DalamudRed, ImGuiColors.ParsedOrange, ImGuiColors.DalamudYellow, ImGuiColors.ParsedGreen, ImGuiColors.TankBlue, ImGuiColors.ParsedPurple];
 
     public static void Draw()
     {
@@ -36,9 +40,10 @@ public static class TabCustomAlias
     private static List<Action> PostTableActions = [];
     private static void DrawAlias(CustomAlias selected)
     {
+        AssignAllChainGroups(selected);
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add new"))
         {
-            selected.Commands.Add(new());
+            selected.Commands.Add(new() { Territory = Player.Available ? Player.Territory : 0 });
         }
         ImGui.SameLine();
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Paste, "Paste"))
@@ -86,6 +91,8 @@ public static class TabCustomAlias
             for(var i = 0; i < selected.Commands.Count; i++)
             {
                 var x = selected.Commands[i];
+                var index = i;
+
                 ImGui.TableNextRow();
                 DragDrop.SetRowColor(x.ID);
                 ImGui.TableNextColumn();
@@ -93,15 +100,22 @@ public static class TabCustomAlias
                 DragDrop.DrawButtonDummy(x, selected.Commands, i);
                 ImGui.TableNextColumn();
                 var curpos = ImGui.GetCursorPos() + ImGui.GetContentRegionAvail() with { Y = 0 };
-                if(x.Kind == CustomAliasKind.Move_to_point)
+                if(x.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement))
                 {
                     var insertIndex = i + 1;
                     PostTableActions.Add(() =>
                     {
                         ImGui.PushFont(UiBuilder.IconFont);
-                        ImGui.SetCursorPos(curpos - ImGuiHelpers.GetButtonSize(FontAwesomeIcon.Clone.ToIconString()) with { Y = 0 });
+                        var pos = curpos
+                            - ImGuiHelpers.GetButtonSize("\uf0ab") with { Y = 0 }
+                            - new Vector2(ImGui.CalcTextSize(FontAwesomeIcon.Link.ToIconString()).X + ImGui.GetStyle().ItemSpacing.X, 0);
+                        ImGui.SetCursorPos(pos);
                         ImGui.PopFont();
-                        if(ImGuiEx.IconButton(FontAwesomeIcon.Clone, x.ID, enabled: Player.Available))
+                        ImGui.AlignTextToFramePadding();
+                        var col = x.ChainGroup == 0 ? Vector4.Zero : TabCustomAlias.ChainColors.SafeSelect(x.ChainGroup - 1);
+                        ImGuiEx.Text(col, UiBuilder.IconFont, FontAwesomeIcon.Link.ToIconString());
+                        ImGui.SameLine();
+                        if(ImGuiEx.IconButton((FontAwesomeIcon)'\uf0ab', x.ID, enabled: Player.Available))
                         {
                             new TickScheduler(() =>
                             {
@@ -109,19 +123,17 @@ public static class TabCustomAlias
                                 {
                                     Kind = CustomAliasKind.Move_to_point,
                                     UseFlight = x.UseFlight,
-                                    Point = Player.Position
+                                    Point = Player.Position,
+                                    Territory = Player.Territory == x.Territory ? x.Territory : (Player.Available ? Player.Territory : 0),
                                 });
                             });
                         }
-                        ImGuiEx.Tooltip($"Clone this command and set it's coordinates to player's coordinates");
+                        ImGuiEx.Tooltip($"Create move command after this command with player's position and territory");
                     });
                 }
 
-                var index = i;
                 ImGuiEx.TreeNodeCollapsingHeader($"Command {i + 1}: {x.Kind.ToString().Replace('_', ' ')}{GetExtraText(x)}###{x.ID}", () => DrawCommand(x, selected, i), ImGuiTreeNodeFlags.CollapsingHeader);
                 DrawSplatoon(x, i);
-
-
             }
             ImGui.EndTable();
         }
@@ -130,9 +142,42 @@ public static class TabCustomAlias
 
     private static string GetExtraText(CustomAliasCommand x)
     {
-        if(x.Kind == CustomAliasKind.Move_to_point)
+        if(x.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point))
         {
-            return $" {x.Point:F1}";
+            if(x.Territory == 0)
+            {
+                return $" {x.Point:F1}";
+            }
+            else
+            {
+                return $" {x.Point:F1} [{ExcelTerritoryHelper.GetName(x.Territory)}]";
+            }
+        }
+        else if(x.Kind == CustomAliasKind.Circular_movement)
+        {
+            if(x.Territory != 0)
+            {
+                return $" [{ExcelTerritoryHelper.GetName(x.Territory)}]";
+            }
+        }
+        else if(x.Kind == CustomAliasKind.Teleport_to_Aetheryte)
+        {
+            if(AetherytePlaceNames.TryGetValue(x.Aetheryte, out var ret))
+            {
+                return $" [{ret}]";
+            }
+        }
+        else if(x.Kind == CustomAliasKind.Use_Aethernet)
+        {
+            return $" [{Utils.KnownAetherytes.SafeSelect(x.Aetheryte, x.Aetheryte.ToString())}]";
+        }
+        else if(x.Kind == CustomAliasKind.Change_world)
+        {
+            return $" [{ExcelWorldHelper.GetName(x.World)}]";
+        }
+        else if(x.Kind == CustomAliasKind.Interact)
+        {
+            return $" [{x.DataID}]";
         }
         return "";
     }
@@ -221,10 +266,10 @@ public static class TabCustomAlias
             Utils.DrawVector3Selector($"walktopoint{command.ID}", ref command.Point);
             ImGui.SameLine();
             ImGuiEx.Text(UiBuilder.IconFont, FontAwesomeIcon.ArrowsLeftRight.ToIconString());
-            ImGui.SameLine();
-            ImGui.SetNextItemWidth(50f);
-            ImGui.SliderFloat($"##scatter", ref command.Scatter, 0f, 2f);
-            ImGuiEx.Tooltip("Scatter");
+            ImGui.SameLine(0, 1);
+            ImGui.SetNextItemWidth(50f.Scale());
+            ImGuiEx.SliderFloat($"##scatter", ref command.Scatter, 0f, 2f);
+            ImGuiEx.Tooltip("Scatter. Double-click to input manually.");
         }
 
         if(command.Kind.EqualsAny(CustomAliasKind.Move_to_point))
@@ -232,9 +277,64 @@ public static class TabCustomAlias
             drawFlight();
         }
 
+        if(command.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement))
+        {
+            ImGui.SetNextItemWidth(150f.Scale());
+            if(ImGui.BeginCombo("Restrict movement to zone", command.Territory == 0 ? "No Restriction" : ExcelTerritoryHelper.GetName(command.Territory)))
+            {
+                _ = new TerritorySelector((TerritorySelector sel, uint territory) =>
+                {
+                    command.Territory = territory;
+                })
+                {
+                    Mode = TerritorySelector.DisplayMode.PlaceNameDutyUnion,
+                    SelectedCategory = TerritorySelector.Category.All,
+                };
+                ImGui.CloseCurrentPopup();
+                ImGui.EndCombo();
+            }
+            ImGui.SameLine();
+            if(ImGuiEx.IconButton(FontAwesomeIcon.Eraser, enabled: command.Territory != 0))
+            {
+                command.Territory = 0;
+            }
+            ImGuiEx.Tooltip("Remove Requirement");
+            ImGui.SameLine(0, 1);
+            if(ImGuiEx.IconButton(FontAwesomeIcon.MapPin, enabled: Player.Available))
+            {
+                command.Territory = Player.Territory;
+            }
+            ImGui.SameLine(0, 1);
+            ImGuiEx.Tooltip($"Set to {ExcelTerritoryHelper.GetName(Player.Territory)}");
+            if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowDownUpAcrossLine))
+            {
+                ImGui.OpenPopup("SpreadTerritory");
+            }
+            ImGuiEx.Tooltip("Copy this property to adjacent commands...");
+            if(ImGui.BeginPopup("SpreadTerritory"))
+            {
+                ImGuiEx.Text($"Copy territory requirement:\n{ExcelTerritoryHelper.GetName(command.Territory)}");
+                ImGuiEx.TextV("Up or down until command number:");
+                ImGui.SetNextItemWidth(150f.Scale());
+                ImGuiEx.FilteringInputInt("##cmdNum", out var cmdNum);
+                ImGui.SameLine();
+                if(ImGui.Button("OK"))
+                {
+                    selected.CopyTerritoryRange(index, cmdNum);
+                    ImGui.CloseCurrentPopup();
+                }
+                if(ImGui.Selectable("To all the commands within this alias"))
+                {
+                    selected.Commands.Each(x => x.Territory = command.Territory);
+                }
+                ImGui.EndPopup();
+            }
+        }
+
+
         if(command.Kind.EqualsAny(CustomAliasKind.Navmesh_to_point))
         {
-            ImGui.SameLine();
+            ImGui.SameLine(0, 1);
             ImGuiEx.ButtonCheckbox(FontAwesomeIcon.FastForward, ref command.UseTA, EColor.Green);
             ImGuiEx.Tooltip("Use TextAdvance for movement. Flight settings are inherited from TextAdvance.");
             if(!command.UseTA)
@@ -245,7 +345,7 @@ public static class TabCustomAlias
 
         void drawFlight()
         {
-            ImGui.SameLine();
+            ImGui.SameLine(0, 1);
             ImGuiEx.ButtonCheckbox(FontAwesomeIcon.Plane, ref command.UseFlight, EColor.Green);
             ImGuiEx.Tooltip("Fly for movement. Don't forget to use \"Mount Up\" command before. ");
         }
@@ -343,12 +443,12 @@ public static class TabCustomAlias
                 if(command.Clamp != null)
                 {
                     var v = command.Clamp.Value;
-                    ImGui.SameLine();
+                    ImGui.SameLine(0, 1);
                     ImGui.SetNextItemWidth(50f.Scale());
                     ImGui.DragFloat("##prec1", ref v.Min, 0.01f);
-                    ImGui.SameLine();
+                    ImGui.SameLine(0, 1);
                     ImGuiEx.Text("-");
-                    ImGui.SameLine();
+                    ImGui.SameLine(0, 1);
                     ImGui.SetNextItemWidth(50f.Scale());
                     ImGui.DragFloat("##prec2", ref v.Max, 0.01f);
                     if(v.Min < v.Max)
@@ -357,7 +457,7 @@ public static class TabCustomAlias
                     }
                     if(Svc.Targets.Target != null)
                     {
-                        ImGui.SameLine();
+                        ImGui.SameLine(0, 1);
                         ImGuiEx.Text($"To target: {Player.DistanceTo(Svc.Targets.Target):F1}");
                     }
                 }
@@ -369,7 +469,7 @@ public static class TabCustomAlias
         {
             ImGui.SetNextItemWidth(150f.Scale());
             ImGuiEx.InputUint("Data ID", ref command.DataID);
-            ImGui.SameLine();
+            ImGui.SameLine(0, 1);
             if(ImGuiEx.Button("Target", Svc.Targets.Target?.DataId != 0))
             {
                 command.DataID = Svc.Targets.Target.DataId;
@@ -420,5 +520,43 @@ public static class TabCustomAlias
             ImGui.Checkbox("Require territory change", ref command.RequireTerritoryChange);
         }
         ImGui.PopID();
+    }
+
+    public static void AssignAllChainGroups(CustomAlias alias)
+    {
+        var commands = alias.Commands;
+        if(commands == null || commands.Count == 0)
+        {
+            return;
+        }
+
+        var nextChainGroup = 1;
+
+        for(var i = 0; i < commands.Count;)
+        {
+            if(i < commands.Count - 1 && Utils.IsChainedWithNext(alias, i))
+            {
+                var start = i;
+                var end = i;
+
+                while(end < commands.Count - 1 && Utils.IsChainedWithNext(alias, end))
+                {
+                    end++;
+                }
+
+                for(var j = start; j <= end; j++)
+                {
+                    commands[j].ChainGroup = nextChainGroup;
+                }
+
+                nextChainGroup++;
+                i = end + 1;
+            }
+            else
+            {
+                commands[i].ChainGroup = 0;
+                i++;
+            }
+        }
     }
 }

@@ -39,9 +39,16 @@ public class CustomAlias : IFileSystemStorage
                 {
                     while(cmds.SafeSelect(i + 1)?.Kind == CustomAliasKind.Move_to_point)
                     {
-                        var c = cmds[i + 1];
-                        append.Add(c.Point.Scatter(c.Scatter));
-                        i++;
+                        if(this.IsChainedWithNext(i))
+                        {
+                            var c = cmds[i + 1];
+                            append.Add(c.Point.Scatter(c.Scatter));
+                            i++;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
                 cmd.Enqueue(append);

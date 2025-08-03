@@ -44,6 +44,49 @@ internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
 
+    public static bool IsChainedWithNext(this CustomAlias alias, int index)
+    {
+        if(index < 0 || index >= alias.Commands.Count - 1)
+        {
+            return false;
+        }
+        var current = alias.Commands[index];
+        if(current.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement))
+        {
+            var next = alias.Commands[index + 1];
+
+            if(next.Kind == CustomAliasKind.Move_to_point)
+            {
+                return current.Territory == 0 || next.Territory == 0 || current.Territory == next.Territory;
+            }
+        }
+        return false;
+    }
+
+    public static void CopyTerritoryRange(this CustomAlias alias, int currentIndex, int rangeOneBased)
+    {
+        var commands = alias.Commands;
+        if(commands.Count == 0 || currentIndex < 0 || currentIndex >= commands.Count)
+        {
+            return;
+        }
+
+        int range = rangeOneBased - 1;
+
+        int start = Math.Min(currentIndex, range);
+        int end = Math.Max(currentIndex, range);
+
+        uint territory = commands[currentIndex].Territory;
+
+        for(int i = start; i <= end; i++)
+        {
+            if(i >= 0 && i < commands.Count)
+            {
+                commands[i].Territory = territory;
+            }
+        }
+    }
+
     public static Vector3 Scatter(this Vector3 point, float radius)
     {
         if(radius > 0)
@@ -574,20 +617,20 @@ internal static unsafe partial class Utils
             value = Player.Position.ToVector2();
         }
         ImGuiEx.Tooltip("To player positon");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Crosshairs, $"target{id}", enabled: Svc.Targets.Target != null))
         {
             value = Svc.Targets.Target.Position.ToVector2();
         }
         ImGuiEx.Tooltip("To target positon");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.MousePointer, $"target{id}", enabled: Player.Interactable))
         {
             BeginScreenToWorldSelection(id, value);
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;
@@ -607,20 +650,20 @@ internal static unsafe partial class Utils
             value = Player.Position;
         }
         ImGuiEx.Tooltip("To player positon");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Crosshairs, $"target{id}", enabled: Svc.Targets.Target != null))
         {
             value = Svc.Targets.Target.Position;
         }
         ImGuiEx.Tooltip("To target positon");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.MousePointer, $"target{id}", enabled: Player.Interactable))
         {
             BeginScreenToWorldSelection(id, value);
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
-        ImGui.SameLine();
+        ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;

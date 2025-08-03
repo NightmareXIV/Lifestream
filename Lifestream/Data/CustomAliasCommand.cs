@@ -16,6 +16,7 @@ public class CustomAliasCommand
     private static readonly CustomAliasCommand Default = new();
 
     internal string ID = Guid.NewGuid().ToString();
+    internal int ChainGroup = 0;
     public CustomAliasKind Kind;
     public Vector3 Point;
     public uint Aetheryte;
@@ -36,7 +37,9 @@ public class CustomAliasCommand
     public float Scatter = 0f;
     public bool MountUpConditional = false;
     public bool RequireTerritoryChange = false;
+    public uint Territory = 0;
 
+    public bool ShouldSerializeTerritory() => Territory != 0;
     public bool ShouldSerializeRequireTerritoryChange() => Kind.EqualsAny(CustomAliasKind.Wait_for_Transition);
     public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
     public bool ShouldSerializeUseFlight() => Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point) && UseFlight != Default.UseFlight;
@@ -78,6 +81,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Move_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
+            P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
             if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan, $"{Kind}: Fly if can");
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false), $"{Kind}: use sprint");
             P.TaskManager.Enqueue(() => P.FollowPath.Move([Point.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
@@ -87,6 +91,7 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS:5*60*1000));
+            P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
             if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
                 P.TaskManager.Enqueue(() =>
@@ -115,14 +120,7 @@ public class CustomAliasCommand
                 });
 
                 P.TaskManager.Enqueue(() => P.FollowPath.Move([.. appendMovement], true), $"{Kind}: Move");
-                P.TaskManager.Enqueue(() =>
-                {
-                    if(!IsScreenReady())
-                    {
-                        P.FollowPath.Stop();
-                    }
-                    return WaitForMoveEndOrOccupied();
-                }, $"{Kind}: Wait until move ends/occupied");
+                P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied");
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             }
         }
@@ -272,9 +270,9 @@ public class CustomAliasCommand
         }
     }
 
-    private bool? WaitForMoveEndOrOccupied()
+    private bool WaitForMoveEndOrOccupied()
     {
-        if(Svc.Condition[ConditionFlag.Occupied33])
+        if(Svc.Condition[ConditionFlag.Occupied33] || (Territory != 0 && Territory != Player.Territory))
         {
             P.FollowPath.Stop();
         }
