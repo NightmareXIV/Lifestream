@@ -12,20 +12,6 @@ using GrandCompany = ECommons.ExcelServices.GrandCompany;
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskGCShortcut
 {
-    public static readonly Dictionary<GrandCompany, Vector3[]> CompanyNPCPoints = new()
-    {
-        [GrandCompany.ImmortalFlames] = [new(-140.6f, 4.1f, -105.6f)],
-        [GrandCompany.Maelstrom] = [new(93.0f, 40.3f, 75.6f)],
-        [GrandCompany.TwinAdder] = [new(-67.2f, -0.5f, -7.8f)],
-    };
-
-    public static readonly Dictionary<GrandCompany, Vector3[]> CompanyChestPoints = new()
-    {
-        [GrandCompany.ImmortalFlames] = [new(-132.9f, 4.1f, -96.2f), new(-148.1f, 4.1f, -93.0f)],
-        [GrandCompany.Maelstrom] = [new(90.4f, 40.2f, 65.1f)],
-        [GrandCompany.TwinAdder] = [new(-76.8f, -0.5f, -1.1f)],
-    };
-
     public static Dictionary<GrandCompany, CustomAlias> CompanyNPCCommands => new()
     {
         [GrandCompany.ImmortalFlames] = StaticAlias.UldahGC,
@@ -38,6 +24,20 @@ public static unsafe class TaskGCShortcut
         [GrandCompany.ImmortalFlames] = StaticAlias.UldahGCC,
         [GrandCompany.Maelstrom] = StaticAlias.LimsaGCC,
         [GrandCompany.TwinAdder] = StaticAlias.GridaniaGCC,
+    };
+
+    public static Dictionary<GrandCompany, CustomAlias> CompanyNPCTicketCommands => new()
+    {
+        [GrandCompany.ImmortalFlames] = StaticAlias.UldahGCTicket,
+        [GrandCompany.Maelstrom] = StaticAlias.LimsaGCTicket,
+        [GrandCompany.TwinAdder] = StaticAlias.GridaniaGCTicket,
+    };
+
+    public static Dictionary<GrandCompany, CustomAlias> CompanyChestTicketCommands => new()
+    {
+        [GrandCompany.ImmortalFlames] = StaticAlias.UldahGCCTicket,
+        [GrandCompany.Maelstrom] = StaticAlias.LimsaGCCTicket,
+        [GrandCompany.TwinAdder] = StaticAlias.GridaniaGCCTicket,
     };
 
     public static readonly Dictionary<GrandCompany, uint> CompanyTerritory = new()
@@ -109,8 +109,8 @@ public static unsafe class TaskGCShortcut
             P.TaskManager.Enqueue(() => Player.Interactable && Player.IsInHomeWorld && IsScreenReady());
         }
         var company = companyNullable.Value;
-        var point = (isChest ? CompanyChestPoints : CompanyNPCPoints)[company];
         var moveCommand = (isChest ? CompanyChestCommands : CompanyNPCCommands)[company];
+        var moveTicketCommand = (isChest ? CompanyChestTicketCommands : CompanyNPCTicketCommands)[company];
         P.TaskManager.Enqueue(EnqueueFromStart);
 
         void EnqueueFromStart()
@@ -120,7 +120,7 @@ public static unsafe class TaskGCShortcut
                 P.TaskManager.Enqueue(() =>
                 {
                     if(Player.IsAnimationLocked) return false;
-                    if(EzThrottler.Throttle("GCUseTicket", 1000))
+                    if(EzThrottler.Throttle("GCUseTicket", 500))
                     {
                         AgentInventoryContext.Instance()->UseItem(CompanyItem[company]);
                     }
@@ -130,8 +130,7 @@ public static unsafe class TaskGCShortcut
                 P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
                 P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady() && P.Territory == CompanyTerritory[company], "WaitUntilPlayerInteractable", TaskSettings.Timeout2M);
                 P.TaskManager.Enqueue(Utils.WaitForScreen);
-                P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
-                P.TaskManager.Enqueue(() => P.FollowPath.Move([.. point], true));
+                moveTicketCommand.Enqueue(true);
             }
             else
             {

@@ -233,10 +233,22 @@ public static class TabCustomAlias
         }
         else if(command.Kind == CustomAliasKind.Move_to_point)
         {
-            var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Walk to");
-            point.SetRefCoord(command.Point);
-            point.radius = command.Scatter;
-            Splatoon.DisplayOnce(point);
+            {
+                var point = S.Ipc.SplatoonManager.GetNextPoint($"{index + 1}: Walk to");
+                point.SetRefCoord(command.Point);
+                point.radius = command.Scatter;
+                point.color = EColor.RedBright.ToUint();
+                point.thicc = 2f;
+                Splatoon.DisplayOnce(point);
+            }
+            {
+                var point = S.Ipc.SplatoonManager.GetNextPoint();
+                point.SetRefCoord(command.Point);
+                point.radius = command.Scatter + 0.25f;
+                point.color = EColor.YellowBright.ToUint();
+                point.thicc = 1f;
+                Splatoon.DisplayOnce(point);
+            }
         }
         else if(command.Kind == CustomAliasKind.Navmesh_to_point)
         {

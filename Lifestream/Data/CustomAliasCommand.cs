@@ -40,8 +40,9 @@ public class CustomAliasCommand
     public bool RequireTerritoryChange = false;
     public uint Territory = 0;
 
+    public bool ShouldSerializeWalkToExit() => Kind.EqualsAny(CustomAliasKind.Circular_movement) && WalkToExit != Default.WalkToExit;
     public bool ShouldSerializeExtraPoints() => ExtraPoints.Count > 0;
-    public bool ShouldSerializeTerritory() => Territory != 0;
+    public bool ShouldSerializeTerritory() => Territory != 0 && Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement);
     public bool ShouldSerializeRequireTerritoryChange() => Kind.EqualsAny(CustomAliasKind.Wait_for_Transition);
     public bool ShouldSerializeScatter() => Kind.EqualsAny(CustomAliasKind.Move_to_point) && Scatter > 0f;
     public bool ShouldSerializeUseFlight() => Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point) && UseFlight != Default.UseFlight;
@@ -53,7 +54,6 @@ public class CustomAliasCommand
     public bool ShouldSerializeClamp() => Clamp != Default.Clamp;
     public bool ShouldSerializePrecision() => Precision != Default.Precision;
     public bool ShouldSerializeTolerance() => Tolerance != Default.Tolerance;
-    public bool ShouldSerializeWalkToExit() => WalkToExit != Default.WalkToExit;
     public bool ShouldSerializeSkipTeleport() => SkipTeleport != Default.SkipTeleport;
     public bool ShouldSerializeDataID() => DataID != Default.DataID;
     public bool ShouldSerializeUseTA() => UseTA != Default.UseTA;
