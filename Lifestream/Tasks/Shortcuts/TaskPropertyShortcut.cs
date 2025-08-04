@@ -18,6 +18,10 @@ using Lumina.Excel.Sheets;
 namespace Lifestream.Tasks.Shortcuts;
 public static unsafe class TaskPropertyShortcut
 {
+    /// <summary>
+    /// Key: territory<br />
+    /// Valie: Aetheryte ID and path
+    /// </summary>
     public static readonly SortedDictionary<uint, (uint Aethernet, Vector3[] Path)> InnData = new()
     {
         [1185] = (220, [new(-161.9f, -15.0f, 205.0f)]), //tul
@@ -426,7 +430,16 @@ public static unsafe class TaskPropertyShortcut
                 return aetheryte.Value.Territory.RowId;
             }
         }
-        return C.WorldChangeAetheryte.GetTerritory();
+        {
+            var aetheryte = InnData.Keys
+                .Select(key => Svc.Data.GetExcelSheet<Aetheryte>().FirstOrNull(x => x.IsAetheryte && x.Territory.RowId == key))
+                .Where(x => x != null && Svc.AetheryteList.Any(a => a.AetheryteId == x.Value.RowId))
+                .OrderBy(x => Svc.AetheryteList.First(a => a.AetheryteId == x.Value.RowId).GilCost)
+                .FirstOrDefault();
+
+
+            return aetheryte.Value.Territory.RowId;
+        }
     }
 
     public enum PropertyType
