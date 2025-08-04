@@ -13,7 +13,8 @@ public static unsafe class TaskMoveToHouse
         P.TaskManager.EnqueueMulti(
             new(() => UseSprint()),
             new(() => LoadPath(info, includeFirst), "LoadPath"),
-            new(WaitUntilPathCompleted, TaskSettings.Timeout5M)
+            new(WaitUntilPathCompleted, TaskSettings.Timeout5M),
+            C.AutoDismount?new(Utils.DismountIfNeeded):null
             );
     }
 

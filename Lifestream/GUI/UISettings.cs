@@ -189,6 +189,7 @@ internal static unsafe class UISettings
             ImGui.SetNextItemWidth(200f);
             ImGuiEx.Combo("Preferred Mount", ref C.Mount, mounts.Keys, names: mounts);
         })
+        .Checkbox("Dismount upon arrriving to housing plot", () => ref C.AutoDismount)
         .Checkbox("Use Sprint when auto-moving", () => ref C.UseSprintPeloton)
         .Checkbox("Use Peloton when auto-moving", () => ref C.UsePeloton)
 
