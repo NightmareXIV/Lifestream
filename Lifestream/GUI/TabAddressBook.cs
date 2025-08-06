@@ -35,7 +35,8 @@ public static unsafe class TabAddressBook
 
     public static void Draw()
     {
-        InputWardDetailDialog.Draw();
+        ImGuiEx.Text("Temporarily unavailable");
+        /*InputWardDetailDialog.Draw();
         var selector = S.AddressBookFileSystemManager.FileSystem.Selector;
         selector.Draw(150f.Scale());
         ImGui.SameLine();
@@ -60,7 +61,7 @@ public static unsafe class TabAddressBook
                 ImGuiEx.TextWrapped($"To begin, select an address book to use.");
             }
         }
-        ImGui.EndChild();
+        ImGui.EndChild();*/
     }
 
     private static AddressBookEntry GetNewAddressBookEntry()
@@ -222,7 +223,7 @@ public static unsafe class TabAddressBook
                     }
                     if(entry.Alias != "")
                     {
-                        ImGui.MenuItem($"Enable Alias: {entry.Alias}", null, ref entry.AliasEnabled);
+                        ImGui.MenuItem($"Enable Alias: {entry.Alias}", ref entry.AliasEnabled);
                     }
                     if(ImGui.MenuItem("Edit..."))
                     {

@@ -8,6 +8,7 @@ using Lumina.Excel.Sheets;
 using NightmareUI;
 using NightmareUI.PrimaryUI;
 using System.Globalization;
+using TerraFX.Interop.Windows;
 using Action = System.Action;
 
 namespace Lifestream.GUI;
@@ -301,7 +302,11 @@ internal static unsafe class UISettings
                 UtilsUI.NextSection();
 
                 ImGui.SetNextItemWidth(100f.Scale());
-                ImGui.InputInt3("Button left/right padding", ref C.ButtonWidthArray[0]);
+                fixed(int* ptr = &C.ButtonWidthArray[0])
+                fixed(byte* sptr = "Button left/right padding\0"u8)
+                {
+                    ImGuiNative.InputInt3(sptr, ptr, ImGuiInputTextFlags.None);
+                }
                 ImGui.SetNextItemWidth(100f.Scale());
                 ImGui.InputInt("Aetheryte button top/bottom padding", ref C.ButtonHeightAetheryte);
                 ImGui.SetNextItemWidth(100f.Scale());

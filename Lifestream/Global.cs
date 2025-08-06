@@ -10,7 +10,7 @@ global using ECommons.DalamudServices.Legacy;
 global using ECommons.ImGuiMethods;
 global using ECommons.Logging;
 global using ECommons.Schedulers;
-global 
+global using Dalamud.Bindings.ImGui;
 global using Lifestream.CSExtensions;
 global using System;
 global using System.Collections.Generic;
@@ -21,6 +21,7 @@ global using System.Text;
 global using System.Threading.Tasks;
 global using static ECommons.GenericHelpers;
 global using static Lifestream.Lifestream;
-global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
+//global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
 global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;
 global using S = Lifestream.Services.Service;
+using Callback = ECommons.Automation.Callback;

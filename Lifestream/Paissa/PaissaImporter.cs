@@ -151,7 +151,7 @@ public class PaissaImporter
                     }
                     if(entry.Alias != "")
                     {
-                        ImGui.MenuItem($"Enable Alias: {entry.Alias}", null, ref entry.AliasEnabled);
+                        ImGui.MenuItem($"Enable Alias: {entry.Alias}", ref entry.AliasEnabled);
                     }
                     if(ImGui.MenuItem("Edit..."))
                     {

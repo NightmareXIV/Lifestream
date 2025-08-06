@@ -16,6 +16,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -30,14 +31,15 @@ using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
 using NightmareUI;
-using PInvoke;
 using System;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using TerraFX.Interop.Windows;
 using static FFXIVClientStructs.FFXIV.Client.UI.AddonAirShipExploration;
 using Action = System.Action;
 using CharaData = (string Name, ushort World);
+using Control = FFXIVClientStructs.FFXIV.Client.Game.Control.Control;
 
 namespace Lifestream;
 
@@ -684,9 +686,9 @@ internal static unsafe partial class Utils
             if(WindowFunctions.TryFindGameWindow(out var hwnd))
             {
                 var point = new POINT() { x = x, y = y };
-                if(User32.ClientToScreen(hwnd, ref point))
+                if(NativeFunctions.ClientToScreen(hwnd, &point))
                 {
-                    User32.SetCursorPos(point.x, point.y);
+                    NativeFunctions.SetCursorPos(point.x, point.y);
                 }
                 break;
             }
@@ -717,13 +719,12 @@ internal static unsafe partial class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
-        ImGui.SameLine(0, 1);
+        /*ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;
             value = new(marker.XFloat, marker.YFloat);
-        }
-        ScreenToWorldSelector(id, ref value);
+        }*/
         ImGuiEx.Tooltip("To map flag");
 
         ImGui.SameLine(0, 1);
@@ -781,14 +782,13 @@ internal static unsafe partial class Utils
         }
         ScreenToWorldSelector(id, ref value);
         ImGuiEx.Tooltip("Select with mouse");
-        ImGui.SameLine(0, 1);
+        /*ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"flag{id}", enabled: Player.Interactable && AgentMap.Instance()->IsFlagMarkerSet == true))
         {
             var marker = AgentMap.Instance()->FlagMapMarker;
             value = new(marker.XFloat, 0, marker.YFloat);
         }
-        ScreenToWorldSelector(id, ref value);
-        ImGuiEx.Tooltip("To map flag");
+        ImGuiEx.Tooltip("To map flag");*/
 
         ImGui.SameLine(0, 1);
         if(ImGuiEx.IconButton(FontAwesomeIcon.Brush, $"splatoon{id}"))
@@ -947,7 +947,7 @@ internal static unsafe partial class Utils
         return P.TaskManager.IsBusy || P.followPath?.waypointsInternal.Count > 0;
     }
 
-    public static bool CanFly() => S.Memory.FlightAddr != 0 && S.Memory.IsFlightProhibited(S.Memory.FlightAddr) == 0;
+    public static bool CanFly() => Control.GetFlightAllowedStatus() == 0;
 
     public static bool TryGetWorldFromDataCenter(string s, out string world, out uint dataCenter)
     {
@@ -1594,7 +1594,7 @@ internal static unsafe partial class Utils
         {
             try
             {
-                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i);
+                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i).Address;
                 if(addon == null) return null;
                 if(IsAddonReady(addon))
                 {

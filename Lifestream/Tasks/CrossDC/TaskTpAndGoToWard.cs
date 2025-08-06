@@ -11,6 +11,7 @@ using Lifestream.Enums;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
+using Callback = ECommons.Automation.Callback;
 using ResidentialAetheryteKind = Lifestream.Enums.ResidentialAetheryteKind;
 
 namespace Lifestream.Tasks.CrossDC;

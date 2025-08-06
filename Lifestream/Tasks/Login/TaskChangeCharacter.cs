@@ -263,7 +263,7 @@ public static unsafe class TaskChangeCharacter
         {
             if(Utils.GenericThrottle)
             {
-                addon->GetButtonNodeById(4)->ClickAddonButton(addon);
+                addon->GetComponentButtonById(4)->ClickAddonButton(addon);
             }
         }
         return false;

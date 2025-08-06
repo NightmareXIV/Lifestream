@@ -32,6 +32,7 @@ using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
 using NotificationMasterAPI;
+using Callback = ECommons.Automation.Callback;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
 namespace Lifestream;

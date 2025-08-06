@@ -5,7 +5,6 @@ using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Enums;
 using Lifestream.Tasks.SameWorld;
-using PInvoke;
 using System.Windows.Forms;
 
 namespace Lifestream.Game;
@@ -20,16 +19,12 @@ public unsafe class Memory : IDisposable
     [Signature("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B DA 41 0F B6 F0", DetourName = nameof(AtkComponentTreeList_vf31Detour), Fallibility = Fallibility.Fallible)]
     internal Hook<AtkComponentTreeList_vf31> AtkComponentTreeList_vf31Hook;
 
-    [Signature("4C 8D 0D ?? ?? ?? ?? 4C 8B 11 48 8B D9", ScanType = ScanType.StaticAddress, Fallibility = Fallibility.Fallible)]
+    [Signature("4C 8D 0D ?? ?? ?? ?? 44 0F B7 41", ScanType = ScanType.StaticAddress, Fallibility = Fallibility.Fallible)]
     internal int* MaxInstances;
 
     internal delegate byte OpenPartyFinderInfoDelegate(void* agentLfg, ulong contentId);
     [EzHook("40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 84 C0 74 07 C6 83 ?? ?? ?? ?? ?? 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53", false)]
     internal EzHook<OpenPartyFinderInfoDelegate> OpenPartyFinderInfoHook;
-
-    internal delegate nint IsFlightProhibitedDelegate(nint a1);
-    internal IsFlightProhibitedDelegate IsFlightProhibited = EzDelegate.Get<IsFlightProhibitedDelegate>("40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 85 DB 0F 84 ?? ?? ?? ?? 80 3D");
-    internal nint FlightAddr = Svc.SigScanner.TryScanText("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 11", out var result) ? result : default;
 
     internal byte OpenPartyFinderInfoDetour(void* agentLfg, ulong contentId)
     {
@@ -46,7 +41,7 @@ public unsafe class Memory : IDisposable
     private void AddonDKTWorldList_ReceiveEventDetour(nint a1, short a2, nint a3, AtkEvent* a4, InputData* a5)
     {
         PluginLog.Debug($"AddonDKTWorldCheck_ReceiveEventDetour: {a1:X16}, {a2}, {a3:X16}, {(nint)a4:X16}, {(nint)a5:X16}");
-        PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->State.EventType}, {a4->State.UnkFlags1}, {a4->State.StateFlags}");
+        PluginLog.Debug($"  Event: {(nint)a4->Node:X16}, {(nint)a4->Target:X16}, {(nint)a4->Listener:X16}, {a4->Param}, {(nint)a4->NextEvent:X16}, {a4->State.EventType}, {a4->State.ReturnFlags}, {a4->State.StateFlags}");
         PluginLog.Debug($"  Data: {(nint)a5->unk_8:X16}({*a5->unk_8:X16}/{*a5->unk_8:X16}), [{a5->unk_8s->unk_4}/{a5->unk_8s->SelectedItem}] {a5->unk_16}, {a5->unk_24} | "); //{a5->RawDumpSpan.ToArray().Print()}
         //var span = new Span<byte>((void*)*a5->unk_8, 0x40).ToArray().Select(x => $"{x:X2}");
         //PluginLog.Debug($"  Data 2, {a5->unk_8s->unk_4}, {MemoryHelper.ReadRaw((nint)a5->unk_8s->CategorySelection, 4).Print(",")},  :{string.Join(" ", span)}");
@@ -68,7 +63,7 @@ public unsafe class Memory : IDisposable
                 State = new()
                 {
                     EventType = AtkEventType.ListItemClick,
-                    UnkFlags1 = 0,
+                    ReturnFlags = 0,
                     StateFlags = 0,
                     UnkFlags3 = 0,
                 }
