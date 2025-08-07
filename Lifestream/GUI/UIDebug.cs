@@ -341,6 +341,13 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Image test"))
+        {
+            if(ThreadLoadImageHandler.TryGetTextureWrap("https://github.com/FFXIV-CombatReborn/RotationSolverReborn/blob/main/Images/Logo.png?raw=true", out var tex))
+            {
+                ImGui.Image(tex.Handle, new(-1));
+            }
+        }
         if(ImGui.CollapsingHeader("IPC test - travel from chara select screen"))
         {
             ref var name = ref Ref<string>.Get("name");

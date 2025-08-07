@@ -35,7 +35,7 @@ public static unsafe class TabAddressBook
 
     public static void Draw()
     {
-        ImGuiEx.Text("Temporarily unavailable");
+        ImGuiEx.Text("Temporarily unavailable, wait for update");
         /*InputWardDetailDialog.Draw();
         var selector = S.AddressBookFileSystemManager.FileSystem.Selector;
         selector.Draw(150f.Scale());
