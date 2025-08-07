@@ -1,8 +1,12 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.UI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Lifestream.Movement;
-
-internal static unsafe class OverrideAFK
+internal unsafe static class OverrideAFK
 {
     public static void ResetTimers()
     {

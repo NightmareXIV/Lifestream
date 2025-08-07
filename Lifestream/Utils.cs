@@ -944,7 +944,7 @@ internal static unsafe partial class Utils
 
     public static bool IsBusy()
     {
-        return P.TaskManager.IsBusy || P.followPath?.waypointsInternal.Count > 0;
+        return P.TaskManager.IsBusy || P.followPath?.Waypoints.Count > 0;
     }
 
     public static bool CanFly() => Control.GetFlightAllowedStatus() == 0;

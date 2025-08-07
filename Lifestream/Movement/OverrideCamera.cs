@@ -1,21 +1,10 @@
 ﻿using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
+using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using Service = ECommons.DalamudServices.Svc;
 
 namespace Lifestream.Movement;
-
-[StructLayout(LayoutKind.Explicit, Size = 0x2B0)]
-public unsafe struct CameraEx
-{
-    [FieldOffset(0x130)] public float DirH; // 0 is north, increases CW
-    [FieldOffset(0x134)] public float DirV; // 0 is horizontal, positive is looking up, negative looking down
-    [FieldOffset(0x138)] public float InputDeltaHAdjusted;
-    [FieldOffset(0x13C)] public float InputDeltaVAdjusted;
-    [FieldOffset(0x140)] public float InputDeltaH;
-    [FieldOffset(0x144)] public float InputDeltaV;
-    [FieldOffset(0x148)] public float DirVMin; // -85deg by default
-    [FieldOffset(0x14C)] public float DirVMax; // +45deg by default
-}
 
 public unsafe class OverrideCamera : IDisposable
 {
@@ -38,13 +27,13 @@ public unsafe class OverrideCamera : IDisposable
     public Angle SpeedV = 360.Degrees(); // per second
 
     private delegate void RMICameraDelegate(CameraEx* self, int inputMode, float speedH, float speedV);
-    [Signature("40 53 48 83 EC 70 44 0F 29 44 24 ?? 48 8B D9")]
+    [Signature("48 8B C4 53 48 81 EC ?? ?? ?? ?? 44 0F 29 50 ??")]
     private Hook<RMICameraDelegate> _rmiCameraHook = null!;
 
     public OverrideCamera()
     {
-        Svc.Hook.InitializeFromAttributes(this);
-        PluginLog.Information($"RMICamera address: 0x{_rmiCameraHook.Address:X}");
+        Service.Hook.InitializeFromAttributes(this);
+        Service.Log.Information($"RMICamera address: 0x{_rmiCameraHook.Address:X}");
     }
 
     public void Dispose()

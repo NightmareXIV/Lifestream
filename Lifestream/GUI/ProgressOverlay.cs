@@ -37,7 +37,7 @@ public class ProgressOverlay : Window
         float percent;
         Vector4 col;
         string overlay;
-        if(P.followPath != null && P.followPath.Waypoints.Count > 0)
+        if(P.followPath != null && P.FollowPath.Waypoints.Count > 0)
         {
             percent = 1f - (float)P.FollowPath.Waypoints.Count / (float)P.FollowPath.MaxWaypoints;
             col = GradientColor.Get(EColor.Red, EColor.Violet);
@@ -70,6 +70,6 @@ public class ProgressOverlay : Window
     public override bool DrawConditions()
     {
         //return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0)) && !C.NoProgressBar;
-        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || (P.followPath != null && P.followPath.Waypoints.Count > 0)) && !C.NoProgressBar;
+        return ((P.TaskManager.IsBusy && P.TaskManager.MaxTasks > 0) || (P.followPath != null && P.FollowPath.Waypoints.Count > 0)) && !C.NoProgressBar;
     }
 }

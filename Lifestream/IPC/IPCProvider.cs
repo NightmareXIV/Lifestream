@@ -57,7 +57,7 @@ public class IPCProvider
     [EzIPC]
     public bool IsBusy()
     {
-        return P.TaskManager.IsBusy || (P.followPath != null && P.followPath.Waypoints.Count > 0);
+        return P.TaskManager.IsBusy || (P.followPath != null && P.FollowPath.Waypoints.Count > 0);
     }
 
     [EzIPC]
