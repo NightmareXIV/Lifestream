@@ -17,7 +17,7 @@
       "autoretainerapi": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[3.0.0.14-api13, )"
+          "ECommons": "[3.0.1.2-stg, )"
         }
       },
       "ecommons": {
@@ -26,7 +26,7 @@
       "nightmareui": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[3.0.0.14-api13, )"
+          "ECommons": "[3.0.1.2-stg, )"
         }
       }
     }

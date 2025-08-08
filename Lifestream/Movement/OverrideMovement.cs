@@ -80,7 +80,7 @@ public unsafe class OverrideMovement : IDisposable
         UserInput = *sumLeft != 0 || *sumForward != 0;
         if(movementAllowed && (IgnoreUserInput || *sumLeft == 0 && *sumForward == 0) && DirectionToDestination(false) is var relDir && relDir != null)
         {
-            Service.Log.Debug($"relative dir: {relDir}");
+            Service.Log.Verbose($"relative dir: {relDir}");
             var dir = relDir.Value.h.ToDirection();
             *sumLeft = dir.X;
             *sumForward = dir.Y;
@@ -124,6 +124,6 @@ public unsafe class OverrideMovement : IDisposable
     private void UpdateLegacyMode()
     {
         _legacyMode = Service.GameConfig.UiControl.TryGetUInt("MoveMode", out var mode) && mode == 1;
-        Service.Log.Info($"Legacy mode is now {(_legacyMode ? "enabled" : "disabled")}");
+        Service.Log.Verbose($"Legacy mode is now {(_legacyMode ? "enabled" : "disabled")}");
     }
 }

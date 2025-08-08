@@ -733,7 +733,7 @@ internal static unsafe class UIDebug
             if(TryGetAddonByName<AddonSelectString>("SelectString", out var addon))
             {
                 ImGuiEx.Text($"Entries: {addon->PopupMenu.PopupMenu.EntryCount}");
-                foreach(var entry in new SelectStringMaster(addon).Entries)
+                foreach(var entry in new AddonMaster.SelectString(addon).Entries)
                 {
                     ImGuiEx.Text($"{entry.Text}");
                     if(ImGuiEx.HoveredAndClicked())
