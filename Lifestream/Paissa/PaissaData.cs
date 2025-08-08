@@ -1,7 +1,7 @@
 ﻿using Lifestream.Data;
 using Lifestream.Enums;
 using Newtonsoft.Json;
-//using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
+using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 
 namespace Lifestream.Paissa;
 
@@ -107,7 +107,7 @@ public static class PaissaData
     }
 
     [Serializable]
-    public class PaissaAddressBookFolder //: IFileSystemStorage
+    public class PaissaAddressBookFolder : IFileSystemStorage
     {
         internal bool IsCopy = false;
         public string ExportedName = "";

@@ -21,7 +21,7 @@ global using System.Text;
 global using System.Threading.Tasks;
 global using static ECommons.GenericHelpers;
 global using static Lifestream.Lifestream;
-//global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
+global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
 global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;
 global using S = Lifestream.Services.Service;
 using Callback = ECommons.Automation.Callback;

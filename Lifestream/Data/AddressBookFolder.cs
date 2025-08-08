@@ -1,8 +1,8 @@
-﻿//using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
+﻿using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 
 namespace Lifestream.Data;
 [Serializable]
-public class AddressBookFolder //: IFileSystemStorage
+public class AddressBookFolder : IFileSystemStorage
 {
     internal bool IsCopy = false;
     public string ExportedName = "";

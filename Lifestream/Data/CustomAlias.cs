@@ -1,8 +1,8 @@
-﻿//using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
+﻿using NightmareUI.OtterGuiWrapper.FileSystems.Generic;
 
 namespace Lifestream.Data;
 [Serializable]
-public class CustomAlias //: IFileSystemStorage
+public class CustomAlias : IFileSystemStorage
 {
     public string ExportedName;
     public Guid GUID { get; set; } = Guid.NewGuid();

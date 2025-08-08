@@ -17,9 +17,7 @@ public static class TabCustomAlias
     private static ImGuiEx.RealtimeDragDrop<CustomAliasCommand> DragDrop = new("CusACmd", x => x.ID);
     private static readonly Vector4[] ChainColors = [ImGuiColors.DalamudRed, ImGuiColors.ParsedOrange, ImGuiColors.DalamudYellow, ImGuiColors.ParsedGreen, ImGuiColors.TankBlue, ImGuiColors.ParsedPurple];
 
-    public static void Draw() => ImGuiEx.TextWrapped($"Temporarily unavailable, wait for update");
-
-    /*public static void Draw()
+    public static void Draw()
     {
         var selector = S.CustomAliasFileSystemManager.FileSystem.Selector;
         selector.Draw(150f.Scale());
@@ -631,5 +629,5 @@ public static class TabCustomAlias
                 i++;
             }
         }
-    }*/
+    }
 }
