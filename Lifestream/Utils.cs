@@ -686,9 +686,9 @@ internal static unsafe partial class Utils
             if(WindowFunctions.TryFindGameWindow(out var hwnd))
             {
                 var point = new POINT() { x = x, y = y };
-                if(NativeFunctions.ClientToScreen(hwnd, &point))
+                if(FXWindows.ClientToScreen(hwnd, &point))
                 {
-                    NativeFunctions.SetCursorPos(point.x, point.y);
+                    FXWindows.SetCursorPos(point.x, point.y);
                 }
                 break;
             }

@@ -43,6 +43,8 @@ public class VnavmeshIPC
 
     public VnavmeshIPC()
     {
-        EzIPC.Init(this, "vnavmesh", SafeWrapper.AnyException, reducedLogging: true);
+        ECommonsMain.ReducedLogging = true;
+        EzIPC.Init(this, "vnavmesh", SafeWrapper.AnyException);
+        ECommonsMain.ReducedLogging = false;
     }
 }

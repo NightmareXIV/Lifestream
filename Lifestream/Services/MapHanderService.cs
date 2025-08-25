@@ -52,7 +52,7 @@ public unsafe class MapHanderService : IDisposable
             var isMouseUp = evt.AtkEventType == (int)AtkEventType.MouseUp;
             if (isMouseUp && isLeftClicked || isGamePadInput && isGamePadClick)
             {
-                if(!Bitmask.IsBitSet(NativeFunctions.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(NativeFunctions.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(NativeFunctions.GetKeyState((int)Keys.RControlKey), 15))
+                if(!Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.RControlKey), 15))
                 {
                     if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) && IsAddonReady(addonTooltip) && addonTooltip->IsVisible)
                     {

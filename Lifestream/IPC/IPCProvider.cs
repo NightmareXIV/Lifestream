@@ -15,7 +15,9 @@ public class IPCProvider
 {
     private IPCProvider()
     {
-        EzIPC.Init(this, reducedLogging: true);
+        ECommonsMain.ReducedLogging = true;
+        EzIPC.Init(this);
+        ECommonsMain.ReducedLogging = false;
     }
 
     [EzIPC]
@@ -276,6 +278,18 @@ public class IPCProvider
     }
 
     [EzIPC]
+    public HousePathData GetSharedHousePathData()
+    {
+        var e = TaskPropertyShortcut.GetSharedHouseAetheryteId(out var entry);
+        if(e.ID != 0)
+        {
+            var data = Utils.GetCustomPathData(Utils.GetResidentialAetheryteByTerritoryType(entry.TerritoryId).Value, entry.Ward - 1, entry.Plot - 1);
+            return data;
+        }
+        return null;
+    }
+
+    [EzIPC]
     public uint GetResidentialTerritory(ResidentialAetheryteKind r)
     {
         return r.GetResidentialTerritory();
@@ -358,6 +372,13 @@ public class IPCProvider
     {
         if(Player.Object.HomeWorld.RowId != Player.Object.CurrentWorld.RowId) return null;
         return TaskPropertyShortcut.GetPrivateHouseAetheryteID() != 0;
+    }
+
+    [EzIPC]
+    public bool? HasSharedEstate()
+    {
+        if(Player.Object.HomeWorld.RowId != Player.Object.CurrentWorld.RowId) return null;
+        return TaskPropertyShortcut.GetSharedHouseAetheryteId(out _).ID != 0;
     }
 
     [EzIPC]
