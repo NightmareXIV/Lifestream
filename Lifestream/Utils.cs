@@ -17,6 +17,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -46,6 +47,16 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+    public static bool IsInnUnlocked()
+    {
+        var q = UIState.Instance();
+        foreach(var x in (uint[])[65665, 66005, 65856])
+        {
+            if(q->IsUnlockLinkUnlockedOrQuestCompleted(x)) return true;
+        }
+        return false;
+    }
 
     public static List<(Vector3 Start, Vector3 End)> GenerateGroupConnectionLines(this CustomAlias alias, float extraScatter = 0f)
     {

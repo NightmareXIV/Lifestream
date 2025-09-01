@@ -489,5 +489,11 @@ public class IPCProvider
         return true;
     }
 
+    [EzIPC]
+    public void EnqueueCustomAlias(CustomAlias alias, bool force, int? inclusiveStart, int? inclusiveEnd)
+    {
+        alias.Enqueue(force, inclusiveStart, inclusiveEnd);
+    }
+
     [EzIPCEvent] public System.Action OnHouseEnterError;
 }

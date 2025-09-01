@@ -237,7 +237,21 @@ public static unsafe class TaskPropertyShortcut
         P.TaskManager.BeginStack();
         try
         {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(!Utils.IsInnUnlocked())
+                {
+                    DuoLog.Error($"Inn is not unlocked");
+                    return null;
+                }
+                return true;
+            });
             var id = innIndex == null ? GetInnTerritoryId() : InnData.Keys.ElementAt(innIndex.Value);
+            if(id == 0)
+            {
+                DuoLog.Error($"No suitable inn found");
+                return;
+            }
             PluginLog.Debug($"Inn territory: {ExcelTerritoryHelper.GetName(id)}");
             var data = InnData[id];
             var aetheryte = Svc.Data.GetExcelSheet<Aetheryte>().First(x => x.IsAetheryte && x.Territory.RowId == id);
@@ -438,7 +452,7 @@ public static unsafe class TaskPropertyShortcut
                 .FirstOrDefault();
 
 
-            return aetheryte.Value.Territory.RowId;
+            return aetheryte?.Territory.RowId ?? 0;
         }
     }
 

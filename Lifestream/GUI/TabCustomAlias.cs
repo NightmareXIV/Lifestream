@@ -4,6 +4,7 @@ using ECommons.GameHelpers;
 using ECommons.ImGuiMethods.TerritorySelection;
 using ECommons.MathHelpers;
 using ECommons.SplatoonAPI;
+using FFXIVClientStructs;
 using Lifestream.Data;
 using Lifestream.Tasks.SameWorld;
 using Newtonsoft.Json;
@@ -545,6 +546,7 @@ public static class TabCustomAlias
             {
                 command.DataID = Svc.Targets.Target.DataId;
             }
+            ImGuiEx.InputFloat(100f, "Approach until reaching distance", ref command.InteractDistance, 1, 1);
         }
         if(command.Kind == CustomAliasKind.Mount_Up)
         {

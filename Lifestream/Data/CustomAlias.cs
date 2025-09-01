@@ -19,6 +19,14 @@ public class CustomAlias : IFileSystemStorage
 
     public void Enqueue(bool force = false, int? inclusiveStart = null, int? exclusiveEnd = null)
     {
+        foreach(var x in Commands)
+        {
+            if(!x.CanExecute(out var e))
+            {
+                DuoLog.Error($"{e}");
+                return;
+            }
+        }
         if(force || !Utils.IsBusy())
         {
             var cmds = Commands;

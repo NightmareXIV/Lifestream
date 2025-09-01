@@ -86,7 +86,7 @@ public unsafe class Lifestream : IDalamudPlugin
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
             EzCmd.Add("/lifestream", ProcessCommand, null);
-            EzCmd.Add("/li", ProcessCommand, "\n" + Lang.Help);
+            EzCmd.Add("/li", ProcessCommand, "Return to home world. Type /lifestream and switch to \"Help\" tab for a list of built-in shortcuts.");
             ProperOnLogin.RegisterAvailable(() =>
             {
                 Config.CharaMap[Player.CID] = Player.NameWithWorld;

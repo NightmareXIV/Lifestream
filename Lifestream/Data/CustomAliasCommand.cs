@@ -1,9 +1,11 @@
-﻿using ECommons.Automation.NeoTaskManager.Tasks;
+﻿using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
@@ -39,7 +41,9 @@ public class CustomAliasCommand
     public bool MountUpConditional = false;
     public bool RequireTerritoryChange = false;
     public uint Territory = 0;
+    public float? InteractDistance = null;
 
+    public bool ShouldSerializeInteractDistance() => Kind.EqualsAny(CustomAliasKind.Interact) && InteractDistance != Default.InteractDistance;
     public bool ShouldSerializeWalkToExit() => Kind.EqualsAny(CustomAliasKind.Circular_movement) && WalkToExit != Default.WalkToExit;
     public bool ShouldSerializeExtraPoints() => ExtraPoints.Count > 0;
     public bool ShouldSerializeTerritory() => Territory != 0 && Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement);
@@ -88,7 +92,7 @@ public class CustomAliasCommand
             if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan, $"{Kind}: Fly if can");
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false), $"{Kind}: use sprint");
             P.TaskManager.Enqueue(() => P.FollowPath.Move([selectedPoint.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
-            P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied");
+            P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied", new(timeLimitMS:5.Minutes()));
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
@@ -106,7 +110,7 @@ public class CustomAliasCommand
                     }, 5f);
                 }, $"{Kind}: Move to 2d point via TX");
                 P.TaskManager.Enqueue(S.Ipc.TextAdvanceIPC.IsBusy, $"{Kind}: wait until movement starts", new(abortOnTimeout: false, timeLimitMS: 5000));
-                P.TaskManager.Enqueue(() => !S.Ipc.TextAdvanceIPC.IsBusy(), $"{Kind}: wait until movement ends", new(timeLimitMS: 1000 * 60 * 5));
+                P.TaskManager.Enqueue(() => !S.Ipc.TextAdvanceIPC.IsBusy(), $"{Kind}: wait until movement ends", new(timeLimitMS: 5.Minutes()));
             }
             else
             {
@@ -115,10 +119,10 @@ public class CustomAliasCommand
                 {
                     var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, UseFlight);
                     P.TaskManager.InsertMulti(
-                        new(() => task.IsCompleted),
+                        new(() => task.IsCompleted, new(timeLimitMS:5.Minutes())),
                         new(() => TaskMoveToHouse.UseSprint(false)),
                         new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
-                        new(() => P.FollowPath.Waypoints.Count == 0)
+                        new(() => P.FollowPath.Waypoints.Count == 0, new(timeLimitMS:5.Minutes()))
                         );
                 });
 
@@ -163,12 +167,17 @@ public class CustomAliasCommand
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable);
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false));
             P.TaskManager.Enqueue(() => P.FollowPath.Move([.. MathHelper.CalculateCircularMovement(CenterPoint, Player.Position.ToVector2(), CircularExitPoint.ToVector2(), out _, Precision, Tolerance, Clamp).Select(x => x.ToVector3(Player.Position.Y)).ToList(), .. (Vector3[])(WalkToExit ? [CircularExitPoint] : []), .. appendMovement], true));
-            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0);
+            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0, new(timeLimitMS:5.Minutes()));
         }
         else if(Kind == CustomAliasKind.Interact)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && Utils.DismountIfNeeded());
-            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == DataID)));
+            IGameObject selector() => Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.DataId == DataID);
+            if(InteractDistance != null)
+            {
+                P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(selector, this.InteractDistance.Value));
+            }
+            P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(selector));
         }
         else if(Kind == CustomAliasKind.Mount_Up)
         {
@@ -280,5 +289,47 @@ public class CustomAliasCommand
             P.FollowPath.Stop();
         }
         return P.FollowPath.Waypoints.Count == 0;
+    }
+
+    public unsafe bool CanExecute(out string error)
+    {
+        error = null;
+        if(!Player.Available) return false;
+        if(this.Kind == CustomAliasKind.Teleport_to_Aetheryte)
+        {
+            if(!Svc.AetheryteList.Any(x => x.AetheryteId == this.Aetheryte))
+            {
+                error = $"Aetheryte {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(this.Aetheryte)?.PlaceName.Value.Name ?? $"{this.Aetheryte}"} is not unlocked";
+                return false;
+            }
+        }
+        else if(this.Kind == CustomAliasKind.Use_Aethernet)
+        {
+            if(S.Data.DataStore.Aetherytes.Values.Any(x => x.Any(s => s.ID == this.Aetheryte)))
+            {
+                if(!UIState.Instance()->IsAetheryteUnlocked(this.Aetheryte))
+                {
+                    error = $"Aethernet shard {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(this.Aetheryte)?.PlaceName.Value.Name ?? $"{this.Aetheryte}"} is not unlocked";
+                    return false;
+                }
+            }
+            else if(this.Aetheryte == 70)
+            {
+                if(!UIState.Instance()->IsUnlockLinkUnlockedOrQuestCompleted(69208))
+                {
+                    error = $"Firmament is not unlocked";
+                    return false;
+                }
+            }
+        }
+        else if(this.Kind == CustomAliasKind.Change_world)
+        {
+            if(!S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(this.World)) && !S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(this.World)))
+            {
+                error = $"Can not visit {ExcelWorldHelper.GetName(this.World)} from {Player.CurrentWorld}";
+                return false;
+            }
+        }
+        return true;
     }
 }
