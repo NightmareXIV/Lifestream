@@ -62,6 +62,7 @@ public static class TabMultipath
                 new TickScheduler(() => C.MultiPathes.Remove(Selected));
                 Selected = null;
             }
+            ImGuiEx.Tooltip("Hold CTRL and click");
             ImGui.SameLine();
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Copy, "Copy"))
             {

@@ -204,7 +204,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         else if(arguments.EqualsIgnoreCaseAny("ws", "workshop"))
         {
-            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC, workshop: true);
+            TaskPropertyShortcut.Enqueue(TaskPropertyShortcut.PropertyType.FC, HouseEnterMode.Enter_workshop);
         }
         else if(arguments.EqualsIgnoreCaseAny("apartment", "apt"))
         {

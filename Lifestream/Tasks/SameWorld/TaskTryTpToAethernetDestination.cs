@@ -44,17 +44,17 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(() =>
             {
-                if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null)
+                if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null && shouldApproachAetheryte())
                 {
                     P.TaskManager.InsertMulti([
-                        new FrameDelayTask(10),
+                            new FrameDelayTask(10),
                         new(WorldChange.TargetReachableWorldChangeAetheryte),
                         new(WorldChange.LockOn),
                         new(WorldChange.EnableAutomove),
                         new(WorldChange.WaitUntilMasterAetheryteExists),
                         new(WorldChange.DisableAutomove),
                         ..waiters
-                        ]);
+                            ]);
                 }
                 else if(P.ActiveAetheryte == null)
                 {
@@ -80,6 +80,42 @@ internal static class TaskTryTpToAethernetDestination
                 return;
             }, $"ConditionalLockonTask");
 
+        }
+
+        bool shouldApproachAetheryte()
+        {
+            var near = Utils.GetTinyAetheryteFromGameObject(Utils.GetReachableWorldChangeAetheryte());
+            if(near != null)
+            {
+                var master = Utils.GetMaster(near.Value);
+                if(near.Value != master)
+                {
+                    return true;
+                }
+                else
+                {
+                    foreach(var x in S.Data.DataStore.Aetherytes[master])
+                    {
+                        if(near != x)
+                        {
+                            var name = x.Name;
+                            if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    if(near.Value.ID == 70 && C.Firmament)
+                    {
+                        var name = "Firmament";
+                        if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         bool processPartial()

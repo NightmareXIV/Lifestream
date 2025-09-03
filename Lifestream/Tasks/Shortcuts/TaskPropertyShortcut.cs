@@ -36,7 +36,7 @@ public static unsafe class TaskPropertyShortcut
 
     public static uint[] InnNpc = [1000102, 1000974, 1001976, 1011193, 1018981, 1048375, 1037293, 1027231];
 
-    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null, bool? enterApartment = null, bool useSameWorld = false, bool workshop = false)
+    public static void Enqueue(PropertyType propertyType = PropertyType.Auto, HouseEnterMode? mode = null, int? innIndex = null, bool? enterApartment = null, bool useSameWorld = false)
     {
         if(P.TaskManager.IsBusy)
         {
@@ -79,7 +79,7 @@ public static unsafe class TaskPropertyShortcut
             {
                 if(GetFreeCompanyAetheryteID() != 0)
                 {
-                    ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode, workshop);
+                    ExecuteTpAndPathfind(GetFreeCompanyAetheryteID(), Utils.GetFCPathData(), mode);
                 }
                 else
                 {
@@ -149,12 +149,11 @@ public static unsafe class TaskPropertyShortcut
         return false;
     }
 
-    private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null, bool workshop = false) => ExecuteTpAndPathfind(id, 0, data, mode, workshop);
+    private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null) => ExecuteTpAndPathfind(id, 0, data, mode);
 
-    private static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null, bool workshop = false)
+    private static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null)
     {
         mode ??= data?.GetHouseEnterMode() ?? HouseEnterMode.None;
-        if(workshop) mode = HouseEnterMode.Enter_house;
         PluginLog.Information($"id={id}, data={data}, mode={mode}, cnt={data?.PathToEntrance.Count}");
         P.TaskManager.BeginStack();
         try
@@ -162,7 +161,7 @@ public static unsafe class TaskPropertyShortcut
             P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id, subIndex), $"ExecuteTPToAethernetDestination{id}, {subIndex}");
             P.TaskManager.Enqueue(() => !IsScreenReady(), "IsScreenNotReady");
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "IsScreenReady and Interactable");
-            if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house))
+            if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house, HouseEnterMode.Enter_workshop))
             {
                 P.TaskManager.Enqueue(() =>
                 {
@@ -174,7 +173,7 @@ public static unsafe class TaskPropertyShortcut
                 }, "ValidateHousingPosition");
                 P.TaskManager.Enqueue(() => P.FollowPath.Move(data.PathToEntrance, true), $"Move to path: {data.PathToEntrance.Print()}");
                 P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0, "Wait until movement completes");
-                if(mode == HouseEnterMode.Enter_house)
+                if(mode.EqualsAny(HouseEnterMode.Enter_house, HouseEnterMode.Enter_workshop))
                 {
                     P.TaskManager.Enqueue(() =>
                     {
@@ -200,27 +199,35 @@ public static unsafe class TaskPropertyShortcut
                         return false;
                     }, "Enter House");
                     P.TaskManager.Enqueue(ConfirmHouseEntrance, "Confirm House Entrance");
-                    if(workshop)
+                    if(mode == HouseEnterMode.Enter_workshop)
                     {
                         P.TaskManager.Enqueue(() => !IsScreenReady(), "IsScreenNotReady");
                         P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "IsScreenReady and Interactable");
-                        if(data.PathToWorkshop.Count > 0)
-                        {
-                            P.TaskManager.Enqueue(() => P.FollowPath.Move(data.PathToWorkshop, true), $"Move to path: {data.PathToWorkshop.Print()}");
-                            P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0, "Wait until movement completes");
-                        }
-                        P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(Utils.GetWorkshopEntrance));
-                        P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(Utils.GetWorkshopEntrance));
                         P.TaskManager.Enqueue(() =>
                         {
-                            if(Utils.TrySelectSpecificEntry(Lang.EnterWorkshop, () => EzThrottler.Throttle("HET.SelectEnterWorkshop")))
+                            P.TaskManager.InsertStack(() =>
                             {
-                                PluginLog.Debug("Confirmed going to workhop");
-                                return true;
-                            }
-                            return false;
+                                if(Svc.Objects.Any(x => x.Name.ToString().EqualsIgnoreCaseAny(Lang.AdditionalChambersEntrance)))
+                                {
+                                    if(data.PathToWorkshop.Count > 0)
+                                    {
+                                        P.TaskManager.Enqueue(() => P.FollowPath.Move(data.PathToWorkshop, true), $"Move to path: {data.PathToWorkshop.Print()}");
+                                        P.TaskManager.Enqueue(() => P.FollowPath.Waypoints.Count == 0, "Wait until movement completes");
+                                    }
+                                    P.TaskManager.EnqueueTask(NeoTasks.ApproachObjectViaAutomove(Utils.GetWorkshopEntrance));
+                                    P.TaskManager.EnqueueTask(NeoTasks.InteractWithObject(Utils.GetWorkshopEntrance));
+                                    P.TaskManager.Enqueue(() =>
+                                    {
+                                        if(Utils.TrySelectSpecificEntry(Lang.EnterWorkshop, () => EzThrottler.Throttle("HET.SelectEnterWorkshop")))
+                                        {
+                                            PluginLog.Debug("Confirmed going to workhop");
+                                            return true;
+                                        }
+                                        return false;
+                                    });
+                                }
+                            });
                         });
-
                     }
                 }
             }

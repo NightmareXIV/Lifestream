@@ -1375,6 +1375,34 @@ internal static unsafe partial class Utils
         return null;
     }
 
+    /// <summary>
+    /// Attempts to convert Aetheryte into TinyAetheryte without range check
+    /// </summary>
+    /// <param name="a"></param>
+    /// <returns></returns>
+    public static TinyAetheryte? GetTinyAetheryteFromGameObject(IGameObject a)
+    {
+        if(a != null)
+        {
+            var pos2 = a.Position.ToVector2();
+            foreach(var x in S.Data.DataStore.Aetherytes)
+            {
+                if(x.Key.TerritoryType == P.Territory)
+                {
+                    return x.Key;
+                }
+                foreach(var l in x.Value)
+                {
+                    if(l.TerritoryType == P.Territory)
+                    {
+                        return l ;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     internal static bool IsDisallowedToChangeWorld()
     {
         return Svc.Condition[ConditionFlag.WaitingToVisitOtherWorld]
