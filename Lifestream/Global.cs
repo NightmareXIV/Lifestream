@@ -24,4 +24,3 @@ global using static Lifestream.Lifestream;
 global using AddressBookFS = OtterGui.Filesystem.FileSystem<Lifestream.Data.AddressBookFolder>;
 global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;
 global using S = Lifestream.Services.Service;
-global using FXWindows = TerraFX.Interop.Windows.Windows;

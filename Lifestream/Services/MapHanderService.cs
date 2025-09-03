@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FXWindows = TerraFX.Interop.Windows.Windows;
 
 namespace Lifestream.Services;
 public unsafe class MapHanderService : IDisposable

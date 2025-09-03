@@ -6,6 +6,7 @@ using Lifestream.Data;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
 using NightmareUI;
+using NightmareUI.Censoring;
 using NightmareUI.PrimaryUI;
 using System.Globalization;
 using TerraFX.Interop.Windows;
@@ -115,22 +116,58 @@ internal static unsafe class UISettings
             }
             ImGui.Separator();
             ImGuiEx.Text("\"/li auto\" command priority:");
-            ImGui.SameLine();
-            if(ImGui.SmallButton("Reset")) C.PropertyPrio.Clear();
-            var dragDrop = Ref<ImGuiEx.RealtimeDragDrop<AutoPropertyData>>.Get(() => new("apddd", x => x.Type.ToString()));
-            C.PropertyPrio.AddRange(Enum.GetValues<TaskPropertyShortcut.PropertyType>().Where(x => x != TaskPropertyShortcut.PropertyType.Auto && !C.PropertyPrio.Any(s => s.Type == x)).Select(x => new AutoPropertyData(false, x)));
-            dragDrop.Begin();
-            for(var i = 0; i < C.PropertyPrio.Count; i++)
+            var prio = C.PropertyPrio;
+            var custom = C.PropertyPrioOverrides.TryGetValue(Player.CID, out var value);
+            if(custom)
             {
-                var d = C.PropertyPrio[i];
+                prio = value;
+            }
+
+            if(Player.Available)
+            {
+                ImGuiEx.Text($"For {Censor.Character(Player.NameWithWorld)}:");
+                ImGui.Indent();
+                if(ImGui.RadioButton("Use Global Settings", !custom))
+                {
+                    C.PropertyPrioOverrides.Remove(Player.CID);
+                }
+                ImGui.SameLine();
+
+                if(ImGui.RadioButton("Use Individual Settings", custom))
+                {
+                    if(!custom)
+                    {
+                        C.PropertyPrioOverrides[Player.CID] = [];
+                    }
+                }
+                ImGui.Unindent();
+            }
+            else
+            {
+                ImGuiEx.TextV($"Editing Global Settings:");
+            }
+            ImGui.SameLine();
+            if(ImGuiEx.IconButton($"\uf2ea"))
+            {
+                prio.Clear();
+            }
+            ImGuiEx.Tooltip("Reset to default order");
+
+            var dragDrop = Ref<ImGuiEx.RealtimeDragDrop<AutoPropertyData>>.Get(() => new("apddd", x => x.Type.ToString()));
+            prio.AddRange(Enum.GetValues<TaskPropertyShortcut.PropertyType>().Where(x => x != TaskPropertyShortcut.PropertyType.Auto && !prio.Any(s => s.Type == x)).Select(x => new AutoPropertyData(false, x)));
+            dragDrop.Begin();
+            for(var i = 0; i < prio.Count; i++)
+            {
+                var d = prio[i];
                 ImGui.PushID($"c{i}");
                 dragDrop.NextRow();
-                dragDrop.DrawButtonDummy(d, C.PropertyPrio, i);
+                dragDrop.DrawButtonDummy(d, prio, i);
                 ImGui.SameLine();
                 ImGui.Checkbox($"{d.Type}", ref d.Enabled);
                 ImGui.PopID();
             }
             dragDrop.End();
+
             ImGui.Separator();
         })
 

@@ -56,7 +56,7 @@ public static unsafe class TaskPropertyShortcut
         {
             if(propertyType == PropertyType.Auto)
             {
-                foreach(var x in C.PropertyPrio)
+                foreach(var x in C.PropertyPrioOverrides.SafeSelect(Player.CID) ?? C.PropertyPrio)
                 {
                     if(x.Enabled)
                     {
@@ -442,6 +442,16 @@ public static unsafe class TaskPropertyShortcut
             if(aetheryte != null && Svc.AetheryteList.Any(a => a.AetheryteId == aetheryte?.RowId))
             {
                 return aetheryte.Value.Territory.RowId;
+            }
+        }
+        {
+            var aetheryte = InnData.Keys
+                .Select(key => Svc.Data.GetExcelSheet<Aetheryte>().FirstOrNull(x => x.IsAetheryte && x.Territory.RowId == key))
+                .Where(x => x != null && P.ActiveAetheryte?.TerritoryType == x.Value.Territory.RowId)
+                .FirstOrDefault();
+            if(aetheryte != null)
+            {
+                return aetheryte?.Territory.RowId ?? 0;
             }
         }
         {

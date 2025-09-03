@@ -65,6 +65,7 @@ public class Config : IEzConfig
     public bool UseReturn = true;
     public uint PreferredInn = 0;
     public List<AutoPropertyData> PropertyPrio = [new(true, TaskPropertyShortcut.PropertyType.Home), new(true, TaskPropertyShortcut.PropertyType.FC), new(true, TaskPropertyShortcut.PropertyType.Apartment), new(true, TaskPropertyShortcut.PropertyType.Inn), new(false, TaskPropertyShortcut.PropertyType.Shared_Estate)];
+    public Dictionary<ulong, List<AutoPropertyData>> PropertyPrioOverrides = [];
     public bool EnableDvcRetry = true;
     public int MaxDcvRetries = 3000;
     public bool DcvUseAlternativeWorld = true;

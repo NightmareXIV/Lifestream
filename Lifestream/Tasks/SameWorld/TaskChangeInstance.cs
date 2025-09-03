@@ -113,6 +113,19 @@ public static unsafe class TaskChangeInstance
 
     public static IGameObject GetAetheryte()
     {
+        if(S.InstanceHandler.ExtraInstanceChangers.TryGetValue(Player.Territory, out var npcData))
+        {
+            foreach(var x in Svc.Objects)
+            {
+                if(x.DataId == npcData.DataID && x.IsTargetable)
+                {
+                    if(Vector3.Distance(x.Position, Player.Position) < npcData.Distance)
+                    {
+                        return x;
+                    }
+                }
+            }
+        }
         foreach(var x in Svc.Objects)
         {
             if(x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable)

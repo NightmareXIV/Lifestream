@@ -546,7 +546,7 @@ public static class TabCustomAlias
             {
                 command.DataID = Svc.Targets.Target.DataId;
             }
-            ImGuiEx.InputFloat(100f, "Approach until reaching distance", ref command.InteractDistance, 1, 1);
+            ImGuiEx.InputFloat(100f, "Approach before interacting to this distance", ref command.InteractDistance, 1, 1);
         }
         if(command.Kind == CustomAliasKind.Mount_Up)
         {

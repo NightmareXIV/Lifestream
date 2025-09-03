@@ -20,7 +20,13 @@ public unsafe class InstanceHandler : IDisposable
             C.GameVersion = gv;
             C.PublicInstances = [];
         }
+        C.PublicInstances[1291] = 3;
     }
+
+    public Dictionary<uint, (uint DataID, float Distance)> ExtraInstanceChangers = new()
+    {
+        [1291] = (1052625, 6.8f)
+    };
 
     public bool CanChangeInstance()
     {
