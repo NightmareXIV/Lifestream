@@ -53,6 +53,7 @@ internal static class Lang
 
     /li cosmic → go to Cosmic Exploration area, alias: /li cosmic|moon|ardorum
     /li island → go to Island Sanctuary
+    /li firmament → - go to Firmamnent
     /li w → open world travel window, alias: /li w|world|open|select
     /lifestream → open plugin configuration 
     """;

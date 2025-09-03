@@ -56,4 +56,8 @@ public static class StaticAlias
     public static readonly CustomAlias UldahMarketboard = JsonConvert.DeserializeObject<CustomAlias>("""
         {"ExportedName":"mbShortcut","Commands":[{"Kind":0,"Aetheryte":9},{"Kind":4,"Aetheryte":125},{"Kind":1,"Point":{"X":138.15443,"Y":4.0,"Z":-31.829441},"Scatter":0.7},{"Kind":1,"Point":{"X":145.9551,"Y":4.0,"Z":-32.124325},"Scatter":0.5},{"Kind":6,"DataID":2000442}]}
         """);
+
+    public static readonly CustomAlias Firmament = JsonConvert.DeserializeObject<CustomAlias>("""
+        {"ExportedName":"Firmament","Commands":[{"Kind":0,"Aetheryte":70},{"Kind":4,"Aetheryte":4294967295}]}
+        """);
 }

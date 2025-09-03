@@ -310,6 +310,17 @@ public unsafe class Lifestream : IDalamudPlugin
                 Notify.Error("Lifestream is busy");
             }
         }
+        else if(arguments.EqualsIgnoreCase("Firmament"))
+        {
+            if(!Utils.IsBusy())
+            {
+                StaticAlias.Firmament.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
         else if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "tp"))
         {
             var destination = primary[(primary.IndexOf("tp") + 2)..].Trim();
