@@ -29,7 +29,7 @@ public static unsafe class TaskMoveToHouse
             }
         }
         if(!C.UseSprintPeloton && !C.UsePeloton) return true;
-        if(Player.Object.StatusList.Any(x => x.StatusId.EqualsAny<uint>(50, 1199, 4209))) return true;
+        if(Player.Object?.StatusList?.Any(x => x.StatusId.EqualsAny<uint>(50, 1199, 4209)) == true) return true;
         List<uint> abilities = [];
         if(C.UseSprintPeloton) abilities.Add(3);
         if(C.UsePeloton) abilities.Add(7557);

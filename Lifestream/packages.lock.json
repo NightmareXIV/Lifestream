@@ -44,13 +44,13 @@
       "nightmareui": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[3.0.1.12, )"
+          "ECommons": "[3.0.1.14, )"
         }
       },
       "nightmareui.otterguiwrapper": {
         "type": "Project",
         "dependencies": {
-          "ECommons": "[3.0.1.12, )",
+          "ECommons": "[3.0.1.14, )",
           "NightmareUI": "[1.0.0, )",
           "OtterGui": "[1.0.0, )"
         }

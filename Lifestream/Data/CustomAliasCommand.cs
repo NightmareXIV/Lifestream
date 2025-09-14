@@ -87,8 +87,8 @@ public class CustomAliasCommand
         else if(Kind == CustomAliasKind.Move_to_point)
         {
             var selectedPoint = GenericHelpers.GetRandom([Point, .. ExtraPoints]);
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan, $"{Kind}: Fly if can");
             P.TaskManager.Enqueue(() => TaskMoveToHouse.UseSprint(false), $"{Kind}: use sprint");
             P.TaskManager.Enqueue(() => P.FollowPath.Move([selectedPoint.Scatter(Scatter), .. appendMovement], true), $"{Kind}: Enqueue move");
@@ -97,8 +97,8 @@ public class CustomAliasCommand
         }
         else if(Kind == CustomAliasKind.Navmesh_to_point)
         {
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS: 5 * 60 * 1000));
             P.TaskManager.Enqueue(() => Territory == 0 || Territory == Player.Territory, $"{Kind}: Wait for selected territory");
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && S.Ipc.VnavmeshIPC.IsReady() == true, $"{Kind}: Wait for screen and player interactable and vnav ready", new(timeLimitMS: 5 * 60 * 1000));
             if(UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded))
             {
                 P.TaskManager.Enqueue(() =>
@@ -119,7 +119,7 @@ public class CustomAliasCommand
                 {
                     var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, UseFlight);
                     P.TaskManager.InsertMulti(
-                        new(() => task.IsCompleted, new(timeLimitMS:5.Minutes())),
+                        new(() => task?.IsCompleted == true, new(timeLimitMS:5.Minutes())),
                         new(() => TaskMoveToHouse.UseSprint(false)),
                         new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
                         new(() => P.FollowPath.Waypoints.Count == 0, new(timeLimitMS:5.Minutes()))

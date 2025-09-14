@@ -47,11 +47,12 @@ public class CustomAlias : IFileSystemStorage
                 {
                     while(cmds.SafeSelect(i + 1)?.Kind == CustomAliasKind.Move_to_point)
                     {
-                        if(this.IsChainedWithNext(i))
+                        if(this.IsChainedWithNext(i + (inclusiveStart ?? 0)))
                         {
                             var c = cmds[i + 1];
                             append.Add(c.Point.Scatter(c.Scatter));
                             i++;
+                            PluginLog.Information($"Appending command {i}");
                         }
                         else
                         {
