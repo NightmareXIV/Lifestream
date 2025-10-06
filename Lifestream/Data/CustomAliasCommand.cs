@@ -324,7 +324,7 @@ public class CustomAliasCommand
         }
         else if(this.Kind == CustomAliasKind.Change_world)
         {
-            if(!S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(this.World)) && !S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(this.World)))
+            if(!S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(this.World)) && !S.Data.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(this.World)))
             {
                 error = $"Can not visit {ExcelWorldHelper.GetName(this.World)} from {Player.CurrentWorld}";
                 return false;
