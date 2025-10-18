@@ -280,6 +280,15 @@ public class CustomAliasCommand
                 });
             }, $"{Kind}: Wait for transition");
         }
+        else if(Kind == CustomAliasKind.Return_to_Home_World)
+        {
+            if(!Player.IsInHomeWorld)
+            {
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
+                var world = ExcelWorldHelper.GetName(World);
+                P.TPAndChangeWorld(world, S.Ipc.IPCProvider.CanVisitCrossDC(world), skipChecks: true);
+            }
+        }
     }
 
     private bool WaitForMoveEndOrOccupied()
