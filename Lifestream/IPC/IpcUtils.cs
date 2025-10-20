@@ -4,7 +4,7 @@ using Lifestream.GUI.Windows;
 namespace Lifestream.IPC;
 public static unsafe class IpcUtils
 {
-    public static bool InitiateTravelFromCharaSelectScreenInternal(string charaName, string charaHomeWorld, string destination, bool noLogin)
+    public static bool InitiateTravelFromCharaSelectScreenInternal(string charaName, string charaHomeWorld, string? destination, bool noLogin)
     {
         var homeWorldData = ExcelWorldHelper.Get(charaHomeWorld) ?? throw new NullReferenceException($"Invalid home world specified: {charaHomeWorld}");
         if(CharaSelectOverlay.TryGetValidCharaSelectListMenu(out var m))
@@ -17,23 +17,16 @@ public static unsafe class IpcUtils
             }
 
             var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).ToArray();
-            if(worlds.TryGetFirst(x => x.Name == destination, out var destinationWorldData))
+            var destinationWorldData = worlds.FirstOrNull(x => x.Name.ToString() == destination);
+            if(chara.IsVisitingAnotherDC)
             {
-                if(chara.IsVisitingAnotherDC)
-                {
-                    CharaSelectOverlay.ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, destinationWorldData, noLogin);
-                    return true;
-                }
-                else
-                {
-                    CharaSelectOverlay.Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, destinationWorldData, noLogin);
-                    return true;
-                }
+                CharaSelectOverlay.ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, destinationWorldData, noLogin);
+                return true;
             }
             else
             {
-                //PluginLog.Error($"Destination {destination} is unavailable for specified character");
-                return false;
+                CharaSelectOverlay.Command(chara.Name, chara.CurrentWorld, chara.HomeWorld, destinationWorldData, noLogin);
+                return true;
             }
         }
         else

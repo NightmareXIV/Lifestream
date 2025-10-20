@@ -12,9 +12,13 @@ internal static class TaskChangeDatacenter
     internal static void Enqueue(string destination, string charaName, uint charaHomeWorld, uint currentLoginWorld)
     {
         NumRetries = 0;
-        EnqueueVisitTasks(destination, charaName, charaHomeWorld, currentLoginWorld);
-        P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, TaskSettings.Timeout2M);
-        P.TaskManager.Enqueue(() => DCChange.ConfirmDcVisit2(destination, charaName, charaHomeWorld, currentLoginWorld), TaskSettings.Timeout2M);
+        void tasks()
+        {
+            EnqueueVisitTasks(destination, charaName, charaHomeWorld, currentLoginWorld);
+            P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, TaskSettings.Timeout2M);
+            P.TaskManager.Enqueue(() => DCChange.ConfirmDcVisit2(destination, charaName, charaHomeWorld, currentLoginWorld, tasks), "ConfirmDCVisit2", TaskSettings.Timeout2M);
+        }
+        tasks();
         P.TaskManager.Enqueue(DCChange.SelectOk, TaskSettings.TimeoutInfinite);
         P.TaskManager.Enqueue(() => DCChange.SelectServiceAccount(Utils.GetServiceAccount(charaName, charaHomeWorld)), $"SelectServiceAccount_{charaName}@{charaHomeWorld}", TaskSettings.Timeout1M);
     }

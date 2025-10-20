@@ -28,6 +28,7 @@ using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.CrossWorld;
+using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
@@ -128,7 +129,23 @@ public unsafe class Lifestream : IDalamudPlugin
         var argsSplit = arguments.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var primary = argsSplit.SafeSelect(0) ?? "";
         var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
-        if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
+        if(arguments.Contains('@'))
+        {
+            var spl = arguments.Split('@');
+            var world = ExcelWorldHelper.GetPublicWorlds().FirstOrNull(x => x.Name.ToString().EqualsIgnoreCase(spl[1]));
+            if(world != null)
+            {
+                if(!Utils.IsBusy())
+                {
+                    Utils.ChangeCharacter(spl[0], world.Value.Name.ToString());
+                }
+                else
+                {
+                    Notify.Error("Lifestream is busy");
+                }
+            }
+        }
+        else if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
         {
             var args = arguments.Split(" ");
             if(args.Length == 4 && args[3] == "firmament")

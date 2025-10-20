@@ -21,9 +21,11 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
 using Lifestream.GUI;
+using Lifestream.IPC;
 using Lifestream.Systems.Legacy;
 using Lifestream.Systems.Residential;
 using Lifestream.Tasks.CrossDC;
+using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
@@ -32,6 +34,8 @@ using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TerraFX.Interop.Windows;
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonAirShipExploration;
+using static FFXIVClientStructs.FFXIV.Client.UI.Misc.BannerHelper.Delegates;
 using CharaData = (string Name, ushort World);
 using Control = FFXIVClientStructs.FFXIV.Client.Game.Control.Control;
 using FXWindows = TerraFX.Interop.Windows.Windows;
@@ -41,6 +45,35 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+
+    public static ErrorCode ChangeCharacter(string charaName, string charaHomeWorld)
+    {
+        if(!ExcelWorldHelper.GetPublicWorlds().Any(x => x.Name == charaHomeWorld))
+        {
+            return ErrorCode.Invalid_world_specified;
+        }
+        if(Player.Available)
+        {
+            TaskLogout.Enqueue();
+            P.TaskManager.Enqueue(() =>
+            {
+                P.TaskManager.InsertStack(() =>
+                {
+                    TaskConnectAndOpenCharaSelect.Enqueue(charaName, charaHomeWorld);
+                });
+            }, "Use TaskConnectAndOpenCharaSelect");
+            P.TaskManager.Enqueue(() => IpcUtils.InitiateTravelFromCharaSelectScreenInternal(charaName, charaHomeWorld, null, false), "Use InitiateTravelFromCharaSelectScreenInternal");
+            return ErrorCode.Success;
+        }
+        if(CanAutoLogin())
+        {
+            TaskConnectAndOpenCharaSelect.Enqueue(charaName, charaHomeWorld);
+            P.TaskManager.Enqueue(() => IpcUtils.InitiateTravelFromCharaSelectScreenInternal(charaName, charaHomeWorld, null, false));
+            return ErrorCode.Success;
+        }
+        return ErrorCode.Player_is_not_logged_in;
+    }
 
     public static bool IsInnUnlocked()
     {
@@ -145,6 +178,10 @@ internal static unsafe partial class Utils
             return false;
         }
         var current = alias.Commands[index];
+        if(current.Kind == CustomAliasKind.Navmesh_to_point && current.IsUsingTAForMovement())
+        {
+            return false;
+        }
         if(current.Kind.EqualsAny(CustomAliasKind.Move_to_point, CustomAliasKind.Navmesh_to_point, CustomAliasKind.Circular_movement))
         {
             var next = alias.Commands[index + 1];

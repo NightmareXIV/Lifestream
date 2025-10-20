@@ -5,6 +5,7 @@ using Lifestream.Enums;
 using Lifestream.GUI;
 using Lifestream.GUI.Windows;
 using Lifestream.Tasks;
+using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
@@ -493,6 +494,22 @@ public class IPCProvider
     public void EnqueueCustomAlias(CustomAlias alias, bool force, int? inclusiveStart, int? inclusiveEnd)
     {
         alias.Enqueue(force, inclusiveStart, inclusiveEnd);
+    }
+
+    [EzIPC]
+    public ErrorCode ChangeCharacter(string name, string world)
+    {
+        if(Utils.IsBusy()) return ErrorCode.Plugin_is_busy;
+        return Utils.ChangeCharacter(name, world);
+    }
+
+    [EzIPC]
+    public ErrorCode Logout()
+    {
+        if(Utils.IsBusy()) return ErrorCode.Plugin_is_busy;
+        if(!Player.Available) return ErrorCode.Player_is_not_logged_in;
+        TaskLogout.Enqueue();
+        return ErrorCode.Success;
     }
 
     [EzIPCEvent] public System.Action OnHouseEnterError;

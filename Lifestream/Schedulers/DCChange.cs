@@ -12,6 +12,7 @@ using Lifestream.AtkReaders;
 using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.Login;
 using Lumina.Excel.Sheets;
+using TerraFX.Interop.Windows;
 using Callback = ECommons.Automation.Callback;
 
 namespace Lifestream.Schedulers;
@@ -390,27 +391,59 @@ internal static unsafe class DCChange
         return false;
     }
 
-    internal static bool? ConfirmDcVisit2(string destination, string charaName, uint charaWorld, uint currentLoginWorld)
+    internal static bool? ConfirmDcVisit2(string destination, string charaName, uint charaWorld, uint currentLoginWorld, System.Action onFailure)
     {
-        if(TryGetAddonByName<AtkUnitBase>("LobbyDKTCheckExec", out var addon) && IsAddonReady(addon))
+        if(onFailure != null)
         {
-            if(addon->UldManager.NodeList[3]->GetAsAtkComponentButton()->IsEnabled)
+            if(TryGetAddonByName<AddonSelectOk>("SelectOk", out var addon) && addon->AtkUnitBase.IsReady())
             {
-                if(DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                //failed
+                P.TaskManager.InsertStack(() =>
                 {
-                    PluginLog.Debug($"[DCChange] Confirming DC visit 2");
-                    Callback.Fire(addon, true, (int)0);
-                    return true;
+                    P.TaskManager.EnqueueDelay(30.Seconds());
+                    P.TaskManager.Enqueue(() =>
+                    {
+                        if(TryGetAddonMaster<AddonMaster.SelectOk>(out var m) && m.IsAddonReady)
+                        {
+                            if(EzThrottler.Throttle("CloseOk"))
+                            {
+                                m.Ok();
+                            }
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }, "CloseOk");
+                    onFailure();
+                });
+                PluginLog.Warning($"Data center visit failed");
+                addon->PromptText->SetText(addon->PromptText->GetText() + "\nLifestream will retry lobby command.");
+                return true;
+            }
+        }
+        {
+            if(TryGetAddonByName<AtkUnitBase>("LobbyDKTCheckExec", out var addon) && IsAddonReady(addon))
+            {
+                if(addon->UldManager.NodeList[3]->GetAsAtkComponentButton()->IsEnabled)
+                {
+                    if(DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
+                    {
+                        PluginLog.Debug($"[DCChange] Confirming DC visit 2");
+                        Callback.Fire(addon, true, (int)0);
+                        return true;
+                    }
+                }
+                else
+                {
+                    DCRethrottle();
                 }
             }
             else
             {
                 DCRethrottle();
             }
-        }
-        else
-        {
-            DCRethrottle();
         }
         if(destination != null) TaskChangeDatacenter.ProcessUnableDialogue(destination, charaName, charaWorld, currentLoginWorld);
         return false;
