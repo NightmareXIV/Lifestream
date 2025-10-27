@@ -138,7 +138,8 @@ internal static class Lang
         "進入房屋",
         "Eingang",
         "Entrée",
-        "Entrance"
+        "Entrance",
+        "주택으로 들어가기"
     ];
     public static readonly string[] ConfirmHouseEntrance =
     [
@@ -147,11 +148,12 @@ internal static class Lang
         "要進入這間房屋嗎？",
         "Das Gebäude betreten?",
         "Entrer dans la maison ?",
-        "Enter the estate hall?"
+        "Enter the estate hall?",
+        "'주택'으로 들어가시겠습니까?"
     ];
 
     public static readonly string[] UnableToSelectWorldForDcv = [
-        "Unable to select", "で選択したワールド", "Die für die", "pas être choisi comme destination pour"
+        "Unable to select", "で選択したワールド", "Die für die", "pas être choisi comme destination pour", "의 목적지로 선택할 수 없습니다"
         ];
 
     public static readonly string AethernetShardTooltipPlaceholder = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();
