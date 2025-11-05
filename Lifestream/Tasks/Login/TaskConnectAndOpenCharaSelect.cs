@@ -15,6 +15,7 @@ public static unsafe class TaskConnectAndOpenCharaSelect
         if(Utils.CanAutoLogin())
         {
             TaskChangeCharacter.ConnectToDc(homeWorld, account);
+            P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
             P.TaskManager.Enqueue(() => TaskChangeCharacter.SelectCharacter(charaName, homeWorld, homeWorld, onlyChangeWorld: true), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 5.Minutes()));
             return true;
         }

@@ -89,6 +89,7 @@ public unsafe class CharaSelectOverlay : EzOverlayWindow
                             {
                                 if(chara.IsVisitingAnotherDC)
                                 {
+                                    PluginLog.Information($"Reconnecting to valid DC with: {chara.Name}, world={ExcelWorldHelper.GetName(chara.CurrentWorld)} (1)");
                                     ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, world, NoLogin);
                                 }
                                 else

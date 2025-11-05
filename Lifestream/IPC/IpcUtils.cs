@@ -20,6 +20,7 @@ public static unsafe class IpcUtils
             var destinationWorldData = worlds.FirstOrNull(x => x.Name.ToString() == destination);
             if(chara.IsVisitingAnotherDC)
             {
+                PluginLog.Information($"Reconnecting to valid DC with: {chara.Name}, world={ExcelWorldHelper.GetName(chara.CurrentWorld)} (2)");
                 CharaSelectOverlay.ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, destinationWorldData, noLogin);
                 return true;
             }
@@ -51,6 +52,7 @@ public static unsafe class IpcUtils
             var worlds = Utils.GetVisitableWorldsFrom(homeWorldData).ToArray();
             if(chara.IsVisitingAnotherDC)
             {
+                PluginLog.Information($"Reconnecting to valid DC with: {chara.Name}, world={ExcelWorldHelper.GetName(chara.CurrentWorld)} (3)");
                 CharaSelectOverlay.ReconnectToValidDC(chara.Name, chara.CurrentWorld, chara.HomeWorld, null, false);
                 return true;
             }

@@ -74,7 +74,7 @@ internal static unsafe class DCChange
 
     internal static bool? SelectYesLogout()
     {
-        if(!Svc.ClientState.IsLoggedIn)
+        if(!Svc.ClientState.IsLoggedIn || Svc.Condition[ConditionFlag.LoggingOut])
         {
             return true;
         }
@@ -86,9 +86,12 @@ internal static unsafe class DCChange
         }
         if(DCThrottle)
         {
-            PluginLog.Debug($"[DCChange] Confirming logout");
-            Callback.Fire(addon, true, 0);
-            return true;
+            if(EzThrottler.Throttle("Logout", 1000))
+            {
+                PluginLog.Debug($"[DCChange] Confirming logout");
+                new AddonMaster.SelectYesno(addon).Yes();
+            }
+            return false;
         }
         else
         {

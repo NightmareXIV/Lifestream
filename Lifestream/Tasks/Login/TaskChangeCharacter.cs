@@ -29,6 +29,7 @@ public static unsafe class TaskChangeCharacter
     public static void EnqueueLogin(string currentLoginWorld, string charaName, string homeWorld, int account)
     {
         ConnectToDc(currentLoginWorld, account);
+        P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
         P.TaskManager.Enqueue(() => SelectCharacter(charaName, homeWorld, currentLoginWorld), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 1000000));
         P.TaskManager.Enqueue(ConfirmLogin);
     }
@@ -161,6 +162,9 @@ public static unsafe class TaskChangeCharacter
         return false;
     }
 
+    public static void ResetWorldIndex() => WorldIndex = -1;
+
+    public static int WorldIndex = -1;
     public static bool? SelectCharacter(string name, string homeWorld, string currentLoginWorld, bool callContextMenu = false, bool onlyChangeWorld = false)
     {
         currentLoginWorld ??= homeWorld;
@@ -197,6 +201,7 @@ public static unsafe class TaskChangeCharacter
                         {
                             if(!callContextMenu)
                             {
+                                PluginLog.Information($"Calling login on {c.Name}@{ExcelWorldHelper.GetName(c.HomeWorld)}, index={c.Index}");
                                 c.Login();
                             }
                             else
@@ -208,15 +213,32 @@ public static unsafe class TaskChangeCharacter
                     return false;
                 }
             }
-            foreach(var w in mw.Worlds)
+            for(var i = 0; i < mw.Worlds.Length; i++)
             {
-                if(w.Name == currentLoginWorld)
+                var w = mw.Worlds[i];
+                if(WorldIndex == -1)
                 {
-                    if(Utils.GenericThrottle && EzThrottler.Throttle("SelectWorld"))
+                    if(w.Name == currentLoginWorld)
                     {
-                        w.Select();
+                        if(Utils.GenericThrottle && EzThrottler.Throttle("SelectWorld", 150))
+                        {
+                            w.Select();
+                            WorldIndex++;
+                        }
+                        return false;
                     }
-                    return false;
+                }
+                else
+                {
+                    if(i == WorldIndex % mw.Worlds.Length)
+                    {
+                        if(Utils.GenericThrottle && EzThrottler.Throttle("SelectWorld", 150))
+                        {
+                            w.Select();
+                            WorldIndex++;
+                        }
+                        return false;
+                    }
                 }
             }
         }

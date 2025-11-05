@@ -1,4 +1,5 @@
 ﻿using Lifestream.Schedulers;
+using Lifestream.Tasks.Login;
 
 namespace Lifestream.Tasks.CrossDC;
 
@@ -9,6 +10,8 @@ internal class TaskReturnToHomeDC
         void tasks()
         {
             PluginLog.Debug($"Beginning returning home process.");
+            P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
+        P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
             P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaWorld, currentLoginWorld), nameof(DCChange.OpenContextMenuForChara), TaskSettings.Timeout5M);
             P.TaskManager.Enqueue(DCChange.SelectReturnToHomeWorld);
             P.TaskManager.Enqueue(DCChange.ConfirmDcVisit, TaskSettings.Timeout2M);

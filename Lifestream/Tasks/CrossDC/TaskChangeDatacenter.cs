@@ -1,6 +1,7 @@
 ﻿using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using Lifestream.Schedulers;
+using Lifestream.Tasks.Login;
 
 namespace Lifestream.Tasks.CrossDC;
 
@@ -27,6 +28,7 @@ internal static class TaskChangeDatacenter
     {
         var dc = Utils.GetDataCenterName(destination);
         PluginLog.Debug($"Beginning data center changing process. Destination: {dc}, {destination}");
+        P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
         P.TaskManager.Enqueue(() => DCChange.OpenContextMenuForChara(charaName, charaHomeWorld, currentLoginWorld), nameof(DCChange.OpenContextMenuForChara), TaskSettings.Timeout5M);
         P.TaskManager.Enqueue(DCChange.SelectVisitAnotherDC);
         P.TaskManager.Enqueue(DCChange.ConfirmDcVisitIntention);
