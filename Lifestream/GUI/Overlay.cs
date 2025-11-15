@@ -172,7 +172,7 @@ public class Overlay : Window
         var master = Utils.GetMaster();
         if(!C.Hidden.Contains(master.ID))
         {
-            var name = (C.Favorites.Contains(master.ID) ? "★ " : "") + (C.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
+            var name = (C.Favorites.Contains(master.ID) ? Lang.Symbols.HighQuality + " " : "") + (C.Renames.TryGetValue(master.ID, out var value) ? value : master.Name);
             ResizeButton($"{Pad}{name}");
             var md = P.ActiveAetheryte == master;
             if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !md))
@@ -187,7 +187,7 @@ public class Overlay : Window
         {
             if(!C.Hidden.Contains(x.ID))
             {
-                var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                var name = (C.Favorites.Contains(x.ID) ? Lang.Symbols.HighQuality + " " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                 ResizeButton($"{Pad}{name}");
                 var d = P.ActiveAetheryte == x;
                 if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
@@ -224,7 +224,7 @@ public class Overlay : Window
                 if(subdivision != null && x.IsSubdivision != subdivision) continue;
                 if(!C.Hidden.Contains(x.ID))
                 {
-                    var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    var name = (C.Favorites.Contains(x.ID) ? Lang.Symbols.HighQuality + " " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = S.Data.ResidentialAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
@@ -250,7 +250,7 @@ public class Overlay : Window
                 if(C.Favorites.Contains(x.ID) != favorites) continue;
                 if(!C.Hidden.Contains(x.ID))
                 {
-                    var name = (C.Favorites.Contains(x.ID) ? "★ " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
+                    var name = (C.Favorites.Contains(x.ID) ? Lang.Symbols.HighQuality + " " : "") + (C.Renames.TryGetValue(x.ID, out var value) ? value : x.Name);
                     ResizeButton(name);
                     var d = S.Data.CustomAethernet.ActiveAetheryte == x;
                     if(ImGuiEx.Button($"{Pad}{name}", ButtonSizeAetheryte, !d))
