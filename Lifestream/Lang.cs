@@ -75,6 +75,7 @@ internal static class Lang
     internal static class Symbols
     {
         internal const string HomeWorld = "";
+        internal const string HighQuality = "";
     }
 
     internal static readonly string[] LogInPartialText = ["Logging in with", "Log in with", "でログインします。", "einloggen?", "eingeloggt.", "Se connecter avec", "Vous allez vous connecter avec", "Souhaitez-vous vous connecter avec", "登入吗？", "登入嗎？", "접속하시겠습니까?"];
