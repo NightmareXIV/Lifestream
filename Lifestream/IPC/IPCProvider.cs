@@ -1,4 +1,5 @@
-﻿using ECommons.EzIpcManager;
+﻿using ECommons.Configuration;
+using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -10,6 +11,7 @@ using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
+using Newtonsoft.Json;
 
 namespace Lifestream.IPC;
 public class IPCProvider
@@ -493,6 +495,13 @@ public class IPCProvider
     [EzIPC]
     public void EnqueueCustomAlias(CustomAlias alias, bool force, int? inclusiveStart, int? inclusiveEnd)
     {
+        alias.Enqueue(force, inclusiveStart, inclusiveEnd);
+    }
+
+    [EzIPC]
+    public void EnqueueCustomAliasFromString(string aliasString, bool force, int? inclusiveStart, int? inclusiveEnd)
+    {
+        var alias = JsonConvert.DeserializeObject<CustomAlias>(aliasString) ?? throw new NullReferenceException();
         alias.Enqueue(force, inclusiveStart, inclusiveEnd);
     }
 

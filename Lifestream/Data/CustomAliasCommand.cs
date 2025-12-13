@@ -306,11 +306,11 @@ public class CustomAliasCommand
         if(!Player.Available) return false;
         if(this.Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {
-            if(!Svc.AetheryteList.Any(x => x.AetheryteId == this.Aetheryte))
+            /*if(!Svc.AetheryteList.Any(x => x.AetheryteId == this.Aetheryte))
             {
-                error = $"Aetheryte {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(this.Aetheryte)?.PlaceName.Value.Name ?? $"{this.Aetheryte}"} is not unlocked";
+                error = $"Aetheryte {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault(this.Aetheryte)?.PlaceName.Value.Name ?? $"{this.Aetheryte}"} ({this.Aetheryte}) is not unlocked";
                 return false;
-            }
+            }*/
         }
         else if(this.Kind == CustomAliasKind.Use_Aethernet)
         {
