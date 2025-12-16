@@ -47,8 +47,8 @@ public unsafe class MapHanderService : IDisposable
                 data: {data.ToHexString()}
                 CursorTarget: {(addon->CursorTarget == null?"-": addon->CursorTarget->NodeId)}
                 """);*/
-            var isLeftClicked = *(byte*)(evt.Data + 6) == 0;
-            var isGamePadClick = *(byte*)(evt.Data + 17) == 1;
+            var isLeftClicked = *(byte*)(evt.AtkEventData + 6) == 0;
+            var isGamePadClick = *(byte*)(evt.AtkEventData + 17) == 1;
             var isGamePadInput = evt.AtkEventType == (int)AtkEventType.InputBaseInputReceived;
             var isMouseUp = evt.AtkEventType == (int)AtkEventType.MouseUp;
             if (isMouseUp && isLeftClicked || isGamePadInput && isGamePadClick)

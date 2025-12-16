@@ -686,7 +686,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 return;
             }
 
-            var addon = component->ContainingAddon;
+            var addon = component->OwnerAddon;
             if(addon == null) addon = component->ContainingAddon2;
             if(addon == null || addon->NameString != "ChatLog")
             {
@@ -697,7 +697,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 return;
             }
 
-            var currentText = component->UnkText1.ToString();
+            var currentText = component->EvaluatedString.ToString();
 
             if(currentText.StartsWith("/li", StringComparison.OrdinalIgnoreCase))
             {
