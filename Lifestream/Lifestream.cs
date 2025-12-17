@@ -8,6 +8,7 @@ using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
+using ECommons.Reflection;
 using ECommons.SimpleGui;
 using ECommons.Singletons;
 using ECommons.Throttlers;
@@ -79,6 +80,7 @@ public unsafe class Lifestream : IDalamudPlugin
 #endif
         new TickScheduler(delegate
         {
+            DalamudReflector.SetImGuiAssertsState();
             TerritoryWatcher.Initialize();
             Config = EzConfig.Init<Config>();
             Utils.CheckConfigMigration();
