@@ -1075,7 +1075,7 @@ internal static unsafe partial class Utils
         }
         if(!retry)
         {
-            if(TryParseAddressBookEntry(Player.CurrentWorld + ", " + s, out entry, true))
+            if(Player.Available && TryParseAddressBookEntry(Player.CurrentWorld + ", " + s, out entry, true))
             {
                 return entry != null;
             }
