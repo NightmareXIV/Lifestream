@@ -330,6 +330,14 @@ public class CustomAliasCommand
                     return false;
                 }
             }
+            else if(this.Aetheryte == 239)
+            {
+                if (!UIState.Instance()->IsUnlockLinkUnlockedOrQuestCompleted(70847))
+                {
+                    error = $"Phantom Village is not unlocked";
+                    return false;
+                }
+            }
         }
         else if(this.Kind == CustomAliasKind.Change_world)
         {
