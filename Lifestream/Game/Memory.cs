@@ -1,5 +1,6 @@
 ﻿using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
+using ECommons.CSExtensions;
 using ECommons.EzHookManager;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;

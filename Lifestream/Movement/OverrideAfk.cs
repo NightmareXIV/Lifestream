@@ -1,4 +1,5 @@
-﻿using FFXIVClientStructs.FFXIV.Client.UI;
+﻿using ECommons.CSExtensions;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
