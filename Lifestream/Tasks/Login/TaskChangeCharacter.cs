@@ -173,7 +173,7 @@ public static unsafe class TaskChangeCharacter
             Utils.RethrottleGeneric();
             return true;
         }
-        if(TryGetAddonByName<AtkUnitBase>("SelectOk", out _))
+        if(Utils.IsQueuePopupVisible())
         {
             Utils.RethrottleGeneric();
             return true;
@@ -251,7 +251,7 @@ public static unsafe class TaskChangeCharacter
 
     public static bool? ConfirmLogin()
     {
-        if(TryGetAddonByName<AtkUnitBase>("SelectOk", out _))
+        if(Utils.IsQueuePopupVisible())
         {
             return true;
         }
@@ -281,7 +281,7 @@ public static unsafe class TaskChangeCharacter
     {
         var lobby = AgentLobby.Instance();
         if(Utils.CanAutoLogin()) return true;
-        if(!TryGetAddonByName<AtkUnitBase>("SelectOk", out _) && TryGetAddonByName<AtkUnitBase>("_CharaSelectReturn", out var addon) && IsAddonReady(addon) && (!lobby->AgentInterface.IsAgentActive() || !lobby->TemporaryLocked))
+        if(!Utils.IsQueuePopupVisible() && TryGetAddonByName<AtkUnitBase>("_CharaSelectReturn", out var addon) && IsAddonReady(addon) && (!lobby->AgentInterface.IsAgentActive() || !lobby->TemporaryLocked))
         {
             if(Utils.GenericThrottle)
             {

@@ -47,7 +47,7 @@ internal static unsafe class DCChange
             return true;
         }
         {
-            if(TryGetAddonByName<AtkUnitBase>("SelectOk", out var addon) && IsAddonReady(addon))
+            if(Utils.IsQueuePopupVisible())
             {
                 return true;
             }

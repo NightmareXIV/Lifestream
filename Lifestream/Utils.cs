@@ -46,6 +46,15 @@ internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
 
+    public static bool IsQueuePopupVisible()
+    {
+        if(TryGetAddonMaster<AddonMaster.SelectOk>(out var m) && m.IsAddonReady)
+        {
+            var text = m.Text;
+            return text.RemoveWhitespaces().Contains(Error.Get(13206).Unknown0.GetText(true).RemoveWhitespaces(), StringComparison.OrdinalIgnoreCase);
+        }
+        return false;
+    }
 
     public static ErrorCode ChangeCharacter(string charaName, string charaHomeWorld)
     {

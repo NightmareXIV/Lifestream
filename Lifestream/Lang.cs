@@ -158,4 +158,6 @@ internal static class Lang
         ];
 
     public static readonly string AethernetShardTooltipPlaceholder = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();
+
+    public static readonly string[] RemainingSubTime = ["sqex.to/Msp"];
 }

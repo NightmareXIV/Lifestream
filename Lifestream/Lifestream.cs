@@ -577,6 +577,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         if(P.TaskManager.IsBusy)
         {
+            MiniTA.Tick();
             if(EzThrottler.Throttle("EnsureEnhancedLoginIsOff")) Utils.EnsureEnhancedLoginIsOff();
             if(TryGetAddonByName<AtkUnitBase>("Trade", out var trade))
             {
