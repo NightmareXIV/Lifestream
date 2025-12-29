@@ -134,7 +134,7 @@ public class DataStore
             var map = Svc.Data.GetExcelSheet<Map>().FirstOrNull(m => m.TerritoryType.RowId == aetheryte.Territory.Value.RowId);
             if(map == null)
             {
-                PluginLog.Error($"Error, map is null for {aetheryte.Territory.Value.RowId}");
+                PluginLog.Warning($"Error, map is null for {ExcelTerritoryHelper.GetName(aetheryte.Territory.Value.RowId, true)}");
             }
             var scale = map?.SizeFactor ?? 1;
             if(Svc.Data.GetSubrowExcelSheet<MapMarker>().AllRows().TryGetFirst(m => m.DataType == (aetheryte.IsAetheryte ? 3 : 4) && m.DataKey.RowId == (aetheryte.IsAetheryte ? aetheryte.RowId : aetheryte.AethernetName.RowId), out var mapMarker))

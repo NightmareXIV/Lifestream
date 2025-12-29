@@ -146,6 +146,10 @@ public unsafe class Lifestream : IDalamudPlugin
                     Notify.Error("Lifestream is busy");
                 }
             }
+            else
+            {
+                DuoLog.Error($"Could not recognize world {spl[1]}");
+            }
         }
         else if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
         {

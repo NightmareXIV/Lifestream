@@ -28,6 +28,7 @@ public static unsafe class TaskChangeCharacter
 
     public static void EnqueueLogin(string currentLoginWorld, string charaName, string homeWorld, int account)
     {
+        PluginLog.Debug($"TaskChangeCharacter - EnqueueLogin enqueued");
         ConnectToDc(currentLoginWorld, account);
         P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
         P.TaskManager.Enqueue(() => SelectCharacter(charaName, homeWorld, currentLoginWorld), $"Select chara {charaName}@{homeWorld}", new(timeLimitMS: 1000000));
@@ -171,22 +172,29 @@ public static unsafe class TaskChangeCharacter
         if(TryGetAddonByName<AtkUnitBase>("SelectYesno", out _))
         {
             Utils.RethrottleGeneric();
+            PluginLog.Debug($"Yesno visible");
             return true;
         }
         if(Utils.IsQueuePopupVisible())
         {
             Utils.RethrottleGeneric();
+            PluginLog.Debug($"Queue visible");
             return true;
         }
         if(callContextMenu && TryGetAddonByName<AtkUnitBase>("ContextMenu", out var cmenu) && IsAddonReady(cmenu))
         {
             Utils.RethrottleGeneric();
+            PluginLog.Debug($"Context visible");
             return true;
         }
         if(TryGetAddonMaster<AddonMaster._CharaSelectListMenu>(out var m) && m.IsAddonReady && TryGetAddonMaster<AddonMaster._CharaSelectWorldServer>(out var mw))
         {
             if(m.TemporarilyLocked) return false;
             if(mw.Worlds.Length == 0) return false;
+            if(EzThrottler.Throttle("DebugCSWS"))
+            {
+                PluginLog.Debug($"Characters: {m.Characters.Select(x => x.Name).Print()}");
+            }
             foreach(var c in m.Characters)
             {
                 if(c.Name == name && ExcelWorldHelper.GetName(c.HomeWorld) == homeWorld)

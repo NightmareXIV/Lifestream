@@ -341,6 +341,25 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("World test"))
+        {
+            try
+            {
+                ImGuiEx.TextCopy($"DC: {Player.Object.CurrentWorld.Value.DataCenter.RowId}");
+                ImGuiEx.TextCopy($"Worlds: {Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.RowId == Player.Object.CurrentWorld.Value.DataCenter.RowId).Select(x => x.RowId).Print()}");
+                foreach(var x in Svc.Data.GetExcelSheet<World>())
+                {
+                    if(x.DataCenter.RowId == Player.Object.CurrentWorld.Value.DataCenter.RowId)
+                    {
+                        ImGuiEx.Text($"{x.RowId} : {x.Name}");
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                ImGuiEx.TextWrapped(e.ToStringFull());
+            }
+        }
         if(ImGui.CollapsingHeader("Image test"))
         {
             if(ThreadLoadImageHandler.TryGetTextureWrap("https://github.com/FFXIV-CombatReborn/RotationSolverReborn/blob/main/Images/Logo.png?raw=true", out var tex))

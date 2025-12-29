@@ -30,6 +30,7 @@ public class SplatoonManager
 
     public void RenderPath(IReadOnlyList<Vector3> path, bool addPlayer = true, bool addNumbers = false)
     {
+        if(!Player.Available) return;
         if(!Splatoon.IsConnected()) return;
         Vector3? prev = null;
         if(path != null && path.Count > 0)

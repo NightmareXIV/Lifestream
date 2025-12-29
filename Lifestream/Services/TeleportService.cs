@@ -1,4 +1,6 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.GameFunctions;
+using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
@@ -27,6 +29,41 @@ public unsafe class TeleportService
                         );
                 }
                 return true;
+            }
+        }
+        InternalLog.Warning($"Could not find teleport destination for {id}");
+        return false;
+    }
+
+    public bool ReliableTeleportToAetheryte(uint id, uint sub = 0, bool wait = false)
+    {
+        if(Player.Object.IsCasting(5, ActionType.Action))
+        {
+            if(wait)
+            {
+                P.TaskManager.InsertMulti(
+                    new(() => !IsScreenReady()),
+                    new(() => IsScreenReady() && Player.Interactable)
+                    );
+            }
+            return true;
+        }
+        if(!CanTeleport(out var err))
+        {
+            InternalLog.Warning(err);
+            return false;
+        }
+        
+        foreach(var x in Svc.AetheryteList)
+        {
+            if(x.AetheryteId == id && x.SubIndex == sub)
+            {
+                if(EzThrottler.Throttle("TeleportToArea"))
+                {
+                    PluginLog.Debug($"Trying to teleport... {id}/{sub}");
+                    Telepo.Instance()->Teleport(id, (byte)sub);
+                }
+                return false;
             }
         }
         InternalLog.Warning($"Could not find teleport destination for {id}");

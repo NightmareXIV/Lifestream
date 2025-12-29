@@ -1,4 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Automation;
+using ECommons.Automation.NeoTaskManager;
 using ECommons.Automation.NeoTaskManager.Tasks;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -6,14 +8,16 @@ using ECommons.MathHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
 using Action = System.Action;
+using Callback = ECommons.Automation.Callback;
 
 namespace Lifestream.Data;
 [Serializable]
-public class CustomAliasCommand
+public unsafe class CustomAliasCommand
 {
     private static readonly CustomAliasCommand Default = new();
 
@@ -42,6 +46,8 @@ public class CustomAliasCommand
     public bool RequireTerritoryChange = false;
     public uint Territory = 0;
     public float? InteractDistance = null;
+    public int Timeout = 5000;
+    public bool RequireUiOpen = false;
 
     public bool ShouldSerializeInteractDistance() => Kind.EqualsAny(CustomAliasKind.Interact) && InteractDistance != Default.InteractDistance;
     public bool ShouldSerializeWalkToExit() => Kind.EqualsAny(CustomAliasKind.Circular_movement) && WalkToExit != Default.WalkToExit;
@@ -117,16 +123,17 @@ public class CustomAliasCommand
                 if(UseFlight) P.TaskManager.Enqueue(FlightTasks.FlyIfCan);
                 P.TaskManager.Enqueue(() =>
                 {
+                    if(S.Ipc.VnavmeshIPC.IsReady() != true) return false;
                     var task = S.Ipc.VnavmeshIPC.Pathfind(Player.Position, Point, UseFlight);
                     P.TaskManager.InsertMulti(
                         new(() => task?.IsCompleted == true, new(timeLimitMS:5.Minutes())),
                         new(() => TaskMoveToHouse.UseSprint(false)),
-                        new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true)),
-                        new(() => P.FollowPath.Waypoints.Count == 0, new(timeLimitMS:5.Minutes()))
+                        new(() => P.FollowPath.Move([.. task.Result, .. appendMovement], true))
                         );
-                });
+                    return true;
+                }, new(timeLimitMS:5.Minutes()));
 
-                P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied");
+                P.TaskManager.Enqueue(WaitForMoveEndOrOccupied, $"{Kind}: Wait until move ends/occupied", new(timeLimitMS:7.Minutes()));
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             }
         }
@@ -139,10 +146,8 @@ public class CustomAliasCommand
                 var nearestAetheryte = Svc.Objects.OrderBy(Player.DistanceTo).FirstOrDefault(x => x.IsTargetable && x.IsAetheryte() && Utils.IsAetheryteEligibleForCustomAlias(x));
                 if(nearestAetheryte == null || P.Territory != aetheryte.Territory.RowId || Player.DistanceTo(nearestAetheryte) > SkipTeleport)
                 {
-                    P.TaskManager.InsertMulti(
-                        new((Action)(() => S.TeleportService.TeleportToAetheryte(Aetheryte))),
-                        new(() => !IsScreenReady()),
-                        new(() => IsScreenReady())
+                    P.TaskManager.InsertTask(
+                        new(() => S.TeleportService.ReliableTeleportToAetheryte(Aetheryte, wait:true))
                         );
                 }
             }, $"{Kind}: Teleport to aetheryte {Aetheryte}");
@@ -286,6 +291,40 @@ public class CustomAliasCommand
                 P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
                 var world = ExcelWorldHelper.GetName(World);
                 P.TPAndChangeWorld(world, S.Ipc.IPCProvider.CanVisitCrossDC(world), skipChecks: true);
+            }
+        }
+        else if(Kind == CustomAliasKind.Close_UI)
+        {
+            var config = new TaskManagerConfiguration(timeLimitMS: this.Timeout == 0 ? 30000 : this.Timeout, abortOnTimeout: false);
+            if(RequireUiOpen)
+            {
+                P.TaskManager.Enqueue(() =>
+                {
+                    foreach(var x in this.SelectOption)
+                    {
+                        if(TryGetAddonByName<AtkUnitBase>(x, out var addon) && addon->IsReady())
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }, config);
+                P.TaskManager.Enqueue(() =>
+                {
+                    var found = false;
+                    foreach(var x in this.SelectOption)
+                    {
+                        if(TryGetAddonByName<AtkUnitBase>(x, out var addon) && addon->IsReady())
+                        {
+                            found = true;
+                            if(EzThrottler.Throttle($"CloseAddon{x}{(nint)addon}"))
+                            {
+                                Callback.Fire(addon, true, -1);
+                            }
+                        }
+                    }
+                    return !found;
+                }, config);
             }
         }
     }
