@@ -46,7 +46,7 @@ public static class StaticAlias
     public static readonly CustomAlias IslandSanctuary = JsonConvert.DeserializeObject<CustomAlias>("""{"ExportedName":"Island","Alias":"","Enabled":true,"Commands":[{"Kind":0,"Point":{"X":0.0,"Y":0.0,"Z":0.0},"Aetheryte":10,"World":0,"CenterPoint":{"X":0.0,"Y":0.0},"CircularExitPoint":{"X":0.0,"Y":0.0,"Z":0.0},"Clamp":null,"Precision":20.0,"Tolerance":1,"WalkToExit":true,"SkipTeleport":15.0},{"Kind":5,"Point":{"X":0.0,"Y":0.0,"Z":0.0},"Aetheryte":0,"World":0,"CenterPoint":{"X":156.11499,"Y":673.21277},"CircularExitPoint":{"X":169.34451,"Y":14.095893,"Z":670.086},"Clamp":null,"Precision":7.0,"Tolerance":3,"WalkToExit":true,"SkipTeleport":15.0}],"GUID":"00000000-0000-0000-0000-000000000000"}""");
 
     public static readonly CustomAlias CosmicExploration = JsonConvert.DeserializeObject<CustomAlias>("""
-        {"ExportedName":"Cosmic","Alias":"cosmic","Enabled":false,"Commands":[{"Kind":0,"Aetheryte":175,"SkipTeleport":35.0},{"Kind":6,"DataID":175,"InteractDistance":10.0},{"Kind":9,"SelectOption":["<QuestDialogueText:transport/AetheryteBestwaysBurrow:2:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:1:Value>"],"StopOnScreenFade":true}]}
+        {"ExportedName":"Cosmic","Alias":"cosmic","Enabled":false,"Commands":[{"Kind":0,"Aetheryte":175,"SkipTeleport":35.0},{"Kind":6,"DataID":175,"InteractDistance":10.0},{"Kind":9,"SelectOption":["<QuestDialogueText:transport/AetheryteBestwaysBurrow:3:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:2:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:1:Value>"],"StopOnScreenFade":true}]}
         """);
 
     public static readonly CustomAlias OccultCrescent = EzConfig.DefaultSerializationFactory.Deserialize<CustomAlias>("""
