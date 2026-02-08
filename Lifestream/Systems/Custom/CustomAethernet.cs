@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.MathHelpers;
+using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using Lifestream.Data;
 using Lumina.Excel.Sheets;
 
@@ -14,6 +15,7 @@ public sealed class CustomAethernet
     public static readonly uint BaseBozjaId = 69420200;
     public static readonly uint BaseZandorId = 69420300;
     public static readonly uint BaseOccultId = 69420400;
+    private static uint BaseMoonId = 69420500;
 
     public IEnumerable<uint> QuasiAethernetZones => ZoneInfo.Keys;
 
@@ -69,7 +71,21 @@ public sealed class CustomAethernet
             new(new(-358.1f, -121.0f), 1252, GetPlaceName(4929), BaseOccultId+2, new(14.2f, 19f)), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
             new(new(306.9f, 305.7f), 1252, GetPlaceName(4930), BaseOccultId+3, new(27.6f, 27.5f)), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
             new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId+4, new(13.7f, 27f)), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
-            ], [Lang.AethernetShardTooltipPlaceholder])
+            ], [Lang.AethernetShardTooltipPlaceholder]),
+        [1237] = new([
+            new(new(-3.8f, -32.2f), 1237, GetPlaceName(WKSAetheryte.Get(1).Unknown0), BaseMoonId++), //The Cosmoor (5220), Moongate Hub (5225), 
+            new(new(-540.0f, -526.8f), 1237, GetPlaceName(WKSAetheryte.Get(2).Unknown0), BaseMoonId++), //Calabash Cove (5221),  (0), 
+            new(new(427.2f, 497.5f), 1237, GetPlaceName(WKSAetheryte.Get(3).Unknown0), BaseMoonId++), //Weddingway's Bower (5222),  (0), 
+            new(new(-619.6f, 399.8f), 1237, GetPlaceName(WKSAetheryte.Get(4).Unknown0), BaseMoonId++), //Gleamslope (5223),  (0), 
+            new(new(629.8f, -572.8f), 1237, GetPlaceName(WKSAetheryte.Get(5).Unknown0), BaseMoonId++), //Lunar Nadir (5224),  (0), 
+            ]),
+        [1291] = new([
+            new(new(336.1f, -381.8f), 1291, GetPlaceName(WKSAetheryte.Get(6).Unknown0), BaseMoonId++), //Glassblown Grotto (5302), Glassblowers' Beacon (5316), 
+            new(new(-150.8f, 314.4f), 1291, GetPlaceName(WKSAetheryte.Get(7).Unknown0), BaseMoonId++), //Iridized Rise (5306),  (0), 
+            new(new(-640.1f, -627.0f), 1291, GetPlaceName(WKSAetheryte.Get(8).Unknown0), BaseMoonId++), //The Saltpeter Shore (5305),  (0), 
+            new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Unknown0), BaseMoonId++), //Capsule Chasm (5307),  (0), 
+            new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Unknown0), BaseMoonId++), //Fusingway Vent (5308),  (0), 
+            ]),
     };
 
     public Dictionary<uint, string> CustomAetheryteNames
