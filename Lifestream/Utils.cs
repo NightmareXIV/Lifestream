@@ -1220,10 +1220,38 @@ internal static unsafe partial class Utils
         }
         if(entry.PropertyType == PropertyType.Apartment)
         {
-            if(entry.ApartmentSubdivision && h->GetCurrentDivision() != 2) return false;
+            // Better logic for subdivision detection
+            if(!(entry.ApartmentSubdivision == ((h->IsInside() ? h->GetCurrentHouseId().Unit.ApartmentDivision : h->GetCurrentDivision() - 1) == 1))) return false;
             return entry.Apartment == h->GetCurrentRoom();
         }
         return false;
+    }
+
+    // A version of IsHere that is not strict about if we are indoors or not for apartments.
+    public static bool IsAtAddress(this AddressBookEntry entry)
+    {
+        var h = HousingManager.Instance();
+        if(h == null) return false;
+        if(h->GetCurrentWard() != entry.Ward - 1) return false;
+        if(GetResidentialAetheryteByTerritoryType(P.Territory) != entry.City) return false;
+        if(entry.PropertyType is PropertyType.House)
+        {
+            return h->GetCurrentPlot() == entry.Plot - 1;
+        }
+        else
+        {
+            return entry.ApartmentSubdivision == ((h->IsInside() ? h->GetCurrentHouseId().Unit.ApartmentDivision : h->GetCurrentDivision() - 1) == 1);
+        }
+    }
+
+    // Determines the other half of IsHere that IsAtAddress doesnt check.
+    // Can determine if it does the full IsHere logic or not with checkAddress.
+    public static bool IsInsideApartment(this AddressBookEntry entry, bool checkAddress)
+    {
+        if(entry.PropertyType == PropertyType.House) return false;
+        if(checkAddress && !IsAtAddress(entry)) return false;
+        var h = HousingManager.Instance();
+        return h != null && h->IsInside() && h->GetCurrentRoom() == entry.Apartment;
     }
 
     public static bool IsQuickTravelAvailable(this AddressBookEntry entry)
@@ -1245,7 +1273,34 @@ internal static unsafe partial class Utils
             Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
             return;
         }
-        if(entry.IsQuickTravelAvailable())
+        // Check first if already at our destination.
+        if(IsAtAddress(entry))
+        {
+            // We dont need to do anything if at our house, but if at our address we do.
+            if(entry.PropertyType == PropertyType.House)
+            {
+                return;
+            }
+            else if(entry.PropertyType == PropertyType.Apartment)
+            {
+                if(IsInsideApartment(entry, false))
+                {
+                    return;
+                }
+                // We were infront of the apartment, so attempt the automation from the door. If it fails, fallback
+                else if(TaskApproachAndInteractWithApartmentEntrance.TargetApartmentEntrance())
+                {
+                    TaskApproachAndInteractWithApartmentEntrance.Enqueue(false);
+                    P.TaskManager.Enqueue(TaskTpAndGoToWard.SelectGoToSpecifiedApartment);
+                    P.TaskManager.Enqueue(() => TaskTpAndGoToWard.SelectApartment(entry.Apartment - 1), $"SelectApartment {entry.Apartment - 1}");
+                    if(!C.AddressApartmentNoEntry) P.TaskManager.Enqueue(TaskTpAndGoToWard.ConfirmApartmentEnterYesno);
+                    return;
+                }
+            }
+        }
+
+        // Do not else if this as the above may need to flow down to these logic.
+        if (entry.IsQuickTravelAvailable())
         {
             if(entry.PropertyType == PropertyType.House)
             {

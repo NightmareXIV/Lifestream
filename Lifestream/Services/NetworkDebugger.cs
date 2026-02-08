@@ -1,5 +1,4 @@
-﻿using Dalamud.Game.Network;
-using Dalamud.Memory;
+﻿using Dalamud.Memory;
 using NetworkMessageDirection = ECommons.DalamudServices.Legacy.NetworkMessageDirection;
 
 namespace Lifestream.Services;

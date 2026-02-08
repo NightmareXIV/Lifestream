@@ -33,7 +33,8 @@ public static class TaskApproachAndInteractWithApartmentEntrance
                     {
                         Svc.Targets.SetTarget(x);
                     }
-                    return false;
+                    // Try afterwards if we want to get the result on the same frame.
+                    return x.IsTarget();
                 }
                 else
                 {
