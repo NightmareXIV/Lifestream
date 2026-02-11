@@ -86,6 +86,13 @@ public sealed class CustomAethernet
             new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Unknown0), BaseMoonId++), //Capsule Chasm (5307),  (0), 
             new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Unknown0), BaseMoonId++), //Fusingway Vent (5308),  (0), 
             ]),
+        [1310] = new([
+            new(new(-164.1f, 83.5f), 1310, GetPlaceName(WKSAetheryte.Get(11).Unknown0), BaseMoonId++), //Megalithopolis (5407), Terra Firma (5420), 
+            new(new(-141.2f, -591.2f), 1310, GetPlaceName(WKSAetheryte.Get(12).Unknown0), BaseMoonId++), //The Regolift (5409),  (0), 
+            
+            new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Unknown0), BaseMoonId++), //Cape Geras (5410),  (0), 
+            new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Unknown0), BaseMoonId++), //Shadefleet (5412),  (0), 
+            ])
     };
 
     public Dictionary<uint, string> CustomAetheryteNames
