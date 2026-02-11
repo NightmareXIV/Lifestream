@@ -199,8 +199,9 @@ public class FollowPath : IDisposable
         }
     }
 
-    public void Move(List<Vector3> waypoints, bool ignoreDeltaY, float destTolerance = 0)
+    public void Move(List<Vector3> waypoints, bool ignoreDeltaY, float destTolerance = 0, float tolerance = 0.25f)
     {
+        this.Tolerance = tolerance;
         UpdateSharedState(true);
         WaypointsInternal = [..waypoints];
         IgnoreDeltaY = ignoreDeltaY;

@@ -12,6 +12,7 @@ using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
+using TerraFX.Interop.WinRT;
 
 namespace Lifestream.IPC;
 public class IPCProvider
@@ -395,6 +396,12 @@ public class IPCProvider
     public void Move(List<Vector3> path)
     {
         P.FollowPath.Move(path, true);
+    }
+
+    [EzIPC]
+    public void MoveEx(List<Vector3> path, bool? ignoreDeltaY, float? destTolerance, float? tolerance)
+    {
+        P.FollowPath.Move(path, ignoreDeltaY ?? true, destTolerance ?? 0, tolerance ?? 0.25f);
     }
 
     [EzIPC]
