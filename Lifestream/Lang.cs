@@ -94,7 +94,7 @@ internal static class Lang
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Weltenreise
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Voyager vers un autre Monde
      * */
-    internal static readonly string[] VisitAnotherWorld = ["Visit Another World Server.", "他のワールドへ遊びにいく", "Weltenreise", "Voyager vers un autre Monde", "跨界传送", "跨界傳送", "다른 서버 방문"];
+    internal static readonly string[] VisitAnotherWorld = ["Visit Another World Server.", "他のワールドへ遊びにいく", "Weltenreise", "Voyager vers un autre Monde", "跨界传送（前往其他服务器游玩）", "跨界傳送", "다른 서버 방문"];
 
     internal static readonly string[] ConfirmWorldVisit = ["Travel to", "へ移動します、よろしいですか？", "reisen?", "Voulez-vous vraiment visiter", "确定要移动到", "確定要移動到", "방문하시겠습니까?"];
 
