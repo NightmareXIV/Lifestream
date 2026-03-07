@@ -1232,6 +1232,7 @@ internal static unsafe partial class Utils
     {
         var h = HousingManager.Instance();
         if(h == null) return false;
+        if(entry.World != Player.Object.CurrentWorld.RowId) return false;
         if(h->GetCurrentWard() != entry.Ward - 1) return false;
         if(GetResidentialAetheryteByTerritoryType(P.Territory) != entry.City) return false;
         if(entry.PropertyType is PropertyType.House)
