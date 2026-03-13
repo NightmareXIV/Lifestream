@@ -160,6 +160,7 @@ public unsafe class CustomAliasCommand
                 P.TaskManager.InsertStack(() =>
                 {
                     var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
+                    P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.CanRun(aethernetPoint), new(abortOnTimeout: false));
                     TaskTryTpToAethernetDestination.Enqueue(aethernetPoint);
                 });
             }, $"{Kind}: Teleport to aethernet destination");

@@ -84,7 +84,7 @@ public sealed class ResidentialAethernet : IDisposable
         }
     }
 
-    private void UpdateActiveAetheryte()
+    public void UpdateActiveAetheryte()
     {
         var a = Utils.GetValidAetheryte();
         if(a != null)

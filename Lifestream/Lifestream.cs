@@ -624,7 +624,14 @@ public unsafe class Lifestream : IDalamudPlugin
         P = null;
     }
 
-    private void UpdateActiveAetheryte()
+    public void UpdateAetherytes()
+    {
+        UpdateActiveAetheryte();
+        S.Data.CustomAethernet.UpdateActiveAetheryte();
+        S.Data.ResidentialAethernet.UpdateActiveAetheryte();
+    }
+
+    public void UpdateActiveAetheryte()
     {
         var a = Utils.GetValidAetheryte();
         if(a != null)

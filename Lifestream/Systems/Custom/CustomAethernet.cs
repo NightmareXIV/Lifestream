@@ -133,7 +133,7 @@ public sealed class CustomAethernet
         }
     }
 
-    private void UpdateActiveAetheryte()
+    public void UpdateActiveAetheryte()
     {
         var a = Utils.GetValidAetheryte();
         if(a != null)

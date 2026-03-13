@@ -11,6 +11,7 @@ internal static class TaskTPAndChangeWorld
     {
         P.TaskManager.BeginStack();
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+        P.UpdateAetherytes();
         if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
         {
             TaskChangeWorld.Enqueue(world);
@@ -23,6 +24,7 @@ internal static class TaskTPAndChangeWorld
             }
             P.TaskManager.EnqueueTask(new(() =>
             {
+                P.UpdateAetherytes();
                 if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
                 {
                     P.TaskManager.InsertMulti(

@@ -405,6 +405,7 @@ internal static unsafe partial class Utils
 
     public static bool ApproachConditionIsMet()
     {
+        P.UpdateAetherytes();
         return (P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsAetheryte) && Utils.GetReachableAetheryte(x => x.IsAetheryte()) != null;
     }
 
@@ -1611,6 +1612,7 @@ internal static unsafe partial class Utils
     internal static AetheryteUseState CanUseAetheryte()
     {
         if(P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
+        P.UpdateAetherytes();
         if(S.Data.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
         if(S.Data.ResidentialAethernet.IsInResidentialZone() && S.Data.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
         if(S.Data.CustomAethernet.ZoneInfo.ContainsKey(P.Territory) && S.Data.CustomAethernet.ActiveAetheryte != null) return AetheryteUseState.Custom;

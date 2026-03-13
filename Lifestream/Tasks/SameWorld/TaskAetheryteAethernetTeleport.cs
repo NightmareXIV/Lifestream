@@ -78,6 +78,7 @@ internal static class TaskAetheryteAethernetTeleport
         P.TaskManager.Enqueue(WorldChange.TargetReachableMasterAetheryte);
         P.TaskManager.Enqueue(() =>
         {
+            P.UpdateAetherytes();
             if(P.ActiveAetheryte == null)
             {
                 P.TaskManager.InsertMulti(

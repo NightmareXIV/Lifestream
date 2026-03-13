@@ -5,15 +5,45 @@ using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
+using TerraFX.Interop.Windows;
 using static FFXIVClientStructs.FFXIV.Client.UI.AddonAirShipExploration;
+using static FFXIVClientStructs.FFXIV.Client.UI.AddonRelicNoteBook;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Lifestream.Tasks.SameWorld;
 
 internal static class TaskTryTpToAethernetDestination
 {
-    public static void Enqueue(string targetName, bool allowPartial = false, bool allowTpFallback = false)
+    public static bool CanRun(string targetName)
     {
+        P.UpdateAetherytes();
+        if(P.ActiveAetheryte != null)
+        {
+            PluginLog.Debug($"Can run: true by normal");
+            return true;
+        }
+        if(S.Data.CustomAethernet.ActiveAetheryte != null)
+        {
+            PluginLog.Debug($"Can run: true by custom");
+            return true;
+        }
+        if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
+        {
+            PluginLog.Debug($"Can run: true by residential");
+            return true;
+        }
+        if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null && ShouldApproachAetheryte(targetName))
+        {
+            PluginLog.Debug($"Can run: true by approachable");
+            return true;
+        }
+        PluginLog.Debug($"Can not run");
+        return false;
+    }
+
+    public static void Enqueue(string targetName, bool allowPartial = false, bool allowTpFallback = false, bool retry = false)
+    {
+        P.UpdateAetherytes();
         TaskManagerTask[] waiters = [new(WorldChange.WaitUntilMasterAetheryteExists), new FrameDelayTask(10), new(process)];
         if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
         if(P.ActiveAetheryte != null)
@@ -44,7 +74,8 @@ internal static class TaskTryTpToAethernetDestination
         {
             P.TaskManager.Enqueue(() =>
             {
-                if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null && shouldApproachAetheryte())
+                P.UpdateAetherytes();
+                if(P.ActiveAetheryte == null && Utils.GetReachableWorldChangeAetheryte() != null && ShouldApproachAetheryte(targetName))
                 {
                     P.TaskManager.InsertMulti([
                             new FrameDelayTask(10),
@@ -60,62 +91,29 @@ internal static class TaskTryTpToAethernetDestination
                 {
                     if(allowPartial && processPartial())
                     {
-                        return;
+                        return true;
                     }
                     if(allowTpFallback)
                     {
-                        P.TaskManager.InsertStack(() =>
+                        P.TaskManager.Insert(() =>
                         {
                             if(!Utils.EnqueueTeleport(targetName, null))
                             {
-                                DuoLog.Error("Destination could not be found");
+                                DuoLog.Error("Destination could not be found (2)");
+                                return null;
                             }
+                            return true;
                         });
                     }
                     else
                     {
-                        DuoLog.Error("Destination could not be found");
+                        DuoLog.Error("Destination could not be found (3)");
+                        return null;
                     }
                 }
-                return;
+                return true;
             }, $"ConditionalLockonTask");
 
-        }
-
-        bool shouldApproachAetheryte()
-        {
-            var near = Utils.GetTinyAetheryteFromGameObject(Utils.GetReachableWorldChangeAetheryte());
-            if(near != null)
-            {
-                var master = Utils.GetMaster(near.Value);
-                if(near.Value != master)
-                {
-                    return true;
-                }
-                else
-                {
-                    foreach(var x in S.Data.DataStore.Aetherytes[master])
-                    {
-                        if(near != x)
-                        {
-                            var name = x.Name;
-                            if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    if(near.Value.ID == 70 && C.Firmament)
-                    {
-                        var name = "Firmament";
-                        if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         bool processPartial()
@@ -147,6 +145,7 @@ internal static class TaskTryTpToAethernetDestination
 
         void process()
         {
+            P.UpdateAetherytes();
             var master = Utils.GetMaster();
             {
                 if(P.ActiveAetheryte != master)
@@ -213,5 +212,41 @@ internal static class TaskTryTpToAethernetDestination
             Notify.Error($"No destination {targetName} found");
             return;
         }
+    }
+
+    static bool ShouldApproachAetheryte(string targetName)
+    {
+        var near = Utils.GetTinyAetheryteFromGameObject(Utils.GetReachableWorldChangeAetheryte());
+        if(near != null)
+        {
+            var master = Utils.GetMaster(near.Value);
+            if(near.Value != master)
+            {
+                return true;
+            }
+            else
+            {
+                foreach(var x in S.Data.DataStore.Aetherytes[master])
+                {
+                    if(near != x)
+                    {
+                        var name = x.Name;
+                        if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if(near.Value.ID == 70 && C.Firmament)
+                {
+                    var name = "Firmament";
+                    if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
