@@ -21,6 +21,7 @@ public class Config : IEzConfig
     public BasePositionVertical PosVertical = BasePositionVertical.Middle;
     public bool ShowAethernet = true;
     public bool ShowWorldVisit = true;
+    public bool ShowMiniAetheryteOverlay = true;
     public HashSet<uint> Favorites = [];
     public HashSet<uint> Hidden = [];
     public Dictionary<uint, string> Renames = [];
