@@ -319,6 +319,7 @@ internal static unsafe class UISettings
                 ImGui.Checkbox($"Display Aethernet menu", ref C.ShowAethernet);
                 ImGui.Checkbox($"Display World Visit menu", ref C.ShowWorldVisit);
                 ImGui.Checkbox($"Display Housing Ward buttons", ref C.ShowWards);
+                ImGui.Checkbox($"Display overlay near Miniature Aetherytes", ref C.ShowMiniAetheryteOverlay);
 
                 UtilsUI.NextSection();
 
