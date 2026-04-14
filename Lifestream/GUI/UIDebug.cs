@@ -7,6 +7,7 @@ using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.EzSharedDataManager;
 using ECommons.GameHelpers;
+using ECommons.IPC;
 using ECommons.MathHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
@@ -341,6 +342,26 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Address book ipc test"))
+        {
+            if(ImGui.CollapsingHeader("Addresses"))
+            {
+                ImGuiEx.Text($"{ECommonsIPC.Lifestream.GetAddressBookEntries()?.Print("\n")}");
+            }
+            if(ImGui.CollapsingHeader("Addresses with folders"))
+            {
+                foreach(var x in ECommonsIPC.Lifestream.GetAddressBookEntriesWithFolders())
+                {
+                    ImGuiEx.Text($"{x.Key}");
+                    ImGui.Indent();
+                    foreach(var e in x.Value)
+                    {
+                        ImGuiEx.Text($"{e}");
+                    }
+                    ImGui.Unindent();
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("World test"))
         {
             try

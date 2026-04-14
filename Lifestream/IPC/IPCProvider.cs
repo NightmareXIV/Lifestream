@@ -14,6 +14,7 @@ using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using TerraFX.Interop.WinRT;
 
+
 namespace Lifestream.IPC;
 public class IPCProvider
 {
@@ -526,6 +527,44 @@ public class IPCProvider
         if(!Player.Available) return ErrorCode.Player_is_not_logged_in;
         TaskLogout.Enqueue();
         return ErrorCode.Success;
+    }
+
+    [EzIPC]
+    public List<AddressBookEntryTuple> GetAddressBookEntries()
+    {
+        var ret = new List<AddressBookEntryTuple>();
+        foreach(var x in C.AddressBookFolders)
+        {
+            foreach(var e in x.Entries)
+            {
+                ret.Add(e.AsTuple());
+            }
+        }
+        return ret;
+    }
+
+    [EzIPC]
+    public Dictionary<string, List<AddressBookEntryTuple>> GetAddressBookEntriesWithFolders()
+    {
+        var ret = new Dictionary<string, List<AddressBookEntryTuple>>();
+        foreach(var x in C.AddressBookFolders)
+        {
+            string key = "";
+            if(S.AddressBookFileSystemManager.FileSystem.FindLeaf(x, out var leaf))
+            {
+                key = leaf.FullName();
+            }
+            if(!ret.TryGetValue(key, out var value))
+            {
+                value = [];
+                ret[key] = value;
+            }
+            foreach(var e in x.Entries)
+            {
+                value.Add(e.AsTuple());
+            }
+        }
+        return ret;
     }
 
     [EzIPCEvent] public System.Action OnHouseEnterError;
