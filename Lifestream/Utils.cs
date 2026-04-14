@@ -951,6 +951,12 @@ internal static unsafe partial class Utils
                 {
                     //2000151	Aethernet shard	0	Aethernet shards	0	1	1	0	0
                     //2014665	aetheryte shard	0	aetheryte shards	0	1	1	0	0
+                    if(x.Singular.GetText().EqualsAny(
+                        EObjName.Get(2000151).Singular.GetText(),
+                        EObjName.Get(2014665).Singular.GetText(),
+                        EObjName.Get(2014664).Singular.GetText(),        // KR: Occult Aetheryte in Occult Crescent
+                        EObjName.Get(2003395).Singular.GetText()         // KR: Aethernet Shard in housing area
+                    ))
                     if(x.Singular.GetText().EqualsAny(EObjName.Get(2000151).Singular.GetText(), EObjName.Get(2014665).Singular.GetText(), EObjName.Get(2014664).Singular.GetText()))
                     {
                         ret.Add(x.RowId);
@@ -962,6 +968,12 @@ internal static unsafe partial class Utils
                     {
                         //2000151	Aethernet shard	0	Aethernet shards	0	1	1	0	0
                         //2014665	aetheryte shard	0	aetheryte shards	0	1	1	0	0
+                        if(x.Singular.GetText().EqualsAny(
+                            EObjName.Get(2000151, ClientLanguage.English).Singular.GetText(),
+                            EObjName.Get(2014665, ClientLanguage.English).Singular.GetText(),
+                            EObjName.Get(2014664, ClientLanguage.English).Singular.GetText(),        // KR: Occult Aetheryte in Occult Crescent
+                            EObjName.Get(2003395, ClientLanguage.English).Singular.GetText()         // KR: Aethernet Shard in housing area
+                        ))
                         if(x.Singular.GetText().EqualsAny(EObjName.Get(2000151, ClientLanguage.English).Singular.GetText(), EObjName.Get(2014665, ClientLanguage.English).Singular.GetText(), EObjName.Get(2014664, ClientLanguage.English).Singular.GetText()))
                         {
                             ret.Add(x.RowId);
@@ -1233,6 +1245,7 @@ internal static unsafe partial class Utils
     {
         var h = HousingManager.Instance();
         if(h == null) return false;
+        if(entry.World != Player.Object.CurrentWorld.RowId) return false;
         if(h->GetCurrentWard() != entry.Ward - 1) return false;
         if(GetResidentialAetheryteByTerritoryType(P.Territory) != entry.City) return false;
         if(entry.PropertyType is PropertyType.House)

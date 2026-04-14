@@ -87,7 +87,7 @@ public class Overlay : Window
         List<Action> actions = [];
         if(S.Data.ResidentialAethernet.IsInResidentialZone())
         {
-            if(C.ShowAethernet)
+            if(C.ShowAethernet && C.ShowMiniAetheryteOverlay)
             {
                 actions.Add(() => DrawResidentialAethernet(false));
                 actions.Add(() => DrawResidentialAethernet(true));
@@ -390,7 +390,7 @@ public class Overlay : Window
         }
         else if(canUse == AetheryteUseState.Residential || canUse == AetheryteUseState.Custom)
         {
-            ret = C.ShowAethernet;
+            ret = C.ShowAethernet && (canUse != AetheryteUseState.Residential || C.ShowMiniAetheryteOverlay);
         }
         if(canUse == AetheryteUseState.None)
         {

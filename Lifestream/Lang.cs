@@ -63,7 +63,7 @@ internal static class Lang
         Regex.Replace(Svc.Data.GetExcelSheet<EObjName>().GetRow(2004353).Singular.GetText(), @"\[.*?\]", "")
     ];
 
-    internal static readonly string[] EnterWorkshop = ["Move to the company workshop", "地下工房に移動する", "移动到部队工房", "移動到部隊工房", "Die Gesellschaftswerkstätte betreten", "Aller dans l'atelier de compagnie", "지하공방으로 이동"];
+    internal static readonly string[] EnterWorkshop = ["Move to the company workshop", "地下工房に移動する", "移动到部队工房", "移動到部隊工房", "移動到公會工坊", "Die Gesellschaftswerkstätte betreten", "Aller dans l'atelier de compagnie", "지하공방으로 이동"];
 
     internal static Dictionary<WorldChangeAetheryte, string> WorldChangeAetherytes = new()
     {
@@ -94,7 +94,7 @@ internal static class Lang
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Weltenreise
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Voyager vers un autre Monde
      * */
-    internal static readonly string[] VisitAnotherWorld = ["Visit Another World Server.", "他のワールドへ遊びにいく", "Weltenreise", "Voyager vers un autre Monde", "跨界传送", "跨界傳送", "다른 서버 방문"];
+    internal static readonly string[] VisitAnotherWorld = ["Visit Another World Server.", "他のワールドへ遊びにいく", "Weltenreise", "Voyager vers un autre Monde", "跨界传送（前往其他服务器游玩）", "跨界傳送（前往其他服務器遊玩）", "跨界傳送", "다른 서버 방문"];
 
     internal static readonly string[] ConfirmWorldVisit = ["Travel to", "へ移動します、よろしいですか？", "reisen?", "Voulez-vous vraiment visiter", "确定要移动到", "確定要移動到", "방문하시겠습니까?"];
 
@@ -112,7 +112,7 @@ internal static class Lang
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> Wohngebiet
     //2	TEXT_AETHERYTE_HOUSING_WARP	<Gui(69)/> Quartier résidentiel
     public static readonly string[] ResidentialDistrict = ["Residential District Aethernet.", "冒険者居住区転送", "Wohngebiet", "Quartier résidentiel", "冒险者住宅区传送", "冒險者住宅區傳送", "모험가 거주구 이동"];
-    public static readonly string[] GoToWard = ["Go to specified ward. (Review Tabs)", "区を指定して移動（ハウスアピール確認）", "Zum angegebenen Bezirk (Zweck der Unterkunft einsehen)", "Spécifier le secteur où aller (Voir les attraits)", "移动到指定小区（查看房屋宣传标签）", "移動到指定小區（查看房屋宣傳標籤）", "구역을 지정하여 이동(주택 정보 확인)"];
+    public static readonly string[] GoToWard = ["Go to specified ward. (Review Tabs)", "区を指定して移動（ハウスアピール確認）", "Zum angegebenen Bezirk (Zweck der Unterkunft einsehen)", "Spécifier le secteur où aller (Voir les attraits)", "移动到指定小区（查看房屋宣传标签）", "移動到指定小區（查看房屋宣傳標籤）", "移動到指定社區（查看房屋宣傳標籤）", "구역을 지정하여 이동(주택 정보 확인)"];
 
     //6355	<Sheet(PlaceName,IntegerParameter(1),0)/>第<Value>IntegerParameter(2)</Value>区に移動します。
     //よろしいですか？
@@ -130,8 +130,8 @@ internal static class Lang
     //12	TEXT_AETHERYTE_MOVE_INSTANCE	<Gui(69)/> Changer d'instance
     public static readonly string[] TravelToInstancedArea = ["Travel to Instanced Area.", "インスタンスエリアへ移動", "In ein instanziiertes Areal wechseln", "Changer d'instance", "切换副本区", "切換副本區", "인스턴스 지역으로 이동"];
     public static string ToReduceCongestion => Svc.Data.GetExcelSheet<Addon>().GetRow(2090).Text.GetText();
-    public static string[] TravelToYourIsland = ["Travel to your island?", "あなたの島へ向かいますか？", "Zu deiner Insel fahren?", "Voulez-vous aller sur votre île?", "나의 섬으로 가시겠습니까?", "要前往你的小岛吗？"]; // row 4
-    public static string[] TravelToMyIsland = ["Travel to my island.", "「自分の島」に行く", "Zur eigenen Insel fahren", "Aller sur son île", "'나의 섬'으로 가기", "前往自己的小岛"]; // row 7
+    public static string[] TravelToYourIsland = ["Travel to your island?", "あなたの島へ向かいますか？", "Zu deiner Insel fahren?", "Voulez-vous aller sur votre île?", "나의 섬으로 가시겠습니까?", "要前往你的小岛吗？", "要前往你的小島嗎?"]; // row 4
+    public static string[] TravelToMyIsland = ["Travel to my island.", "「自分の島」に行く", "Zur eigenen Insel fahren", "Aller sur son île", "'나의 섬'으로 가기", "前往自己的小岛", "前往自己的小島"]; // row 7
     public static readonly string[] Entrance =
     [
         "ハウスへ入る",
@@ -154,7 +154,7 @@ internal static class Lang
     ];
 
     public static readonly string[] UnableToSelectWorldForDcv = [
-        "Unable to select", "で選択したワールド", "Die für die", "pas être choisi comme destination pour", "의 목적지로 선택할 수 없습니다"
+        "Unable to select", "で選択したワールド", "所选择的服务器","所選擇的服務器", "Die für die", "pas être choisi comme destination pour", "의 목적지로 선택할 수 없습니다"
         ];
 
     public static readonly string AethernetShardTooltipPlaceholder = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();

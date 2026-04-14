@@ -92,7 +92,7 @@ public sealed class ResidentialAethernet : IDisposable
             var aetheryte = GetFromIGameObject(a);
             if(aetheryte != null)
             {
-                if(ActiveAetheryte == null)
+                if(ActiveAetheryte == null && C.ShowMiniAetheryteOverlay)
                 {
                     S.Gui.Overlay.IsOpen = true;
                 }
