@@ -1,4 +1,4 @@
-﻿using ECommons.Configuration;
+using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
@@ -308,6 +308,7 @@ public static unsafe class UIHouseReg
                         IsPrivate = isPrivate
                     };
                     C.HousePathDatas.Add(newData);
+                    EzConfig.Save();
                 }
             }
             else
@@ -321,6 +322,7 @@ public static unsafe class UIHouseReg
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Trash, "Remove registration", ImGuiEx.Ctrl))
             {
                 C.HousePathDatas.Remove(data);
+                EzConfig.Save();
             }
             ImGuiEx.Tooltip("Hold CTRL and click");
             ImGui.Checkbox("Override teleport behavior", ref data.EnableHouseEnterModeOverride);
@@ -389,11 +391,13 @@ public static unsafe class UIHouseReg
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the end of the list"))
         {
             path.Add(Player.Position);
+            EzConfig.Save();
         }
         ImGui.SameLine();
         if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Plus, "Add to the beginning of the list"))
         {
             path.Insert(0, Player.Position);
+            EzConfig.Save();
         }
         if(data != null)
         {
