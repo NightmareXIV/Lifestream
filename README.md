@@ -1,13 +1,13 @@
 ﻿# Lifestream
-
+Lifestream is a plugin that helps with navigation between data centers, worlds, instances, residential areas. Visit another world, data center or house with just a single command.
 ## Become a Supporter!
 If you like Lifestream, please consider becoming a supporter on Patreon or via other means! This will help me to continue updating Lifestream and work on new plugins and features and you will receive benefits such as early progress updates, priority support, prioritized feature requests, early testing builds and private tools. 
-- [Subscribe on Patreon (Starts from $1)](https://subscribe.nightmarexiv.com/) - eligible for Discord role
-- [Donate Litecoin, Bitcoin, Tether or other crypto](https://crypto.nightmarexiv.com/) - eligible for Discord role
-- [One-time donation on Ko-Fi](https://ko-fi.com/nightmarexiv)
+- [Subscribe on Patreon (Starts from $1)](https://subscribe.nightmarexiv.org/) - eligible for Discord role
+- [Donate Litecoin, Bitcoin, Tether or other crypto](https://crypto.nightmarexiv.org/) - eligible for Discord role
+- [One-time donation on Ko-Fi](https://donate.nightmarexiv.org/)
 
 ### Also:
-- [Explore other plugins I maintain or contributed to](https://explore.nightmarexiv.com/)
+- [Explore other plugins I maintain or contributed to](https://explore.nightmarexiv.org/)
 - [Join NightmareXIV Discord server to receive fast support and pings about plugin updates](https://discord.gg/BeeRFKDJD3)
 ## Key features
 - Visit another world with one command, even if on another data center
