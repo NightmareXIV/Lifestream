@@ -92,6 +92,7 @@ public sealed class CustomAethernet
             
             new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Unknown0), BaseMoonId++), //Cape Geras (5410),  (0), 
             new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Unknown0), BaseMoonId++), //Shadefleet (5412),  (0), 
+            new(new(-124.6f, -801.5f), 1310, GetPlaceName(WKSAetheryte.Get(15).Unknown0), BaseMoonId++), //Emerald Echoes (5413), Desert Burrow (5424, 5460), 
             ])
     };
 
