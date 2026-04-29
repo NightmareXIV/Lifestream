@@ -5,11 +5,12 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 namespace Lifestream.AtkReaders;
 public unsafe class ReaderLobbyDKTWorldList(AtkUnitBase* UnitBase, int BeginOffset = 0) : AtkReader(UnitBase, BeginOffset)
 {
-    public string Source => ReadString(3);
-    public string Destination => ReadString(4);
-    public List<RegionInfo> Regions => Loop<RegionInfo>(14, 2 + 8 * 4, 4);
-    public string SelectedDataCenter => ReadString(151);
-    public List<WorldInfo> Worlds => Loop<WorldInfo>(154, 8, GetNumWorlds());
+    public string Source => ReadString(4);
+    public string Destination => ReadString(5);
+    public string SelectedWorld => ReadString(10);
+    public List<RegionInfo> Regions => Loop<RegionInfo>(15, 2 + 8 * 4, 4);
+    public string SelectedDataCenter => ReadString(152);
+    public List<WorldInfo> Worlds => Loop<WorldInfo>(155, 8, GetNumWorlds());
 
     public int GetNumWorlds()
     {

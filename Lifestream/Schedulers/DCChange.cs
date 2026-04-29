@@ -234,13 +234,12 @@ internal static unsafe class DCChange
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
             var reader = new ReaderLobbyDKTWorldList(addon);
-            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).GetText();
             if(reader.SelectedDataCenter == name)
             {
                 PluginLog.Information($"SelectTargetDataCenter complete");
                 return true;
             }
-            var list = addon->UldManager.SearchNodeById(21)->GetAsAtkComponentNode();
+            var list = addon->UldManager.SearchNodeById(23)->GetAsAtkComponentNode();
             var addonItem = 0;
             var listIndex = 3;
             var category = 0;
@@ -285,12 +284,13 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
-            var cw = GenericHelpers.ReadSeString(&addon->UldManager.NodeList[10]->GetAsAtkTextNode()->NodeText).GetText();
+            var reader = new ReaderLobbyDKTWorldList(addon);
+            var cw = reader.SelectedWorld;
             if(cw == name || (C.DcvUseAlternativeWorld && cw.EqualsAny(ExcelWorldHelper.GetPublicWorlds(Utils.GetDataCenter(name).RowId).Select(w => w.Name.ToString()))))
             {
                 return true;
             }
-            var list = addon->UldManager.NodeList[6]->GetAsAtkComponentNode();
+            var list = addon->UldManager.SearchNodeById(24)->GetAsAtkComponentNode();
             var num = 0;
             for(var i = 3; i < 3 + 8; i++)
             {
@@ -331,7 +331,7 @@ internal static unsafe class DCChange
             {
                 DCRethrottle();
             }
-            if(noAvailableWorldsAction != null && TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon2) && IsAddonReady(addon2) && addon2->UldManager.NodeList[4]->GetAsAtkComponentButton()->IsEnabled)
+            if(noAvailableWorldsAction != null && TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon2) && IsAddonReady(addon2) && addon2->UldManager.SearchNodeById(26)->GetAsAtkComponentButton()->IsEnabled)
             {
                 var result = noAvailableWorldsAction();
                 if(result) return true;
@@ -348,12 +348,12 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
-            if(addon->UldManager.NodeList[4]->GetAsAtkComponentButton()->IsEnabled)
+            if(addon->UldManager.SearchNodeById(26)->GetAsAtkComponentButton()->IsEnabled)
             {
                 if(DCThrottle && EzThrottler.Throttle("CancelDcVisit", 5000))
                 {
                     PluginLog.Debug($"[DCChange] Cancelling DC visit");
-                    addon->UldManager.NodeList[4]->GetAsAtkComponentButton()->ClickAddonButton(addon);
+                    addon->UldManager.SearchNodeById(26)->GetAsAtkComponentButton()->ClickAddonButton(addon);
                     return true;
                 }
             }
@@ -373,7 +373,7 @@ internal static unsafe class DCChange
     {
         if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && IsAddonReady(addon))
         {
-            if(addon->UldManager.NodeList[5]->GetAsAtkComponentButton()->IsEnabled)
+            if(addon->UldManager.SearchNodeById(25)->GetAsAtkComponentButton()->IsEnabled)
             {
                 if(DCThrottle && EzThrottler.Throttle("ConfirmDcVisit", 5000))
                 {
