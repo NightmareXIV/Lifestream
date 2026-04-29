@@ -342,6 +342,18 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("7.5"))
+        {
+            ImGuiEx.Text($"""
+                Available {Player.Available}
+                CastActionId {Player.Object.CastActionId}
+                IsOccupied {IsOccupied()}
+                IsTargetable {Player.Object.IsTargetable}
+                BattleChara->CastInfo.ActionId {Player.BattleChara->CastInfo.ActionId}
+                StatusId: {Player.Object.StatusList.Select(x => x.StatusId).Print()}
+                GetStatusManager: {(nint)Player.Character->GetStatusManager():X}
+                """);
+        }
         if(ImGui.CollapsingHeader("Address book ipc test"))
         {
             if(ImGui.CollapsingHeader("Addresses"))

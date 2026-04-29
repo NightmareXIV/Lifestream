@@ -29,12 +29,12 @@ public class DtrManager : IDisposable
 
     public void Refresh() => OnTerritoryChanged(Svc.ClientState.TerritoryType);
 
-    private void OnTerritoryChanged(ushort obj)
+    private void OnTerritoryChanged(uint obj)
     {
         Entry.Shown = false;
         if(C.EnableDtrBar && S.InstanceHandler.GetInstance() > 0)
         {
-            var str = InstanceNumbers.SafeSelect(obj);
+            var str = InstanceNumbers.SafeSelect((ushort)obj);
             if(str != null)
             {
                 Entry.Text = str;

@@ -49,8 +49,8 @@ public unsafe class MapHanderService : IDisposable
                 """);*/
             var isLeftClicked = *(byte*)(evt.AtkEventData + 6) == 0;
             var isGamePadClick = *(byte*)(evt.AtkEventData + 17) == 1;
-            var isGamePadInput = evt.AtkEventType == (int)AtkEventType.InputBaseInputReceived;
-            var isMouseUp = evt.AtkEventType == (int)AtkEventType.MouseUp;
+            var isGamePadInput = (int)evt.AtkEventType == (int)AtkEventType.InputBaseInputReceived;
+            var isMouseUp = (int)evt.AtkEventType == (int)AtkEventType.MouseUp;
             if (isMouseUp && isLeftClicked || isGamePadInput && isGamePadClick)
             {
                 if(!Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.RControlKey), 15))

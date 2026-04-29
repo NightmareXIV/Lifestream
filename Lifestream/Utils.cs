@@ -500,7 +500,7 @@ internal static unsafe partial class Utils
         return P.Territory.EqualsAny(Houses.Private_Chambers_Empyreum, Houses.Private_Chambers_Mist, Houses.Private_Chambers_Shirogane, Houses.Private_Chambers_The_Goblet, Houses.Private_Chambers_The_Lavender_Beds);
     }
 
-    public static bool IsTerritoryResidentialDistrict(ushort obj)
+    public static bool IsTerritoryResidentialDistrict(uint obj)
     {
         return obj.EqualsAny(ResidentalAreas.Mist, ResidentalAreas.Shirogane, ResidentalAreas.Empyreum, ResidentalAreas.The_Goblet, ResidentalAreas.The_Lavender_Beds);
     }
@@ -1807,21 +1807,24 @@ internal static unsafe partial class Utils
         return null;
     }
 
-    internal static string[] GetAvailableWorldDestinations()
+    internal static List<string> GetAvailableWorldDestinations()
     {
-        if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+        var ret = new List<string>();
+        var stringArray = RaptureAtkModule.Instance()->AtkArrayDataHolder.StringArrays[(int)StringArrayType.WorldTranslate];
+        if(stringArray != null)
         {
-            List<string> arr = [];
-            for(var i = 3; i <= 9; i++)
+            for(var i = 3; i <= 10; i++)
             {
-                var item = addon->UldManager.NodeList[4]->GetAsAtkComponentNode()->Component->UldManager.NodeList[i];
-                var text = GenericHelpers.ReadSeString(&item->GetAsAtkComponentNode()->Component->UldManager.NodeList[4]->GetAsAtkTextNode()->NodeText).GetText();
-                if(text == "") break;
-                arr.Add(text);
+                var str = stringArray->StringArray[i];
+                if(str.HasValue)
+                {
+                    var worldName = MemoryHelper.ReadStringNullTerminated((nint)str.Value).Trim();
+                    if(worldName.IsNullOrEmpty()) break;
+                    ret.Add(worldName);
+                }
             }
-            return [.. arr];
         }
-        return Array.Empty<string>();
+        return ret;
     }
 
     internal static string[] GetAvailableAethernetDestinations()

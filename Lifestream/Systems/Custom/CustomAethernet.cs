@@ -73,26 +73,26 @@ public sealed class CustomAethernet
             new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId+4, new(13.7f, 27f)), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
             ], [Lang.AethernetShardTooltipPlaceholder]),
         [1237] = new([
-            new(new(-3.8f, -32.2f), 1237, GetPlaceName(WKSAetheryte.Get(1).Unknown0), BaseMoonId++), //The Cosmoor (5220), Moongate Hub (5225), 
-            new(new(-540.0f, -526.8f), 1237, GetPlaceName(WKSAetheryte.Get(2).Unknown0), BaseMoonId++), //Calabash Cove (5221),  (0), 
-            new(new(427.2f, 497.5f), 1237, GetPlaceName(WKSAetheryte.Get(3).Unknown0), BaseMoonId++), //Weddingway's Bower (5222),  (0), 
-            new(new(-619.6f, 399.8f), 1237, GetPlaceName(WKSAetheryte.Get(4).Unknown0), BaseMoonId++), //Gleamslope (5223),  (0), 
-            new(new(629.8f, -572.8f), 1237, GetPlaceName(WKSAetheryte.Get(5).Unknown0), BaseMoonId++), //Lunar Nadir (5224),  (0), 
+            new(new(-3.8f, -32.2f), 1237, GetPlaceName(WKSAetheryte.Get(1).Name.RowId), BaseMoonId++), //The Cosmoor (5220), Moongate Hub (5225), 
+            new(new(-540.0f, -526.8f), 1237, GetPlaceName(WKSAetheryte.Get(2).Name.RowId), BaseMoonId++), //Calabash Cove (5221),  (0), 
+            new(new(427.2f, 497.5f), 1237, GetPlaceName(WKSAetheryte.Get(3).Name.RowId), BaseMoonId++), //Weddingway's Bower (5222),  (0), 
+            new(new(-619.6f, 399.8f), 1237, GetPlaceName(WKSAetheryte.Get(4).Name.RowId), BaseMoonId++), //Gleamslope (5223),  (0), 
+            new(new(629.8f, -572.8f), 1237, GetPlaceName(WKSAetheryte.Get(5).Name.RowId), BaseMoonId++), //Lunar Nadir (5224),  (0), 
             ]),
         [1291] = new([
-            new(new(336.1f, -381.8f), 1291, GetPlaceName(WKSAetheryte.Get(6).Unknown0), BaseMoonId++), //Glassblown Grotto (5302), Glassblowers' Beacon (5316), 
-            new(new(-150.8f, 314.4f), 1291, GetPlaceName(WKSAetheryte.Get(7).Unknown0), BaseMoonId++), //Iridized Rise (5306),  (0), 
-            new(new(-640.1f, -627.0f), 1291, GetPlaceName(WKSAetheryte.Get(8).Unknown0), BaseMoonId++), //The Saltpeter Shore (5305),  (0), 
-            new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Unknown0), BaseMoonId++), //Capsule Chasm (5307),  (0), 
-            new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Unknown0), BaseMoonId++), //Fusingway Vent (5308),  (0), 
+            new(new(336.1f, -381.8f), 1291, GetPlaceName(WKSAetheryte.Get(6).Name.RowId), BaseMoonId++), //Glassblown Grotto (5302), Glassblowers' Beacon (5316), 
+            new(new(-150.8f, 314.4f), 1291, GetPlaceName(WKSAetheryte.Get(7).Name.RowId), BaseMoonId++), //Iridized Rise (5306),  (0), 
+            new(new(-640.1f, -627.0f), 1291, GetPlaceName(WKSAetheryte.Get(8).Name.RowId), BaseMoonId++), //The Saltpeter Shore (5305),  (0), 
+            new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Name.RowId), BaseMoonId++), //Capsule Chasm (5307),  (0), 
+            new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Name.RowId), BaseMoonId++), //Fusingway Vent (5308),  (0), 
             ]),
         [1310] = new([
-            new(new(-164.1f, 83.5f), 1310, GetPlaceName(WKSAetheryte.Get(11).Unknown0), BaseMoonId++), //Megalithopolis (5407), Terra Firma (5420), 
-            new(new(-141.2f, -591.2f), 1310, GetPlaceName(WKSAetheryte.Get(12).Unknown0), BaseMoonId++), //The Regolift (5409),  (0), 
+            new(new(-164.1f, 83.5f), 1310, GetPlaceName(WKSAetheryte.Get(11).Name.RowId), BaseMoonId++), //Megalithopolis (5407), Terra Firma (5420), 
+            new(new(-141.2f, -591.2f), 1310, GetPlaceName(WKSAetheryte.Get(12).Name.RowId), BaseMoonId++), //The Regolift (5409),  (0), 
             
-            new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Unknown0), BaseMoonId++), //Cape Geras (5410),  (0), 
-            new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Unknown0), BaseMoonId++), //Shadefleet (5412),  (0), 
-            new(new(-124.6f, -801.5f), 1310, GetPlaceName(WKSAetheryte.Get(15).Unknown0), BaseMoonId++), //Emerald Echoes (5413), Desert Burrow (5424, 5460), 
+            new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Name.RowId), BaseMoonId++), //Cape Geras (5410),  (0), 
+            new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Name.RowId), BaseMoonId++), //Shadefleet (5412),  (0), 
+            new(new(-124.6f, -801.5f), 1310, GetPlaceName(WKSAetheryte.Get(15).Name.RowId), BaseMoonId++), //Emerald Echoes (5413), Desert Burrow (5424, 5460), 
             ])
     };
 

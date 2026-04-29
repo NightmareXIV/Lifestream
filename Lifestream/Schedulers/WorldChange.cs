@@ -87,14 +87,14 @@ internal static unsafe class WorldChange
     {
         if(!Player.Available) return false;
         var worlds = Utils.GetAvailableWorldDestinations();
-        var index = Array.IndexOf(worlds, world);
+        var index = Array.IndexOf([..worlds], world);
         if(index != -1)
         {
             if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
             {
                 if(EzThrottler.Throttle("SelectWorldToVisit", 1000))
                 {
-                    Callback.Fire(addon, true, index + 2);
+                    Callback.Fire(addon, true, 0, index + 2);
                     return true;
                 }
             }
