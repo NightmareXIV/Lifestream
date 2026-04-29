@@ -92,7 +92,7 @@ public unsafe class Memory : IDisposable
             }
         };
         AddonDKTWorldList_ReceiveEventDetour((nint)addon, 35, which, Event, Data);
-        AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)itemToHighlight, 0);
+        //AtkComponentTreeList_vf31Detour((nint)addon->UldManager.NodeList[nodeIndex]->GetAsAtkComponentList(), (uint)itemToHighlight, 0);
     }
 
     internal Memory()

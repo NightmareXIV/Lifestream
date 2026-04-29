@@ -2,6 +2,7 @@
 using ECommons.Automation;
 using ECommons.Automation.UIInput;
 using ECommons.ExcelServices;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -25,7 +26,7 @@ internal static unsafe class DCChange
     internal static bool? WaitUntilNotBusy()
     {
         if(!Player.Available) return false;
-        return Player.Object.CastActionId == 0 && !IsOccupied() && Player.Object.IsTargetable;
+        return Player.Object.CastInfo.ActionId == 0 && !IsOccupied() && Player.Object.IsTargetable;
     }
 
     internal static bool? Logout()

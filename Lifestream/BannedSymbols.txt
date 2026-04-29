@@ -1,0 +1,7 @@
+﻿P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.IsCastInterruptible
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.CastActionType
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.CastActionId
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.CastTargetObjectId
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.CurrentCastTime
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.BaseCastTime
+P:Dalamud.Game.ClientState.Objects.Types.IBattleChara.TotalCastTime

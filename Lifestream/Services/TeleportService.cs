@@ -37,6 +37,7 @@ public unsafe class TeleportService
 
     public bool ReliableTeleportToAetheryte(uint id, uint sub = 0, bool wait = false)
     {
+        if(!Player.Interactable) return false;
         if(Player.Object.IsCasting(5, ActionType.Action))
         {
             if(wait)

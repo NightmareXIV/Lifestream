@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game;
+using Dalamud.Memory;
 using Dalamud.Plugin.Ipc.Exceptions;
 using Dalamud.Utility;
 using ECommons.Automation;
@@ -6,6 +7,7 @@ using ECommons.Automation.UIInput;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.EzSharedDataManager;
+using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.IPC;
 using ECommons.MathHelpers;
@@ -13,6 +15,7 @@ using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -346,12 +349,18 @@ internal static unsafe class UIDebug
         {
             ImGuiEx.Text($"""
                 Available {Player.Available}
-                CastActionId {Player.Object.CastActionId}
+                CastActionId {Player.Object.CastInfo.ActionId}
                 IsOccupied {IsOccupied()}
                 IsTargetable {Player.Object.IsTargetable}
                 BattleChara->CastInfo.ActionId {Player.BattleChara->CastInfo.ActionId}
                 StatusId: {Player.Object.StatusList.Select(x => x.StatusId).Print()}
                 GetStatusManager: {(nint)Player.Character->GetStatusManager():X}
+                IsCasting: {Player.Object.IsCasting()}
+                IsCasting2: {Player.Object.IsCasting(5, ActionType.Action)}
+                GetCastInfo: {(nint)Player.Character->GetCastInfo()}
+                GetCastInfo: {MemoryHelper.ReadRaw((nint)Player.Character->GetCastInfo(), sizeof(CastInfo)).ToHexString()}
+                ActionId: {(nint)Player.Character->GetCastInfo()->ActionId}
+                ActionType: {(nint)Player.Character->GetCastInfo()->ActionType}
                 """);
         }
         if(ImGui.CollapsingHeader("Address book ipc test"))
