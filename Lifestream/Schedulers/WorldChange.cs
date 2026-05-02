@@ -9,6 +9,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
+using Lifestream.Tasks.CrossWorld;
 using Callback = ECommons.Automation.Callback;
 
 namespace Lifestream.Schedulers;
@@ -68,9 +69,15 @@ internal static unsafe class WorldChange
         return Utils.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
     }
 
-    internal static bool? ConfirmWorldVisit(string s)
+    internal static bool? ConfirmWorldVisit(string targetWorld)
     {
         if(!Player.Available) return false;
+        if(TaskChangeWorld.WVErrorDetected)
+        {
+            P.TaskManager.Insert(TaskChangeWorld.CloseWorldTravelSelectAddon);
+            TaskChangeWorld.WVErrorDetected = false;
+            return true;
+        }
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
         if(x != null)
         {

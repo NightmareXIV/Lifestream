@@ -486,7 +486,8 @@ internal static unsafe partial class Utils
             Houses.Private_Cottage_Shirogane, Houses.Private_House_Shirogane, Houses.Private_Mansion_Shirogane,
             Houses.Private_Cottage_The_Goblet, Houses.Private_House_The_Goblet, Houses.Private_Mansion_The_Goblet,
             Houses.Private_Cottage_The_Lavender_Beds, Houses.Private_House_The_Lavender_Beds, Houses.Private_Mansion_The_Lavender_Beds,
-            1249, 1250, 1251
+            Houses.Private_Cottage_Minimalist, Houses.Private_House_Minimalist, Houses.Private_Mansion_Minimalist,
+            Houses.Private_Cottage_Minimalist_Dark, Houses.Private_House_Minimalist_Dark, Houses.Private_Mansion_Minimalist_Dark
             );
     }
 

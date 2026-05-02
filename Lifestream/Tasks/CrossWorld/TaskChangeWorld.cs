@@ -1,11 +1,15 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.Automation;
+using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
+using Callback = ECommons.Automation.Callback;
 
 namespace Lifestream.Tasks.CrossWorld;
 
 internal static unsafe class TaskChangeWorld
 {
+    internal static bool WVErrorDetected = false;
     internal static void Enqueue(string world)
     {
         try
@@ -25,13 +29,37 @@ internal static unsafe class TaskChangeWorld
             }
             P.TaskManager.Enqueue(WorldChange.LeaveParty);
         }
+        EnqueueStart(world);
+        P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle("RetryWorldVisit", Math.Max(10000, C.RetryWorldVisitInterval * 1000), true)));
+        P.TaskManager.Enqueue(() => RetryWorldVisit(world), TaskSettings.Timeout5M);
+    }
+
+    public static void EnqueueStart(string world)
+    {
+        WVErrorDetected = false;
+        P.TaskManager.Enqueue(CloseWorldTravelSelectAddon);
+        P.TaskManager.Enqueue(() => !IsOccupied());
         P.TaskManager.Enqueue(WorldChange.TargetValidAetheryte);
         P.TaskManager.Enqueue(WorldChange.InteractWithTargetedAetheryte);
         P.TaskManager.Enqueue(WorldChange.SelectVisitAnotherWorld);
         P.TaskManager.Enqueue(() => WorldChange.SelectWorldToVisit(world), $"{nameof(WorldChange.SelectWorldToVisit)}, {world}");
         P.TaskManager.Enqueue(() => WorldChange.ConfirmWorldVisit(world), $"{nameof(WorldChange.ConfirmWorldVisit)}, {world}");
-        P.TaskManager.Enqueue((Action)(() => EzThrottler.Throttle("RetryWorldVisit", Math.Max(10000, C.RetryWorldVisitInterval * 1000), true)));
-        P.TaskManager.Enqueue(() => RetryWorldVisit(world), TaskSettings.Timeout5M);
+    }
+
+    public static bool CloseWorldTravelSelectAddon()
+    {
+        if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon))
+        {
+            if(addon->IsReady() && EzThrottler.Throttle("CloseAddonWTS"))
+            {
+                Callback.Fire(addon, true, -1);
+            }
+        }
+        else
+        {
+            return true;
+        }
+        return false;
     }
 
     private static int WorldVisitRand = 0;

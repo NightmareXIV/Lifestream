@@ -102,6 +102,11 @@ public unsafe class Lifestream : IDalamudPlugin
         });
     }
 
+    private string[] WorldVisitErrorMessage => field ??= [
+        Svc.Data.GetExcelSheet<LogMessage>().GetRow(9419).Text.GetText().Trim(),
+        Svc.Data.GetExcelSheet<LogMessage>().GetRow(9426).Text.GetText().Trim(),
+        Svc.Data.GetExcelSheet<LogMessage>().GetRow(9427).Text.GetText().Trim(),
+        ];
     private void Toasts_ErrorToast(ref Dalamud.Game.Text.SeStringHandling.SeString message, ref bool isHandled)
     {
         if(!Svc.ClientState.IsLoggedIn)
@@ -111,6 +116,13 @@ public unsafe class Lifestream : IDalamudPlugin
             {
                 PluginLog.Warning($"CharaSelectListMenuError encountered");
                 EzThrottler.Throttle("CharaSelectListMenuError", 2.Minutes(), true);
+            }
+        }
+        else
+        {
+            if(message.GetText().Trim().EqualsAny(WorldVisitErrorMessage))
+            {
+                TaskChangeWorld.WVErrorDetected = true;
             }
         }
     }

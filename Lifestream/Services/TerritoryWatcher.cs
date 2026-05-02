@@ -37,7 +37,7 @@ public static class TerritoryWatcher
 
     public static ushort GetRealTerritoryType()
     {
-        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_Cottage_Empyreum, Houses.Private_Cottage_Mist, Houses.Private_Cottage_Shirogane, Houses.Private_Cottage_The_Goblet, Houses.Private_Cottage_The_Lavender_Beds, 1249))
+        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_Cottage_Empyreum, Houses.Private_Cottage_Mist, Houses.Private_Cottage_Shirogane, Houses.Private_Cottage_The_Goblet, Houses.Private_Cottage_The_Lavender_Beds, Houses.Private_Cottage_Minimalist, Houses.Private_Cottage_Minimalist_Dark))
         {
             return LastHousingOutdoorTerritory switch
             {
@@ -49,7 +49,7 @@ public static class TerritoryWatcher
                 _ => (ushort)Svc.ClientState.TerritoryType
             };
         }
-        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_House_Empyreum, Houses.Private_House_Mist, Houses.Private_House_Shirogane, Houses.Private_House_The_Goblet, Houses.Private_House_The_Lavender_Beds, 1250))
+        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_House_Empyreum, Houses.Private_House_Mist, Houses.Private_House_Shirogane, Houses.Private_House_The_Goblet, Houses.Private_House_The_Lavender_Beds, Houses.Private_House_Minimalist, Houses.Private_House_Minimalist_Dark))
         {
             return LastHousingOutdoorTerritory switch
             {
@@ -61,7 +61,7 @@ public static class TerritoryWatcher
                 _ => (ushort)Svc.ClientState.TerritoryType
             };
         }
-        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_Mansion_Empyreum, Houses.Private_Mansion_Mist, Houses.Private_Mansion_Shirogane, Houses.Private_Mansion_The_Goblet, Houses.Private_Mansion_The_Lavender_Beds, 1251))
+        if(Svc.ClientState.TerritoryType.EqualsAny<uint>(Houses.Private_Mansion_Empyreum, Houses.Private_Mansion_Mist, Houses.Private_Mansion_Shirogane, Houses.Private_Mansion_The_Goblet, Houses.Private_Mansion_The_Lavender_Beds, Houses.Private_Mansion_Minimalist, Houses.Private_Mansion_Minimalist_Dark))
         {
             return LastHousingOutdoorTerritory switch
             {
