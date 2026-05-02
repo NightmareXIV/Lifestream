@@ -1,4 +1,5 @@
 ﻿using Dalamud.Utility;
+using ECommons.ExcelServices.Sheets;
 using Lifestream.Enums;
 using Lumina.Excel.Sheets;
 using System.Text.RegularExpressions;
@@ -94,7 +95,7 @@ internal static class Lang
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Weltenreise
         3	TEXT_AETHERYTE_MENU_WKT	<Gui(69)/> Voyager vers un autre Monde
      * */
-    internal static readonly string[] VisitAnotherWorld = ["Visit Another World Server.", "他のワールドへ遊びにいく", "Weltenreise", "Voyager vers un autre Monde", "跨界传送（前往其他服务器游玩）", "跨界傳送（前往其他服務器遊玩）", "跨界傳送", "다른 서버 방문(서버 텔레포)"];
+    internal static string[] VisitAnotherWorld => field ??= [Svc.Data.GetExcelSheet<QuestDialogueText>(name:"transport/Aetheryte").GetRow(3).Value.GetText().Trim()];
 
     internal static readonly string[] ConfirmWorldVisit = ["Travel to", "へ移動します、よろしいですか？", "reisen?", "Voulez-vous vraiment visiter", "确定要移动到", "確定要移動到", "방문하시겠습니까?"];
 
