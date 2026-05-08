@@ -731,6 +731,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 {
                     S.SearchHelperOverlay.UpdateFilter(currentText);
                     S.SearchHelperOverlay.IsOpen = true;
+                    S.SearchHelperOverlay.CheckHotkeys();
                 }
             }
             else
