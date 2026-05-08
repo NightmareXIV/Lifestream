@@ -1,3 +1,4 @@
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons.Configuration;
@@ -11,12 +12,14 @@ namespace Lifestream.GUI;
 
 public unsafe class SearchHelperOverlay : Window
 {
+    private const int HotkeyCount = 9;
     private List<CommandSuggestion> Suggestions = [];
     private List<CommandSuggestion> FilteredSuggestions = [];
     private string CurrentInput = "";
     private string FilterText = "";
     private Dictionary<string, string> CommandDescriptions = [];
     private Vector2 WindowSize;
+    private bool[] PrevHotkeyDown = new bool[HotkeyCount];
 
     public SearchHelperOverlay() : base("##LifestreamSearchHelper",
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
@@ -235,9 +238,10 @@ public unsafe class SearchHelperOverlay : Window
         {
             var suggestion = FilteredSuggestions[i];
 
+            var hotkeyText = i < HotkeyCount ? $"[{i + 1}]" : "    ";
             var displayText = $"/li {suggestion.Command}";
             var typeText = $"[{suggestion.Type}]";
-            var totalText = $"{displayText} {typeText}";
+            var totalText = $"{hotkeyText} {displayText} {typeText}";
             var textSize = ImGui.CalcTextSize(totalText);
             var available = ImGui.GetContentRegionAvail();
             var buttonSize = new Vector2(Math.Max(available.X, textSize.X + 20), textSize.Y + 4);
@@ -256,6 +260,12 @@ public unsafe class SearchHelperOverlay : Window
             }
 
             ImGui.SetCursorPos(ImGui.GetCursorPos() - new Vector2(0, buttonSize.Y));
+
+            ImGui.PushStyleColor(ImGuiCol.Text, i < HotkeyCount ? 0xFFAAAAAA : 0xFF606060);
+            ImGui.Text(hotkeyText);
+            ImGui.PopStyleColor();
+
+            ImGui.SameLine();
 
             ImGui.PushStyleColor(ImGuiCol.Text, 0xFF00DD00);
             ImGui.Text(displayText);
@@ -281,10 +291,40 @@ public unsafe class SearchHelperOverlay : Window
 
         ImGui.Separator();
         ImGui.PushStyleColor(ImGuiCol.Text, 0xFF808080);
-        ImGui.Text("Click to complete");
+        ImGui.Text("Click or Ctrl+1-9 to complete");
         ImGui.PopStyleColor();
         WindowSize = ImGui.GetWindowSize();
     }
+
+    public void CheckHotkeys()
+    {
+        if(!IsOpen || FilteredSuggestions.Count == 0)
+        {
+            Array.Clear(PrevHotkeyDown);
+            return;
+        }
+
+        if(!IsCtrlHeld())
+        {
+            Array.Clear(PrevHotkeyDown);
+            return;
+        }
+
+        var visibleHotkeys = Math.Min(HotkeyCount, FilteredSuggestions.Count);
+        for(var i = 0; i < visibleHotkeys; i++)
+        {
+            var down = Svc.KeyState[(VirtualKey)((int)VirtualKey.KEY_1 + i)];
+            if(down && !PrevHotkeyDown[i])
+            {
+                PrevHotkeyDown[i] = true;
+                CompleteCommand(FilteredSuggestions[i].Command);
+                return;
+            }
+            PrevHotkeyDown[i] = down;
+        }
+    }
+
+    private static bool IsCtrlHeld() => Svc.KeyState[VirtualKey.CONTROL] || Svc.KeyState[VirtualKey.LCONTROL] || Svc.KeyState[VirtualKey.RCONTROL];
 
     private void CompleteCommand(string command)
     {
@@ -293,12 +333,10 @@ public unsafe class SearchHelperOverlay : Window
             var component = GetActiveTextInput();
             if(component != null)
             {
-                var fullCommand = string.IsNullOrEmpty(command) ? "/li" : $"/li {command}";
-                component->SetText(fullCommand);
-
-                var finalCommand = string.IsNullOrEmpty(command) ? fullCommand : $"{fullCommand} ";
-                component->SetText(finalCommand);
+                component->SetText("");
             }
+
+            P.ProcessCommand("/li", command ?? "");
         }
         catch(Exception ex)
         {
