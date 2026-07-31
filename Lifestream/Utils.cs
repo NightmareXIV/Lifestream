@@ -51,6 +51,7 @@ internal static unsafe partial class Utils
     {
         if(!ExcelWorldHelper.GetPublicWorlds().Any(x => x.Name == charaHomeWorld))
         {
+            PluginLog.Warning("Invalid world specified for relog");
             return ErrorCode.Invalid_world_specified;
         }
         if(Player.Available)
