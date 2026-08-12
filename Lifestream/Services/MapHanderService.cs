@@ -15,6 +15,11 @@ using FXWindows = TerraFX.Interop.Windows.Windows;
 namespace Lifestream.Services;
 public unsafe class MapHanderService : IDisposable
 {
+    private float _lastMouseX;
+    private float _lastMouseY;
+    private bool _isMouseDown;
+    private bool _hasDragged;
+
     private MapHanderService()
     {
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PreReceiveEvent, "AreaMap", OnMapReceivedEvent);
@@ -45,10 +50,49 @@ public unsafe class MapHanderService : IDisposable
         var isGamePadClick = atkEventData->InputData.State == InputState.Up;
         var isGamePadInput = evt.AtkEventType == AddonEventType.InputBaseInputReceived;
         var isMouseUp = evt.AtkEventType == AddonEventType.MouseUp;
+        var isMouseDown = evt.AtkEventType == AddonEventType.MouseDown;
+        var isMouseMove = evt.AtkEventType == AddonEventType.MouseMove;
+        var isClickCompleted = (isMouseUp && isLeftClicked) || (isGamePadInput && isGamePadClick);
 
-        if ((!isMouseUp || !isLeftClicked) && (!isGamePadInput || !isGamePadClick))
+        if (isMouseDown && isLeftClicked)
+        {
+            _lastMouseX = atkEventData->MouseData.PosX;
+            _lastMouseY = atkEventData->MouseData.PosY;
+            _isMouseDown = true;
+            _hasDragged = false;
+            return;
+        }
+
+        if (isMouseMove && _isMouseDown)
+        {
+            var uiScale = AtkUnitBase.GetGlobalUIScale();
+            var deltaX = atkEventData->MouseData.PosX - _lastMouseX;
+            var deltaY = atkEventData->MouseData.PosY - _lastMouseY;
+            var squaredDistance = (deltaX * deltaX + deltaY * deltaY) / (uiScale * uiScale);
+            if (squaredDistance > 25.0f)
+            {
+                // Same behavior as the game, ignore the next up if the mouse moved too much between two events.
+                // See first function in case AtkEventType_MouseUp in Client::UI::AddonAreaMap_ReceiveEvent.
+                _hasDragged = true;
+            }
+
+            _lastMouseX = atkEventData->MouseData.PosX;
+            _lastMouseY =  atkEventData->MouseData.PosY;
+        }
+
+        if (!isClickCompleted)
         {
             return;
+        }
+
+        _isMouseDown = false;
+
+        if (isMouseUp && isLeftClicked)
+        {
+            if (_hasDragged)
+            {
+                return;
+            }
         }
 
         if (Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.ControlKey), 15) ||
