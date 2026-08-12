@@ -102,6 +102,11 @@ public unsafe class MapHanderService : IDisposable
             return;
         }
 
+        ProcessMapClick(addon, atkEventData);
+    }
+
+    private void ProcessMapClick(AddonAreaMap* addon, AtkEventData* atkEventData)
+    {
         var agentMap = AgentMap.Instance();
         if  (agentMap == null)
         {
