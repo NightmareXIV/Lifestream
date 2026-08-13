@@ -99,5 +99,4 @@ public class Config : IEzConfig
     public bool AutoCompletionWindowRight = false;
     public Vector2 AutoCompletionWindowOffset = Vector2.Zero;
     public bool AutoDismount = true;
-    public float MaximumMapClickDistance = 0.70f;
 }

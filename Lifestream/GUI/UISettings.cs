@@ -176,9 +176,6 @@ internal static unsafe class UISettings
         {
             ImGui.Checkbox("Click Aethernet Shard on map for quick teleport", ref C.UseMapTeleport);
             ImGui.Checkbox("Only process when next to aetheryte in the same map", ref C.DisableMapClickOtherTerritory);
-            ImGui.SetNextItemWidth(150f.Scale());
-            ImGui.InputFloat("Maximum map click distance", ref C.MaximumMapClickDistance);
-            ImGuiEx.HelpMarker("The maximum distance from an aetheryte icon for a click to be recognized.");
         })
 
         .Section("Command completion")
