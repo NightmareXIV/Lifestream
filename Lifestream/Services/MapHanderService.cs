@@ -189,12 +189,12 @@ public unsafe class MapHanderService : IDisposable
     // There does not seem to be an easy way to distinguish them from the Aetheryte sheet.
     private static bool ShouldIgnoreAetheryte(TinyAetheryte tinyAetheryte)
     {
-        // only the Ul'dah aetheryte group, in the Steps of Thal territory
-        if (tinyAetheryte.Group != 3 || AgentMap.Instance()->SelectedTerritoryId != 131) return false;
+        // only in the Steps of Thal (Ul'dah) territory
+        if (AgentMap.Instance()->SelectedTerritoryId != 131) return false;
 
         var isHustingsAetheryte = tinyAetheryte.ID is 51 or 37;
 
-        // 14 == Hustings Strip and 15 == Merchant Strip
+        // 14 == Hustings Strip and 73 == Merchant Strip
         return AgentMap.Instance()->SelectedMapId switch
         {
             14 => isHustingsAetheryte,
