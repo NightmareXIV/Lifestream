@@ -158,7 +158,10 @@ internal static class Lang
         "Unable to select", "で選択したワールド", "所选择的服务器","所選擇的服務器", "Die für die", "pas être choisi comme destination pour", "의 목적지로 선택할 수 없습니다"
         ];
 
-    public static readonly string AethernetShardTooltipPlaceholder = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();
-
     public static readonly string[] RemainingSubTime = ["sqex.to/Msp"];
+
+    public static readonly string AdjoiningArea = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1252).Name.GetText();
+    public static readonly string ToUpperLevel = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1250).Name.GetText();
+    public static readonly string ToLowerLevel = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1251).Name.GetText();
+    public static readonly string AethernetShardTooltip = Svc.Data.GetExcelSheet<PlaceName>().GetRow(1300).Name.GetText();
 }

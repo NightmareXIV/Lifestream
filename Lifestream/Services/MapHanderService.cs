@@ -112,6 +112,21 @@ public unsafe class MapHanderService : IDisposable
             return;
         }
 
+        var tooltipText = "";
+        if (TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) &&
+            IsAddonReady(addonTooltip) &&
+            addonTooltip->IsVisible)
+        {
+            var node = addonTooltip->UldManager.NodeList[2]->GetAsAtkTextNode();
+            tooltipText = ReadSeString(&node->NodeText).GetText();
+        }
+
+        if (IsMapTransitionTooltip(tooltipText))
+        {
+            // should ignore things that can be clicked on
+            return;
+        }
+
         if (P.ActiveAetheryte != null)
         {
             var master = Utils.GetMaster();
@@ -127,7 +142,7 @@ public unsafe class MapHanderService : IDisposable
                     validAetherytes.Insert(0, master);
                 }
 
-                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, out var targetAetheryte))
+                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
                 {
                     ExecuteTeleport(targetAetheryte, P.ActiveAetheryte!.Value.ID, atkEventData);
                     return;
@@ -138,7 +153,7 @@ public unsafe class MapHanderService : IDisposable
         if (S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
             var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
-            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, out var targetAetheryte))
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
             {
                 ExecuteTeleport(targetAetheryte, S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID, atkEventData);
                 return;
@@ -148,7 +163,7 @@ public unsafe class MapHanderService : IDisposable
         if (S.Data.CustomAethernet.ActiveAetheryte != null)
         {
             var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
-            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, out var targetAetheryte))
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
             {
                 ExecuteTeleport(targetAetheryte, S.Data.CustomAethernet.ActiveAetheryte.Value.ID, atkEventData);
                 return;
@@ -161,7 +176,7 @@ public unsafe class MapHanderService : IDisposable
             if (masterEntry is var (master, aetherytes))
             {
                 var validAetherytes = aetherytes.Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible);
-                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, out var nearbyAetheryte))
+                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, tooltipText, out var nearbyAetheryte))
                 {
                     TaskAetheryteAethernetTeleport.Enqueue(master.ID, nearbyAetheryte.ID);
                 }
@@ -191,7 +206,6 @@ public unsafe class MapHanderService : IDisposable
                     // The value only has to be higher than 1, using an unused ButtonId in this context to be safe.
                     atkEventData->MouseData.ButtonId = 50;
                 }
-
                 TaskAethernetTeleport.Enqueue(tinyAetheryte);
             }
             else
@@ -201,17 +215,18 @@ public unsafe class MapHanderService : IDisposable
         }
     }
 
-    private static bool TryGetNearbyAetheryte<T>(IEnumerable<T> aetherytes, AddonAreaMap* addonAreaMap, out IAetheryte nearbyAetheryte) where T : IAetheryte
+    private static bool TryGetNearbyAetheryte<T>(IEnumerable<T> aetherytes, AddonAreaMap* addonAreaMap, string tooltipText, out IAetheryte nearbyAetheryte) where T : IAetheryte
     {
         nearbyAetheryte = null;
 
-        var agentMap = AgentMap.Instance();
-        if (agentMap == null || aetherytes == null || addonAreaMap == null)
+        if (aetherytes == null)
         {
             return false;
         }
 
-        var closest = aetherytes
+        var agentMap = AgentMap.Instance();
+        var aetherytesCollection = aetherytes as T[] ?? aetherytes.ToArray();
+        var closest = aetherytesCollection
             .Select(x =>
             {
                 var mapPosition = MapUtil.WorldToMap(x.Position, -agentMap->SelectedOffsetX, -agentMap->SelectedOffsetY, (uint)agentMap->SelectedMapSizeFactor);
@@ -238,6 +253,17 @@ public unsafe class MapHanderService : IDisposable
         var baseHitThreshold = (minZoomHitThreshold * (1.0f - normalizedZoom) + maxZoomHitThreshold * normalizedZoom);
         var hitThreshold = baseHitThreshold / agentMap->SelectedMapSizeFactorFloat + hoverErrorCompensation;
 
+        if (!tooltipText.IsNullOrWhitespace())
+        {
+            // double the threshold when the tooltip shows the mouse is over an aetheryte
+            var exactMatch = aetherytesCollection.FirstOrDefault(x => x.Name == tooltipText);
+            if (exactMatch != null ||
+                IsGenericAetheryteToolTip(tooltipText))
+            {
+                hitThreshold *= 2;
+            }
+        }
+
         // square hit detection, the game does a similar detection (although not exactly based on this)
         if (closest.ChebyshevDistance <= hitThreshold)
         {
@@ -246,5 +272,19 @@ public unsafe class MapHanderService : IDisposable
         }
 
         return false;
+    }
+
+    private static bool IsMapTransitionTooltip(string tooltipText)
+    {
+        if (tooltipText.IsNullOrWhitespace()) return false;
+
+        return tooltipText == Lang.AdjoiningArea || tooltipText == Lang.ToUpperLevel || tooltipText == Lang.ToLowerLevel;
+    }
+
+    private static bool IsGenericAetheryteToolTip(string tooltipText)
+    {
+        if  (tooltipText.IsNullOrWhitespace()) return false;
+
+        return tooltipText == Lang.AethernetShardTooltip;
     }
 }
