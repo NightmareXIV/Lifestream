@@ -142,7 +142,7 @@ public unsafe class MapHanderService : IDisposable
                     validAetherytes.Insert(0, master);
                 }
 
-                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
+                if (TryGetNearbyAetheryte(validAetherytes.Where(x => !ShouldIgnoreAetheryte(x)), addonAreaMap, tooltipText, out var targetAetheryte))
                 {
                     ExecuteTeleport(targetAetheryte, P.ActiveAetheryte!.Value.ID, atkEventData);
                     return;
@@ -175,13 +175,32 @@ public unsafe class MapHanderService : IDisposable
             var masterEntry = S.Data.DataStore.Aetherytes.FirstOrNull(x => x.Value.Any(y => y.TerritoryType == agentMap->SelectedTerritoryId));
             if (masterEntry is var (master, aetherytes))
             {
-                var validAetherytes = aetherytes.Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible);
+                var validAetherytes = aetherytes.Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible && !ShouldIgnoreAetheryte(x));
                 if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, tooltipText, out var nearbyAetheryte))
                 {
                     TaskAetheryteAethernetTeleport.Enqueue(master.ID, nearbyAetheryte.ID);
                 }
             }
         }
+    }
+
+    // This should be fixed properly, this is a hack.
+    // The aetherytes are on a different map id, but on the same territory id.
+    // There does not seem to be an easy way to distinguish them from the Aetheryte sheet.
+    private static bool ShouldIgnoreAetheryte(TinyAetheryte tinyAetheryte)
+    {
+        // only the Ul'dah aetheryte group, in the Steps of Thal territory
+        if (tinyAetheryte.Group != 3 || AgentMap.Instance()->SelectedTerritoryId != 131) return false;
+
+        var isHustingsAetheryte = tinyAetheryte.ID is 51 or 37;
+
+        // 14 == Hustings Strip and 15 == Merchant Strip
+        return AgentMap.Instance()->SelectedMapId switch
+        {
+            14 => isHustingsAetheryte,
+            73 => !isHustingsAetheryte,
+            _ => true
+        };
     }
 
     private static void ExecuteTeleport(IAetheryte targetAetheryte, uint activeId, AtkEventData* atkEventData)
@@ -206,6 +225,7 @@ public unsafe class MapHanderService : IDisposable
                     // The value only has to be higher than 1, using an unused ButtonId in this context to be safe.
                     atkEventData->MouseData.ButtonId = 50;
                 }
+
                 TaskAethernetTeleport.Enqueue(tinyAetheryte);
             }
             else
@@ -219,13 +239,14 @@ public unsafe class MapHanderService : IDisposable
     {
         nearbyAetheryte = null;
 
-        if (aetherytes == null)
+        var aetherytesCollection = aetherytes as T[] ?? aetherytes.ToArray();
+        if (aetherytesCollection.Length == 0)
         {
             return false;
         }
 
         var agentMap = AgentMap.Instance();
-        var aetherytesCollection = aetherytes as T[] ?? aetherytes.ToArray();
+
         var closest = aetherytesCollection
             .Select(x =>
             {
@@ -246,11 +267,12 @@ public unsafe class MapHanderService : IDisposable
         const float minZoomHitThreshold = 0.6f;
         const float maxZoomHitThreshold = 0.2f;
 
-        // the hover coordinates are truncated, on max zoom level, this is a major issue without compensation
-        var hoverErrorCompensation = 0.1f * zoomLevel;
+        // the hover coordinates are truncated, at max zoom level, this is a major issue without compensation
+        var hoverErrorCompensation = 0.1f / 7.0f * zoomLevel;
 
         // linear interpolation
-        var baseHitThreshold = (minZoomHitThreshold * (1.0f - normalizedZoom) + maxZoomHitThreshold * normalizedZoom);
+        var baseHitThreshold = minZoomHitThreshold * (1.0f - normalizedZoom) + maxZoomHitThreshold * normalizedZoom;
+
         var hitThreshold = baseHitThreshold / agentMap->SelectedMapSizeFactorFloat + hoverErrorCompensation;
 
         if (!tooltipText.IsNullOrWhitespace())
