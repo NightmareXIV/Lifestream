@@ -37,10 +37,9 @@ public unsafe class MapHanderService : IDisposable
             return;
         }
 
-        var addon = (AddonAreaMap*)args.Addon.Address;
+        var addonAreaMap = (AddonAreaMap*)args.Addon.Address;
         if (args is not AddonReceiveEventArgs evt ||
-            !addon->AtkUnitBase.IsReady() ||
-            Utils.IsBusy())
+            !addonAreaMap->AtkUnitBase.IsReady())
         {
             return;
         }
@@ -102,19 +101,16 @@ public unsafe class MapHanderService : IDisposable
             return;
         }
 
-        ProcessMapClick(addon, atkEventData);
+        ProcessMapClick(addonAreaMap, atkEventData);
     }
 
-    private void ProcessMapClick(AddonAreaMap* addon, AtkEventData* atkEventData)
+    private static void ProcessMapClick(AddonAreaMap* addonAreaMap, AtkEventData* atkEventData)
     {
         var agentMap = AgentMap.Instance();
-        if  (agentMap == null)
+        if  (agentMap == null || Utils.IsBusy())
         {
             return;
         }
-
-        var activeId = 0u;
-        IAetheryte targetAetheryte = null;
 
         if (P.ActiveAetheryte != null)
         {
@@ -131,58 +127,32 @@ public unsafe class MapHanderService : IDisposable
                     validAetherytes.Insert(0, master);
                 }
 
-                if (TryGetNearbyAetheryte(validAetherytes, addon->HoveredCoords, out targetAetheryte))
+                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, out var targetAetheryte))
                 {
-                    activeId = P.ActiveAetheryte!.Value.ID;
+                    ExecuteTeleport(targetAetheryte, P.ActiveAetheryte!.Value.ID, atkEventData);
+                    return;
                 }
             }
         }
 
-        if (targetAetheryte == null && S.Data.ResidentialAethernet.ActiveAetheryte != null)
+        if (S.Data.ResidentialAethernet.ActiveAetheryte != null)
         {
-            var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
-            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addon->HoveredCoords, out targetAetheryte))
+            var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, out var targetAetheryte))
             {
-                activeId = S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID;
+                ExecuteTeleport(targetAetheryte, S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID, atkEventData);
+                return;
             }
         }
 
-        if (targetAetheryte == null && S.Data.CustomAethernet.ActiveAetheryte != null)
+        if (S.Data.CustomAethernet.ActiveAetheryte != null)
         {
-            var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
-            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addon->HoveredCoords, out targetAetheryte))
+            var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, out var targetAetheryte))
             {
-                activeId = S.Data.CustomAethernet.ActiveAetheryte.Value.ID;
+                ExecuteTeleport(targetAetheryte, S.Data.CustomAethernet.ActiveAetheryte.Value.ID, atkEventData);
+                return;
             }
-        }
-
-        if (activeId != 0 && targetAetheryte != null)
-        {
-            if (activeId == targetAetheryte.ID)
-            {
-                Notify.Error("You are already here!");
-            }
-            else
-            {
-                if (targetAetheryte is TinyAetheryte tinyAetheryte)
-                {
-                    if (tinyAetheryte.IsAetheryte)
-                    {
-                        // This releases the mouse from the mouse down without processing anything else (ignoring the aetheryte click).
-                        // See case AtkEventType_MouseUp with the called function in Client::UI::AddonAreaMap_ReceiveEvent.
-                        // The value only has to be higher than 1, using an unused ButtonId in this context to be safe.
-                        atkEventData->MouseData.ButtonId = 50;
-                    }
-
-                    TaskAethernetTeleport.Enqueue(tinyAetheryte);
-                }
-                else
-                {
-                    TaskAethernetTeleport.Enqueue(targetAetheryte.Name);
-                }
-            }
-
-            return;
         }
 
         if (!C.DisableMapClickOtherTerritory)
@@ -191,7 +161,7 @@ public unsafe class MapHanderService : IDisposable
             if (masterEntry is var (master, aetherytes))
             {
                 var validAetherytes = aetherytes.Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible);
-                if (TryGetNearbyAetheryte(validAetherytes, addon->HoveredCoords, out var nearbyAetheryte))
+                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, out var nearbyAetheryte))
                 {
                     TaskAetheryteAethernetTeleport.Enqueue(master.ID, nearbyAetheryte.ID);
                 }
@@ -199,24 +169,77 @@ public unsafe class MapHanderService : IDisposable
         }
     }
 
-    private bool TryGetNearbyAetheryte<T>(IEnumerable<T> aetherytes, Vector2 hoveredCoords, out IAetheryte nearbyAetheryte) where T : IAetheryte
+    private static void ExecuteTeleport(IAetheryte targetAetheryte, uint activeId, AtkEventData* atkEventData)
+    {
+        if (activeId == 0 || targetAetheryte == null)
+        {
+            return;
+        }
+
+        if (activeId == targetAetheryte.ID)
+        {
+            Notify.Error("You are already here!");
+        }
+        else
+        {
+            if (targetAetheryte is TinyAetheryte tinyAetheryte)
+            {
+                if (tinyAetheryte.IsAetheryte)
+                {
+                    // This releases the mouse from the mouse down without processing anything else (ignoring the aetheryte click).
+                    // See case AtkEventType_MouseUp with the called function in Client::UI::AddonAreaMap_ReceiveEvent.
+                    // The value only has to be higher than 1, using an unused ButtonId in this context to be safe.
+                    atkEventData->MouseData.ButtonId = 50;
+                }
+
+                TaskAethernetTeleport.Enqueue(tinyAetheryte);
+            }
+            else
+            {
+                TaskAethernetTeleport.Enqueue(targetAetheryte.Name);
+            }
+        }
+    }
+
+    private static bool TryGetNearbyAetheryte<T>(IEnumerable<T> aetherytes, AddonAreaMap* addonAreaMap, out IAetheryte nearbyAetheryte) where T : IAetheryte
     {
         nearbyAetheryte = null;
 
         var agentMap = AgentMap.Instance();
-        if (agentMap == null)
+        if (agentMap == null || aetherytes == null || addonAreaMap == null)
         {
             return false;
         }
 
-        var closest = aetherytes?.Select(x => new
+        var closest = aetherytes
+            .Select(x =>
             {
-                Aetheryte = x,
-                Distance = Vector2.Distance(MapUtil.WorldToMap(x.Position, -agentMap->SelectedOffsetX, -agentMap->SelectedOffsetY, (uint)agentMap->SelectedMapSizeFactor), hoveredCoords)
+                var mapPosition = MapUtil.WorldToMap(x.Position, -agentMap->SelectedOffsetX, -agentMap->SelectedOffsetY, (uint)agentMap->SelectedMapSizeFactor);
+                var delta = Vector2.Abs(mapPosition - addonAreaMap->HoveredCoords);
+                return (Aetheryte: x, ChebyshevDistance: MathF.Max(delta.X, delta.Y));
             })
-            .MinBy(x => x.Distance);
+            .MinBy(x => x.ChebyshevDistance);
 
-        if (closest != null && closest.Distance <= C.MaximumMapClickDistance * 100 / agentMap->SelectedMapSizeFactor)
+        if (closest.Aetheryte == null)
+        {
+            return false;
+        }
+
+        var zoomLevel = addonAreaMap->ZoomSlider->Value; // 0 to 7 (min to max)
+        var normalizedZoom = zoomLevel / 7.0f;
+
+        const float minZoomHitThreshold = 0.6f;
+        const float maxZoomHitThreshold = 0.2f;
+
+        // the hover coordinates are truncated, on max zoom level, this is a major issue without compensation
+        var hoverErrorCompensation = 0.1f * zoomLevel;
+
+        // linear interpolation
+        var baseHitThreshold = (minZoomHitThreshold * (1.0f - normalizedZoom) + maxZoomHitThreshold * normalizedZoom);
+        var hitThreshold = baseHitThreshold / agentMap->SelectedMapSizeFactorFloat + hoverErrorCompensation;
+
+        // square hit detection, the game does a similar detection (although not exactly based on this)
+        if (closest.ChebyshevDistance <= hitThreshold)
         {
             nearbyAetheryte = closest.Aetheryte;
             return true;
