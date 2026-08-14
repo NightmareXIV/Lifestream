@@ -21,7 +21,7 @@ internal static class YesAlreadyManager
         GetData();
         if(Data != null)
         {
-            PluginLog.Information("Disabling Yes Already (new)");
+            PluginLog.Debug("Disabling Yes Already (new)");
             Data.Add(Svc.PluginInterface.InternalName);
             Reenable = true;
         }
@@ -34,7 +34,7 @@ internal static class YesAlreadyManager
             GetData();
             if(Data != null)
             {
-                PluginLog.Information("Enabling Yes Already (new)");
+                PluginLog.Debug("Enabling Yes Already (new)");
                 Data.Remove(Svc.PluginInterface.InternalName);
                 Reenable = false;
             }

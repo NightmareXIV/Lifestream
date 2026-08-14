@@ -1,149 +1,312 @@
 ﻿using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
-using Dalamud.Memory;
-using ECommons.Interop;
 using ECommons.MathHelpers;
-using ECommons.UIHelpers;
-using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lifestream.Enums;
-using Lifestream.Systems.Residential;
 using Lifestream.Tasks.SameWorld;
-using Lumina.Excel.Sheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dalamud.Game.Addon.Events;
+using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using Lifestream.Systems;
+using Lifestream.Systems.Legacy;
 using FXWindows = TerraFX.Interop.Windows.Windows;
 
 namespace Lifestream.Services;
 public unsafe class MapHanderService : IDisposable
 {
+    private float _lastMouseX;
+    private float _lastMouseY;
+    private bool _isMouseDown;
+    private bool _hasDragged;
+
     private MapHanderService()
     {
-        Svc.AddonLifecycle.RegisterListener(AddonEvent.PostReceiveEvent, "AreaMap", OnMapReceivedEvent);
+        Svc.AddonLifecycle.RegisterListener(AddonEvent.PreReceiveEvent, "AreaMap", OnMapReceivedEvent);
     }
 
     public void Dispose()
     {
-        Svc.AddonLifecycle.UnregisterListener(AddonEvent.PostReceiveEvent, "AreaMap", OnMapReceivedEvent);
+        Svc.AddonLifecycle.UnregisterListener(AddonEvent.PreReceiveEvent, "AreaMap", OnMapReceivedEvent);
     }
 
     private void OnMapReceivedEvent(AddonEvent type, AddonArgs args)
     {
-        if(args is AddonReceiveEventArgs evt && TryGetAddonByName<AddonAreaMap>("AreaMap", out var addon) && addon->AtkUnitBase.IsReady() && !Utils.IsBusy())
+        if (!C.UseMapTeleport)
         {
-            /*var atkEvent = (AtkEvent*)evt.AtkEvent;
-            var data = MemoryHelper.ReadRaw(evt.Data, 40);
-            PluginLog.Information($"""
-                EventParam: {evt.EventParam}
-                AtkEventType: {evt.AtkEventType}
-                atkEvent->Param: {atkEvent->Param}
-                atkEvent->Node->NodeId: {(atkEvent->Node == null?"-":atkEvent->Node->NodeId)}
-                atkEvent->State: {atkEvent->State.StateFlags}
-                data: {data.ToHexString()}
-                CursorTarget: {(addon->CursorTarget == null?"-": addon->CursorTarget->NodeId)}
-                """);*/
-            var isLeftClicked = *(byte*)(evt.AtkEventData + 6) == 0;
-            var isGamePadClick = *(byte*)(evt.AtkEventData + 17) == 1;
-            var isGamePadInput = (int)evt.AtkEventType == (int)AtkEventType.InputBaseInputReceived;
-            var isMouseUp = (int)evt.AtkEventType == (int)AtkEventType.MouseUp;
-            if (isMouseUp && isLeftClicked || isGamePadInput && isGamePadClick)
+            return;
+        }
+
+        var addonAreaMap = (AddonAreaMap*)args.Addon.Address;
+        if (args is not AddonReceiveEventArgs evt ||
+            !addonAreaMap->AtkUnitBase.IsReady())
+        {
+            return;
+        }
+
+        var atkEventData = (AtkEventData*)evt.AtkEventData;
+        var isLeftClicked = atkEventData->MouseData.ButtonId == 0;
+        var isGamePadClick = atkEventData->InputData.State == InputState.Up;
+        var isGamePadInput = evt.AtkEventType == AddonEventType.InputBaseInputReceived;
+        var isMouseUp = evt.AtkEventType == AddonEventType.MouseUp;
+        var isMouseDown = evt.AtkEventType == AddonEventType.MouseDown;
+        var isMouseMove = evt.AtkEventType == AddonEventType.MouseMove;
+        var isClickCompleted = (isMouseUp && isLeftClicked) || (isGamePadInput && isGamePadClick);
+
+        if (isMouseDown && isLeftClicked)
+        {
+            _lastMouseX = atkEventData->MouseData.PosX;
+            _lastMouseY = atkEventData->MouseData.PosY;
+            _isMouseDown = true;
+            _hasDragged = false;
+            return;
+        }
+
+        if (isMouseMove && _isMouseDown)
+        {
+            var uiScale = AtkUnitBase.GetGlobalUIScale();
+            var deltaX = atkEventData->MouseData.PosX - _lastMouseX;
+            var deltaY = atkEventData->MouseData.PosY - _lastMouseY;
+            var squaredDistance = (deltaX * deltaX + deltaY * deltaY) / (uiScale * uiScale);
+            if (squaredDistance > 25.0f)
             {
-                if(!Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.ControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.LControlKey), 15) && !Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.RControlKey), 15))
+                // Same behavior as the game, ignore the next up if the mouse moved too much between two events.
+                // See first function in case AtkEventType_MouseUp in Client::UI::AddonAreaMap_ReceiveEvent.
+                _hasDragged = true;
+            }
+
+            _lastMouseX = atkEventData->MouseData.PosX;
+            _lastMouseY =  atkEventData->MouseData.PosY;
+        }
+
+        if (!isClickCompleted)
+        {
+            return;
+        }
+
+        _isMouseDown = false;
+
+        if (isMouseUp && isLeftClicked)
+        {
+            if (_hasDragged)
+            {
+                return;
+            }
+        }
+
+        if (Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.ControlKey), 15) ||
+            Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.LControlKey), 15) ||
+            Bitmask.IsBitSet(FXWindows.GetKeyState((int)Keys.RControlKey), 15))
+        {
+            return;
+        }
+
+        ProcessMapClick(addonAreaMap, atkEventData);
+    }
+
+    private static void ProcessMapClick(AddonAreaMap* addonAreaMap, AtkEventData* atkEventData)
+    {
+        var agentMap = AgentMap.Instance();
+        if  (agentMap == null || Utils.IsBusy())
+        {
+            return;
+        }
+
+        var tooltipText = "";
+        if (TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) &&
+            IsAddonReady(addonTooltip) &&
+            addonTooltip->IsVisible)
+        {
+            var node = addonTooltip->UldManager.NodeList[2]->GetAsAtkTextNode();
+            tooltipText = ReadSeString(&node->NodeText).GetText();
+        }
+
+        if (IsMapTransitionTooltip(tooltipText))
+        {
+            // should ignore things that can be clicked on
+            return;
+        }
+
+        if (P.ActiveAetheryte != null)
+        {
+            var master = Utils.GetMaster();
+            if (S.Data.DataStore.Aetherytes.TryGetValue(master, out var aetheryteList))
+            {
+                var validAetherytes = aetheryteList
+                    .Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible)
+                    .ToList();
+
+                // Include the master one to allow to teleport to it via aethernet network
+                if (master.TerritoryType == agentMap->SelectedTerritoryId && !master.Invisible)
                 {
-                    if(TryGetAddonByName<AtkUnitBase>("Tooltip", out var addonTooltip) && IsAddonReady(addonTooltip) && addonTooltip->IsVisible)
-                    {
-                        var node = addonTooltip->UldManager.NodeList[2]->GetAsAtkTextNode();
-                        var text = GenericHelpers.ReadSeString(&node->NodeText).GetText();
-                        if(P.ActiveAetheryte != null)
-                        {
-                            var master = Utils.GetMaster();
-                            foreach(var x in S.Data.DataStore.Aetherytes[master])
-                            {
-                                if(x.Name == text)
-                                {
-                                    if(P.ActiveAetheryte.Value.ID == x.ID)
-                                    {
-                                        Notify.Error("You are already here!");
-                                    }
-                                    else
-                                    {
-                                        TaskAethernetTeleport.Enqueue(x);
-                                    }
-                                    return;
-                                }
-                            }
-                        }
-                        if(S.Data.ResidentialAethernet.ActiveAetheryte != null)
-                        {
-                            var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(P.Territory);
-                            if(zone != null)
-                            {
-                                foreach(var x in zone.Aetherytes)
-                                {
-                                    if(x.Name == text)
-                                    {
-                                        if(S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID == x.ID)
-                                        {
-                                            Notify.Error("You are already here!");
-                                        }
-                                        else
-                                        {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                        }
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                        if(S.Data.CustomAethernet.ActiveAetheryte != null)
-                        {
-                            var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(P.Territory);
-                            if(zone != null)
-                            {
-                                foreach(var x in zone.Aetherytes)
-                                {
-                                    if(x.Name.StartsWith(text))
-                                    {
-                                        if(S.Data.CustomAethernet.ActiveAetheryte.Value.ID == x.ID)
-                                        {
-                                            Notify.Error("You are already here!");
-                                        }
-                                        else
-                                        {
-                                            TaskAethernetTeleport.Enqueue(x.Name);
-                                        }
-                                        return;
-                                    }
-                                }
-                                if(zone.GenericAetheryteNames.Contains(text))
-                                {
-                                    var target = zone.Aetherytes.MinBy(x => Vector2.Distance(x.MapPosition.Value, addon->HoveredCoords));
-                                    TaskAethernetTeleport.Enqueue(target.Name);
-                                }
-                            }
-                        }
-                        if(!C.DisableMapClickOtherTerritory)
-                        {
-                            foreach(var x in S.Data.DataStore.Aetherytes)
-                            {
-                                foreach(var a in x.Value)
-                                {
-                                    if(a.Name == text)
-                                    {
-                                        TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    validAetherytes.Insert(0, master);
+                }
+
+                if (TryGetNearbyAetheryte(validAetherytes.Where(x => !ShouldIgnoreAetheryte(x)), addonAreaMap, tooltipText, out var targetAetheryte))
+                {
+                    ExecuteTeleport(targetAetheryte, P.ActiveAetheryte!.Value.ID, atkEventData);
+                    return;
                 }
             }
         }
+
+        if (S.Data.ResidentialAethernet.ActiveAetheryte != null)
+        {
+            var zone = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
+            {
+                ExecuteTeleport(targetAetheryte, S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID, atkEventData);
+                return;
+            }
+        }
+
+        if (S.Data.CustomAethernet.ActiveAetheryte != null)
+        {
+            var zone = S.Data.CustomAethernet.ZoneInfo.SafeSelect(agentMap->SelectedTerritoryId);
+            if (zone != null && TryGetNearbyAetheryte(zone.Aetherytes, addonAreaMap, tooltipText, out var targetAetheryte))
+            {
+                ExecuteTeleport(targetAetheryte, S.Data.CustomAethernet.ActiveAetheryte.Value.ID, atkEventData);
+                return;
+            }
+        }
+
+        if (!C.DisableMapClickOtherTerritory)
+        {
+            var masterEntry = S.Data.DataStore.Aetherytes.FirstOrNull(x => x.Value.Any(y => y.TerritoryType == agentMap->SelectedTerritoryId));
+            if (masterEntry is var (master, aetherytes))
+            {
+                var validAetherytes = aetherytes.Where(x => x.TerritoryType == agentMap->SelectedTerritoryId && !x.Invisible && !ShouldIgnoreAetheryte(x));
+                if (TryGetNearbyAetheryte(validAetherytes, addonAreaMap, tooltipText, out var nearbyAetheryte))
+                {
+                    TaskAetheryteAethernetTeleport.Enqueue(master.ID, nearbyAetheryte.ID);
+                }
+            }
+        }
+    }
+
+    // This should be fixed properly, this is a hack.
+    // The aetherytes are on a different map id, but on the same territory id.
+    // There does not seem to be an easy way to distinguish them from the Aetheryte sheet.
+    private static bool ShouldIgnoreAetheryte(TinyAetheryte tinyAetheryte)
+    {
+        // only in the Steps of Thal (Ul'dah) territory
+        if (AgentMap.Instance()->SelectedTerritoryId != 131) return false;
+
+        var isHustingsAetheryte = tinyAetheryte.ID is 51 or 37;
+
+        // 14 == Hustings Strip and 73 == Merchant Strip
+        return AgentMap.Instance()->SelectedMapId switch
+        {
+            14 => isHustingsAetheryte,
+            73 => !isHustingsAetheryte,
+            _ => true
+        };
+    }
+
+    private static void ExecuteTeleport(IAetheryte targetAetheryte, uint activeId, AtkEventData* atkEventData)
+    {
+        if (activeId == 0 || targetAetheryte == null)
+        {
+            return;
+        }
+
+        if (activeId == targetAetheryte.ID)
+        {
+            Notify.Error("You are already here!");
+        }
+        else
+        {
+            if (targetAetheryte is TinyAetheryte tinyAetheryte)
+            {
+                if (tinyAetheryte.IsAetheryte)
+                {
+                    // This releases the mouse from the mouse down without processing anything else (ignoring the aetheryte click).
+                    // See case AtkEventType_MouseUp with the called function in Client::UI::AddonAreaMap_ReceiveEvent.
+                    // The value only has to be higher than 1, using an unused ButtonId in this context to be safe.
+                    atkEventData->MouseData.ButtonId = 50;
+                }
+
+                TaskAethernetTeleport.Enqueue(tinyAetheryte);
+            }
+            else
+            {
+                TaskAethernetTeleport.Enqueue(targetAetheryte.Name);
+            }
+        }
+    }
+
+    private static bool TryGetNearbyAetheryte<T>(IEnumerable<T> aetherytes, AddonAreaMap* addonAreaMap, string tooltipText, out IAetheryte nearbyAetheryte) where T : IAetheryte
+    {
+        nearbyAetheryte = null;
+
+        var aetherytesCollection = aetherytes as T[] ?? aetherytes.ToArray();
+        if (aetherytesCollection.Length == 0)
+        {
+            return false;
+        }
+
+        var agentMap = AgentMap.Instance();
+
+        var closest = aetherytesCollection
+            .Select(x =>
+            {
+                var mapPosition = MapUtil.WorldToMap(x.Position, -agentMap->SelectedOffsetX, -agentMap->SelectedOffsetY, (uint)agentMap->SelectedMapSizeFactor);
+                var delta = Vector2.Abs(mapPosition - addonAreaMap->HoveredCoords);
+                return (Aetheryte: x, ChebyshevDistance: MathF.Max(delta.X, delta.Y));
+            })
+            .MinBy(x => x.ChebyshevDistance);
+
+        if (closest.Aetheryte == null)
+        {
+            return false;
+        }
+
+        var zoomLevel = addonAreaMap->ZoomSlider->Value; // 0 to 7 (min to max)
+        var normalizedZoom = zoomLevel / 7.0f;
+
+        const float minZoomHitThreshold = 0.6f;
+        const float maxZoomHitThreshold = 0.2f;
+
+        // the hover coordinates are truncated, at max zoom level, this is a major issue without compensation
+        var hoverErrorCompensation = 0.1f / 7.0f * zoomLevel;
+
+        // linear interpolation
+        var baseHitThreshold = minZoomHitThreshold * (1.0f - normalizedZoom) + maxZoomHitThreshold * normalizedZoom;
+
+        var hitThreshold = baseHitThreshold / agentMap->SelectedMapSizeFactorFloat + hoverErrorCompensation;
+
+        if (!tooltipText.IsNullOrWhitespace())
+        {
+            // double the threshold when the tooltip shows the mouse is over an aetheryte
+            var exactMatch = aetherytesCollection.FirstOrDefault(x => x.Name == tooltipText);
+            if (exactMatch != null ||
+                IsGenericAetheryteToolTip(tooltipText))
+            {
+                hitThreshold *= 2;
+            }
+        }
+
+        // square hit detection, the game does a similar detection (although not exactly based on this)
+        if (closest.ChebyshevDistance <= hitThreshold)
+        {
+            nearbyAetheryte = closest.Aetheryte;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsMapTransitionTooltip(string tooltipText)
+    {
+        if (tooltipText.IsNullOrWhitespace()) return false;
+
+        return tooltipText == Lang.AdjoiningArea || tooltipText == Lang.ToUpperLevel || tooltipText == Lang.ToLowerLevel;
+    }
+
+    private static bool IsGenericAetheryteToolTip(string tooltipText)
+    {
+        if  (tooltipText.IsNullOrWhitespace()) return false;
+
+        return tooltipText == Lang.AethernetShardTooltip;
     }
 }

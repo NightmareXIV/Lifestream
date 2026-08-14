@@ -10,7 +10,6 @@ public unsafe class ZoneDetail
 {
     public List<CustomAetheryte> Aetherytes = [];
     public float MaxInteractionDistance = 4.6f;
-    public List<string> GenericAetheryteNames = [];
 
     public ZoneDetail(List<CustomAetheryte> aetherytes)
     {
@@ -21,17 +20,5 @@ public unsafe class ZoneDetail
     {
         Aetherytes = aetherytes;
         MaxInteractionDistance = maxInteractionDistance;
-    }
-
-    public ZoneDetail(List<CustomAetheryte> aetherytes, List<string> genericAetheryteNames) : this(aetherytes)
-    {
-        GenericAetheryteNames = genericAetheryteNames;
-    }
-
-    public ZoneDetail(List<CustomAetheryte> aetherytes, float maxInteractionDistance, List<string> genericAetheryteNames)
-    {
-        Aetherytes = aetherytes;
-        MaxInteractionDistance = maxInteractionDistance;
-        GenericAetheryteNames = genericAetheryteNames;
     }
 }

@@ -6,7 +6,6 @@ public struct CustomAetheryte : IAetheryte, IEquatable<CustomAetheryte>
     public uint TerritoryType { get; set; }
     public string Name { get; set; }
     public uint ID { get; set; }
-    public Vector2? MapPosition { get; set; } = null;
 
     public CustomAetheryte()
     {
@@ -20,15 +19,6 @@ public struct CustomAetheryte : IAetheryte, IEquatable<CustomAetheryte>
         ID = iD;
     }
 
-    public CustomAetheryte(Vector2 position, uint territoryType, string name, uint iD, Vector2 mapPosition)
-    {
-        Position = position;
-        TerritoryType = territoryType;
-        Name = name;
-        ID = iD;
-        MapPosition = mapPosition;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is CustomAetheryte aetheryte && Equals(aetheryte);
@@ -39,13 +29,12 @@ public struct CustomAetheryte : IAetheryte, IEquatable<CustomAetheryte>
         return Position.Equals(other.Position) &&
                TerritoryType == other.TerritoryType &&
                Name == other.Name &&
-               ID == other.ID &&
-               EqualityComparer<Vector2?>.Default.Equals(MapPosition, other.MapPosition);
+               ID == other.ID;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Position, TerritoryType, Name, ID, MapPosition);
+        return HashCode.Combine(Position, TerritoryType, Name, ID);
     }
 
     public static bool operator ==(CustomAetheryte left, CustomAetheryte right)

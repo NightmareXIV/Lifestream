@@ -43,65 +43,71 @@ public sealed class CustomAethernet
             new(new(114.3f, -107.4f), 886, GetPlaceName(3645), BaseFirmamentId+7), //The Risensong Quarter
         ], 4.56f),
         [732] = new([ //eureka anemos
-            new(new(-138.9f, 543.2f), 732, GetPlaceName(2415), BaseEurekaId), //Port Surgate (2415),  (0), 
-            new(new(-372.1f, -458.7f), 732, GetPlaceName(2429), BaseEurekaId+1), //Klauser's Peace (2421), Abandoned Laboratory (2429), 
-            new(new(435.5f, -48.1f), 732, GetPlaceName(2436), BaseEurekaId+2), //The Val River Swale (2419), Windtorn Cabin (2436), 
+            new(new(-138.9f, 543.2f), 732, GetPlaceName(2415), BaseEurekaId), //Port Surgate (2415),  (0),
+            new(new(-372.1f, -458.7f), 732, GetPlaceName(2429), BaseEurekaId+1), //Klauser's Peace (2421), Abandoned Laboratory (2429),
+            new(new(435.5f, -48.1f), 732, GetPlaceName(2436), BaseEurekaId+2), //The Val River Swale (2419), Windtorn Cabin (2436),
         ]),
         [763] = new([ //eureka pagos
-            new(new(-893.7f, 159.0f), 763, GetPlaceName(2463), BaseEurekaId+10), //Icepoint (2463),  (0), 
-            new(new(91.1f, 303.2f), 763, GetPlaceName(2474), BaseEurekaId+11), //Eureka Pagos (2462), Vlondette's Retreat (2474), 
-            new(new(-707.1f, -318.9f), 763, GetPlaceName(2472), BaseEurekaId+12), //Eureka Pagos (2462), Geothermal Studies (2472), 
-            new(new(346.0f, -289.7f), 763, GetPlaceName(2473), BaseEurekaId+13), //Eureka Pagos (2462), Gravitational Studies (2473), 
+            new(new(-893.7f, 159.0f), 763, GetPlaceName(2463), BaseEurekaId+10), //Icepoint (2463),  (0),
+            new(new(91.1f, 303.2f), 763, GetPlaceName(2474), BaseEurekaId+11), //Eureka Pagos (2462), Vlondette's Retreat (2474),
+            new(new(-707.1f, -318.9f), 763, GetPlaceName(2472), BaseEurekaId+12), //Eureka Pagos (2462), Geothermal Studies (2472),
+            new(new(346.0f, -289.7f), 763, GetPlaceName(2473), BaseEurekaId+13), //Eureka Pagos (2462), Gravitational Studies (2473),
             ]),
         [795] = new([ //eureka pyros
-            new(new(-253.5f, 146.8f), 795, GetPlaceName(2531), BaseEurekaId+20), //Northpoint (2531),  (0), 
-            new(new(125.7f, 795.3f), 795, GetPlaceName(2540), BaseEurekaId+21), //Southwestern Ice Needles (2534), The Dragon Star Observatory (2540), 
-            new(new(127.9f, -196.1f), 795, GetPlaceName(2541), BaseEurekaId+22), //Bonfire (2536), The Firing Chamber (2541), 
-            new(new(-443.4f, -622.7f), 795, GetPlaceName(2542), BaseEurekaId+23), //West Flamerock (2537), Carbonatite Quarry (2542), 
+            new(new(-253.5f, 146.8f), 795, GetPlaceName(2531), BaseEurekaId+20), //Northpoint (2531),  (0),
+            new(new(125.7f, 795.3f), 795, GetPlaceName(2540), BaseEurekaId+21), //Southwestern Ice Needles (2534), The Dragon Star Observatory (2540),
+            new(new(127.9f, -196.1f), 795, GetPlaceName(2541), BaseEurekaId+22), //Bonfire (2536), The Firing Chamber (2541),
+            new(new(-443.4f, -622.7f), 795, GetPlaceName(2542), BaseEurekaId+23), //West Flamerock (2537), Carbonatite Quarry (2542),
             ]),
         [827] = new([ //eureka hydatos
-            new(new(-61.7f, -875.6f), 827, GetPlaceName(2876), BaseEurekaId+30), //Central Point (2876),  (0), 
-            new(new(-587.3f, -148.4f), 827, GetPlaceName(2891), BaseEurekaId+31), //The West Val River Bank (2877), Unverified Research (2891), 
+            new(new(-61.7f, -875.6f), 827, GetPlaceName(2876), BaseEurekaId+30), //Central Point (2876),  (0),
+            new(new(-587.3f, -148.4f), 827, GetPlaceName(2891), BaseEurekaId+31), //The West Val River Bank (2877), Unverified Research (2891),
             new(new(781.1f, -417.5f), 827, GetPlaceName(2892), BaseEurekaId+32), //The East Val River Bank (2879), Dormitory (2892),
             ]),
         [1252] = new([
-            new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId++, new(38.0f, 7.5f)), //Southdown Heath (4934), Expedition Base Camp (4944),
-            new(new(-173.0f, -611.1f), 1252, GetPlaceName(4928), BaseOccultId++, new(18f, 9.2f)), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
-            new(new(-358.1f, -121.0f), 1252, GetPlaceName(4929), BaseOccultId++, new(14.2f, 19f)), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
-            new(new(306.9f, 305.7f), 1252, GetPlaceName(4930), BaseOccultId++, new(27.6f, 27.5f)), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
-            new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId++, new(13.7f, 27f)), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
-            ], [Lang.AethernetShardTooltipPlaceholder]),
+            new(new(830.7f, -696.0f), 1252, GetPlaceName(4944), BaseOccultId++), //Southdown Heath (4934), Expedition Base Camp (4944),
+            new(new(-173.0f, -611.1f), 1252, GetPlaceName(4928), BaseOccultId++), //4936	The Wanderer's Haven	1	Wanderer's Haven	0	0	1	0	0		0	0	0
+            new(new(-358.1f, -121.0f), 1252, GetPlaceName(4929), BaseOccultId++), //4939	Crystallized Caverns	1	crystallized caverns	0	0	1	0	0		0	0	0
+            new(new(306.9f, 305.7f), 1252, GetPlaceName(4930), BaseOccultId++), //4940	Eldergrowth	1	Eldergrowth	0	0	1	0	0		0	0	0
+            new(new(-384.1f, 281.4f), 1252, GetPlaceName(4947), BaseOccultId++), //4947	Stonemarsh	1	Stonemarsh	0	0	1	0	1		0	0	0
+            ]),
         [1346] = new([
-            new(new(880.0f, 880.1f), 1346, GetPlaceName(5571), BaseOccultId++, new(39.0f, 39.1f)),
-            new(new(451.7f, 528.8f), 1346, GetPlaceName(5576), BaseOccultId++, new(30.5f, 32.1f)),
-            new(new(357.7f, -554.3f), 1346, GetPlaceName(5572), BaseOccultId++, new(28.6f, 10.4f)),
-            new(new(-547.2f, 594.4f), 1346, GetPlaceName(5573), BaseOccultId++, new(10.5f, 33.3f)),
-            new(new(-388.6f, -440.5f), 1346, GetPlaceName(5574), BaseOccultId++, new(13.6f, 12.7f)),
-            new(new(-13.7f, -40.5f), 1346, GetPlaceName(5575), BaseOccultId++, new(21.2f, 20.7f)),
-            ], [Lang.AethernetShardTooltipPlaceholder]),
+            new(new(880.0f, 880.1f), 1346, GetPlaceName(5571), BaseOccultId++),
+            new(new(451.7f, 528.8f), 1346, GetPlaceName(5576), BaseOccultId++),
+            new(new(357.7f, -554.3f), 1346, GetPlaceName(5572), BaseOccultId++),
+            new(new(-547.2f, 594.4f), 1346, GetPlaceName(5573), BaseOccultId++),
+            new(new(-388.6f, -440.5f), 1346, GetPlaceName(5574), BaseOccultId++),
+            new(new(-13.7f, -40.5f), 1346, GetPlaceName(5575), BaseOccultId++),
+            ]),
         [1237] = new([
-            new(new(-3.8f, -32.2f), 1237, GetPlaceName(WKSAetheryte.Get(1).Name.RowId), BaseMoonId++), //The Cosmoor (5220), Moongate Hub (5225), 
-            new(new(-540.0f, -526.8f), 1237, GetPlaceName(WKSAetheryte.Get(2).Name.RowId), BaseMoonId++), //Calabash Cove (5221),  (0), 
-            new(new(427.2f, 497.5f), 1237, GetPlaceName(WKSAetheryte.Get(3).Name.RowId), BaseMoonId++), //Weddingway's Bower (5222),  (0), 
-            new(new(-619.6f, 399.8f), 1237, GetPlaceName(WKSAetheryte.Get(4).Name.RowId), BaseMoonId++), //Gleamslope (5223),  (0), 
-            new(new(629.8f, -572.8f), 1237, GetPlaceName(WKSAetheryte.Get(5).Name.RowId), BaseMoonId++), //Lunar Nadir (5224),  (0), 
+            new(new(-3.8f, -32.2f), 1237, GetPlaceName(WKSAetheryte.Get(1).Name.RowId), BaseMoonId++), //The Cosmoor (5220), Moongate Hub (5225),
+            new(new(-540.0f, -526.8f), 1237, GetPlaceName(WKSAetheryte.Get(2).Name.RowId), BaseMoonId++), //Calabash Cove (5221),  (0),
+            new(new(427.2f, 497.5f), 1237, GetPlaceName(WKSAetheryte.Get(3).Name.RowId), BaseMoonId++), //Weddingway's Bower (5222),  (0),
+            new(new(-619.6f, 399.8f), 1237, GetPlaceName(WKSAetheryte.Get(4).Name.RowId), BaseMoonId++), //Gleamslope (5223),  (0),
+            new(new(629.8f, -572.8f), 1237, GetPlaceName(WKSAetheryte.Get(5).Name.RowId), BaseMoonId++), //Lunar Nadir (5224),  (0),
             ]),
         [1291] = new([
-            new(new(336.1f, -381.8f), 1291, GetPlaceName(WKSAetheryte.Get(6).Name.RowId), BaseMoonId++), //Glassblown Grotto (5302), Glassblowers' Beacon (5316), 
-            new(new(-150.8f, 314.4f), 1291, GetPlaceName(WKSAetheryte.Get(7).Name.RowId), BaseMoonId++), //Iridized Rise (5306),  (0), 
-            new(new(-640.1f, -627.0f), 1291, GetPlaceName(WKSAetheryte.Get(8).Name.RowId), BaseMoonId++), //The Saltpeter Shore (5305),  (0), 
-            new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Name.RowId), BaseMoonId++), //Capsule Chasm (5307),  (0), 
-            new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Name.RowId), BaseMoonId++), //Fusingway Vent (5308),  (0), 
+            new(new(336.1f, -381.8f), 1291, GetPlaceName(WKSAetheryte.Get(6).Name.RowId), BaseMoonId++), //Glassblown Grotto (5302), Glassblowers' Beacon (5316),
+            new(new(-150.8f, 314.4f), 1291, GetPlaceName(WKSAetheryte.Get(7).Name.RowId), BaseMoonId++), //Iridized Rise (5306),  (0),
+            new(new(-640.1f, -627.0f), 1291, GetPlaceName(WKSAetheryte.Get(8).Name.RowId), BaseMoonId++), //The Saltpeter Shore (5305),  (0),
+            new(new(672.9f, 422.6f), 1291, GetPlaceName(WKSAetheryte.Get(9).Name.RowId), BaseMoonId++), //Capsule Chasm (5307),  (0),
+            new(new(-590.9f, 722.2f), 1291, GetPlaceName(WKSAetheryte.Get(10).Name.RowId), BaseMoonId++), //Fusingway Vent (5308),  (0),
             ]),
         [1310] = new([
-            new(new(-164.1f, 83.5f), 1310, GetPlaceName(WKSAetheryte.Get(11).Name.RowId), BaseMoonId++), //Megalithopolis (5407), Terra Firma (5420), 
-            new(new(-141.2f, -591.2f), 1310, GetPlaceName(WKSAetheryte.Get(12).Name.RowId), BaseMoonId++), //The Regolift (5409),  (0), 
-            
-            new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Name.RowId), BaseMoonId++), //Cape Geras (5410),  (0), 
-            new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Name.RowId), BaseMoonId++), //Shadefleet (5412),  (0), 
-            new(new(-124.6f, -801.5f), 1310, GetPlaceName(WKSAetheryte.Get(15).Name.RowId), BaseMoonId++), //Emerald Echoes (5413), Desert Burrow (5424, 5460), 
+            new(new(-164.1f, 83.5f), 1310, GetPlaceName(WKSAetheryte.Get(11).Name.RowId), BaseMoonId++), //Megalithopolis (5407), Terra Firma (5420),
+            new(new(-141.2f, -591.2f), 1310, GetPlaceName(WKSAetheryte.Get(12).Name.RowId), BaseMoonId++), //The Regolift (5409),  (0),
 
-            ])
+            new(new(-454.2f, 760.8f), 1310, GetPlaceName(WKSAetheryte.Get(13).Name.RowId), BaseMoonId++), //Cape Geras (5410),  (0),
+            new(new(733.8f, -101.0f), 1310, GetPlaceName(WKSAetheryte.Get(14).Name.RowId), BaseMoonId++), //Shadefleet (5412),  (0),
+            new(new(-124.6f, -801.5f), 1310, GetPlaceName(WKSAetheryte.Get(15).Name.RowId), BaseMoonId++), //Emerald Echoes (5413), Desert Burrow (5424, 5460),
+            ]),
+        [1319] = new([
+            new(new(259.8f, 356.3f), 1319, GetPlaceName(WKSAetheryte.Get(16).Name.RowId), BaseMoonId++), //The Timberlodge
+            new(new(-226.4f, -560.4f), 1319, GetPlaceName(WKSAetheryte.Get(17).Name.RowId), BaseMoonId++), //Full Bloom Gardens
+            new(new(-242.7f, 321.2f), 1319, GetPlaceName(WKSAetheryte.Get(18).Name.RowId), BaseMoonId++), //Pileus Pergola
+            new(new(-599.9f, -375.1f), 1319, GetPlaceName(WKSAetheryte.Get(19).Name.RowId), BaseMoonId++), //Sylvan Stacks
+            new(new(-674.7f, 621.6f), 1319, GetPlaceName(WKSAetheryte.Get(20).Name.RowId), BaseMoonId++), //Stratostone Stand
+        ])
     };
 
     public Dictionary<uint, string> CustomAetheryteNames

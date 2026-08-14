@@ -957,7 +957,8 @@ internal static unsafe partial class Utils
                         EObjName.Get(2000151).Singular.GetText(),
                         EObjName.Get(2014665).Singular.GetText(),
                         EObjName.Get(2014664).Singular.GetText(),        // KR: Occult Aetheryte in Occult Crescent
-                        EObjName.Get(2003395).Singular.GetText()         // KR: Aethernet Shard in housing area
+                        EObjName.Get(2003395).Singular.GetText(),        // KR: Aethernet Shard in housing area
+                        EObjName.Get(2011160).Singular.GetText()         // Bozjan Aetheryte
                     ))
                     {
                         ret.Add(x.RowId);
@@ -973,7 +974,8 @@ internal static unsafe partial class Utils
                             EObjName.Get(2000151, ClientLanguage.English).Singular.GetText(),
                             EObjName.Get(2014665, ClientLanguage.English).Singular.GetText(),
                             EObjName.Get(2014664, ClientLanguage.English).Singular.GetText(),        // KR: Occult Aetheryte in Occult Crescent
-                            EObjName.Get(2003395, ClientLanguage.English).Singular.GetText()         // KR: Aethernet Shard in housing area
+                            EObjName.Get(2003395, ClientLanguage.English).Singular.GetText(),         // KR: Aethernet Shard in housing area
+                            EObjName.Get(2011160, ClientLanguage.English).Singular.GetText()         // Bozjan Aetheryte
                         ))
                         {
                             ret.Add(x.RowId);
