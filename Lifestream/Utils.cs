@@ -1957,4 +1957,14 @@ internal static unsafe partial class Utils
     {
         C.ButtonWidthArray = [C.ButtonWidth, C.ButtonWidth, C.ButtonWidth];
     }
+
+    public static bool IsLoggingOutInstant(uint territoryType)
+    {
+        if(Svc.Data.GetExcelSheet<TerritoryType>().TryGetRow(territoryType, out var sheet))
+        {
+            return sheet.TerritoryIntendedUse.Value.DisableLogoutTimer;
+        }
+
+        return false;
+    }
 }
