@@ -93,6 +93,7 @@ public class SplatoonManager
                 color = ImGuiColors.DalamudRed.ToUint(),
                 overlayVOffset = 1f,
                 overlayText = overlay,
+                overlayFScale = 3f,
                 Filled = false,
             };
             Cache.WaymarkPointCache.Add(ret);
