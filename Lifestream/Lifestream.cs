@@ -514,7 +514,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskRemoveAfkStatus.Enqueue();
                 if(type != DCVType.Unknown)
                 {
-                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || ExcelTerritoryHelper.IsSanctuary(P.Territory)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || Utils.IsLoggingOutInstant(P.Territory)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                     {
                         TaskTpToAethernetDestination.Enqueue(gateway.Value.AdjustGateway());
                     }
