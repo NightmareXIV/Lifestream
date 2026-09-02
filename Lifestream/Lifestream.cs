@@ -514,10 +514,23 @@ public unsafe class Lifestream : IDalamudPlugin
                 TaskRemoveAfkStatus.Enqueue();
                 if(type != DCVType.Unknown)
                 {
-                    if(Config.TeleportToGatewayBeforeLogout && !(TerritoryInfo.Instance()->InSanctuary || Utils.IsLoggingOutInstant(P.Territory)) && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
+                    if(Config.TeleportToGatewayBeforeLogout && !(currentDC == homeDC && Player.HomeWorld != Player.CurrentWorld))
                     {
-                        TaskTpToAethernetDestination.Enqueue(gateway.Value.AdjustGateway());
+                        // wait to be able to teleport to know whether the teleport to the gateway is actually necessary
+                        TaskManager.Enqueue(() => TeleportService.CanTeleport(out _));
+
+                        var finalGateway = gateway.Value.AdjustGateway();
+                        TaskManager.Enqueue(() =>
+                        {
+                            if (TerritoryInfo.Instance()->InSanctuary || Utils.IsLoggingOutInstant(P.Territory))
+                            {
+                                return;
+                            }
+
+                            TaskTpToAethernetDestination.Insert(finalGateway);
+                        });
                     }
+
                     if(Config.LeavePartyBeforeLogout)
                     {
                         if(Svc.Party.Length > 1 || Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance])
