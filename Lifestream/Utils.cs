@@ -1809,6 +1809,18 @@ internal static unsafe partial class Utils
         return null;
     }
 
+    internal static AtkUnitBase* GetLogOutYesno()
+    {
+        var addon = GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>().GetRow(115).Text.GetText());
+        if (addon == null)
+        {
+            // version when the local player is currently queueing for a duty
+            addon = GetSpecificYesno(Svc.Data.GetExcelSheet<Addon>().GetRow(17531).Text.GetText());
+        }
+
+        return addon;
+    }
+
     internal static List<string> GetAvailableWorldDestinations()
     {
         var ret = new List<string>();

@@ -79,7 +79,8 @@ internal static unsafe class DCChange
         {
             return true;
         }
-        var addon = Utils.GetSpecificYesno(Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Addon>()?.GetRow(115).Text.ToDalamudString().GetText());
+
+        var addon = Utils.GetLogOutYesno();
         if(addon == null || !IsAddonReady(addon))
         {
             DCRethrottle();
