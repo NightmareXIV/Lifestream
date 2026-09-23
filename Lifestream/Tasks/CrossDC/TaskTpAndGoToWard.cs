@@ -191,7 +191,7 @@ public static unsafe class TaskTpAndGoToWard
 
     public static unsafe bool ConfirmApartmentEnterYesno()
     {
-        var addon = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.EnterApartmenr);
+        var addon = (AddonSelectYesno*)Utils.GetSpecificYesno(text => Lang.EnterApartmenr.Matches(text));
         if(addon != null && addon->YesButton->IsEnabled)
         {
             if(EzThrottler.Throttle($"ConfirmApartmentEnter", 5000))

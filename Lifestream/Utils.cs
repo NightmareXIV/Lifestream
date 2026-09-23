@@ -1778,7 +1778,11 @@ internal static unsafe partial class Utils
 
     internal static AtkUnitBase* GetSpecificYesno(params string[] s) => GetSpecificYesno(false, s);
 
-    internal static AtkUnitBase* GetSpecificYesno(bool contains, params string[] s)
+    internal static AtkUnitBase* GetSpecificYesno(bool contains, params string[] s) => GetSpecificYesno(text =>
+        contains ? text.Replace(" ", "").ContainsAny(s.Select(x => x.Replace(" ", "")))
+        : text.Replace(" ", "").EqualsAny(s.Select(x => x.Replace(" ", ""))));
+
+    internal static AtkUnitBase* GetSpecificYesno(Func<string, bool> matches)
     {
         for(var i = 1; i < 100; i++)
         {
@@ -1789,13 +1793,10 @@ internal static unsafe partial class Utils
                 if(IsAddonReady(addon))
                 {
                     var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
-                    var text = GenericHelpers.ReadSeString(&textNode->NodeText).GetText().Replace(" ", "");
-                    if(contains ?
-                        text.ContainsAny(s.Select(x => x.Replace(" ", "")))
-                        : text.EqualsAny(s.Select(x => x.Replace(" ", "")))
-                        )
+                    var text = GenericHelpers.ReadSeString(&textNode->NodeText).GetText();
+                    if(matches(text))
                     {
-                        PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
+                        PluginLog.Verbose($"SelectYesno addon {i}");
                         return addon;
                     }
                 }

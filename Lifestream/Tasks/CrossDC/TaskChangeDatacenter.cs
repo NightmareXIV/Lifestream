@@ -41,7 +41,7 @@ internal static class TaskChangeDatacenter
     {
         if(TryGetAddonMaster<AddonMaster.SelectOk>(out var m) && m.IsAddonReady)
         {
-            if(m.Text.ContainsAny(Lang.UnableToSelectWorldForDcv) && EzThrottler.Throttle("RetryVisitOnFaulire"))
+            if(Lang.UnableToSelectWorldForDcv.Matches(m.Text) && EzThrottler.Throttle("RetryVisitOnFaulire"))
             {
                 m.Ok();
                 P.TaskManager.Abort();

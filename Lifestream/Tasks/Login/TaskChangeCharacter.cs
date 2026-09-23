@@ -295,7 +295,7 @@ public static unsafe class TaskChangeCharacter
         }
         if(TryGetAddonMaster<AddonMaster.SelectYesno>(out var m) && m.IsAddonReady)
         {
-            if(m.Text.ContainsAny(StringComparison.OrdinalIgnoreCase, Lang.LogInPartialText))
+            if(Lang.LogInPartialText.Matches(m.Text))
             {
                 if(Utils.GenericThrottle && EzThrottler.Throttle("ConfirmLogin"))
                 {

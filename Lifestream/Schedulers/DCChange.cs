@@ -54,7 +54,7 @@ internal static unsafe class DCChange
             }
         }
         {
-            var addon = Utils.GetSpecificYesno(true, Lang.LogInPartialText);
+            var addon = Utils.GetSpecificYesno(text => Lang.LogInPartialText.Matches(text));
             if(addon == null || !IsAddonReady(addon))
             {
                 DCRethrottle();

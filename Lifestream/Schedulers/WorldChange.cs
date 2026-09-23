@@ -78,7 +78,7 @@ internal static unsafe class WorldChange
             TaskChangeWorld.WVErrorDetected = false;
             return true;
         }
-        var x = (AddonSelectYesno*)Utils.GetSpecificYesno(true, Lang.ConfirmWorldVisit);
+        var x = (AddonSelectYesno*)Utils.GetSpecificYesno(text => Lang.ConfirmWorldVisit.Matches(text));
         if(x != null)
         {
             if(x->YesButton->IsEnabled && EzThrottler.Throttle("ConfirmWorldVisit"))
