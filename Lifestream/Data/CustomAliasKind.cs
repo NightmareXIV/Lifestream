@@ -1,5 +1,25 @@
 ﻿namespace Lifestream.Data;
+
 public enum CustomAliasKind
 {
-    Teleport_to_Aetheryte, Move_to_point, Navmesh_to_point, Change_world, Use_Aethernet, Circular_movement, Interact, Mount_Up, Select_Yes, Select_List_Option, Confirm_Contents_Finder, Wait_for_Transition, Return_to_Home_World, Close_UI
+    Teleport_to_Aetheryte,
+    Move_to_point,
+    Navmesh_to_point,
+    Change_world,
+    Use_Aethernet,
+    Circular_movement,
+    Interact,
+    Mount_Up,
+    Select_Yes,
+    Select_List_Option,
+    Confirm_Contents_Finder,
+    Wait_for_Transition,
+    Return_to_Home_World,
+    Close_UI,
+    Go_to_House,
+    Go_to_Apartment,
+    Use_Return,
+    Wait,
+    Use_Plugin_Command,
+    Send_Message,
 }

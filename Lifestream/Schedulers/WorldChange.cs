@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation;
+using ECommons.ExcelServices;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
@@ -10,6 +11,7 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
 using Lifestream.Tasks.CrossWorld;
+using Lumina.Excel.Sheets;
 using Callback = ECommons.Automation.Callback;
 
 namespace Lifestream.Schedulers;
@@ -18,8 +20,16 @@ internal static unsafe class WorldChange
 {
     internal static bool? TargetValidAetheryte()
     {
-        if(!Player.Available) return false;
-        if(IsOccupied()) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
+        if(IsOccupied())
+        {
+            return false;
+        }
+
         var a = Utils.GetValidAetheryte();
         if(a != null)
         {
@@ -41,10 +51,26 @@ internal static unsafe class WorldChange
 
     internal static bool? InteractWithTargetedAetheryte()
     {
-        if(!Player.Available) return false;
-        if(Player.IsAnimationLocked) return false;
-        if(!Utils.DismountIfNeeded()) return false;
-        if(IsOccupied()) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
+        if(Player.IsAnimationLocked)
+        {
+            return false;
+        }
+
+        if(!Utils.DismountIfNeeded())
+        {
+            return false;
+        }
+
+        if(IsOccupied())
+        {
+            return false;
+        }
+
         var a = Utils.GetValidAetheryte();
         if(a != null && Svc.Targets.Target?.Address == a.Address)
         {
@@ -59,19 +85,31 @@ internal static unsafe class WorldChange
 
     internal static bool? SelectAethernet()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         return Utils.TrySelectSpecificEntry(Lang.Aethernet, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? SelectVisitAnotherWorld()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         return Utils.TrySelectSpecificEntry(Lang.VisitAnotherWorld, () => EzThrottler.Throttle("SelectString"));
     }
 
     internal static bool? ConfirmWorldVisit(string targetWorld)
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(TaskChangeWorld.WVErrorDetected)
         {
             P.TaskManager.Insert(TaskChangeWorld.CloseWorldTravelSelectAddon);
@@ -92,17 +130,36 @@ internal static unsafe class WorldChange
 
     internal static bool? SelectWorldToVisit(string world)
     {
-        if(!Player.Available) return false;
-        var worlds = Utils.GetAvailableWorldDestinations();
-        var index = Array.IndexOf([..worlds], world);
-        if(index != -1)
+        if(!Player.Available)
         {
-            if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+            return false;
+        }
+
+        var worlds = Utils.GetAvailableWorldDestinations(out var dcIndex);
+        var index = Array.IndexOf([.. worlds], world);
+        if(TryGetAddonByName<AtkUnitBase>("WorldTravelSelect", out var addon) && IsAddonReady(addon))
+        {
+            if(index != -1)
             {
                 if(EzThrottler.Throttle("SelectWorldToVisit", 1000))
                 {
                     Callback.Fire(addon, true, 0, index + 2);
                     return true;
+                }
+            }
+            else
+            {
+                if(true)
+                {
+                    var worldData = ExcelWorldHelper.Get(world);
+                    if(worldData != null)
+                    {
+                        var value = dcIndex.IndexOf(WorldDCGroupType.Get(worldData.Value.Unknown0).Name.ToString());
+                        if(value != -1 && EzThrottler.Throttle("ChangeDCWV", 100))
+                        {
+                            Callback.Fire(addon, true, 1, value);
+                        }
+                    }
                 }
             }
         }
@@ -166,7 +223,11 @@ internal static unsafe class WorldChange
 
     internal static bool? TeleportToAethernetDestination(string name)
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(TryGetAddonByName<AtkUnitBase>("TelepotTown", out var telep) && IsAddonReady(telep))
         {
             var reader = new ReaderTelepotTown(telep);
@@ -206,7 +267,11 @@ internal static unsafe class WorldChange
 
     internal static bool? ExecuteTPToAethernetDestination(uint destination, uint subIndex = 0)
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(AgentMap.Instance()->IsPlayerMoving == false && !IsOccupied() && !Player.Object.IsCasting && EzThrottler.Throttle("ExecTP", 1000))
         {
             return S.TeleportService.TeleportToAetheryte(destination, subIndex);
@@ -217,10 +282,13 @@ internal static unsafe class WorldChange
 
     internal static bool? WaitUntilNotBusy()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         return S.Data.DataStore.Territories.Contains(P.Territory) && Player.Object.CastInfo.ActionId == 0 && !IsOccupied() && !Utils.IsDisallowedToUseAethernet() && Player.Object.IsTargetable;
     }
-
 
     internal static bool? TargetReachableWorldChangeAetheryte()
     {
@@ -234,9 +302,17 @@ internal static unsafe class WorldChange
 
     internal static bool? TargetReachableAetheryte(Func<bool, IGameObject> aetheryteFunc)
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         var a = aetheryteFunc(false);
-        if(a.IsTarget()) return true;
+        if(a.IsTarget())
+        {
+            return true;
+        }
+
         if(a != null)
         {
             if(!a.IsTarget() && EzThrottler.Throttle("TargetReachableAetheryte", 200))
@@ -250,7 +326,11 @@ internal static unsafe class WorldChange
 
     internal static bool? LockOn()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(Svc.Targets.Target != null && EzThrottler.Throttle("LockOn", 200))
         {
             Chat.SendMessage("/lockon");
@@ -261,7 +341,11 @@ internal static unsafe class WorldChange
 
     internal static bool? EnableAutomove()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(EzThrottler.Throttle("EnableAutomove", 200))
         {
             Chat.SendMessage("/automove on");
@@ -272,13 +356,21 @@ internal static unsafe class WorldChange
 
     internal static bool? WaitUntilMasterAetheryteExists()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         return P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsAetheryte;
     }
 
     internal static bool? DisableAutomove()
     {
-        if(!Player.Available) return false;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
         if(EzThrottler.Throttle("DisableAutomove", 200))
         {
             Chat.SendMessage("/automove off");
@@ -289,8 +381,16 @@ internal static unsafe class WorldChange
 
     internal static bool? LeaveParty()
     {
-        if(!Player.Available) return false;
-        if(Svc.Party.Length < 2) return true;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
+        if(Svc.Party.Length < 2)
+        {
+            return true;
+        }
+
         if(EzThrottler.Throttle("LeaveParty", 200))
         {
             Chat.SendMessage("/leave");
@@ -303,7 +403,10 @@ internal static unsafe class WorldChange
     {
         if(TryGetAddonMaster<AddonMaster.LookingForGroupDetail>(out var m))
         {
-            if(m.IsAddonReady && Utils.GenericThrottle) Callback.Fire(m.Base, true, -1);
+            if(m.IsAddonReady && Utils.GenericThrottle)
+            {
+                Callback.Fire(m.Base, true, -1);
+            }
         }
         else
         {
@@ -345,8 +448,16 @@ internal static unsafe class WorldChange
 
     internal static bool? LeaveAnyParty()
     {
-        if(!Player.Available) return false;
-        if(Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance]) return true;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
+        if(Svc.Party.Length < 2 && !Svc.Condition[ConditionFlag.ParticipatingInCrossWorldPartyOrAlliance])
+        {
+            return true;
+        }
+
         if(EzThrottler.Throttle("LeaveParty", 200))
         {
             Chat.SendMessage("/leave");
@@ -357,8 +468,16 @@ internal static unsafe class WorldChange
 
     internal static bool? ConfirmLeaveParty()
     {
-        if(!Player.Available) return false;
-        if(Svc.Party.Length < 2) return true;
+        if(!Player.Available)
+        {
+            return false;
+        }
+
+        if(Svc.Party.Length < 2)
+        {
+            return true;
+        }
+
         var x = (AddonSelectYesno*)Utils.GetSpecificYesno();
         if(x != null)
         {

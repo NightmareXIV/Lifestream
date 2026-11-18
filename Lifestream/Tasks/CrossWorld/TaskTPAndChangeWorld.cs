@@ -9,45 +9,47 @@ internal static class TaskTPAndChangeWorld
 {
     internal static void Enqueue(string world, WorldChangeAetheryte gateway, bool insert)
     {
-        P.TaskManager.BeginStack();
-        if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
-        P.UpdateAetherytes();
-        if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
+        void action()
         {
-            TaskChangeWorld.Enqueue(world);
-        }
-        else
-        {
-            if(Utils.GetReachableWorldChangeAetheryte(!C.WalkToAetheryte) == null)
+            if(C.WaitForScreenReady) P.TaskManager.Enqueue(Utils.WaitForScreen);
+            P.UpdateAetherytes();
+            if(P.ActiveAetheryte != null && P.ActiveAetheryte.Value.IsWorldChangeAetheryte())
             {
-                TaskTpToAethernetDestination.Enqueue(gateway);
+                TaskChangeWorld.Enqueue(world);
             }
-            P.TaskManager.EnqueueTask(new(() =>
+            else
             {
-                P.UpdateAetherytes();
-                if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
+                if(Utils.GetReachableWorldChangeAetheryte(!C.WalkToAetheryte) == null)
                 {
-                    P.TaskManager.InsertMulti(
-                        new FrameDelayTask(10),
-                        new(WorldChange.TargetReachableWorldChangeAetheryte),
-                        new(WorldChange.LockOn),
-                        new(WorldChange.EnableAutomove),
-                        new(WorldChange.WaitUntilMasterAetheryteExists),
-                        new(WorldChange.DisableAutomove)
-                        );
+                    TaskTpToAethernetDestination.Enqueue(gateway);
                 }
-            }, "ConditionalLockonTask"));
-            P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
-            P.TaskManager.EnqueueDelay(10, true);
-            TaskChangeWorld.Enqueue(world);
+                P.TaskManager.EnqueueTask(new(() =>
+                {
+                    P.UpdateAetherytes();
+                    if((P.ActiveAetheryte == null || !P.ActiveAetheryte.Value.IsWorldChangeAetheryte()) && Utils.GetReachableWorldChangeAetheryte() != null)
+                    {
+                        P.TaskManager.InsertMulti(
+                            new FrameDelayTask(10),
+                            new(WorldChange.TargetReachableWorldChangeAetheryte),
+                            new(WorldChange.LockOn),
+                            new(WorldChange.EnableAutomove),
+                            new(WorldChange.WaitUntilMasterAetheryteExists),
+                            new(WorldChange.DisableAutomove)
+                            );
+                    }
+                }, "ConditionalLockonTask"));
+                P.TaskManager.Enqueue(WorldChange.WaitUntilMasterAetheryteExists);
+                P.TaskManager.EnqueueDelay(10, true);
+                TaskChangeWorld.Enqueue(world);
+            }
         }
         if(insert)
         {
-            P.TaskManager.InsertStack();
+            P.TaskManager.InsertStack($"{nameof(TaskTPAndChangeWorld)}: {nameof(Enqueue)}", action);
         }
         else
         {
-            P.TaskManager.EnqueueStack();
+            P.TaskManager.EnqueueStack($"{nameof(TaskTPAndChangeWorld)}: {nameof(Enqueue)}", action);
         }
     }
 }

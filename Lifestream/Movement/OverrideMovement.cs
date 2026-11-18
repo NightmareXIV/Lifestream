@@ -35,7 +35,7 @@ public unsafe class OverrideMovement : IDisposable
     // true if player (or some other plugin) is pressing keys
     public bool UserInput { get; private set; }
 
-    private bool _legacyMode;
+    public static bool LegacyMode => Service.GameConfig.UiControl.TryGetUInt("MoveMode", out var mode) && mode == 1;
 
     private delegate bool RMIWalkIsInputEnabled(void* self);
     private RMIWalkIsInputEnabled _rmiWalkIsInputEnabled1;
@@ -61,13 +61,10 @@ public unsafe class OverrideMovement : IDisposable
         Service.Hook.InitializeFromAttributes(this);
         Service.Log.Information($"RMIWalk address: 0x{_rmiWalkHook.Address:X}");
         Service.Log.Information($"RMIFly address: 0x{_rmiFlyHook.Address:X}");
-        Service.GameConfig.UiControlChanged += OnConfigChanged;
-        UpdateLegacyMode();
     }
 
     public void Dispose()
     {
-        Service.GameConfig.UiControlChanged -= OnConfigChanged;
         _rmiWalkHook.Dispose();
         _rmiFlyHook.Dispose();
     }
@@ -114,16 +111,9 @@ public unsafe class OverrideMovement : IDisposable
         var dirH = Angle.FromDirectionXZ(dist);
         var dirV = allowVertical ? Angle.FromDirection(new(dist.Y, new Vector2(dist.X, dist.Z).Length())) : default;
 
-        var refDir = _legacyMode
+        var refDir = (LegacyMode && !Utils.IsCameraFirstPerson())
             ? ((CameraEx*)CameraManager.Instance()->GetActiveCamera())->DirH.Radians() + 180.Degrees()
             : player.Rotation.Radians();
         return (dirH - refDir, dirV);
-    }
-
-    private void OnConfigChanged(object? sender, ConfigChangeEvent evt) => UpdateLegacyMode();
-    private void UpdateLegacyMode()
-    {
-        _legacyMode = Service.GameConfig.UiControl.TryGetUInt("MoveMode", out var mode) && mode == 1;
-        Service.Log.Verbose($"Legacy mode is now {(_legacyMode ? "enabled" : "disabled")}");
     }
 }

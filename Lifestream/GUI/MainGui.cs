@@ -1,10 +1,32 @@
 ﻿using ECommons.Funding;
+using ECommons.SimpleGui;
 
 namespace Lifestream.GUI;
 
-internal static unsafe class MainGui
+internal class MainGui : ConfigWindow
 {
-    internal static void Draw()
+    private TitleBarButton CensorButton;
+    public MainGui()
+    {
+        CensorButton = new()
+        {
+            Icon = !C.CensorConfig.Enabled ? FontAwesomeIcon.Eye : FontAwesomeIcon.EyeSlash,
+            Click = x =>
+            {
+                if(x == ImGuiMouseButton.Left)
+                {
+                    C.CensorConfig.Enabled = !C.CensorConfig.Enabled;
+                }
+
+                CensorButton.Icon = !C.CensorConfig.Enabled ? FontAwesomeIcon.Eye : FontAwesomeIcon.EyeSlash;
+            },
+            IconOffset = new(1, 1),
+            ShowTooltip = () => ImGuiEx.Tooltip("Censor character names.")
+        };
+        TitleBarButtons.Add(CensorButton);
+    }
+
+    public override void Draw()
     {
         PatreonBanner.DrawRight();
         ImGuiEx.EzTabBar("LifestreamTabs", PatreonBanner.Text,

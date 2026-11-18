@@ -26,7 +26,8 @@ public static unsafe class TaskTpAndGoToWard
     /// <param name="plot">Starts with 0</param>
     /// <param name="isApartment"></param>
     /// <param name="isApartmentSubdivision"></param>
-    public static void Enqueue(string world, ResidentialAetheryteKind residentialArtheryte, int ward, int plot, bool isApartment, bool isApartmentSubdivision)
+    /// <param name="aetherytePartial"></param>
+    public static void Enqueue(string world, ResidentialAetheryteKind residentialArtheryte, int ward, int? plot, bool isApartment, bool isApartmentSubdivision, string aetherytePartial = null)
     {
         var gateway = DetermineGatewayAetheryte(residentialArtheryte);
         if(Player.CurrentWorld != world)
@@ -53,7 +54,7 @@ public static unsafe class TaskTpAndGoToWard
             {
                 if(Utils.GetReachableAetheryte(x => x.IsAetheryte()) != null && S.Data.DataStore.Aetherytes.Keys.TryGetFirst(a => a.ID == (uint)residentialArtheryte, out var rootAetheryte))
                 {
-                    P.TaskManager.InsertStack(() =>
+                    P.TaskManager.InsertStack($"{nameof(TaskTpAndGoToWard)}: {nameof(Enqueue)}", () =>
                     {
                         TaskAethernetTeleport.Enqueue(rootAetheryte);
                         P.TaskManager.Enqueue(Utils.WaitForScreenFalse);
@@ -69,11 +70,11 @@ public static unsafe class TaskTpAndGoToWard
         P.TaskManager.Enqueue(() => Utils.GetReachableAetheryte(x => x.ObjectKind == ObjectKind.Aetheryte) != null, "WaitUntilReachableAetheryteExists");
         TaskApproachAetheryteIfNeeded.Enqueue();
         TaskGoToResidentialDistrict.Enqueue(ward);
-        EnqueueFromResidentialAetheryte(residentialArtheryte, plot, isApartment, isApartmentSubdivision, true);
+        EnqueueFromResidentialAetheryte(residentialArtheryte, plot, isApartment, isApartmentSubdivision, true, aetherytePartial);
 
     }
 
-    public static void EnqueueFromResidentialAetheryte(ResidentialAetheryteKind residentialArtheryte, int plot, bool isApartment, bool isApartmentSubdivision, bool fromStart)
+    public static void EnqueueFromResidentialAetheryte(ResidentialAetheryteKind residentialArtheryte, int? plot, bool isApartment, bool isApartmentSubdivision, bool fromStart, string aetherytePartial = null)
     {
         if(isApartment)
         {
@@ -84,7 +85,7 @@ public static unsafe class TaskTpAndGoToWard
                 TaskAethernetTeleport.Enqueue(aetheryte.Name);
                 TaskApproachAndInteractWithApartmentEntrance.Enqueue(true);
                 P.TaskManager.Enqueue(SelectGoToSpecifiedApartment);
-                P.TaskManager.Enqueue(() => SelectApartment(plot), $"SelectApartment {plot}");
+                P.TaskManager.Enqueue(() => SelectApartment(plot.Value), $"SelectApartment {plot}");
                 if(!C.AddressApartmentNoEntry) P.TaskManager.Enqueue(ConfirmApartmentEnterYesno);
             }
         }
@@ -92,7 +93,34 @@ public static unsafe class TaskTpAndGoToWard
         {
             if(S.Data.ResidentialAethernet.HousingData.Data.TryGetValue(residentialArtheryte.GetResidentialTerritory(), out var plotInfos))
             {
-                var info = plotInfos.SafeSelect(plot);
+                if(aetherytePartial != null)
+                {
+                    var aetheryte = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.Name.EqualsIgnoreCase(aetherytePartial))
+                        ?? S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.Name.StartsWith(aetherytePartial, StringComparison.OrdinalIgnoreCase));
+                    if(aetheryte != null)
+                    {
+                        if(fromStart)
+                        {
+                            if(!ResidentialAethernet.StartingAetherytes.Contains(aetheryte.Value.ID))
+                            {
+                                TaskApproachHousingAetheryte.Enqueue();
+                                TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                                P.TaskManager.Enqueue(Utils.WaitForScreen);
+                            }
+                        }
+                        else
+                        {
+                            if(aetheryte.Value.ID != S.Data.ResidentialAethernet.ActiveAetheryte.Value.ID)
+                            {
+                                TaskAethernetTeleport.Enqueue(aetheryte.Value.Name);
+                                P.TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51], "WaitUntilBetweenAreas");
+                                P.TaskManager.Enqueue(Utils.WaitForScreen);
+                            }
+                        }
+                    }
+                }
+                var info = plot == null?null:plotInfos.SafeSelect(plot.Value);
                 if(info != null)
                 {
                     var aetheryte = S.Data.ResidentialAethernet.ZoneInfo.SafeSelect(residentialArtheryte.GetResidentialTerritory())?.Aetherytes.FirstOrDefault(x => x.ID == info.AethernetID);

@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Memory;
 using Dalamud.Plugin.Ipc.Exceptions;
 using Dalamud.Utility;
@@ -19,6 +20,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.AtkReaders;
 using Lifestream.Data;
@@ -26,11 +28,14 @@ using Lifestream.Enums;
 using Lifestream.Schedulers;
 using Lifestream.Systems.Legacy;
 using Lifestream.Tasks;
+using Lifestream.Tasks.CosmicExploration;
 using Lifestream.Tasks.CrossDC;
+using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using NightmareUI.ImGuiElements;
+using OtterGui;
 using Callback = ECommons.Automation.Callback;
 using Path = System.IO.Path;
 
@@ -345,6 +350,43 @@ internal static unsafe class UIDebug
 
     private static void Debug()
     {
+        if(ImGui.CollapsingHeader("Cosmic"))
+        {
+            ref var sel = ref Ref<CosmicPlanet>.Get("cosmic");
+            ImGuiEx.EnumCombo("planet", ref sel);
+            if(ImGui.Button("Select"))
+            {
+                TaskTravelToPlanet.SelectPlanet(sel);
+            }
+        }
+        if(ImGui.CollapsingHeader("Housing teleport"))
+        {
+            if(TryGetAddonByName<AtkUnitBase>("TeleportHousingFriend", out var addon) && addon->IsReady())
+            {
+                if(ImGui.Button("FC")) Callback.Fire(addon, true, 0);
+                if(ImGui.Button("Private")) Callback.Fire(addon, true, 1);
+                if(ImGui.Button("Apartment")) Callback.Fire(addon, true, 2);
+            }
+            if(Svc.Targets.Target is IPlayerCharacter pc)
+            {
+                if(ImGui.Button("Open estate teleport"))
+                {
+                    AgentFriendlist.Instance()->OpenFriendEstateTeleportation(pc.Struct()->ContentId);
+                }
+            }
+            foreach(var x in InfoProxyFriendList.Instance()->CharDataSpan)
+            {
+                if(ImGui.Button($"Open for {x.NameString}@{ExcelWorldHelper.GetName(x.HomeWorld)}"))
+                {
+                    AgentFriendlist.Instance()->OpenFriendEstateTeleportation(x.ContentId);
+                }
+                ImGui.SameLine();
+                if(ImGui.Button($"Enqueue for {x.NameString}@{ExcelWorldHelper.GetName(x.HomeWorld)}"))
+                {
+                    TaskThroughFriendTeleport.Enqueue(x.NameString, x.ContentId, true, null);
+                }
+            }
+        }
         if(ImGui.CollapsingHeader("7.5"))
         {
             ImGuiEx.Text($"""

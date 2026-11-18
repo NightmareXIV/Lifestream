@@ -5,6 +5,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Schedulers;
+using Lifestream.Tasks.CrossDC;
 using System.Runtime.CompilerServices;
 using Callback = ECommons.Automation.Callback;
 
@@ -90,16 +91,17 @@ internal static unsafe class TaskChangeWorld
             if(EzThrottler.Check("RetryWorldVisit"))
             {
                 WorldVisitRand = Random.Shared.Next(0, C.RetryWorldVisitIntervalDelta * 1000);
-                P.TaskManager.BeginStack();
-                P.TaskManager.Enqueue(() =>
+                P.TaskManager.InsertStack($"{nameof(TaskChangeWorld)}: {nameof(RetryWorldVisit)}", () =>
                 {
-                    var agent = AgentWorldTravel.Instance();
-                    if(agent->HomeWorldId == null) return true;
-                    PluginLog.Verbose($"HomeWorldId: {(nint)agent->HomeWorldId:X16}, timer: {agent->GetFoP<uint>("QueueTimer1").Reinterpret<uint, float>()}");
-                    return false;
-                }, new(abortOnTimeout: false, timeLimitMS: 20000));
-                TaskChangeWorld.Enqueue(targetWorld);
-                P.TaskManager.InsertStack();
+                    P.TaskManager.Enqueue(() =>
+                    {
+                        var agent = AgentWorldTravel.Instance();
+                        if(agent->HomeWorldId == null) return true;
+                        PluginLog.Verbose($"HomeWorldId: {(nint)agent->HomeWorldId:X16}, timer: {agent->GetFoP<uint>("QueueTimer1").Reinterpret<uint, float>()}");
+                        return false;
+                    }, new(abortOnTimeout: false, timeLimitMS: 20000));
+                    TaskChangeWorld.Enqueue(targetWorld);
+                });
                 return true;
             }
         }

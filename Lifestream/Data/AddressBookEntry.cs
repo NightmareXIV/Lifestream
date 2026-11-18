@@ -66,6 +66,11 @@ public class AddressBookEntry
         return "";
     }
 
+    public string GetAddressStringWard()
+    {
+        return $"{ExcelWorldHelper.GetName(World)}, {TabAddressBook.ResidentialNames.SafeSelect(City)}, W{Ward}";
+    }
+
     public bool IsValid([NotNullWhen(false)] out string error)
     {
         if(Name == null)

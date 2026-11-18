@@ -8,7 +8,10 @@ using ECommons.MathHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lifestream.Enums;
+using Lifestream.Tasks.CrossDC;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Utility;
 using Lumina.Excel.Sheets;
@@ -49,7 +52,22 @@ public unsafe class CustomAliasCommand
     public int Timeout = 5000;
     public bool RequireUiOpen = false;
     public bool ExcelOnlyFirst = false;
+    public ResidentialAetheryteKind ResidentialAetheryte;
+    public int Ward;
+    public int PlotOrApartment;
+    public bool IsSubdivision;
+    public bool IsApartment;
+    public HouseEnterMode HouseEnterMode = HouseEnterMode.None;
+    public string ChatCommand = "/";
 
+
+    public bool ShouldSerializeChatCommand() => Kind.EqualsAny(CustomAliasKind.Use_Plugin_Command, CustomAliasKind.Send_Message);
+    public bool ShouldSerializeHouseEnterMode() => Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment);
+    public bool ShouldSerializeIsApartment() => Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment);
+    public bool ShouldSerializeIsSubdivision() => Kind.EqualsAny(CustomAliasKind.Go_to_Apartment);
+    public bool ShouldSerializePlotOrApartment() => Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment);
+    public bool ShouldSerializeWard() => Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment);
+    public bool ShouldSerializeResidentialAetheryte() => Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment);
     public bool ShouldSerializeInteractDistance() => Kind.EqualsAny(CustomAliasKind.Interact) && InteractDistance != Default.InteractDistance;
     public bool ShouldSerializeWalkToExit() => Kind.EqualsAny(CustomAliasKind.Circular_movement) && WalkToExit != Default.WalkToExit;
     public bool ShouldSerializeExtraPoints() => ExtraPoints.Count > 0;
@@ -78,19 +96,33 @@ public unsafe class CustomAliasCommand
         if(Kind == CustomAliasKind.Change_world)
         {
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
-            if(World != Player.Object.CurrentWorld.RowId)
+            P.TaskManager.Enqueue(() =>
             {
-                var world = ExcelWorldHelper.GetName(World);
-                if(S.Ipc.IPCProvider.CanVisitCrossDC(world))
+                P.TaskManager.InsertStack($"Custom Alias: {Kind}", () =>
                 {
-                    P.TPAndChangeWorld(world, true, skipChecks: true);
-                }
-                else if(S.Ipc.IPCProvider.CanVisitSameDC(world))
-                {
-                    P.TPAndChangeWorld(world, false, skipChecks: true);
-                }
+                    PluginLog.Debug($"Requested world: {ExcelWorldHelper.GetName(World, true)}, Player world: {ExcelWorldHelper.GetName(Player.Object.CurrentWorld.RowId, true)}");
+                    if(World != Player.Object.CurrentWorld.RowId)
+                    {
+                        var world = ExcelWorldHelper.GetName(World);
+
+                        if(S.Ipc.IPCProvider.CanVisitSameDC(world))
+                        {
+                            PluginLog.Debug($"Change world: {world} same-dc");
+                            P.TPAndChangeWorld(world, false, skipChecks: true);
+                        }
+                        else if(S.Ipc.IPCProvider.CanVisitCrossDC(world))
+                        {
+                            PluginLog.Debug($"Change world: {world} cross-dc");
+                            P.TPAndChangeWorld(world, true, skipChecks: true);
+                        }
+                        else
+                        {
+                            throw new Exception($"Can not visit {world} from {Player.CurrentWorld}");
+                        }
+                    }
+                });
+            });
             }
-        }
         else if(Kind == CustomAliasKind.Move_to_point)
         {
             var selectedPoint = GenericHelpers.GetRandom([Point, .. ExtraPoints]);
@@ -158,7 +190,7 @@ public unsafe class CustomAliasCommand
             P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
             P.TaskManager.Enqueue(() =>
             {
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"Custom Alias: {Kind}", () =>
                 {
                     var aethernetPoint = Utils.GetAethernetNameWithOverrides(Aetheryte);
                     P.TaskManager.Enqueue(() => TaskTryTpToAethernetDestination.CanRun(aethernetPoint), new(abortOnTimeout: false));
@@ -279,7 +311,7 @@ public unsafe class CustomAliasCommand
             P.TaskManager.Enqueue(() =>
             {
                 var territory = Svc.ClientState.TerritoryType;
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"Custom Alias: {Kind}", () =>
                 {
                     P.TaskManager.Enqueue(() => !IsScreenReady(), $"{Kind}: Wait for screen not ready");
                     P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable && (!RequireTerritoryChange || Svc.ClientState.TerritoryType != territory), $"{Kind}: Wait for screen ready {ExcelTerritoryHelper.GetName(territory, true)}");
@@ -328,6 +360,68 @@ public unsafe class CustomAliasCommand
                     return !found;
                 }, config);
             }
+        }
+        else if(Kind == CustomAliasKind.Go_to_House)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                P.TaskManager.InsertStack($"Custom Alias: {Kind}", () =>
+                {
+                    TaskTpAndGoToWard.Enqueue(Player.CurrentWorld, this.ResidentialAetheryte, this.Ward, this.PlotOrApartment-1, false, false);
+                });
+            });
+        }
+        else if(Kind == CustomAliasKind.Go_to_Apartment)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                P.TaskManager.InsertStack($"Custom Alias: {Kind}", () =>
+                {
+                    TaskTpAndGoToWard.Enqueue(Player.CurrentWorld, this.ResidentialAetheryte, this.Ward, this.PlotOrApartment-1, true, this.IsSubdivision);
+                });
+            });
+        }
+        else if(Kind == CustomAliasKind.Use_Return)
+        {
+            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, $"{Kind}: Wait for screen and player interactable");
+            P.TaskManager.Enqueue(() => !Player.IsCasting);
+            P.TaskManager.Enqueue(() =>
+            {
+                if(AgentReturn.Instance()->CanReturn)
+                {
+                    AgentReturn.Instance()->Return();
+                    return true;
+                }
+                return false;
+            });
+            P.TaskManager.Enqueue(() => Player.IsCasting);
+            P.TaskManager.Enqueue(() => !Player.IsCasting, $"{Kind}: Wait for casting to end", new(timeLimitMS: 30.Seconds()));
+            P.TaskManager.Enqueue(() => !IsScreenReady(), new(abortOnTimeout:false));
+            P.TaskManager.Enqueue(() => IsScreenReady(), new(abortOnTimeout: false));
+        }
+        else if(this.Kind == CustomAliasKind.Send_Message)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                if(Player.Available && EzThrottler.Throttle("SendChatCmd", 170))
+                {
+                    Chat.ExecuteCommand(this.ChatCommand);
+                    return true;
+                }
+                return false;
+            });
+        }
+        else if(this.Kind == CustomAliasKind.Use_Plugin_Command)
+        {
+            P.TaskManager.Enqueue(() =>
+            {
+                Svc.Commands.ProcessCommand(ChatCommand);
+                return true;
+            });
+        }
+        else if(this.Kind == CustomAliasKind.Wait)
+        {
+            P.TaskManager.EnqueueTask(new DelayTask(this.Timeout));
         }
     }
     public bool IsUsingTAForMovement() => UseTA && Svc.PluginInterface.InstalledPlugins.Any(x => x.Name == "TextAdvance" && x.IsLoaded);

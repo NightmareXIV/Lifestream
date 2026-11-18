@@ -94,7 +94,9 @@ public class DataStore
 
     internal void BuildWorlds()
     {
-        BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.Value.DataCenter.Value.RowId);
+        var w = BuildWorlds(Svc.ClientState.LocalPlayer.CurrentWorld.Value.DataCenter.Value.RowId, Player.HomeWorldId);
+        Worlds = w.worlds;
+        DCWorlds = w.dcWorlds;
         if(Player.Available)
         {
             if(P.AutoRetainerApi?.Ready == true && C.UseAutoRetainerAccounts)
@@ -112,12 +114,13 @@ public class DataStore
         }
     }
 
-    internal void BuildWorlds(uint dc)
+    internal (string[] worlds, string[] dcWorlds) BuildWorlds(uint dc, uint homeWorld)
     {
-        Worlds = [.. Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic()).Select(x => x.Name.ToString()).Order()];
-        PluginLog.Debug($"Built worlds: {Worlds.Print()}");
-        DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic() && (x.DataCenter.Value.Region.RowId == Player.Object.HomeWorld.Value.DataCenter.Value.Region.RowId || x.DataCenter.Value.Region.RowId == 4)).Select(x => x.Name.ToString()).ToArray();
-        PluginLog.Debug($"Built DCworlds: {DCWorlds.Print()}");
+        string[] Worlds = [.. Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId == dc && x.IsPublic()).Select(x => x.Name.ToString()).Order()];
+        PluginLog.Trace($"Built worlds: {Worlds.Print()}");
+        string[] DCWorlds = Svc.Data.GetExcelSheet<World>().Where(x => x.DataCenter.Value.RowId != dc && x.IsPublic() && (x.DataCenter.Value.Region.RowId == World.Get(homeWorld).DataCenter.Value.Region.RowId || x.DataCenter.Value.Region.RowId == 4)).Select(x => x.Name.ToString()).ToArray();
+        PluginLog.Trace($"Built DCworlds: {DCWorlds.Print()}");
+        return (Worlds, DCWorlds);
     }
 
     internal TinyAetheryte GetTinyAetheryte(Aetheryte aetheryte)

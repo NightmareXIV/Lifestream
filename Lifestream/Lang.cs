@@ -36,6 +36,10 @@ internal static class Lang
     /li fc → go to your FC estate, alias: /li fc|free|company|free company
     /li apt → go to your apartment, alias: /li apt|apartment
     /li ws → go to your FC's workshop, alias: /li ws|workshop
+    /li f <partial case-insensitive name> → teleport to friend's estate in the following order: private estate, apartment, fc.
+    /li fa <partial case-insensitive name> → teleport to friend's apartment.
+    /li fh <partial case-insensitive name> → teleport to friend's private estate.
+    /li ff <partial case-insensitive name> → teleport to friend's free company estate.
 
     /li <district> <ward> <plot> → go to specified plot in current world
     /li <world> <district> <ward> <plot> → go to specified plot of specified world
@@ -54,7 +58,10 @@ internal static class Lang
     /li cosmic → go to Cosmic Exploration area, alias: /li cosmic|moon|ardorum
     /li island → go to Island Sanctuary
     /li firmament → - go to Firmamnent
+    /li occult → Go to Occult Crescent North Horn
+    /li occult s → Go to Occult Crescent South Horn
     /li w → open world travel window, alias: /li w|world|open|select
+    /li w <Character Name@World> → open world travel window for specified character, alias: /li w|world|open|select
     /lifestream → open plugin configuration 
     """;
     internal static string[] AdditionalChambersEntrance =>

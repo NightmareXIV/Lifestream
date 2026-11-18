@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11415.280 d18.0
+VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lifestream", "Lifestream\Lifestream.csproj", "{48DDD549-22F4-47E7-914D-2D3D06B40419}"
 EndProject
@@ -24,6 +24,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs.Generators", "FFXIVClientStructs\FFXIVClientStructs.Generators\FFXIVClientStructs.Generators.csproj", "{BDFD9DE2-1CB4-495C-A8EE-F58EA51B9CBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommons.IPC", "ECommons.IPC\ECommons.IPC\ECommons.IPC.csproj", "{46BCE827-5FEF-F90B-9FDE-C93AC92B91CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BadgeOverlay", "BadgeOverlay\BadgeOverlay.csproj", "{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,14 @@ Global
 		{46BCE827-5FEF-F90B-9FDE-C93AC92B91CB}.Release|Any CPU.Build.0 = Release|x64
 		{46BCE827-5FEF-F90B-9FDE-C93AC92B91CB}.Release|x64.ActiveCfg = Release|x64
 		{46BCE827-5FEF-F90B-9FDE-C93AC92B91CB}.Release|x64.Build.0 = Release|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Debug|Any CPU.Build.0 = Debug|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Debug|x64.ActiveCfg = Debug|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Debug|x64.Build.0 = Debug|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Release|Any CPU.ActiveCfg = Release|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Release|Any CPU.Build.0 = Release|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Release|x64.ActiveCfg = Release|x64
+		{8A27CEF0-70D4-4563-AD3F-30DD21E0D897}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -68,10 +68,11 @@ internal static class TaskChangeDatacenter
                 P.TaskManager.Abort();
                 return true;
             }
-            P.TaskManager.BeginStack();
-            P.TaskManager.Enqueue(DCChange.CancelDcVisit);
-            EnqueueVisitTasks(destination, charaName, charaWorld, currentLoginWorld);
-            P.TaskManager.InsertStack();
+            P.TaskManager.InsertStack("TaskChangeDatacenter: RetryVisit", () =>
+            {
+                P.TaskManager.Enqueue(DCChange.CancelDcVisit);
+                EnqueueVisitTasks(destination, charaName, charaWorld, currentLoginWorld);
+            });
             return true;
         }
         return false;

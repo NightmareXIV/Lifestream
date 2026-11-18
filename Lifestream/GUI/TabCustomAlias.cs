@@ -307,7 +307,7 @@ public static class TabCustomAlias
 
         ImGui.Separator();
         ImGui.SetNextItemWidth(150f.Scale());
-        ImGuiEx.EnumCombo("Alias kind", ref command.Kind);
+        ImGuiEx.EnumCombo("Alias kind", ref command.Kind, valuesList:[..Enum.GetValues<CustomAliasKind>().OrderBy(x => x.ToString())]);
 
         if(command.Kind == CustomAliasKind.Teleport_to_Aetheryte)
         {
@@ -612,6 +612,14 @@ public static class TabCustomAlias
             ImGui.Checkbox("Wait for UI to be open first", ref command.RequireUiOpen);
             ImGui.SetNextItemWidth(150f);
             ImGuiEx.SliderIntAsFloat("Timeout, seconds", ref command.Timeout, 2000, 10000);
+            ImGuiEx.Text("Double-click to input custom value");
+        }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Wait))
+        {
+            ImGui.SetNextItemWidth(150f);
+            ImGuiEx.SliderIntAsFloat("Wait time, seconds", ref command.Timeout, 100, 30000);
+            ImGuiEx.Text("Double-click to input custom value");
         }
 
         if(command.Kind.EqualsAny(CustomAliasKind.Select_Yes, CustomAliasKind.Select_List_Option, CustomAliasKind.Confirm_Contents_Finder))
@@ -623,6 +631,42 @@ public static class TabCustomAlias
         {
             ImGui.Checkbox("Require territory change", ref command.RequireTerritoryChange);
         }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Go_to_House, CustomAliasKind.Go_to_Apartment))
+        {
+            ImGui.SetNextItemWidth(150);
+            ImGuiEx.EnumCombo("Residential Aetheryte", ref command.ResidentialAetheryte);
+            ImGui.SetNextItemWidth(150);
+            ImGui.InputInt("Ward", ref command.Ward);
+        }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Go_to_House))
+        {
+            ImGui.SetNextItemWidth(150);
+            ImGui.InputInt("Plot", ref command.PlotOrApartment);
+        }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Go_to_Apartment))
+        {
+            ImGui.SetNextItemWidth(150);
+            ImGui.InputInt("Apartment", ref command.PlotOrApartment);
+            ImGui.Checkbox("Subdivision", ref command.IsSubdivision);
+        }
+
+        if(command.Kind.EqualsAny(CustomAliasKind.Use_Plugin_Command, CustomAliasKind.Send_Message))
+        {
+            if(command.Kind == CustomAliasKind.Use_Plugin_Command)
+            {
+                ImGuiEx.TextWrapped($"This command will not be sent to server and will only be processed if you have appropriate plugin installed.");
+            }
+            else
+            {
+                ImGuiEx.TextWrapped(ImGuiColors.DalamudYellow, $"This message or command can be sent to server. Consecutive messages are throttled automatically, but direct messages or yells must be spaced out manually with wait commands.");
+            }
+            ImGuiEx.SetNextItemFullWidth();
+            ImGui.InputText("##cmd", ref command.ChatCommand);
+        }
+
         ImGui.PopID();
     }
 

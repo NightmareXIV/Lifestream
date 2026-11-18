@@ -1,3 +1,5 @@
+
+
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -17,9 +19,11 @@ using ECommons.Reflection;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -34,6 +38,9 @@ using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
 using NightmareUI;
 using System.Collections.Specialized;
+using System.IO;
+using System.IO.Compression;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TerraFX.Interop.Windows;
@@ -48,6 +55,28 @@ namespace Lifestream;
 internal static unsafe partial class Utils
 {
     public static string[] LifestreamNativeCommands = ["auto", "home", "house", "private", "fc", "free", "company", "free company", "apartment", "apt", "shared", "inn", "hinn", "gc", "gcc", "hc", "hcc", "fcgc", "gcfc", "mb", "market", "island", "is", "sanctuary", "cosmic", "ardorum", "moon", "tp"];
+
+    public static bool IsCameraFirstPerson()
+    {
+        return CameraManager.Instance()->GetActiveCamera()->ControlMode == CameraControlMode.FirstPerson;
+    }
+
+    public static void EnqueueFriendTeleport(string rem, HouseTeleportTarget? teleportType)
+    {
+        var fl = InfoProxyFriendList.Instance()->CharDataSpan.ToArray();
+        var candidate = fl.FirstOrNull(x => x.HomeWorld == Player.CurrentWorldId && x.NameString.StartsWith(rem, StringComparison.OrdinalIgnoreCase));
+        candidate ??= fl.FirstOrNull(x => x.NameString.StartsWith(rem, StringComparison.OrdinalIgnoreCase));
+        candidate ??= fl.FirstOrNull(x => x.HomeWorld == Player.CurrentWorldId && x.NameString.Contains(rem, StringComparison.OrdinalIgnoreCase));
+        candidate ??= fl.FirstOrNull(x => x.NameString.Contains(rem, StringComparison.OrdinalIgnoreCase));
+        if(candidate == null)
+        {
+            Notify.Error("Could not find this friend");
+        }
+        else
+        {
+            TaskThroughFriendTeleport.Enqueue(candidate.Value.NameString, candidate.Value.ContentId, true, teleportType);
+        }
+    }
 
     public static bool IsQueuePopupVisible()
     {
@@ -70,7 +99,7 @@ internal static unsafe partial class Utils
             TaskLogout.Enqueue();
             P.TaskManager.Enqueue(() =>
             {
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"{nameof(Utils)}: {nameof(ChangeCharacter)}", () =>
                 {
                     TaskConnectAndOpenCharaSelect.Enqueue(charaName, charaHomeWorld);
                 });
@@ -1078,6 +1107,44 @@ internal static unsafe partial class Utils
         return false;
     }
 
+    public static bool TryParseWard(string s, out AddressBookEntry entry, out string? aetheryte, bool retry = false)
+    {
+        aetheryte = null;
+        entry = null;
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric%shortDelimiter([^0-9]+)");
+            PluginLog.Debug($"[Ward] Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, "0", false, false);
+                aetheryte = result.Groups[5].Value;
+                if(entry != null) return true;
+            }
+        }
+        {
+            var regex = ReplaceAddressBookRegex(@"(%worlds)%delimiter(%city)%delimiter(W|ward)%shortDelimiter%numeric");
+            PluginLog.Debug($"[Ward] Testing vs: {regex}");
+            var result = Regex.Match(s, regex, RegexOptions.IgnoreCase);
+            if(result.Success)
+            {
+                PluginLog.Debug($"→Success: {result.Groups.Values.Select(x => x.Value).Skip(1).Print()}");
+                entry = BuildAddressBookEntry(result.Groups[1].Value, result.Groups[2].Value, result.Groups[4].Value, "0", false, false);
+                if(entry != null) return true;
+            }
+        }
+
+        if(!retry)
+        {
+            if(Player.Available && TryParseWard(Player.CurrentWorld + ", " + s, out entry, out aetheryte, true))
+            {
+                return entry != null;
+            }
+        }
+        return entry != null;
+    }
+
     public static bool TryParseAddressBookEntry(string s, out AddressBookEntry entry, bool retry = false)
     {
         entry = null;
@@ -1338,6 +1405,21 @@ internal static unsafe partial class Utils
                 TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, entry.Apartment - 1, true, entry.ApartmentSubdivision);
             }
         }
+    }
+
+    public static void GoToWard(this AddressBookEntry entry, string aetherytePartial)
+    {
+        if(!Player.Available)
+        {
+            Notify.Error($"Can not travel while character is not available");
+            return;
+        }
+        if(!S.Data.DataStore.DCWorlds.Contains(ExcelWorldHelper.GetName(entry.World)) && !S.Data.DataStore.Worlds.Contains(ExcelWorldHelper.GetName(entry.World)))
+        {
+            Notify.Error($"Can not travel to {ExcelWorldHelper.GetName(entry.World)}");
+            return;
+        }
+        TaskTpAndGoToWard.Enqueue(ExcelWorldHelper.GetName(entry.World), entry.City, entry.Ward, null, false, false, aetherytePartial);
     }
 
     public static string FancyDigits(this int n)
@@ -1626,7 +1708,6 @@ internal static unsafe partial class Utils
 
     internal static AetheryteUseState CanUseAetheryte()
     {
-        if(P.TaskManager.IsBusy || IsOccupied() || IsDisallowedToUseAethernet()) return AetheryteUseState.None;
         P.UpdateAetherytes();
         if(S.Data.DataStore.Territories.Contains(P.Territory) && P.ActiveAetheryte != null) return AetheryteUseState.Normal;
         if(S.Data.ResidentialAethernet.IsInResidentialZone() && S.Data.ResidentialAethernet.ActiveAetheryte != null) return AetheryteUseState.Residential;
@@ -1822,13 +1903,17 @@ internal static unsafe partial class Utils
         return addon;
     }
 
-    internal static List<string> GetAvailableWorldDestinations()
+    internal static List<string> GetAvailableWorldDestinations(out List<string> dataCenterIndex)
     {
+        dataCenterIndex = [];
         var ret = new List<string>();
         var stringArray = RaptureAtkModule.Instance()->AtkArrayDataHolder.StringArrays[(int)StringArrayType.WorldTranslate];
         if(stringArray != null)
         {
-            for(var i = 3; i <= 10; i++)
+            var numDatacenters = ExcelWorldHelper.GetVisualDataCenters(ECommons.GameHelpers.Player.CurrentWorld.Value.GetRegion(), true).Length;
+            int startIndex = 2 + numDatacenters;
+            //PluginLog.Debug($"numDatacenters {numDatacenters}, startIndex {startIndex}");
+            for(var i = startIndex; i < startIndex + 8; i++)
             {
                 var str = stringArray->StringArray[i];
                 if(str.HasValue)
@@ -1836,6 +1921,20 @@ internal static unsafe partial class Utils
                     var worldName = MemoryHelper.ReadStringNullTerminated((nint)str.Value).Trim();
                     if(worldName.IsNullOrEmpty()) break;
                     ret.Add(worldName);
+                }
+            }
+            for(int i = 0; i < numDatacenters; i++)
+            {
+                var str = stringArray->StringArray[i];
+                if(str.HasValue)
+                {
+                    var dcName = MemoryHelper.ReadStringNullTerminated((nint)str.Value).Trim();
+                    if(dcName.IsNullOrEmpty()) break;
+                    dataCenterIndex.Add(dcName);
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -1859,6 +1958,26 @@ internal static unsafe partial class Utils
         return Array.Empty<string>();
     }
 
+    public static byte[] BrotliCompress(byte[] bytes)
+    {
+        using var memoryStream = new MemoryStream();
+        using(var brotliStream = new BrotliStream(memoryStream, CompressionLevel.SmallestSize))
+        {
+            brotliStream.Write(bytes, 0, bytes.Length);
+        }
+        return memoryStream.ToArray();
+    }
+    public static byte[] BrotliDecompress(byte[] bytes)
+    {
+        using var memoryStream = new MemoryStream(bytes);
+        using var outputStream = new MemoryStream();
+        using(var decompressStream = new BrotliStream(memoryStream, CompressionMode.Decompress))
+        {
+            decompressStream.CopyTo(outputStream);
+        }
+        return outputStream.ToArray();
+    }
+
     internal static IGameObject GetValidAetheryte()
     {
         foreach(var x in Svc.Objects)
@@ -1871,7 +1990,7 @@ internal static unsafe partial class Utils
                 if(S.Data.CustomAethernet.ZoneInfo.TryGetValue(P.Territory, out var zinfo) && d3d > zinfo.MaxInteractionDistance) continue;
 
                 if(d2d < 11f
-                    && d3d < 15f
+                    && d3d < 11f
                     && x.IsVPosValid()
                     && x.IsTargetable)
                 {

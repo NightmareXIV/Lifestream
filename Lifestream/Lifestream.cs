@@ -15,6 +15,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lifestream.Data;
 using Lifestream.Enums;
@@ -33,6 +34,7 @@ using Lifestream.Tasks.Login;
 using Lifestream.Tasks.SameWorld;
 using Lifestream.Tasks.Shortcuts;
 using Lumina.Excel.Sheets;
+using NightmareUI.Censoring;
 using NotificationMasterAPI;
 using Callback = ECommons.Automation.Callback;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
@@ -71,6 +73,7 @@ public unsafe class Lifestream : IDalamudPlugin
     {
         P = this;
         ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);
+        PluginLog.TraceEnabled = false;
 #if CUSTOMCS
         PluginLog.Warning($"Using custom FFXIVClientStructs");
         var gameVersion = DalamudReflector.TryGetDalamudStartInfo(out var ver) ? ver.GameVersion.ToString() : "unknown";
@@ -78,13 +81,15 @@ public unsafe class Lifestream : IDalamudPlugin
         FFXIVClientStructs.Interop.Generated.Addresses.Register();
         InteropGenerator.Runtime.Resolver.GetInstance.Resolve();
 #endif
+        followPath ??= new();
         new TickScheduler(delegate
         {
             DalamudReflector.SetImGuiAssertsState();
             TerritoryWatcher.Initialize();
             Config = EzConfig.Init<Config>();
+            Censor.Config = Config.CensorConfig;
             Utils.CheckConfigMigration();
-            EzConfigGui.Init(MainGui.Draw);
+            EzConfigGui.Init(new MainGui());
             TaskManager = new(new(showDebug: true));
             CharaSelectOverlay = new();
             EzConfigGui.WindowSystem.AddWindow(CharaSelectOverlay);
@@ -145,23 +150,39 @@ public unsafe class Lifestream : IDalamudPlugin
         var additionalCommand = argsSplit.Length > 1 ? argsSplit[1..].Join(",") : null;
         if(arguments.Contains('@'))
         {
-            var spl = arguments.Split('@');
-            var spl2 = spl[1].Split(' ');
-            var world = ExcelWorldHelper.GetPublicWorlds().FirstOrNull(x => x.Name.ToString().EqualsIgnoreCase(spl2[0]));
-            if(world != null)
+            if(arguments.StartsWithAny(StringComparison.OrdinalIgnoreCase, "open ", "select ", "window ", "w ", "world ", "travel "))
             {
-                if(!Utils.IsBusy())
+                var args = arguments.Split(" ");
+                var name = args[1..].Join(" ");
+                if(args.Length > 1)
                 {
-                    Utils.ChangeCharacter(spl[0], world.Value.Name.ToString(), spl2.Length > 1? spl2[1]:null);
+                    S.Gui.SelectWorldWindow.Open(name);
                 }
                 else
                 {
-                    Notify.Error("Lifestream is busy");
+                    Notify.Error("Invalid name");
                 }
             }
             else
             {
-                DuoLog.Error($"Could not recognize world {spl[1]}");
+                var spl = arguments.Split('@');
+                var spl2 = spl[1].Split(' ');
+                var world = ExcelWorldHelper.GetPublicWorlds().FirstOrNull(x => x.Name.ToString().EqualsIgnoreCase(spl2[0]));
+                if(world != null)
+                {
+                    if(!Utils.IsBusy())
+                    {
+                        Utils.ChangeCharacter(spl[0], world.Value.Name.ToString(), spl2.Length > 1 ? spl2[1] : null);
+                    }
+                    else
+                    {
+                        Notify.Error("Lifestream is busy");
+                    }
+                }
+                else
+                {
+                    DuoLog.Error($"Could not recognize world {spl[1]}");
+                }
             }
         }
         else if(arguments.StartsWith("debug TaskAetheryteAethernetTeleport "))
@@ -222,9 +243,51 @@ public unsafe class Lifestream : IDalamudPlugin
                 DuoLog.Error($"Can't change instance now");
             }
         }
+        else if(arguments == "f" || arguments == "ff" || arguments == "fa" || arguments == "fh")
+        {
+            DuoLog.Warning($"""
+
+                /li f <partial case-insensitive friend name>
+                To apartment: /li fa <partial case-insensitive friend name>
+                To house: /li fh <partial case-insensitive friend name>
+                To free company: /li ff <partial case-insensitive friend name>
+                """);
+        }
+        else if(arguments.StartsWith("f "))
+        {
+            var rem = arguments[2..].Trim();
+            if(rem != "")
+            {
+                Utils.EnqueueFriendTeleport(rem, null);
+            }
+        }
+        else if(arguments.StartsWith("ff "))
+        {
+            var rem = arguments[2..].Trim();
+            if(rem != "")
+            {
+                Utils.EnqueueFriendTeleport(rem, HouseTeleportTarget.Free_Company_Estate_Hall);
+            }
+        }
+        else if(arguments.StartsWith("fa "))
+        {
+            var rem = arguments[2..].Trim();
+            if(rem != "")
+            {
+                Utils.EnqueueFriendTeleport(rem, HouseTeleportTarget.Apartment);
+            }
+        }
+        else if(arguments.StartsWith("fh "))
+        {
+            var rem = arguments[2..].Trim();
+            if(rem != "")
+            {
+                Utils.EnqueueFriendTeleport(rem, HouseTeleportTarget.Private_Estate_Hall);
+            }
+        }
         else if(arguments.EqualsIgnoreCaseAny("open", "select", "window", "w", "world", "travel"))
         {
-            S.Gui.SelectWorldWindow.IsOpen = true;
+            S.Gui.SelectWorldWindow.Open();
         }
         else if(arguments == "auto")
         {
@@ -339,7 +402,18 @@ public unsafe class Lifestream : IDalamudPlugin
         {
             if(!Utils.IsBusy())
             {
-                StaticAlias.OccultCrescent.Enqueue(true);
+                StaticAlias.NorthOccultCrescent.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
+        else if(arguments.EqualsIgnoreCase("occult s"))
+        {
+            if(!Utils.IsBusy())
+            {
+                StaticAlias.SouthOccultCrescent.Enqueue(true);
             }
             else
             {
@@ -351,6 +425,28 @@ public unsafe class Lifestream : IDalamudPlugin
             if(!Utils.IsBusy())
             {
                 StaticAlias.Firmament.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
+        else if(arguments.EqualsIgnoreCase("crucible"))
+        {
+            if(!Utils.IsBusy())
+            {
+                StaticAlias.Crucible.Enqueue(true);
+            }
+            else
+            {
+                Notify.Error("Lifestream is busy");
+            }
+        }
+        else if(arguments.EqualsIgnoreCase("keyboard"))
+        {
+            if(!Utils.IsBusy())
+            {
+                StaticAlias.KeyboardBrawler.Enqueue(true);
             }
             else
             {
@@ -380,6 +476,11 @@ public unsafe class Lifestream : IDalamudPlugin
             ChatPrinter.Green($"[Lifestream] Address parsed: {entry.GetAddressString()}");
             entry.GoTo();
         }
+        else if(Utils.TryParseWard(arguments, out var wardEntry, out var aetheryte))
+        {
+            ChatPrinter.Green($"[Lifestream] Ward address parsed: {wardEntry.GetAddressStringWard()}");
+            wardEntry.GoToWard(aetheryte);
+        }
         else
         {
             if(command.EqualsIgnoreCase("/lifestream") && arguments == "")
@@ -392,7 +493,7 @@ public unsafe class Lifestream : IDalamudPlugin
                 {
                     if(Config.LiCommandBehavior == LiCommandBehavior.Open_World_Change_Menu)
                     {
-                        S.Gui.SelectWorldWindow.IsOpen = true;
+                        S.Gui.SelectWorldWindow.Open();
                         return;
                     }
                     else if(Config.LiCommandBehavior == LiCommandBehavior.Open_Configuration)
@@ -694,7 +795,7 @@ public unsafe class Lifestream : IDalamudPlugin
         }
         if(!S.Gui.Overlay.IsOpen)
         {
-            if(C.ShowInstanceSwitcher && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
+            if(C.ShowInstanceSwitcherBOM && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() == null && ActiveAetheryte == null)
             {
                 S.Gui.Overlay.IsOpen = true;
             }

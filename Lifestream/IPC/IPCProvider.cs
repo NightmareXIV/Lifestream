@@ -551,6 +551,19 @@ public class IPCProvider
     }
 
     [EzIPC]
+    public CustomAlias FindCustomAliasByCommand(string command)
+    {
+        foreach(var x in C.CustomAliases)
+        {
+            if(x.Enabled && x.Alias == command)
+            {
+                return x;
+            }
+        }
+        return null;
+    }
+
+    [EzIPC]
     public Dictionary<string, List<AddressBookEntryTuple>> GetAddressBookEntriesWithFolders()
     {
         var ret = new Dictionary<string, List<AddressBookEntryTuple>>();

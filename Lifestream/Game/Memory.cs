@@ -27,6 +27,31 @@ public unsafe class Memory : IDisposable
     [EzHook("40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 84 C0 74 07 C6 83 ?? ?? ?? ?? ?? 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53", false)]
     internal EzHook<OpenPartyFinderInfoDelegate> OpenPartyFinderInfoHook;
 
+    public delegate nint ReceiveEstateTeleportationPacket(nint a1, nint packet);
+    [EzHook("48 89 5C 24 ?? 48 89 6C 24 ?? 56 41 54 41 55 41 56 41 57 48 83 EC 30 0F B6 1D")]
+    public EzHook<ReceiveEstateTeleportationPacket> ReceiveEstateTeleportationPacketHook;
+
+    nint ReceiveEstateTeleportationPacketDetour(nint a1, nint packet)
+    {
+        try
+        {
+            var packetData = new Span<byte>((void*)packet, 0x20);
+            PluginLog.Information($"ReceiveEstateTeleportPacketDetour: {a1:X16}, {packet:X16}, {packetData.ToArray().ToHexString()}");
+            var data = (EstateTeleportationList*)packet;
+            PluginLog.Information($"  PrivateHouseId: {data->PrivateHouseId.Id:X16}, FreeCompanyHouseId: {data->FreeCompanyHouseId.Id:X16}, ApartmentHouseId: {data->ApartmentHouseId.Id:X16}, PrivateFlag: {data->PrivateFlag}, FreeCompanyFlag: {data->FreeCompanyFlag}, ApartmentFlag: {data->ApartmentFlag}, CID: {data->ContentId:X16}");
+            if(TaskThroughFriendTeleport.RequestEstateTeleportationList)
+            {
+                TaskThroughFriendTeleport.LastEstateTeleportationList = *data;
+                TaskThroughFriendTeleport.RequestEstateTeleportationList = false;
+            }
+        }
+        catch(Exception ex)
+        {
+            PluginLog.Error($"Error in ReceiveEstateTeleportPacketDetour: {ex.ToStringFull()}");
+        }
+        return ReceiveEstateTeleportationPacketHook.Original(a1, packet);
+    }
+
     internal byte OpenPartyFinderInfoDetour(void* agentLfg, ulong contentId)
     {
         PluginLog.Information($"{((nint)agentLfg):X16}, {contentId:X16}");

@@ -53,7 +53,7 @@ public static unsafe class TaskChangeCharacter
         P.TaskManager.Enqueue(TaskChangeCharacter.ResetWorldIndex);
         P.TaskManager.Enqueue(() =>
         {
-            P.TaskManager.InsertStack(() =>
+            P.TaskManager.InsertStack($"{nameof(TaskChangeCharacter)}: {nameof(EnqueueLogin)}", () =>
             {
                 IpcUtils.InitiateTravelFromCharaSelectScreenInternal(charaName, homeWorld, destination, false);
             });
@@ -63,7 +63,7 @@ public static unsafe class TaskChangeCharacter
 
     public static void ConnectToDc(string currentWorld, int account)
     {
-        var dc = (int)ExcelWorldHelper.Get(currentWorld)?.DataCenter.RowId;
+        var dc = (int)ExcelWorldHelper.Get(currentWorld)?.Unknown0;
         if((int)Svc.Data.Language < 4)
         {
             P.TaskManager.Enqueue(ClickSelectDataCenter, new(timeLimitMS: 1000000));

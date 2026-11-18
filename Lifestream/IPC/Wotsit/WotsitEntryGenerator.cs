@@ -102,7 +102,7 @@ public static class WotsitEntryGenerator
                 DisplayName = "Open world select window",
                 SearchString = "open world select window - open travel window",
                 IconId = 55,
-                Callback = () => S.Gui.SelectWorldWindow.IsOpen = true,
+                Callback = () => S.Gui.SelectWorldWindow.Open(),
             };
         }
         if(includes.PropertyAuto)

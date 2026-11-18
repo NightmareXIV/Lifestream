@@ -157,7 +157,7 @@ public class FollowPath : IDisposable
                 }
             }
 
-            _camera.Enabled = MovementConfig.AlignCameraToMovement;
+            _camera.Enabled = MovementConfig.AlignCameraToMovement && !Utils.IsCameraFirstPerson();
             _camera.SpeedH = _camera.SpeedV = 360.Degrees();
             _camera.DesiredAzimuth = Angle.FromDirectionXZ(_movement.DesiredPosition - player.Position) + 180.Degrees();
             _camera.DesiredAltitude = -30.Degrees();

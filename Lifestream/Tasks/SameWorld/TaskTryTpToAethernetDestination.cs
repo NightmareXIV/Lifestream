@@ -126,16 +126,10 @@ internal static class TaskTryTpToAethernetDestination
                     if(a.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase))
                     {
                         ChatPrinter.Green($"[Lifestream] Destination: {ExcelTerritoryHelper.GetName(x.Key.TerritoryType)} - {a.Name}");
-                        P.TaskManager.BeginStack();
-                        try
+                        P.TaskManager.InsertStack($"{nameof(TaskTpToAethernetDestination)}: {nameof(Enqueue)}", () =>
                         {
                             TaskAetheryteAethernetTeleport.Enqueue(x.Key.ID, a.ID);
-                        }
-                        catch(Exception e)
-                        {
-                            e.Log();
-                        }
-                        P.TaskManager.InsertStack();
+                        }); 
                         return true;
                     }
                 }
@@ -153,10 +147,11 @@ internal static class TaskTryTpToAethernetDestination
                     var name = master.Name;
                     if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(master.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
-                        P.TaskManager.BeginStack();
-                        TaskRemoveAfkStatus.Enqueue();
-                        TaskAethernetTeleport.Enqueue(master);
-                        P.TaskManager.InsertStack();
+                        P.TaskManager.InsertStack($"{nameof(TaskTpToAethernetDestination)}: {nameof(Enqueue)}: {nameof(process)}", () =>
+                        {
+                            TaskRemoveAfkStatus.Enqueue();
+                            TaskAethernetTeleport.Enqueue(master);
+                        });
                         return;
                     }
                 }
@@ -169,10 +164,11 @@ internal static class TaskTryTpToAethernetDestination
                     var name = x.Name;
                     if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName) || C.Renames.TryGetValue(x.ID, out var value) && value.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                     {
-                        P.TaskManager.BeginStack();
-                        TaskRemoveAfkStatus.Enqueue();
-                        TaskAethernetTeleport.Enqueue(x);
-                        P.TaskManager.InsertStack();
+                        P.TaskManager.InsertStack($"{nameof(TaskTpToAethernetDestination)}: {nameof(Enqueue)}: {nameof(process)}", () =>
+                        {
+                            TaskRemoveAfkStatus.Enqueue();
+                            TaskAethernetTeleport.Enqueue(x);
+                        });
                         return;
                     }
                 }
@@ -183,7 +179,7 @@ internal static class TaskTryTpToAethernetDestination
                 var name = "Firmament";
                 if(name.ContainsAny(StringComparison.OrdinalIgnoreCase, targetName))
                 {
-                    P.TaskManager.InsertStack(() =>
+                    P.TaskManager.InsertStack($"{nameof(TaskTpToAethernetDestination)}: {nameof(Enqueue)} - firmament", () =>
                     {
                         TaskRemoveAfkStatus.Enqueue();
                         TaskFirmanentTeleport.Enqueue();
@@ -199,7 +195,7 @@ internal static class TaskTryTpToAethernetDestination
 
             if(allowTpFallback)
             {
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"{nameof(TaskTpToAethernetDestination)}: {nameof(Enqueue)}: {nameof(process)} - tp fallback", () =>
                 {
                     if(!Utils.EnqueueTeleport(targetName, null))
                     {

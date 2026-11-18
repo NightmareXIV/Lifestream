@@ -1,12 +1,16 @@
-﻿using ECommons.Configuration;
+﻿using BadgeOverlay;
+using ECommons.Configuration;
 using Lifestream.Enums;
 using Lifestream.Tasks.Shortcuts;
+using NightmareUI.Censoring;
 
 namespace Lifestream.Data;
 
-public class Config : IEzConfig
+public class Config
 {
     public bool Enable = true;
+    public bool EnableLegacy = false;
+    public CensorConfig CensorConfig = new();
     internal bool AllowClosingESC2 = false;
     public int ButtonWidth = 10;
     public int[] ButtonWidthArray = null;
@@ -19,8 +23,12 @@ public class Config : IEzConfig
     public HashSet<string> HideAddonList = [.. Utils.DefaultAddons];
     public BasePositionHorizontal PosHorizontal = BasePositionHorizontal.Middle;
     public BasePositionVertical PosVertical = BasePositionVertical.Middle;
+    public bool ShowAethernetBOM = true;
+    public bool ShowCosmicBOM = true;
+    public bool ShowWorldVisitBOM = true;
     public bool ShowAethernet = true;
     public bool ShowWorldVisit = true;
+    public bool ShowWorldVisitCurrentDc = true;
     public bool ShowMiniAetheryteOverlay = true;
     public HashSet<uint> Favorites = [];
     public HashSet<uint> Hidden = [];
@@ -42,6 +50,7 @@ public class Config : IEzConfig
     public bool SlowTeleport = false;
     public int SlowTeleportThrottle = 0;
     public bool WaitForScreenReady = true;
+    public bool ShowWardsBOM = true;
     public bool ShowWards = true;
     internal bool ShowPlots = false;
     public List<AddressBookFolder> AddressBookFolders = [];
@@ -51,6 +60,7 @@ public class Config : IEzConfig
     public List<MultiPath> MultiPathes = [];
     public string GameVersion = "";
     public Dictionary<uint, int> PublicInstances = [];
+    public bool ShowInstanceSwitcherBOM = true;
     public bool ShowInstanceSwitcher = true;
     public bool InstanceSwitcherRepeat = true;
     public int InstanceButtonHeight = 10;
@@ -99,4 +109,42 @@ public class Config : IEzConfig
     public bool AutoCompletionWindowRight = false;
     public Vector2 AutoCompletionWindowOffset = Vector2.Zero;
     public bool AutoDismount = true;
+    public BadgeBarStyle BadgeBarStyle = new BadgeBarStyle
+    {
+        Dock = BadgeDock.Left,
+        Sizing = BadgeSizing.Uniform,
+        Anchor = BadgeAnchor.Center,
+        ScreenMargin = 0f,
+        TextRotation = VerticalTextRotation.Degrees270,
+        Spacing = 15f,
+        PaddingStart = 40f,
+        PaddingEnd = 40f,
+        UniformLength = 200f,
+        Rounding = 0f,
+    };
+    public OverlayOptions OverlayOptions = new OverlayOptions
+    {
+        HoverOutDelay = 2f,
+        PopoutGap = 2f,
+        DefaultSelectableTrigger = TriggerMode.Hover,
+        AlwaysOnTop = false,
+        PopoutRounding = 0f,
+    };
+    public float BadgeFontSize = 2f;
+    public float PopoutFontSize = 1.5f;
+    public TriggerMode BadgeTriggerMode = TriggerMode.Hover;
+    public bool AethernetPinned = false;
+    public bool InstancePinned = false;
+    public bool CosmicPinned = false;
+    public bool WorldPinned = false;
+    public bool WardPinned = false;
+    public OtherDCShowMode OtherDCShowMode = OtherDCShowMode.Show;
+    public float OverlayMinWidth = 300f;
+}
+
+public enum OtherDCShowMode
+{
+    Show,
+    Shown_on_Shift,
+    Hide,
 }

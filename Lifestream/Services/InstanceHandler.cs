@@ -30,7 +30,7 @@ public unsafe class InstanceHandler : IDisposable
 
     public bool CanChangeInstance()
     {
-        return C.ShowInstanceSwitcher && !Utils.IsDisallowedToUseAethernet() && !P.TaskManager.IsBusy && !IsOccupied() && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() != null;
+        return C.ShowInstanceSwitcherBOM && !Utils.IsDisallowedToUseAethernet() && !P.TaskManager.IsBusy && !IsOccupied() && S.InstanceHandler.GetInstance() != 0 && TaskChangeInstance.GetAetheryte() != null;
     }
 
     private void OnPostUpdate(AddonEvent type, AddonArgs args)

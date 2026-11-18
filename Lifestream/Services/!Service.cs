@@ -14,35 +14,36 @@ public static class Service
     [Priority(-1)]
     public static class Data
     {
-        public static DataStore DataStore;
-        public static ResidentialAethernet ResidentialAethernet;
-        public static CustomAethernet CustomAethernet;
+        public static DataStore DataStore { get; set; }
+        public static ResidentialAethernet ResidentialAethernet { get; private set; }
+        public static CustomAethernet CustomAethernet { get; private set; }
     }
 
     public static class Gui
     {
-        public static SelectWorldWindow SelectWorldWindow;
-        public static Overlay Overlay;
-        public static ProgressOverlay ProgressOverlay;
+        public static SelectWorldWindow SelectWorldWindow { get; private set; }
+        public static Overlay Overlay { get; private set; }
+        public static ProgressOverlay ProgressOverlay { get; private set; }
+        public static BadgeOverlayManager BadgeOverlayManager { get; set; }
     }
 
     public static class Ipc
     {
-        public static IPCProvider IPCProvider;
-        public static TextAdvanceIPC TextAdvanceIPC;
-        public static VnavmeshIPC VnavmeshIPC;
-        public static WotsitManager WotsitManager;
-        public static SplatoonManager SplatoonManager;
+        public static IPCProvider IPCProvider { get; private set; }
+        public static TextAdvanceIPC TextAdvanceIPC { get; private set; }
+        public static VnavmeshIPC VnavmeshIPC { get; private set; }
+        public static WotsitManager WotsitManager { get; private set; }
+        public static SplatoonManager SplatoonManager { get; private set; }
     }
 
-    public static Memory Memory;
-    public static TeleportService TeleportService;
-    public static InstanceHandler InstanceHandler;
-    public static ContextMenuManager ContextMenuManager;
-    public static AddressBookFileSystemManager AddressBookFileSystemManager;
-    public static CustomAliasFileSystemManager CustomAliasFileSystemManager;
-    public static HttpClientProvider HttpClientProvider;
-    public static DtrManager DtrManager;
-    public static MapHanderService MapHanderService;
-    public static SearchHelperOverlay SearchHelperOverlay;
+    public static Memory Memory { get; private set; }
+    public static TeleportService TeleportService { get; private set; }
+    public static InstanceHandler InstanceHandler { get; private set; }
+    public static ContextMenuManager ContextMenuManager { get; private set; }
+    public static AddressBookFileSystemManager AddressBookFileSystemManager { get; private set; }
+    public static CustomAliasFileSystemManager CustomAliasFileSystemManager { get; private set; }
+    public static HttpClientProvider HttpClientProvider { get; private set; }
+    public static DtrManager DtrManager { get; private set; }
+    public static MapHanderService MapHanderService { get; private set; }
+    public static SearchHelperOverlay SearchHelperOverlay { get; private set; }
 }

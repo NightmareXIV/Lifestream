@@ -20,7 +20,7 @@ public unsafe class OverrideCamera : IDisposable
         }
     }
 
-    public bool IgnoreUserInput; // if true - override even if user tries to change camera orientation, otherwise override only if user does nothing
+    public bool IgnoreUserInput => Enabled && (OverrideMovement.LegacyMode || Utils.IsCameraFirstPerson());
     public Angle DesiredAzimuth;
     public Angle DesiredAltitude;
     public Angle SpeedH = 360.Degrees(); // per second

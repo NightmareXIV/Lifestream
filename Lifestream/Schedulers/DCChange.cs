@@ -179,13 +179,18 @@ internal static unsafe class DCChange
 
     internal static bool? SelectVisitAnotherDC()
     {
+        if(TryGetAddonByName<AtkUnitBase>("LobbyDKTCheck", out var addon) && addon->IsReady())
+        {
+            return true;
+        }
         if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
             if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1150).Text.GetText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectVisitAnotherDC"))
             {
                 PluginLog.Debug($"[DCChange] Selecting visit another data center");
                 entry.Select();
-                return true;
+                EzThrottler.Throttle("SelectVisitAnotherDC", 2000, true);
+                return false;
             }
         }
         else
@@ -197,13 +202,18 @@ internal static unsafe class DCChange
 
     internal static bool? SelectReturnToHomeWorld()
     {
+        if(TryGetAddonByName<AtkUnitBase>("LobbyDKTWorldList", out var addon) && addon->IsReady())
+        {
+            return true;
+        }
         if(TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
         {
             if(m.Entries.TryGetFirst(x => x.Enabled && x.Text == Svc.Data.GetExcelSheet<Lobby>().GetRow(1117).Text.GetText(), out var entry) && DCThrottle && EzThrottler.Throttle("SelectReturnToHomeWorld"))
             {
                 PluginLog.Debug($"[DCChange] Selecting return to home world");
                 entry.Select();
-                return true;
+                EzThrottler.Throttle("SelectReturnToHomeWorld", 2000);
+                return false;
             }
         }
         else
@@ -403,7 +413,7 @@ internal static unsafe class DCChange
             if(TryGetAddonByName<AddonSelectOk>("SelectOk", out var addon) && addon->AtkUnitBase.IsReady())
             {
                 //failed
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"DCChange: ConfirmDcVisit2", () =>
                 {
                     P.TaskManager.EnqueueDelay(30.Seconds());
                     P.TaskManager.Enqueue(() =>

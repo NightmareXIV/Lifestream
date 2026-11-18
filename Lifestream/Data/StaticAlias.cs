@@ -1,4 +1,6 @@
 ﻿using ECommons.Configuration;
+using ECommons.ExcelServices.Sheets;
+using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 
 namespace Lifestream.Data;
@@ -49,15 +51,28 @@ public static class StaticAlias
         {"ExportedName":"Cosmic","Alias":"cosmic","Enabled":false,"Commands":[{"Kind":0,"Aetheryte":175,"SkipTeleport":35.0},{"Kind":6,"DataID":175,"InteractDistance":10.0},{"Kind":9,"SelectOption":["<QuestDialogueText:transport/AetheryteBestwaysBurrow:4:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:3:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:2:Value>","<QuestDialogueText:transport/AetheryteBestwaysBurrow:1:Value>"],"StopOnScreenFade":true}]}
         """);
 
-    public static readonly CustomAlias OccultCrescent = EzConfig.DefaultSerializationFactory.Deserialize<CustomAlias>("""
+    public static readonly CustomAlias NorthOccultCrescent = EzConfig.DefaultSerializationFactory.Deserialize<CustomAlias>("""
         {"ExportedName":"Occult Crescent","Alias":"OC","Enabled":false,"Commands":[{"Kind":0,"Aetheryte":216,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":4,"Aetheryte":239,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":-36.835308,"Y":0.0,"Z":-12.507464},"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":-74.80987,"Y":5.0,"Z":-15.057071},"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":6,"DataID":1053611,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":9,"SelectOption":["<QuestDialogueText:custom/009/CtsMkdEntrance_00929:1:Value>","「蜃気楼の島 クレセントアイル：南征編」に突入する"],"StopOnScreenFade":true,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":true},{"Kind":9,"SelectOption":["<QuestDialogueText:custom/009/CtsMkdEntrance_00929:9:Value>"],"StopOnScreenFade":true,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":10,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false}]}
         """);
 
+    public static CustomAlias SouthOccultCrescent => EzConfig.DefaultSerializationFactory.Deserialize<CustomAlias>($$"""
+        {"ExportedName":"South Occult Crescent","Alias":"OC","Enabled":false,"Commands":[{"Kind":0,"Aetheryte":216,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":4,"Aetheryte":239,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":-36.835308,"Y":0.0,"Z":-12.507464},"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":-74.80987,"Y":5.0,"Z":-15.057071},"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":6,"DataID":1053611,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":9,"SelectOption":["{{Svc.Data.GetExcelSheet<PlaceName>().GetRow(4932).Name.GetText()}}"],"StopOnScreenFade":true,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":true},{"Kind":9,"SelectOption":["<QuestDialogueText:custom/009/CtsMkdEntrance_00929:9:Value>"],"StopOnScreenFade":true,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":10,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false}]}
+        """);
+
     public static readonly CustomAlias UldahMarketboard = JsonConvert.DeserializeObject<CustomAlias>("""
-        {"ExportedName":"mbShortcut","Commands":[{"Kind":0,"Aetheryte":9},{"Kind":4,"Aetheryte":125},{"Kind":1,"Point":{"X":138.15443,"Y":4.0,"Z":-31.829441},"Scatter":0.7},{"Kind":1,"Point":{"X":145.9551,"Y":4.0,"Z":-32.124325},"Scatter":0.5},{"Kind":6,"DataID":2000442}]}
+        {"ExportedName":"mbShortcut","Alias":"mb","Commands":[{"Kind":0,"Aetheryte":9},{"Kind":4,"Aetheryte":125},{"Kind":1,"Point":{"X":138.15443,"Y":4.0,"Z":-31.829441},"Scatter":0.7},{"Kind":1,"Point":{"X":145.9551,"Y":4.0,"Z":-32.124325},"Scatter":0.5},{"Kind":6,"DataID":2000442}]}
         """);
 
     public static readonly CustomAlias Firmament = JsonConvert.DeserializeObject<CustomAlias>("""
         {"ExportedName":"Firmament","Commands":[{"Kind":0,"Aetheryte":70},{"Kind":4,"Aetheryte":4294967295}]}
+        """);
+
+    public static readonly CustomAlias Crucible = JsonConvert.DeserializeObject<CustomAlias>("""
+        {"ExportedName":"Crucible","Alias":"crucible","Commands":[{"Kind":0,"Aetheryte":3,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":5,"CenterPoint":{"X":12.363613,"Y":35.668404},"CircularExitPoint":{"X":21.203665,"Y":-1.2309438,"Z":26.2076},"Territory":148,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":28.507042,"Y":-2.2273862,"Z":25.204712},"Scatter":0.649,"Territory":148,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":36.729404,"Y":-6.0002155,"Z":43.693672},"Scatter":1.081,"Territory":148,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":32.241028,"Y":-6.002469,"Z":61.878365},"Scatter":1.243,"Territory":148,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":1,"Point":{"X":26.222603,"Y":-6.0001,"Z":65.29494},"ExtraPoints":[{"X":25.096998,"Y":-6.001212,"Z":65.10288},{"X":24.277626,"Y":-6.00278,"Z":65.98504},{"X":24.131222,"Y":-6.0036325,"Z":67.52504}],"Scatter":0.703,"Territory":148,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false}]}
+        """);
+
+    public static readonly CustomAlias KeyboardBrawler = JsonConvert.DeserializeObject<CustomAlias>("""
+        {"ExportedName":"keyboard brawler","Alias":"keyboard","Commands":[{"Kind":0,"Aetheryte":62,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":2,"Point":{"X":-7.912934,"Y":0.0,"Z":10.516216},"Territory":144,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":6,"DataID":1058759,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":8,"SelectOption":["Proceed to Keybound Square"],"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false},{"Kind":2,"Point":{"X":-9.868975,"Y":0.058329105,"Z":-28.613531},"Territory":1360,"Timeout":5000,"RequireUiOpen":false,"ExcelOnlyFirst":false}]}
+        
         """);
 }

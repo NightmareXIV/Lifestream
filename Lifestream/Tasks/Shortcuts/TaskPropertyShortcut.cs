@@ -151,16 +151,18 @@ public static unsafe class TaskPropertyShortcut
 
     private static void ExecuteTpAndPathfind(uint id, HousePathData data, HouseEnterMode? mode = null) => ExecuteTpAndPathfind(id, 0, data, mode);
 
-    private static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null)
+    public static void ExecuteTpAndPathfind(uint id, uint subIndex, HousePathData data, HouseEnterMode? mode = null, bool teleport = true)
     {
         mode ??= data?.GetHouseEnterMode() ?? HouseEnterMode.None;
         PluginLog.Information($"id={id}, data={data}, mode={mode}, cnt={data?.PathToEntrance.Count}");
-        P.TaskManager.BeginStack();
-        try
+        P.TaskManager.InsertStack($"{nameof(TaskPropertyShortcut)}: {nameof(ExecuteTpAndPathfind)}", () =>
         {
-            P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id, subIndex), $"ExecuteTPToAethernetDestination{id}, {subIndex}");
-            P.TaskManager.Enqueue(() => !IsScreenReady(), "IsScreenNotReady");
-            P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "IsScreenReady and Interactable", new(timeLimitMS: 15.Minutes()));
+            if(teleport)
+            {
+                P.TaskManager.Enqueue(() => WorldChange.ExecuteTPToAethernetDestination(id, subIndex), $"ExecuteTPToAethernetDestination{id}, {subIndex}");
+                P.TaskManager.Enqueue(() => !IsScreenReady(), "IsScreenNotReady");
+                P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "IsScreenReady and Interactable", new(timeLimitMS: 15.Minutes()));
+            }
             if(data != null && data.PathToEntrance.Count != 0 && mode.EqualsAny(HouseEnterMode.Walk_to_door, HouseEnterMode.Enter_house, HouseEnterMode.Enter_workshop))
             {
                 P.TaskManager.Enqueue(() =>
@@ -205,7 +207,7 @@ public static unsafe class TaskPropertyShortcut
                         P.TaskManager.Enqueue(() => IsScreenReady() && Player.Interactable, "IsScreenReady and Interactable");
                         P.TaskManager.Enqueue(() =>
                         {
-                            P.TaskManager.InsertStack(() =>
+                            P.TaskManager.InsertStack($"{nameof(TaskPropertyShortcut)}: {nameof(ExecuteTpAndPathfind)} - workshop", () =>
                             {
                                 if(Svc.Objects.Any(x => x.Name.ToString().EqualsIgnoreCaseAny(Lang.AdditionalChambersEntrance)))
                                 {
@@ -231,18 +233,12 @@ public static unsafe class TaskPropertyShortcut
                     }
                 }
             }
-        }
-        catch(Exception e)
-        {
-            e.Log();
-        }
-        P.TaskManager.InsertStack();
+        });
     }
 
     public static void EnqueueGoToInn(int? innIndex)
     {
-        P.TaskManager.BeginStack();
-        try
+        P.TaskManager.EnqueueStack($"{nameof(TaskPropertyShortcut)}: {nameof(EnqueueGoToInn)}", () =>
         {
             P.TaskManager.Enqueue(() =>
             {
@@ -273,7 +269,7 @@ public static unsafe class TaskPropertyShortcut
             {
                 var aethernetDest = Svc.Data.GetExcelSheet<Aetheryte>().GetRow(data.Aethernet).AethernetName.Value.Name.GetText();
                 PluginLog.Debug($"Inn aethernet destination: {aethernetDest} at {aetheryte.AethernetName.Value.Name}");
-                P.TaskManager.InsertStack(() =>
+                P.TaskManager.InsertStack($"{nameof(TaskPropertyShortcut)}: {nameof(EnqueueGoToInn)}", () =>
                 {
                     TaskTryTpToAethernetDestination.Enqueue(aethernetDest);
                 });
@@ -332,14 +328,7 @@ public static unsafe class TaskPropertyShortcut
                 }
                 return false;
             }, "Skip talk");
-
-            P.TaskManager.EnqueueStack();
-        }
-        catch(Exception ex)
-        {
-            ex.Log();
-            P.TaskManager.DiscardStack();
-        }
+        });
     }
 
     private static void EnqueueGoToMyApartment(bool? enterApartment)
@@ -347,8 +336,7 @@ public static unsafe class TaskPropertyShortcut
         enterApartment ??= C.EnterMyApartment;
         var a = GetApartmentAetheryteID();
         var nextToMyApt = AgentHUD.Instance()->MapMarkers.Any(x => x.IconId.EqualsAny(60790u, 60792u) && Vector3.Distance(Player.Position, x.Position) < 50f) && Svc.Objects.Any(x => x.DataId == 2007402 && Vector3.Distance(x.Position, Player.Position) < 20f);
-        P.TaskManager.BeginStack();
-        try
+        P.TaskManager.InsertStack($"{nameof(TaskPropertyShortcut)}: {nameof(EnqueueGoToMyApartment)}", () =>
         {
             if(!nextToMyApt)
             {
@@ -359,12 +347,7 @@ public static unsafe class TaskPropertyShortcut
                 TaskApproachAndInteractWithApartmentEntrance.Enqueue(!nextToMyApt);
                 P.TaskManager.Enqueue(TaskApproachAndInteractWithApartmentEntrance.GoToMyApartment, "Go to my apartment");
             }
-        }
-        catch(Exception e)
-        {
-            e.Log();
-        }
-        P.TaskManager.InsertStack();
+        });
     }
 
     public static (uint ID, uint Sub) GetSharedHouseAetheryteId(out IAetheryteEntry entry)
